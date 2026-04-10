@@ -1,51 +1,36 @@
 'use client'
-import { use, useState, useEffect } from 'react'
+import { use, useState, useEffect, useRef } from 'react'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
-import { getCity, STAGES } from '@/lib/data/cities'
+import { getCity } from '@/lib/data/cities'
 import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { Post, PostCategory, Stage } from '@/lib/types'
-import type { FeedItem, FeedCategory } from '@/app/api/feeds/route'
+import type { FeedItem } from '@/app/api/feeds/route'
 
-const SEED_POSTS: Post[] = [
-  { id: 's1', cityId: 'brussels', stage: 'just_arrived', category: 'recommendation',
-    text: 'Partenamut in Ixelles has an English-speaking advisor on Tuesday afternoons. Ask specifically for the international desk — makes the mutuelle process so much easier.',
-    time: '2 days ago', authorStage: 'just_arrived' },
-  { id: 's2', cityId: 'brussels', stage: 'settling', category: 'heads-up',
-    text: 'Molenbeek and Anderlecht registration offices have longer waits than Etterbeek right now. Worth calling ahead before booking your appointment.',
-    time: '1 day ago', authorStage: 'settling' },
-  { id: 's3', cityId: 'brussels', stage: 'just_arrived', category: 'question',
-    text: 'Does anyone know which commune is fastest right now for registration? Heard Etterbeek and Woluwe-Saint-Lambert have shorter waits than Ixelles.',
-    time: '1 day ago', authorStage: 'just_arrived' },
-  { id: 's4', cityId: 'lisbon', stage: 'just_arrived', category: 'recommendation',
-    text: 'Go to the Finanças office in Areeiro for your NIF — shorter queues than downtown. Bring your passport, a utility bill, and arrive before 9am.',
-    time: '3 days ago', authorStage: 'just_arrived' },
-  { id: 's5', cityId: 'lisbon', stage: 'settling', category: 'question',
-    text: 'Has anyone applied for NHR recently? I\'ve seen conflicting info on whether the new IFICI regime affects remote workers or just highly qualified professions.',
-    time: '2 days ago', authorStage: 'settling' },
-  { id: 's6', cityId: 'lisbon', stage: 'settled', category: 'recommendation',
-    text: 'For house-hunting in Lisbon: Idealista is best but set alerts and visit within hours. Good apartments in Príncipe Real and Mouraria go the same day.',
-    time: '1 week ago', authorStage: 'settled' },
-]
+/* ── Static data ─────────────────────────────────────────────────────────── */
 
 interface Resource { id: string; cityId: string; name: string; type: 'facebook' | 'reddit'; desc: string }
 
 const RESOURCES: Resource[] = [
-  { id: 'r1', cityId: 'brussels', name: 'Brussels Expats', type: 'facebook', desc: 'The main community hub — housing, admin, jobs, social.' },
-  { id: 'r2', cityId: 'brussels', name: 'English Speaking Brussels', type: 'facebook', desc: 'Jobs, housing, lifestyle, events — very active.' },
-  { id: 'r3', cityId: 'brussels', name: 'r/brussels', type: 'reddit', desc: 'Local news, tips, restaurant recommendations, events.' },
-  { id: 'r4', cityId: 'brussels', name: 'Moving to Brussels', type: 'facebook', desc: 'Practical info specifically for new arrivals.' },
-  { id: 'r5', cityId: 'brussels', name: 'Brussels Housing & Rentals', type: 'facebook', desc: 'Apartment listings and flatmate search.' },
-  { id: 'r6', cityId: 'brussels', name: 'EU Bubble', type: 'reddit', desc: 'EU institutions, expat life, career in Brussels.' },
-  { id: 'r7', cityId: 'lisbon', name: 'Lisbon Expat Community', type: 'facebook', desc: 'The main hub — visas, housing, events, advice.' },
-  { id: 'r8', cityId: 'lisbon', name: 'r/portugal', type: 'reddit', desc: 'National subreddit — good for news and general expat discussion.' },
-  { id: 'r9', cityId: 'lisbon', name: 'r/pliving', type: 'reddit', desc: 'Portugal living — visas, NHR, housing, daily life.' },
-  { id: 'r10', cityId: 'lisbon', name: 'Lisbon Digital Nomads', type: 'facebook', desc: 'Remote workers in Lisbon — coworking, events, admin tips.' },
-  { id: 'r11', cityId: 'lisbon', name: 'Lisbon Housing & Renting', type: 'facebook', desc: 'Apartments, rooms, flatmate search in Lisbon.' },
-  { id: 'r12', cityId: 'lisbon', name: 'NHR Portugal Community', type: 'facebook', desc: 'Tax regime questions, official updates, accountant recommendations.' },
+  { id: 'r1', cityId: 'brussels', name: 'Brussels Expats',          type: 'facebook', desc: 'Housing, admin, jobs, social.' },
+  { id: 'r2', cityId: 'brussels', name: 'English Speaking Brussels', type: 'facebook', desc: 'Jobs, lifestyle, events — very active.' },
+  { id: 'r3', cityId: 'brussels', name: 'r/brussels',               type: 'reddit',   desc: 'Local news, tips, recommendations.' },
+  { id: 'r4', cityId: 'brussels', name: 'Moving to Brussels',       type: 'facebook', desc: 'Practical info for new arrivals.' },
+  { id: 'r5', cityId: 'brussels', name: 'EU Bubble',                type: 'reddit',   desc: 'EU institutions and expat life.' },
+  { id: 'r6', cityId: 'lisbon',   name: 'Lisbon Expat Community',   type: 'facebook', desc: 'Visas, housing, events, advice.' },
+  { id: 'r7', cityId: 'lisbon',   name: 'r/portugal',               type: 'reddit',   desc: 'National subreddit — news and discussion.' },
+  { id: 'r8', cityId: 'lisbon',   name: 'r/pliving',                type: 'reddit',   desc: 'Portugal living — visas, NHR, housing.' },
 ]
+
+const PROMPTS = [
+  'Share a tip that took you time to figure out…',
+  'Ask something you\'re still trying to work out…',
+  'Warn others about something you wish you\'d known…',
+]
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
 
 function formatRelative(dateStr: string): string {
   const d = new Date(dateStr), diff = Date.now() - d.getTime(), mins = Math.floor(diff / 60000)
@@ -53,65 +38,56 @@ function formatRelative(dateStr: string): string {
   if (mins < 60) return `${mins}m ago`
   const hrs = Math.floor(mins / 60)
   if (hrs < 24)  return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  if (days < 7)  return `${days}d ago`
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-function timeAgo(unixSec: number): string {
-  const diff = Math.floor(Date.now() / 1000) - unixSec
-  if (diff < 3600)  return `${Math.floor(diff / 60)}m`
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`
-  return `${Math.floor(diff / 86400)}d`
-}
-
-const CAT_COLORS: Record<PostCategory, string> = {
-  recommendation: '#10B981',
-  question:       '#38C0F0',
-  'heads-up':     '#FAB400',
+const CAT_META: Record<PostCategory, { color: string; label: string }> = {
+  recommendation: { color: '#10B981', label: 'Tip' },
+  question:       { color: '#38C0F0', label: 'Question' },
+  'heads-up':     { color: '#FAB400', label: 'Heads-up' },
 }
 
 const STAGE_LABELS: Record<Stage, string> = {
-  planning: 'Planning', just_arrived: 'Just arrived', settling: 'Getting settled', settled: 'Settled',
+  planning: 'Planning', just_arrived: 'Just arrived',
+  settling: 'Getting settled', settled: 'Settled',
 }
 
-const SOURCE_STYLE: Record<string, { bg: string; color: string }> = {
-  reddit:       { bg: 'rgba(255,69,0,0.1)',    color: '#FF4500' },
-  bulletin:     { bg: 'rgba(71,68,200,0.1)',   color: '#4744C8' },
-  expatica:     { bg: 'rgba(16,185,129,0.1)',  color: '#10B981' },
-  btimes:       { bg: 'rgba(37,36,80,0.1)',    color: '#252450' },
-  politico:     { bg: 'rgba(239,51,64,0.1)',   color: '#EF3340' },
-  eventbrite:   { bg: 'rgba(250,110,40,0.1)',  color: '#F05537' },
-  euobserver:   { bg: 'rgba(37,36,80,0.1)',    color: '#252450' },
-  euronews:     { bg: 'rgba(250,180,0,0.12)',  color: '#C8900A' },
-  meetup:       { bg: 'rgba(237,26,59,0.1)',   color: '#ED1A3B' },
-  ticketmaster: { bg: 'rgba(0,115,230,0.1)',   color: '#0073E6' },
+const SOURCE_STYLE: Record<string, { color: string; label: string }> = {
+  reddit:       { color: '#FF4500', label: 'Reddit' },
+  bulletin:     { color: '#4744C8', label: 'Bulletin' },
+  politico:     { color: '#EF3340', label: 'Politico' },
+  euobserver:   { color: '#252450', label: 'EUobserver' },
+  euronews:     { color: '#C8900A', label: 'Euronews' },
+  ticketmaster: { color: '#0073E6', label: 'Ticketmaster' },
 }
 
-type Tab = 'feed' | 'whats-on' | 'resources'
+/* ── Stream item types ───────────────────────────────────────────────────── */
+
+type StreamItem =
+  | { kind: 'post';  data: Post;     ts: number }
+  | { kind: 'feed';  data: FeedItem; ts: number }
+
+/* ── Page ────────────────────────────────────────────────────────────────── */
 
 export default function ConnectPage({ params }: { params: Promise<{ city: string }> }) {
   const { city: cityId } = use(params)
-  const city    = getCity(cityId)
+  const city        = getCity(cityId)
   const { profile } = useProfile()
   const { user }    = useAuth()
+  const composerRef = useRef<HTMLTextAreaElement>(null)
 
-  const [activeTab,    setActiveTab]    = useState<Tab>('feed')
-  const [stageFilter,  setStageFilter]  = useState<Stage | 'all'>('all')
-  const [catFilter,    setCatFilter]    = useState<PostCategory | 'all'>('all')
-  const [posts,        setPosts]        = useState<Post[]>([])
-  const [newPost,      setNewPost]      = useState({ category: 'recommendation' as PostCategory, text: '' })
-  const [submitted,    setSubmitted]    = useState(false)
-  const [authOpen,     setAuthOpen]     = useState(false)
-  const [feedItems,    setFeedItems]    = useState<FeedItem[]>([])
-  const [feedCounts,   setFeedCounts]   = useState<Record<string, number>>({})
-  const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-  const [feedCat,      setFeedCat]      = useState<FeedCategory | 'all'>('all')
+  const [posts,       setPosts]       = useState<Post[]>([])
+  const [newPost,     setNewPost]     = useState({ category: 'recommendation' as PostCategory, text: '' })
+  const [submitted,   setSubmitted]   = useState(false)
+  const [authOpen,    setAuthOpen]    = useState(false)
+  const [feedItems,   setFeedItems]   = useState<FeedItem[]>([])
+  const [feedState,   setFeedState]   = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [streamFilter, setStreamFilter] = useState<'all' | 'community' | 'news' | 'events'>('all')
 
   useEffect(() => {
-    if (!city) return
-    if (!supabase) { setPosts(SEED_POSTS.filter(p => p.cityId === cityId)); return }
-    supabase.from('posts').select('*').eq('city_id', cityId).order('created_at', { ascending: false }).limit(50)
+    if (!city || !supabase) return
+    supabase.from('posts').select('*').eq('city_id', cityId)
+      .order('created_at', { ascending: false }).limit(50)
       .then(({ data }) => {
         if (data && data.length > 0) {
           setPosts(data.map(p => ({
@@ -119,41 +95,51 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             category: p.category as PostCategory, text: p.text,
             time: formatRelative(p.created_at), authorStage: p.author_stage ?? undefined,
           })))
-        } else {
-          setPosts(SEED_POSTS.filter(p => p.cityId === cityId))
         }
       })
   }, [cityId, city])
 
   useEffect(() => {
-    if (activeTab !== 'whats-on' || feedState !== 'idle') return
+    if (feedState !== 'idle') return
     setFeedState('loading')
     fetch(`/api/feeds?city=${cityId}`)
       .then(r => r.json())
-      .then(data => { setFeedItems(data.items ?? []); setFeedCounts(data.counts ?? {}); setFeedState('done') })
+      .then(data => { setFeedItems(data.items ?? []); setFeedState('done') })
       .catch(() => setFeedState('error'))
-  }, [activeTab, cityId, feedState])
+  }, [cityId, feedState])
 
   if (!city) return null
 
-  const filtered = posts.filter(p => {
-    if (stageFilter !== 'all' && p.stage !== stageFilter) return false
-    if (catFilter   !== 'all' && p.category !== catFilter) return false
-    return true
-  })
-
   const resources = RESOURCES.filter(r => r.cityId === cityId)
+  const events    = feedItems.filter(i => i.category === 'events').slice(0, 8)
+
+  // Build unified stream — posts + non-event feed items interleaved by time
+  const postStream: StreamItem[] = posts.map(p => ({ kind: 'post', data: p, ts: Date.now() / 1000 }))
+  const feedStream: StreamItem[] = feedItems
+    .filter(i => i.category !== 'events')
+    .map(i => ({ kind: 'feed', data: i, ts: i.published }))
+
+  const stream: StreamItem[] = [...postStream, ...feedStream]
+    .sort((a, b) => b.ts - a.ts)
+    .filter(item => {
+      if (streamFilter === 'all') return true
+      if (streamFilter === 'community') return item.kind === 'post' || (item.kind === 'feed' && item.data.category === 'community')
+      if (streamFilter === 'news') return item.kind === 'feed' && item.data.category === 'news'
+      if (streamFilter === 'events') return false // events shown in strip above
+      return true
+    })
 
   const submit = async () => {
     if (!newPost.text.trim()) return
     if (!user) { setAuthOpen(true); return }
     const optimistic: Post = {
-      id: `u${Date.now()}`, cityId: city.id, stage: profile.stage as Stage | undefined,
-      category: newPost.category, text: newPost.text.trim(), time: 'just now',
-      authorStage: profile.stage as Stage | undefined,
+      id: `u${Date.now()}`, cityId: city.id,
+      stage: profile.stage as Stage | undefined,
+      category: newPost.category, text: newPost.text.trim(),
+      time: 'just now', authorStage: profile.stage as Stage | undefined,
     }
     setPosts(prev => [optimistic, ...prev])
-    setNewPost({ category: 'recommendation', text: '' })
+    setNewPost(p => ({ ...p, text: '' }))
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)
     if (supabase) {
@@ -166,385 +152,377 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 md:px-10 py-14 md:py-20">
+    <div style={{ background: '#F8F7F4', minHeight: '100vh' }}>
 
-      {/* ── Page header ──────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-6 mb-10">
-        <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-stone mb-4 font-medium">Connect · {city.name}</p>
-          <h1 className="font-display font-bold text-espresso leading-tight" style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)' }}>
-            {city.name}<br />community.
-          </h1>
+      {/* ── Cream header ─────────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden px-6 md:px-12 pt-10 pb-12" style={{ background: '#F5ECD7' }}>
+        <div className="absolute rounded-full pointer-events-none opacity-60"
+          style={{ background: '#4744C8', width: 220, height: 220, top: -100, right: -60 }} />
+        <div className="absolute rounded-full pointer-events-none opacity-50"
+          style={{ background: '#FF3EBA', width: 80, height: 80, bottom: -30, right: '28%' }} />
+
+        <div className="max-w-5xl mx-auto relative">
+          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-5"
+            style={{ color: 'rgba(37,36,80,0.3)' }}>
+            Connect · {city.name}
+          </p>
+          <div className="flex items-end gap-6">
+            <h1 className="font-display font-black leading-[0.82]"
+              style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', color: '#252450' }}>
+              Community.
+            </h1>
+            {feedState === 'done' && events.length > 0 && (
+              <p className="pb-2 text-sm font-medium" style={{ color: 'rgba(37,36,80,0.4)' }}>
+                {events.length} events this week
+              </p>
+            )}
+          </div>
         </div>
-        {/* Live stats — only when feed loaded */}
-        {feedState === 'done' && (
-          <div className="shrink-0 hidden sm:flex flex-col gap-2 pt-1 items-end">
-            {(feedCounts.events ?? 0) > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-sand/50">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#10B981' }} />
-                <span className="text-xs font-semibold text-espresso">{feedCounts.events} events</span>
-              </div>
-            )}
-            {(feedCounts.community ?? 0) > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-sand/50">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FF3EBA' }} />
-                <span className="text-xs font-semibold text-espresso">{feedCounts.community} posts</span>
-              </div>
-            )}
-            {(feedCounts.news ?? 0) > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-sand/50">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4744C8' }} />
-                <span className="text-xs font-semibold text-espresso">{feedCounts.news} news</span>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* ── Tab bar ──────────────────────────────────────────────────── */}
-      <div className="flex gap-0 mb-10 border-b border-sand/50">
-        {([
-          { id: 'feed',      label: 'Feed' },
-          { id: 'whats-on',  label: "What's On" },
-          { id: 'resources', label: 'Communities' },
-        ] as const).map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn('px-5 py-3 text-sm font-medium transition-all border-b-2 -mb-px')}
-            style={activeTab === tab.id
-              ? { borderBottomColor: '#FF3EBA', color: '#FF3EBA' }
-              : { borderBottomColor: 'transparent', color: 'rgba(74,63,50,0.5)' }
-            }
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Feed ─────────────────────────────────────────────────────── */}
-      {activeTab === 'feed' && (
-        <div>
-          {/* Composer */}
-          <div className="bg-white rounded-2xl border border-sand/50 p-5 mb-8 shadow-sm">
-            <div className="flex gap-2 mb-4">
-              {(['recommendation', 'question', 'heads-up'] as PostCategory[]).map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setNewPost(p => ({ ...p, category: cat }))}
-                  className={cn(
-                    'px-3 py-1.5 text-xs font-semibold capitalize transition-all rounded-lg',
-                    newPost.category === cat ? 'text-white' : 'bg-ivory border border-sand/60 text-walnut/60 hover:border-walnut/30 hover:text-espresso'
-                  )}
-                  style={newPost.category === cat ? { background: CAT_COLORS[cat] } : {}}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-            <textarea
-              value={newPost.text}
-              onChange={e => setNewPost(p => ({ ...p, text: e.target.value.slice(0, 280) }))}
-              placeholder="A tip, a question, or something others should know…"
-              rows={3}
-              className="w-full px-4 py-3 border border-sand/50 rounded-xl text-sm text-espresso placeholder:text-stone/50 focus:outline-none focus:border-terracotta/30 resize-none transition-colors bg-cream"
-            />
-            <div className="flex items-center justify-between mt-3">
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-stone">{newPost.text.length}/280</span>
-                {profile.stage && <span className="text-xs text-stone">As: {STAGE_LABELS[profile.stage as Stage]}</span>}
-                {!user && (
-                  <button onClick={() => setAuthOpen(true)} className="text-xs font-semibold hover:opacity-80 transition-opacity" style={{ color: '#3D3CAC' }}>
-                    Sign in to post
-                  </button>
-                )}
-              </div>
-              <button
-                onClick={submit}
-                disabled={!newPost.text.trim()}
-                className="px-5 py-2 text-xs font-semibold transition-opacity disabled:opacity-30 text-white rounded-lg"
-                style={{ background: '#3D3CAC' }}
-              >
-                {submitted ? 'Posted ✓' : 'Post'}
-              </button>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {(['all', ...STAGES.map(s => s.id)] as const).map(id => (
-              <button
-                key={id}
-                onClick={() => setStageFilter(id as Stage | 'all')}
-                className="px-3 py-1.5 text-xs font-medium transition-all rounded-lg"
-                style={stageFilter === id
-                  ? { background: '#FAB400', color: '#0D0C0A' }
-                  : { background: 'white', border: '1px solid rgba(216,202,187,0.7)', color: 'rgba(74,63,50,0.6)' }
-                }
-              >
-                {id === 'all' ? 'All stages' : STAGES.find(s => s.id === id)?.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-1.5 mb-8">
-            {(['all', 'recommendation', 'question', 'heads-up'] as const).map(cat => (
-              <button
-                key={cat}
-                onClick={() => setCatFilter(cat)}
-                className="px-3 py-1.5 text-xs font-medium capitalize transition-all rounded-lg"
-                style={catFilter === cat
-                  ? { background: cat === 'all' ? '#FAB400' : CAT_COLORS[cat as PostCategory], color: cat === 'all' ? '#0D0C0A' : 'white' }
-                  : { background: 'white', border: '1px solid rgba(216,202,187,0.7)', color: 'rgba(74,63,50,0.6)' }
-                }
-              >
-                {cat === 'all' ? 'All types' : cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Posts */}
-          <div className="space-y-2">
-            {filtered.length === 0 ? (
-              <p className="text-walnut/50 text-sm py-10 text-center">No posts match this filter.</p>
-            ) : (
-              filtered.map(post => (
-                <div key={post.id} className="bg-white rounded-xl border border-sand/50 p-5 flex gap-4">
-                  {/* Left accent bar */}
-                  <div className="w-[3px] rounded-full shrink-0 self-stretch" style={{ background: CAT_COLORS[post.category] }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <span className="text-xs font-semibold capitalize" style={{ color: CAT_COLORS[post.category] }}>
-                        {post.category}
-                      </span>
-                      {post.authorStage && (
-                        <span className="text-xs text-stone">· {STAGE_LABELS[post.authorStage]}</span>
-                      )}
-                      <span className="text-xs text-stone/50 ml-auto">{post.time}</span>
+      {/* ── Events strip ─────────────────────────────────────────────────── */}
+      {(feedState === 'loading' || events.length > 0) && (
+        <div style={{ background: '#252450' }}>
+          <div className="max-w-5xl mx-auto px-6 md:px-12 py-6">
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-4"
+              style={{ color: 'rgba(245,236,215,0.35)' }}>
+              This week
+            </p>
+            <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+              {feedState === 'loading'
+                ? [1,2,3,4].map(i => (
+                    <div key={i} className="shrink-0 w-44 rounded-xl p-4 animate-pulse"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="h-2.5 bg-white/10 rounded w-10 mb-3" />
+                      <div className="h-4 bg-white/10 rounded w-full mb-1.5" />
+                      <div className="h-3 bg-white/8 rounded w-3/4" />
                     </div>
-                    <p className="text-sm text-walnut/80 leading-relaxed">{post.text}</p>
-                  </div>
-                </div>
-              ))
-            )}
+                  ))
+                : events.map(ev => {
+                    const d   = new Date(ev.published * 1000)
+                    const dow = d.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase()
+                    const day = d.getDate()
+                    const mon = d.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
+                    return (
+                      <a
+                        key={ev.id}
+                        href={ev.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 w-44 rounded-xl p-4 group transition-all hover:-translate-y-0.5"
+                        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.09)' }}
+                      >
+                        <div className="flex items-baseline gap-1.5 mb-3">
+                          <span className="text-lg font-black leading-none" style={{ color: '#F5ECD7' }}>{day}</span>
+                          <span className="text-[9px] font-black tracking-widest" style={{ color: '#10B981' }}>{dow} {mon}</span>
+                        </div>
+                        <p className="text-xs font-bold leading-snug line-clamp-2 group-hover:opacity-80 transition-opacity"
+                          style={{ color: '#F5ECD7' }}>
+                          {ev.title}
+                        </p>
+                        {ev.summary && (
+                          <p className="text-[10px] mt-1.5 line-clamp-1 opacity-40" style={{ color: '#F5ECD7' }}>
+                            {ev.summary.split(' · ')[1] ?? ev.summary}
+                          </p>
+                        )}
+                      </a>
+                    )
+                  })
+              }
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── What's On ────────────────────────────────────────────────── */}
-      {activeTab === 'whats-on' && (
-        <div>
-          {/* Segment control */}
-          {feedState === 'done' && feedItems.length > 0 && (() => {
-            const segs = (
-              [
-                { id: 'all'       as const, label: 'All' },
-                { id: 'events'    as const, label: 'Events' },
-                { id: 'news'      as const, label: 'News' },
-                { id: 'community' as const, label: 'Community' },
-              ] as const
-            ).filter(s => s.id === 'all' || (feedCounts[s.id] ?? 0) > 0)
-            return (
-              <div className="flex gap-1 p-1 bg-ivory rounded-xl mb-8 border border-sand/40">
-                {segs.map(seg => (
+      {/* ── Main content ─────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 md:px-12 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-10">
+
+          {/* ── LEFT: Composer + unified stream ──────────────────────────── */}
+          <div className="min-w-0">
+
+            {/* Composer */}
+            <div className="bg-white rounded-2xl p-5 mb-8"
+              style={{ border: '1px solid rgba(37,36,80,0.08)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div className="flex gap-2 mb-4">
+                {(['recommendation', 'question', 'heads-up'] as PostCategory[]).map(cat => {
+                  const m = CAT_META[cat]
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setNewPost(p => ({ ...p, category: cat }))}
+                      className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all"
+                      style={newPost.category === cat
+                        ? { background: m.color, color: 'white' }
+                        : { background: 'rgba(37,36,80,0.04)', color: 'rgba(37,36,80,0.45)' }
+                      }
+                    >
+                      {m.label}
+                    </button>
+                  )
+                })}
+              </div>
+              <textarea
+                ref={composerRef}
+                value={newPost.text}
+                onChange={e => setNewPost(p => ({ ...p, text: e.target.value.slice(0, 280) }))}
+                placeholder={PROMPTS[0]}
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-stone/40 focus:outline-none resize-none"
+                style={{
+                  background: '#F5ECD7',
+                  border: '1px solid rgba(37,36,80,0.08)',
+                  color: '#252450',
+                  fontSize: 16,
+                }}
+              />
+              <div className="flex items-center justify-between mt-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs" style={{ color: 'rgba(37,36,80,0.28)' }}>{newPost.text.length}/280</span>
+                  {profile.stage && (
+                    <span className="text-xs" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                      {STAGE_LABELS[profile.stage as Stage]}
+                    </span>
+                  )}
+                  {!user && (
+                    <button onClick={() => setAuthOpen(true)}
+                      className="text-xs font-bold hover:opacity-70 transition-opacity"
+                      style={{ color: '#4744C8' }}>
+                      Sign in to post
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={submit}
+                  disabled={!newPost.text.trim()}
+                  className="px-5 py-2 text-xs font-bold text-white rounded-lg transition-opacity disabled:opacity-25"
+                  style={{ background: '#4744C8' }}
+                >
+                  {submitted ? 'Posted ✓' : 'Post'}
+                </button>
+              </div>
+            </div>
+
+            {/* Stream header + filter */}
+            <div className="flex items-center gap-3 mb-5">
+              <h2 className="text-[10px] font-black tracking-[0.22em] uppercase shrink-0"
+                style={{ color: 'rgba(37,36,80,0.3)' }}>
+                Live stream
+              </h2>
+              <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.08)' }} />
+              <div className="flex gap-1">
+                {(['all', 'community', 'news'] as const).map(f => (
                   <button
-                    key={seg.id}
-                    onClick={() => setFeedCat(seg.id)}
-                    className="flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"
-                    style={feedCat === seg.id
-                      ? { background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', color: '#1A1209' }
-                      : { color: 'rgba(74,63,50,0.5)' }
+                    key={f}
+                    onClick={() => setStreamFilter(f)}
+                    className="px-2.5 py-1 text-[10px] font-bold capitalize rounded-lg transition-all"
+                    style={streamFilter === f
+                      ? { background: '#252450', color: '#F5ECD7' }
+                      : { background: 'rgba(37,36,80,0.05)', color: 'rgba(37,36,80,0.38)' }
                     }
                   >
-                    {seg.label}
-                    {seg.id !== 'all' && (feedCounts[seg.id] ?? 0) > 0 && (
-                      <span className="opacity-50">{feedCounts[seg.id]}</span>
-                    )}
+                    {f}
                   </button>
                 ))}
               </div>
-            )
-          })()}
-
-          {/* Loading */}
-          {feedState === 'loading' && (
-            <div className="space-y-2">
-              {[1,2,3,4,5].map(i => (
-                <div key={i} className="bg-white rounded-xl border border-sand/50 p-5 animate-pulse flex gap-4">
-                  <div className="w-10 shrink-0">
-                    <div className="h-3 bg-sand/60 rounded w-8 mb-2" />
-                    <div className="h-6 bg-sand/50 rounded w-8" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-sand/40 rounded w-3/4 mb-2" />
-                    <div className="h-3 bg-sand/30 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
             </div>
-          )}
 
-          {/* Error */}
-          {feedState === 'error' && (
-            <div className="bg-white rounded-xl border border-sand/50 p-8 text-center">
-              <p className="text-walnut/60 text-sm mb-2">Couldn&apos;t load the feed right now.</p>
-              <button onClick={() => setFeedState('idle')} className="text-xs font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity" style={{ color: '#4744C8' }}>
-                Try again
-              </button>
-            </div>
-          )}
-
-          {/* Empty */}
-          {feedState === 'done' && feedItems.length === 0 && (
-            <p className="text-walnut/50 text-sm py-10 text-center">Nothing found right now — check back soon.</p>
-          )}
-
-          {/* Content */}
-          {feedState === 'done' && feedItems.length > 0 && (() => {
-            const visible   = feedCat === 'all' ? feedItems : feedItems.filter(i => i.category === feedCat)
-            const events    = visible.filter(i => i.category === 'events')
-            const nonEvents = visible.filter(i => i.category !== 'events')
-
-            return (
-              <div className="space-y-10">
-
-                {/* Events — date-column cards */}
-                {events.length > 0 && (
-                  <section>
-                    <div className="flex items-center gap-3 mb-4">
-                      <h2 className="text-[10px] font-black tracking-[0.2em] uppercase text-stone">Upcoming Events</h2>
-                      <div className="flex-1 h-px bg-sand/50" />
-                      <span className="text-xs text-stone/40">{events.length}</span>
+            {/* Stream */}
+            {feedState === 'loading' && stream.length === 0 && (
+              <div className="space-y-2">
+                {[1,2,3,4,5].map(i => (
+                  <div key={i} className="bg-white rounded-xl p-5 animate-pulse flex gap-3"
+                    style={{ border: '1px solid rgba(37,36,80,0.06)' }}>
+                    <div className="w-1 rounded-full shrink-0 bg-sand/50 self-stretch" />
+                    <div className="flex-1">
+                      <div className="h-3 bg-sand/40 rounded w-1/4 mb-3" />
+                      <div className="h-4 bg-sand/40 rounded w-full mb-1.5" />
+                      <div className="h-3 bg-sand/30 rounded w-3/4" />
                     </div>
-                    <div className="space-y-2">
-                      {events.map(item => {
-                        const d     = new Date(item.published * 1000)
-                        const mon   = d.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
-                        const day   = d.getDate()
-                        const ss    = SOURCE_STYLE[item.source] ?? SOURCE_STYLE.ticketmaster
-                        return (
-                          <a
-                            key={item.id}
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-4 bg-white rounded-xl border border-sand/50 px-5 py-4 hover:border-sand hover:shadow-md hover:shadow-espresso/5 transition-all group"
-                          >
-                            {/* Date */}
-                            <div className="shrink-0 w-9 text-center">
-                              <div className="text-[9px] font-black tracking-widest" style={{ color: '#10B981' }}>{mon}</div>
-                              <div className="text-xl font-black text-espresso leading-none mt-0.5">{day}</div>
-                            </div>
-                            <div className="w-px h-8 bg-sand/60 shrink-0" />
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-espresso leading-snug truncate group-hover:text-terracotta transition-colors">
-                                {item.title}
-                              </p>
-                              {item.summary && (
-                                <p className="text-xs text-walnut/50 mt-0.5 truncate">{item.summary}</p>
-                              )}
-                            </div>
-                            {/* Source */}
-                            <span className="shrink-0 text-xs px-2.5 py-1 rounded-full font-bold hidden sm:inline-block" style={{ background: ss.bg, color: ss.color }}>
-                              {item.sourceLabel}
-                            </span>
-                          </a>
-                        )
-                      })}
-                    </div>
-                  </section>
-                )}
-
-                {/* News & Community — compact grouped rows */}
-                {nonEvents.length > 0 && (
-                  <section>
-                    <div className="flex items-center gap-3 mb-4">
-                      <h2 className="text-[10px] font-black tracking-[0.2em] uppercase text-stone">
-                        {feedCat === 'community' ? 'Community' : feedCat === 'news' ? 'News' : 'News & Community'}
-                      </h2>
-                      <div className="flex-1 h-px bg-sand/50" />
-                      <span className="text-xs text-stone/40">{nonEvents.length}</span>
-                    </div>
-                    <div className="rounded-xl border border-sand/50 overflow-hidden divide-y divide-sand/40">
-                      {nonEvents.map(item => {
-                        const ss = SOURCE_STYLE[item.source] ?? SOURCE_STYLE.reddit
-                        return (
-                          <a
-                            key={item.id}
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 bg-white px-5 py-3.5 hover:bg-parchment/30 transition-colors group"
-                          >
-                            <span className="shrink-0 text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: ss.bg, color: ss.color }}>
-                              {item.sourceLabel}
-                            </span>
-                            <p className="flex-1 min-w-0 text-sm text-espresso font-medium leading-snug line-clamp-1 group-hover:text-terracotta transition-colors">
-                              {item.title}
-                            </p>
-                            {item.source === 'reddit' && item.score !== undefined && (
-                              <span className="shrink-0 text-xs text-stone/40 hidden sm:inline">↑{item.score}</span>
-                            )}
-                            <span className="shrink-0 text-xs text-stone/40">{timeAgo(item.published)}</span>
-                          </a>
-                        )
-                      })}
-                    </div>
-                  </section>
-                )}
-
+                  </div>
+                ))}
               </div>
-            )
-          })()}
-        </div>
-      )}
+            )}
 
-      {/* ── Communities ──────────────────────────────────────────────── */}
-      {activeTab === 'resources' && (
-        <div>
-          <p className="text-walnut/60 text-sm mb-8 leading-relaxed max-w-md">
-            Every active {city.name} community — the groups expats actually use — in one place.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {resources.map(r => (
-              <div key={r.id} className="bg-white rounded-xl border border-sand/50 p-5 hover:border-sand hover:shadow-md hover:shadow-espresso/4 transition-all">
-                <div className="flex items-start gap-3">
-                  <div
-                    className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold"
-                    style={{
-                      background: r.type === 'facebook' ? 'rgba(24,119,242,0.12)' : 'rgba(255,69,0,0.12)',
-                      color: r.type === 'facebook' ? '#1877F2' : '#FF4500',
-                    }}
+            {feedState !== 'loading' && stream.length === 0 && (
+              <div className="space-y-2.5">
+                <p className="text-[10px] font-black uppercase tracking-widest mb-5"
+                  style={{ color: 'rgba(37,36,80,0.2)' }}>
+                  Be the first to post
+                </p>
+                {PROMPTS.map((prompt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => composerRef.current?.focus()}
+                    className={cn(
+                      'w-full text-left px-5 py-4 rounded-xl text-sm transition-all',
+                      'hover:bg-white/70'
+                    )}
+                    style={{ border: '1.5px dashed rgba(37,36,80,0.12)', color: 'rgba(37,36,80,0.38)' }}
                   >
-                    {r.type === 'facebook' ? 'f' : 'r/'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-espresso mb-1">{r.name}</p>
-                    <p className="text-xs text-walnut/60 leading-snug">{r.desc}</p>
-                    <span
-                      className="inline-block mt-3 text-xs px-2 py-0.5 rounded-full capitalize font-medium"
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {stream.length > 0 && (
+              <div className="space-y-2">
+                {stream.map((item, idx) => {
+                  if (item.kind === 'post') {
+                    const post = item.data
+                    const m    = CAT_META[post.category]
+                    return (
+                      <div key={post.id}
+                        className="bg-white rounded-xl overflow-hidden flex"
+                        style={{ border: '1px solid rgba(37,36,80,0.07)' }}
+                      >
+                        <div className="w-[3px] shrink-0" style={{ background: m.color }} />
+                        <div className="flex-1 min-w-0 px-5 py-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-wider"
+                              style={{ color: m.color }}>{m.label}</span>
+                            {post.authorStage && (
+                              <span className="text-[10px]" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                                · {STAGE_LABELS[post.authorStage]}
+                              </span>
+                            )}
+                            <span className="text-[10px] ml-auto" style={{ color: 'rgba(37,36,80,0.25)' }}>
+                              {post.time}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed" style={{ color: 'rgba(37,36,80,0.72)' }}>
+                            {post.text}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  // Feed item (news / community / reddit)
+                  const fi = item.data
+                  const ss = SOURCE_STYLE[fi.source] ?? { color: '#252450', label: fi.sourceLabel }
+                  const diff = Math.floor(Date.now() / 1000) - fi.published
+                  const ago  = diff < 3600  ? `${Math.floor(diff / 60)}m`
+                             : diff < 86400 ? `${Math.floor(diff / 3600)}h`
+                             : `${Math.floor(diff / 86400)}d`
+
+                  // Reddit items get a slightly different treatment
+                  if (fi.source === 'reddit') {
+                    return (
+                      <a key={`${fi.id}-${idx}`}
+                        href={fi.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-white rounded-xl overflow-hidden flex group transition-all hover:shadow-sm"
+                        style={{ border: '1px solid rgba(37,36,80,0.07)' }}
+                      >
+                        <div className="w-[3px] shrink-0" style={{ background: 'rgba(255,69,0,0.5)' }} />
+                        <div className="flex-1 min-w-0 px-5 py-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-black" style={{ color: '#FF4500' }}>r/{fi.subreddit ?? cityId}</span>
+                            {fi.flair && <span className="text-[10px]" style={{ color: 'rgba(37,36,80,0.3)' }}>· {fi.flair}</span>}
+                            <span className="text-[10px] ml-auto" style={{ color: 'rgba(37,36,80,0.25)' }}>{ago}</span>
+                          </div>
+                          <p className="text-sm font-semibold leading-snug group-hover:opacity-70 transition-opacity"
+                            style={{ color: '#252450' }}>
+                            {fi.title}
+                          </p>
+                          {fi.score !== undefined && (
+                            <p className="text-[10px] mt-1.5" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                              ↑ {fi.score} · {fi.comments} replies
+                            </p>
+                          )}
+                        </div>
+                      </a>
+                    )
+                  }
+
+                  // News items
+                  return (
+                    <a key={`${fi.id}-${idx}`}
+                      href={fi.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 rounded-xl px-5 py-3.5 group transition-all hover:bg-white"
+                      style={{ border: '1px solid rgba(37,36,80,0.06)', background: 'rgba(255,255,255,0.5)' }}
+                    >
+                      <span className="shrink-0 text-[9px] font-black px-1.5 py-0.5 rounded"
+                        style={{ background: `${ss.color}15`, color: ss.color, letterSpacing: '0.06em' }}>
+                        {ss.label.toUpperCase().slice(0, 9)}
+                      </span>
+                      <p className="flex-1 min-w-0 text-xs font-semibold line-clamp-1 group-hover:opacity-70 transition-opacity"
+                        style={{ color: '#252450' }}>
+                        {fi.title}
+                      </p>
+                      <span className="shrink-0 text-[10px]" style={{ color: 'rgba(37,36,80,0.25)' }}>{ago}</span>
+                    </a>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ── RIGHT: communities only ───────────────────────────────────── */}
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-[10px] font-black tracking-[0.22em] uppercase mb-4"
+                style={{ color: 'rgba(37,36,80,0.3)' }}>
+                Find your people
+              </h2>
+              <div className="space-y-1.5">
+                {resources.map(r => (
+                  <div key={r.id}
+                    className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl transition-all hover:shadow-sm"
+                    style={{ border: '1px solid rgba(37,36,80,0.07)' }}
+                  >
+                    <div className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black"
                       style={{
                         background: r.type === 'facebook' ? 'rgba(24,119,242,0.1)' : 'rgba(255,69,0,0.1)',
                         color: r.type === 'facebook' ? '#1877F2' : '#FF4500',
-                      }}
-                    >
-                      {r.type}
-                    </span>
+                      }}>
+                      {r.type === 'facebook' ? 'f' : 'r/'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold truncate" style={{ color: '#252450' }}>{r.name}</p>
+                      <p className="text-[10px] truncate" style={{ color: 'rgba(37,36,80,0.38)' }}>{r.desc}</p>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
+            </section>
+
+            {/* Utility links */}
+            <section>
+              <h2 className="text-[10px] font-black tracking-[0.22em] uppercase mb-4"
+                style={{ color: 'rgba(37,36,80,0.3)' }}>
+                When you need it
+              </h2>
+              <div className="space-y-2">
+                <a href={`/${cityId}/settle`}
+                  className="flex items-center justify-between px-4 py-3.5 rounded-xl group transition-all hover:-translate-y-px hover:shadow-sm"
+                  style={{ background: '#FAB400' }}>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'rgba(37,36,80,0.45)' }}>Settle</p>
+                    <p className="text-xs font-bold" style={{ color: '#252450' }}>Registration & admin</p>
+                  </div>
+                  <span className="font-black opacity-40 group-hover:opacity-70 transition-opacity" style={{ color: '#252450' }}>→</span>
+                </a>
+                <a href={`/${cityId}/ask`}
+                  className="flex items-center justify-between px-4 py-3.5 rounded-xl group transition-all hover:-translate-y-px hover:shadow-sm"
+                  style={{ background: '#38C0F0' }}>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'rgba(37,36,80,0.45)' }}>Ask</p>
+                    <p className="text-xs font-bold" style={{ color: '#252450' }}>Any question, live answer</p>
+                  </div>
+                  <span className="font-black opacity-40 group-hover:opacity-70 transition-opacity" style={{ color: '#252450' }}>→</span>
+                </a>
+              </div>
+            </section>
           </div>
 
-          <div className="mt-5 bg-ivory rounded-xl border border-sand/40 p-5">
-            <p className="text-xs text-stone">
-              Know a community we&apos;re missing? Post it in the{' '}
-              <button onClick={() => setActiveTab('feed')} className="underline hover:text-walnut transition-colors">Feed</button>.
-            </p>
-          </div>
         </div>
-      )}
+      </div>
 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </div>

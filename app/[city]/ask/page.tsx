@@ -1,6 +1,8 @@
 'use client'
 import { use, useState, useRef, useEffect } from 'react'
 import { useProfile } from '@/lib/hooks/use-profile'
+import { useAuth } from '@/lib/hooks/use-auth'
+import { AuthModal } from '@/components/auth/AuthModal'
 import { getCity, STAGES } from '@/lib/data/cities'
 import { cn } from '@/lib/utils'
 
@@ -30,9 +32,11 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   const { city: cityId } = use(params)
   const city = getCity(cityId)
   const { profile } = useProfile()
+  const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [input,    setInput]    = useState('')
   const [loading,  setLoading]  = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLTextAreaElement>(null)
 
@@ -48,6 +52,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   const send = async (text: string) => {
     const q = text.trim()
     if (!q || loading) return
+    if (!user) { setAuthOpen(true); return }
     setInput('')
     setMessages(prev => [...prev, { role: 'user', content: q }])
     setLoading(true)
@@ -177,31 +182,48 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
 
       {/* Input */}
       <div className="shrink-0 border-t border-sand/40 px-6 md:px-10 py-4 bg-white">
-        <div className="max-w-3xl mx-auto flex gap-3 items-end">
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={`Ask anything about living in ${city.name}…`}
-            rows={1}
-            className="flex-1 resize-none border border-sand rounded-xl px-5 py-3.5 text-sm text-espresso placeholder:text-stone/60 focus:outline-none focus:border-terracotta/40 transition-colors leading-relaxed bg-ivory"
-            style={{ maxHeight: 160, overflowY: 'auto' }}
-          />
-          <button
-            onClick={() => send(input)}
-            disabled={!input.trim() || loading}
-            className="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:opacity-80 transition-opacity disabled:opacity-30"
-            style={{ background: '#3D3CAC' }}
-            aria-label="Send"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 8h12M10 4l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
-        <p className="text-center text-xs text-stone mt-2">Enter to send · Shift+Enter for new line</p>
+        {user ? (
+          <>
+            <div className="max-w-3xl mx-auto flex gap-3 items-end">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={`Ask anything about living in ${city.name}…`}
+                rows={1}
+                className="flex-1 resize-none border border-sand rounded-xl px-5 py-3.5 text-sm text-espresso placeholder:text-stone/60 focus:outline-none focus:border-terracotta/40 transition-colors leading-relaxed bg-ivory"
+                style={{ maxHeight: 160, overflowY: 'auto' }}
+              />
+              <button
+                onClick={() => send(input)}
+                disabled={!input.trim() || loading}
+                className="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:opacity-80 transition-opacity disabled:opacity-30"
+                style={{ background: '#3D3CAC' }}
+                aria-label="Send"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 8h12M10 4l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-center text-xs text-stone mt-2">Enter to send · Shift+Enter for new line</p>
+          </>
+        ) : (
+          <div className="max-w-3xl mx-auto text-center py-2">
+            <p className="text-sm text-stone mb-3">Sign in to ask questions about {city.name}</p>
+            <button
+              onClick={() => setAuthOpen(true)}
+              className="px-6 py-2.5 text-sm font-semibold text-white rounded-full hover:opacity-90 transition-opacity"
+              style={{ background: '#3D3CAC' }}
+            >
+              Sign in →
+            </button>
+          </div>
+        )}
       </div>
+
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
   )
 }

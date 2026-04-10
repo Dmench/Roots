@@ -1,12 +1,11 @@
+'use client'
 import Link from 'next/link'
 import { Nav } from '@/components/layout/Nav'
-import { ACTIVE_CITIES } from '@/lib/data/cities'
-
-/* ── PDF palette ──────────────────────────────────────────────────────────
-   Indigo   #4744C8   Sky    #38C0F0   Magenta  #FF3EBA
-   Gold     #FAB400   Red    #EF3340   Navy     #252450
-   Cream    #F5ECD7
-──────────────────────────────────────────────────────────────────────── */
+import { ACTIVE_CITIES, getCity } from '@/lib/data/cities'
+import { useAuth } from '@/lib/hooks/use-auth'
+import { useProfile } from '@/lib/hooks/use-profile'
+import { AuthModal } from '@/components/auth/AuthModal'
+import { useState } from 'react'
 
 const RECENT_QUESTIONS = [
   {
@@ -37,7 +36,109 @@ const RECENT_QUESTIONS = [
 
 export default function HomePage() {
   const totalSettlers = ACTIVE_CITIES.reduce((sum, c) => sum + c.settlerCount, 0)
+  const { user, loading, signOut } = useAuth()
+  const { profile } = useProfile()
+  const [authOpen, setAuthOpen] = useState(false)
 
+  const handleSignOut = async () => {
+    await signOut()
+    // stays on this page — loading will flip and marketing view will show
+  }
+
+  const cityObj = profile.cityId ? getCity(profile.cityId) : null
+  const firstName = profile.displayName?.split(' ')[0]
+
+  // ── Loading state ────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{ background: '#F5ECD7' }}>
+        <Nav />
+      </div>
+    )
+  }
+
+  // ── Signed-in state ──────────────────────────────────────────────────────
+  if (user) {
+    return (
+      <div className="min-h-screen" style={{ background: '#F5ECD7' }}>
+        <Nav />
+        <div className="relative overflow-hidden px-6 md:px-12 pt-16 pb-24">
+          {/* Shapes */}
+          <div className="absolute rounded-full pointer-events-none"
+            style={{ background: '#4744C8', width: 320, height: 320, top: -140, right: -80, opacity: 0.9 }} />
+          <div className="absolute rounded-full pointer-events-none"
+            style={{ background: '#38C0F0', width: 100, height: 100, bottom: 20, right: '22%', opacity: 0.6 }} />
+          <div className="absolute pointer-events-none overflow-hidden"
+            style={{ width: 80, height: 40, bottom: 0, left: '40%' }}>
+            <div className="w-full rounded-full" style={{ background: '#FF3EBA', height: 80, marginTop: -40, opacity: 0.7 }} />
+          </div>
+
+          <div className="max-w-4xl mx-auto relative pt-8">
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-8"
+              style={{ color: 'rgba(37,36,80,0.35)' }}>
+              Welcome back
+            </p>
+            <h1 className="font-display font-black leading-[0.85] mb-6"
+              style={{ fontSize: 'clamp(3.5rem, 9vw, 7.5rem)', color: '#252450' }}>
+              {firstName ? `Hey, ${firstName}.` : 'Welcome back.'}
+            </h1>
+            <p className="text-lg mb-12" style={{ color: 'rgba(37,36,80,0.55)', maxWidth: 360 }}>
+              {cityObj
+                ? `Your ${cityObj.name} home is ready.`
+                : 'Pick up where you left off.'}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              {cityObj ? (
+                <>
+                  <Link
+                    href={`/${cityObj.id}`}
+                    className="inline-flex items-center justify-center px-8 py-4 text-white rounded-full font-bold hover:opacity-90 transition-opacity text-sm"
+                    style={{ background: '#4744C8' }}
+                  >
+                    Open {cityObj.name} →
+                  </Link>
+                  <Link
+                    href={`/${cityObj.id}/connect`}
+                    className="inline-flex items-center justify-center px-8 py-4 rounded-full font-bold text-sm hover:opacity-80 transition-opacity"
+                    style={{ border: '2px solid rgba(37,36,80,0.15)', color: '#252450' }}
+                  >
+                    Community
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  href="/cities"
+                  className="inline-flex items-center justify-center px-8 py-4 text-white rounded-full font-bold hover:opacity-90 transition-opacity text-sm"
+                  style={{ background: '#4744C8' }}
+                >
+                  Choose your city →
+                </Link>
+              )}
+              <Link
+                href="/profile"
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-sm hover:opacity-70 transition-opacity"
+                style={{ color: 'rgba(37,36,80,0.45)' }}
+              >
+                Profile
+              </Link>
+            </div>
+
+            <button
+              onClick={handleSignOut}
+              className="mt-12 text-xs hover:opacity-70 transition-opacity"
+              style={{ color: 'rgba(37,36,80,0.3)' }}
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+        <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+      </div>
+    )
+  }
+
+  // ── Marketing / signed-out state ─────────────────────────────────────────
   return (
     <div className="min-h-screen" style={{ background: '#FAFAF8' }}>
       <Nav />

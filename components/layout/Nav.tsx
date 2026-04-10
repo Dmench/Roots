@@ -42,6 +42,15 @@ export function Nav() {
           {/* City tabs */}
           {cityNav.length > 0 && (
             <nav className="hidden md:flex items-center gap-0.5">
+              {/* City home link */}
+              <Link
+                href={`/${pathCity!.id}`}
+                className="px-3 py-1.5 text-sm font-bold transition-all rounded hover:opacity-70"
+                style={{ color: '#252450' }}
+              >
+                {pathCity!.name}
+              </Link>
+              <span className="text-sand/60 text-xs px-0.5">/</span>
               {cityNav.map(link => (
                 <Link
                   key={link.href}
