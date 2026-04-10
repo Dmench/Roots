@@ -17,8 +17,28 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Roots — Put down roots, anywhere',
-  description: 'City onboarding and belonging. Settle in, get set up, and find your people — in any city.',
+  metadataBase: new URL('https://roots.so'),
+  title: {
+    default: 'Roots — Put down roots, anywhere',
+    template: '%s — Roots',
+  },
+  description: 'City onboarding and belonging. Settle in, get set up, and find your people — in Brussels, Lisbon, and beyond.',
+  openGraph: {
+    type: 'website',
+    siteName: 'Roots',
+    title: 'Roots — Put down roots, anywhere',
+    description: 'City onboarding and belonging. Settle in, get set up, and find your people.',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Roots — Put down roots, anywhere',
+    description: 'City onboarding and belonging. Settle in, get set up, and find your people.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -6,30 +6,38 @@
   --font-display: var(--font-playfair), 'Playfair Display', Georgia, serif;
   --font-sans:    var(--font-inter), 'Inter', system-ui, sans-serif;
 
-  --color-cream:             #FDFBF7;
-  --color-ivory:             #F7F4EE;
-  --color-parchment:         #F0EBE3;
-  --color-sand:              #E0D4C3;
-  --color-stone:             #B8A99A;
-  --color-walnut:            #7A6552;
-  --color-espresso:          #1E110A;
+  /* Base surfaces */
+  --color-cream:     #FAFAF8;
+  --color-ivory:     #F5ECD7;
+  --color-parchment: #EDE0C8;
+  --color-sand:      #D8CABB;
+  --color-stone:     #8A7868;
+  --color-walnut:    #4A3F32;
+  --color-espresso:  #0D0C0A;
 
-  --color-terracotta:        #C4704B;
-  --color-terracotta-dark:   #A85A38;
-  --color-terracotta-light:  #F0D5C8;
+  /* Primary — indigo (PDF: #4744C8) */
+  --color-terracotta:       #4744C8;
+  --color-terracotta-dark:  #252450;
+  --color-terracotta-light: #EEEEF9;
 
-  --color-sage:              #6B8F71;
-  --color-sage-dark:         #4E6B54;
-  --color-sage-light:        #C8D9CA;
+  /* CTA / highlight — gold (PDF: #FAB400) */
+  --color-gold:       #FAB400;
+  --color-gold-dark:  #D49800;
+  --color-gold-light: #FFF5D0;
 
-  --color-sky:               #5B87A6;
-  --color-sky-light:         #C8DCE8;
+  /* Supporting */
+  --color-sage:        #10B981;
+  --color-sage-dark:   #059669;
+  --color-sage-light:  #D1FAE5;
 
-  --color-coral:             #D4785A;
-  --color-coral-light:       #F2D0C4;
+  --color-sky:         #38C0F0;
+  --color-sky-light:   #E0F7FF;
 
-  --color-amber:             #C49A3C;
-  --color-amber-light:       #F0DFA8;
+  --color-coral:       #FF3EBA;
+  --color-coral-light: #FFE4F6;
+
+  --color-amber:       #FAB400;
+  --color-amber-light: #FFF5D0;
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
@@ -41,21 +49,9 @@ html {
 }
 
 body {
-  background-color: #FDFBF7;
-  color: #1E110A;
+  background-color: #FAFAF8;
+  color: #0D0C0A;
   font-family: var(--font-sans);
-}
-
-/* Grain texture */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
 }
 
 /* ─── Typography ─────────────────────────────────────────────────────────── */
@@ -65,7 +61,7 @@ h1, h2, h3, h4 {
   letter-spacing: -0.02em;
 }
 
-/* ─── Link hover — sliding underline ────────────────────────────────────── */
+/* ─── Link hover ─────────────────────────────────────────────────────────── */
 
 .link-hover {
   position: relative;
@@ -85,8 +81,8 @@ h1, h2, h3, h4 {
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #E0D4C3; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #D8CABB; border-radius: 3px; }
 
-::selection { background: #F0D5C8; color: #1E110A; }
+::selection { background: #EBEBF8; color: #0D0C0A; }
