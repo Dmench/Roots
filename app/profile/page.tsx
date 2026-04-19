@@ -36,8 +36,6 @@ export default function ProfilePage() {
   const pct          = allTasks.length > 0 ? Math.round((doneCount / allTasks.length) * 100) : 0
   const days         = daysInCity(profile.arrivalDate ?? undefined)
   const stageIdx     = profile.stage ? STAGE_ORDER.indexOf(profile.stage as Stage) : -1
-  const isSettled    = profile.stage === 'settled'
-
   const handleSignOut = async () => { await signOut(); router.push('/') }
 
   const saveName = () => {
@@ -309,8 +307,8 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* ── What's On preview (settled users) ───────────────────────── */}
-        {isSettled && city && (
+        {/* ── What's On preview ───────────────────────────────────────── */}
+        {city && (
           <div
             className="border p-6 mb-8 rounded-sm"
             style={{ borderColor: 'rgba(99,102,241,0.25)', background: '#F5F3FF' }}
@@ -346,9 +344,9 @@ export default function ProfilePage() {
             <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-4">Go to</p>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { href: `/${city.id}/settle`,  label: 'Settle',   sub: doneCount > 0 ? `${doneCount} done` : `${allTasks.length} tasks` },
-                { href: `/${city.id}/ask`,     label: 'Ask',      sub: 'Live answers' },
                 { href: `/${city.id}/connect`, label: 'Connect',  sub: "What's On" },
+                { href: `/${city.id}/ask`,     label: 'Ask',      sub: 'Any question answered' },
+                { href: `/${city.id}/settle`,  label: 'Settle',   sub: doneCount > 0 ? `${doneCount} done` : `${allTasks.length} tasks` },
               ].map(link => (
                 <Link
                   key={link.href}

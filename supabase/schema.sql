@@ -4,9 +4,10 @@
 -- ============================================================
 
 -- Drop everything cleanly first (CASCADE removes policies too)
-drop table if exists public.waitlist cascade;
-drop table if exists public.posts    cascade;
-drop table if exists public.profiles cascade;
+drop table if exists public.waitlist      cascade;
+drop table if exists public.posts         cascade;
+drop table if exists public.saved_events  cascade;
+drop table if exists public.profiles      cascade;
 
 -- ── Profiles ─────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,7 @@ create table public.profiles (
   situations         text[]      default '{}',
   completed_task_ids text[]      default '{}',
   saved_task_ids     text[]      default '{}',
+  digest_subscribed  boolean     default true,
   updated_at         timestamptz default now()
 );
 
@@ -53,6 +55,38 @@ create policy "posts_select_all" on public.posts
 
 create policy "posts_insert_auth" on public.posts
   for insert with check (auth.uid() is not null and auth.uid() = author_id);
+
+-- ── Saved Events ─────────────────────────────────────────────────────────────
+-- Stores events bookmarked by users. event_id is the stable scraped ID.
+-- date_ts is a Unix millisecond timestamp for sorting without parsing date strings.
+
+create table public.saved_events (
+  id         uuid        default gen_random_uuid() primary key,
+  user_id    uuid        references auth.users on delete cascade not null,
+  city_id    text        not null,
+  event_id   text        not null,
+  title      text        not null,
+  date       text        not null,
+  time       text        default '',
+  venue      text        default '',
+  source     text        not null,
+  url        text        not null,
+  image      text,
+  date_ts    bigint      not null,
+  saved_at   timestamptz default now() not null,
+  unique(user_id, event_id)
+);
+
+alter table public.saved_events enable row level security;
+
+create policy "saved_events_select_own" on public.saved_events
+  for select using (auth.uid() = user_id);
+
+create policy "saved_events_insert_own" on public.saved_events
+  for insert with check (auth.uid() = user_id);
+
+create policy "saved_events_delete_own" on public.saved_events
+  for delete using (auth.uid() = user_id);
 
 -- ── Waitlist ──────────────────────────────────────────────────────────────────
 

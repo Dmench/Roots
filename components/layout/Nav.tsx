@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
@@ -15,6 +15,12 @@ export function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [authOpen,   setAuthOpen]   = useState(false)
 
+  useEffect(() => {
+    const handler = () => setAuthOpen(true)
+    window.addEventListener('roots:open-auth', handler)
+    return () => window.removeEventListener('roots:open-auth', handler)
+  }, [])
+
   const cityMatch   = pathname.match(/^\/([a-z-]+)/)
   const pathCityId  = cityMatch?.[1]
   const pathCity    = pathCityId && !['cities', 'profile', 'auth'].includes(pathCityId)
@@ -22,9 +28,10 @@ export function Nav() {
   const profileCity = profile.cityId ? getCity(profile.cityId) : undefined
 
   const cityNav = pathCity ? [
-    { href: `/${pathCity.id}/connect`, label: 'Connect', color: '#FF3EBA' },
-    { href: `/${pathCity.id}/ask`,     label: 'Ask',     color: '#38C0F0' },
-    { href: `/${pathCity.id}/settle`,  label: 'Settle',  color: '#FAB400' },
+    { href: `/${pathCity.id}`,         label: pathCity.name, color: '#10B981', home: true },
+    { href: `/${pathCity.id}/connect`, label: 'Connect',     color: '#FF3EBA' },
+    { href: `/${pathCity.id}/ask`,     label: 'Ask',         color: '#38C0F0' },
+    { href: `/${pathCity.id}/settle`,  label: 'Settle',      color: '#FAB400' },
   ] : []
 
   const isActive = (href: string) => pathname.startsWith(href)
@@ -42,28 +49,29 @@ export function Nav() {
           {/* City tabs */}
           {cityNav.length > 0 && (
             <nav className="hidden md:flex items-center gap-0.5">
-              {/* City home link */}
-              <Link
-                href={`/${pathCity!.id}`}
-                className="px-3 py-1.5 text-sm font-bold transition-all rounded hover:opacity-70"
-                style={{ color: '#252450' }}
-              >
-                {pathCity!.name}
-              </Link>
-              <span className="text-sand/60 text-xs px-0.5">/</span>
-              {cityNav.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    'px-4 py-1.5 rounded text-sm font-medium transition-all',
-                    isActive(link.href) ? 'text-espresso' : 'text-walnut/60 hover:text-espresso hover:bg-parchment/60'
-                  )}
-                  style={isActive(link.href) ? { background: link.color + '18', color: link.color } : {}}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {cityNav.map((link, i) => {
+                const active = link.home ? pathname === link.href : isActive(link.href)
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-all',
+                      active ? '' : 'text-walnut/60 hover:text-espresso hover:bg-parchment/60'
+                    )}
+                    style={active ? { background: link.color + '18', color: link.color } : {}}
+                  >
+                    {link.home && (
+                      <span className="relative flex h-1.5 w-1.5 shrink-0">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
+                      </span>
+                    )}
+                    {link.label}
+                    {i === 0 && <span className="text-sand/60 text-xs ml-1">/</span>}
+                  </Link>
+                )
+              })}
             </nav>
           )}
 
@@ -127,17 +135,26 @@ export function Nav() {
             </button>
           </div>
           <nav className="flex flex-col p-6 gap-1 flex-1">
-            {cityNav.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="px-4 py-3 text-base font-medium rounded transition-colors text-walnut/70 hover:text-espresso hover:bg-parchment/40"
-                style={isActive(link.href) ? { background: link.color + '18', color: link.color } : {}}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {cityNav.map(link => {
+              const active = link.home ? pathname === link.href : isActive(link.href)
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-base font-medium rounded transition-colors text-walnut/70 hover:text-espresso hover:bg-parchment/40"
+                  style={active ? { background: link.color + '18', color: link.color } : {}}
+                >
+                  {link.home && (
+                    <span className="relative flex h-1.5 w-1.5 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
+                    </span>
+                  )}
+                  {link.label}
+                </Link>
+              )
+            })}
             <div className="mt-auto pt-6 border-t border-sand/40 space-y-1">
               <Link href="/cities" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-sm text-walnut/60 hover:text-espresso transition-colors">
                 All cities

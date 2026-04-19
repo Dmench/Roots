@@ -1,138 +1,16 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCity, ACTIVE_CITIES } from '@/lib/data/cities'
+import { getEvents } from '@/lib/data/events'
+import type { EventPreview } from '@/lib/data/events'
+import { getRedditPosts } from '@/lib/data/reddit'
+import { getNews } from '@/lib/data/news'
+import EventsSection from '@/components/city/EventsSection'
+import type { GroupedEvent } from '@/components/city/EventsSection'
+
 
 export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
-}
-
-/* ── Data fetchers ───────────────────────────────────────────────────────── */
-
-interface EventPreview {
-  id: string
-  title: string
-  date: string       // formatted e.g. "Sat 12 Apr"
-  time: string       // e.g. "20:00"
-  venue: string
-  url: string
-  dateObj: Date
-}
-
-interface RedditPost {
-  id: string
-  title: string
-  flair: string | null
-  score: number
-  comments: number
-  permalink: string
-  created: number
-}
-
-interface NewsItem {
-  title: string
-  url: string
-  source: string
-}
-
-async function getEvents(cityId: string): Promise<EventPreview[]> {
-  const key = process.env.TICKETMASTER_API_KEY
-  if (!key) return []
-  const cityMap: Record<string, { city: string; countryCode: string }> = {
-    brussels: { city: 'Brussels', countryCode: 'BE' },
-    lisbon:   { city: 'Lisbon',   countryCode: 'PT' },
-  }
-  const loc = cityMap[cityId] ?? cityMap.brussels
-  try {
-    const params = new URLSearchParams({
-      city: loc.city, countryCode: loc.countryCode,
-      size: '6', sort: 'date,asc', apikey: key,
-    })
-    const res = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${params}`, {
-      next: { revalidate: 3600 },
-    })
-    if (!res.ok) return []
-    const json = await res.json()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (json._embedded?.events ?? []).flatMap((e: any): EventPreview[] => {
-      if (!e.name || !e.url) return []
-      const dateLocal = e.dates?.start?.localDate ?? ''
-      const timeLocal = e.dates?.start?.localTime ?? ''
-      if (!dateLocal) return []
-      const d = new Date(`${dateLocal}T${timeLocal || '00:00:00'}`)
-      return [{
-        id:      e.id,
-        title:   e.name,
-        date:    d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
-        time:    timeLocal ? timeLocal.slice(0, 5) : '',
-        venue:   e._embedded?.venues?.[0]?.name ?? '',
-        url:     e.url,
-        dateObj: d,
-      }]
-    })
-  } catch { return [] }
-}
-
-async function getRedditPosts(cityId: string): Promise<RedditPost[]> {
-  const subMap: Record<string, string> = { brussels: 'brussels', lisbon: 'portugal' }
-  const sub = subMap[cityId] ?? 'brussels'
-  try {
-    const res = await fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=15`, {
-      headers: { 'User-Agent': 'Roots/1.0 (+https://roots.so; contact: hello@roots.so)' },
-      next: { revalidate: 900 },
-    })
-    if (!res.ok) return []
-    const json = await res.json()
-    return (json.data?.children ?? [])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((c: any) => !c.data.over_18 && !c.data.stickied)
-      .slice(0, 5)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((c: any) => ({
-        id:        c.data.id,
-        title:     c.data.title,
-        flair:     c.data.link_flair_text ?? null,
-        score:     c.data.score,
-        comments:  c.data.num_comments,
-        permalink: `https://reddit.com${c.data.permalink}`,
-        created:   c.data.created_utc,
-      }))
-  } catch { return [] }
-}
-
-async function getNews(cityId: string): Promise<NewsItem[]> {
-  const feedMap: Record<string, { url: string; source: string }[]> = {
-    brussels: [
-      { url: 'https://www.thebulletin.be/rss.xml',   source: 'The Bulletin' },
-      { url: 'https://www.politico.eu/feed/',         source: 'Politico EU' },
-    ],
-  }
-  const feeds = feedMap[cityId] ?? feedMap.brussels
-  const items: NewsItem[] = []
-  for (const feed of feeds) {
-    if (items.length >= 3) break
-    try {
-      const res = await fetch(feed.url, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Roots/1.0)', Accept: 'application/rss+xml, */*' },
-        next: { revalidate: 1800 },
-      })
-      if (!res.ok) continue
-      const xml   = await res.text()
-      const block = /<item>([\s\S]*?)<\/item>/g
-      let m: RegExpExecArray | null
-      let count = 0
-      while ((m = block.exec(xml)) !== null && count < 2) {
-        const c     = m[1]
-        const title = c.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/)?.[1]?.trim()
-        const link  = c.match(/<link>([^<]+)<\/link>/)?.[1]?.trim()
-          ?? c.match(/<link[^>]+href=["']([^"']+)["']/)?.[1]
-        if (title && link?.startsWith('http')) {
-          items.push({ title: title.replace(/<[^>]+>/g, ''), url: link, source: feed.source })
-          count++
-        }
-      }
-    } catch { continue }
-  }
-  return items.slice(0, 3)
 }
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
@@ -142,222 +20,307 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const city = getCity(cityId)
   if (!city || !city.active) notFound()
 
-  const [events, reddit, news] = await Promise.all([
-    getEvents(cityId),
-    getRedditPosts(cityId),
-    getNews(cityId),
-  ])
+  const [eventsRaw, reddit, news] = await Promise.all([getEvents(cityId), getRedditPosts(cityId), getNews(cityId)])
 
-  const now    = new Date()
-  const month  = now.toLocaleDateString('en-GB', { month: 'long' })
-  const dayNum = now.getDate()
+  // Deduplicate: group by normalised title, collect dates
+  const grouped = new Map<string, { ev: EventPreview; dates: { date: string; time: string; url: string }[] }>()
+  for (const ev of eventsRaw) {
+    const key = ev.title.toLowerCase().replace(/[^a-z0-9]/g, '')
+    if (grouped.has(key)) {
+      grouped.get(key)!.dates.push({ date: ev.date, time: ev.time, url: ev.url })
+    } else {
+      grouped.set(key, { ev, dates: [{ date: ev.date, time: ev.time, url: ev.url }] })
+    }
+  }
+  // Serialize for client component (Date → timestamp number)
+  const allEvents: GroupedEvent[] = [...grouped.values()].map(({ ev, dates }) => ({
+    ev: {
+      id: ev.id, title: ev.title, date: ev.date, time: ev.time,
+      venue: ev.venue, source: ev.source, url: ev.url,
+      dateTs: ev.dateObj.getTime(), image: ev.image,
+    },
+    dates,
+  }))
+
+  const now     = new Date()
+  const dayName = now.toLocaleDateString('en-GB', { weekday: 'long' })
+  const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+
+  const SOURCE_COLOR: Record<string, string> = {
+    'The Bulletin': '#4744C8',
+    'Politico EU':  '#EF3340',
+  }
 
   return (
     <div style={{ background: '#F5ECD7', minHeight: '100vh' }}>
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden px-6 md:px-12 pt-12 pb-16" style={{ background: '#F5ECD7' }}>
-        {/* Shapes — present but not dominant */}
-        <div className="absolute rounded-full pointer-events-none opacity-90"
-          style={{ background: '#4744C8', width: 320, height: 320, top: -120, right: -80 }} />
-        <div className="absolute rounded-full pointer-events-none opacity-70"
-          style={{ background: '#38C0F0', width: 100, height: 100, bottom: 20, right: '22%' }} />
-        <div className="absolute pointer-events-none overflow-hidden" style={{ width: 70, height: 35, bottom: 0, left: '44%' }}>
-          <div className="w-full rounded-full" style={{ background: '#FF3EBA', height: 70, marginTop: -35, opacity: 0.8 }} />
+      {/* ── Masthead ─────────────────────────────────────────────────────── */}
+      <div style={{ background: '#252450', borderBottom: '1px solid rgba(245,236,215,0.1)' }}>
+        {/* Thin color bar */}
+        <div className="flex h-1">
+          {['#FF3EBA','#38C0F0','#FAB400','#4744C8'].map(c => (
+            <div key={c} className="flex-1" style={{ background: c }} />
+          ))}
         </div>
 
-        <div className="max-w-4xl mx-auto relative">
-          {/* Date line */}
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-6" style={{ color: 'rgba(37,36,80,0.35)' }}>
-            {month} {dayNum} · {city.name}
-          </p>
+        <div className="max-w-5xl mx-auto px-6 md:px-12 py-7 md:py-9">
+          {/* Three-column masthead */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Date */}
+            <div className="hidden sm:block">
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(245,236,215,0.35)' }}>
+                {dayName}
+              </p>
+              <p className="text-xs font-medium mt-0.5" style={{ color: 'rgba(245,236,215,0.2)' }}>
+                {dateStr}
+              </p>
+            </div>
 
-          {/* City name */}
-          <h1 className="font-display font-black leading-[0.82] mb-5"
-            style={{ fontSize: 'clamp(4.5rem, 12vw, 10rem)', color: '#252450' }}>
-            {city.name}
-          </h1>
+            {/* City name — centred on desktop, left on mobile */}
+            <div className="flex-1 sm:text-center">
+              <h1 className="font-display font-black leading-none tracking-tight"
+                style={{ fontSize: 'clamp(3rem, 10vw, 7rem)', color: '#F5ECD7' }}>
+                {city.name}
+              </h1>
+              <p className="text-[10px] font-black tracking-[0.28em] uppercase mt-1"
+                style={{ color: 'rgba(245,236,215,0.25)' }}>
+                {city.country} · Updated today
+              </p>
+            </div>
 
-          {/* Live pulse */}
-          <div className="flex items-center gap-2 mb-8">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
-              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#10B981' }} />
-            </span>
-            <span className="text-sm" style={{ color: 'rgba(37,36,80,0.5)' }}>
-              {events.length > 0 ? `${events.length} things on this week` : 'Live from the city'}
-              {reddit.length > 0 && ` · ${reddit.length} conversations active`}
-            </span>
+            {/* Live count */}
+            <div className="hidden sm:flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
+                </span>
+                <span className="text-xs font-medium" style={{ color: 'rgba(245,236,215,0.4)' }}>
+                  {city.settlerCount} settling now
+                </span>
+              </div>
+              {allEvents.length > 0 && (
+                <p className="text-[10px]" style={{ color: 'rgba(245,236,215,0.25)' }}>
+                  {allEvents.length} event{allEvents.length !== 1 ? 's' : ''} upcoming
+                </p>
+              )}
+            </div>
           </div>
 
-          <Link
-            href={`/${cityId}/connect`}
-            className="inline-flex items-center gap-2 px-7 py-3.5 text-white rounded-full font-bold text-sm hover:opacity-90 transition-opacity"
-            style={{ background: '#4744C8' }}
-          >
-            Open the community
-          </Link>
+          {/* ── Compact news signal — woven into masthead ────────────────── */}
+          {news.length > 0 && (
+            <div className="mt-5 pt-5 flex items-start gap-4 flex-wrap"
+              style={{ borderTop: '1px solid rgba(245,236,215,0.07)' }}>
+              <span className="text-[8px] font-black tracking-[0.22em] uppercase shrink-0 mt-1"
+                style={{ color: 'rgba(245,236,215,0.18)' }}>
+                In the news
+              </span>
+              <div className="flex flex-wrap gap-x-5 gap-y-1.5 flex-1 min-w-0">
+                {news.slice(0, 3).map((item, i) => (
+                  <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
+                    className="group flex items-baseline gap-1.5 min-w-0 hover:opacity-70 transition-opacity"
+                    style={{ maxWidth: '30ch' }}>
+                    <span className="text-[8px] font-black uppercase shrink-0 tracking-wide"
+                      style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(245,236,215,0.35)' }}>
+                      {item.source === 'The Bulletin' ? 'Bulletin' : item.source.split(' ')[0]}
+                    </span>
+                    <span className="text-[10px] font-medium truncate leading-snug"
+                      style={{ color: 'rgba(245,236,215,0.38)' }}>
+                      {item.title}
+                    </span>
+                    <span className="text-[9px] shrink-0" style={{ color: 'rgba(245,236,215,0.15)' }}>↗</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Nav pills */}
+          <div className="flex items-center gap-2 flex-wrap mt-5">
+            {[
+              { href: `/${cityId}/connect`, label: 'Community',   color: '#FF3EBA' },
+              { href: `/${cityId}/ask`,     label: 'Ask anything', color: '#38C0F0' },
+              { href: `/${cityId}/settle`,  label: 'Get set up',  color: '#FAB400' },
+            ].map(p => (
+              <Link key={p.href} href={p.href}
+                className="px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-wide transition-all hover:opacity-80"
+                style={{ background: `${p.color}18`, color: p.color, border: `1px solid ${p.color}28` }}>
+                {p.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── Main content ─────────────────────────────────────────────────── */}
-      <div className="px-6 md:px-12 pb-20" style={{ background: '#F5ECD7' }}>
-        <div className="max-w-4xl mx-auto space-y-14 pt-14">
+      {/* ── Body ─────────────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 md:px-12 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_284px] gap-8">
 
-          {/* ── This week ──────────────────────────────────────────────── */}
-          {events.length > 0 && (
-            <section>
-              <SectionLabel>This week</SectionLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-5">
-                {events.map(ev => (
-                  <a
-                    key={ev.id}
-                    href={ev.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group bg-white rounded-2xl border border-sand/50 p-5 hover:shadow-lg hover:shadow-espresso/6 hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
-                  >
-                    {/* Date block */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <div className="text-[10px] font-black tracking-widest uppercase" style={{ color: '#10B981' }}>
-                          {ev.date.split(' ')[1]} {ev.date.split(' ')[2]}
-                        </div>
-                        <div className="text-3xl font-black leading-none" style={{ color: '#252450' }}>
-                          {ev.date.split(' ')[0]}
-                        </div>
-                      </div>
-                      {ev.time && (
-                        <span className="text-xs font-semibold px-2 py-1 rounded-lg" style={{ background: 'rgba(71,68,200,0.08)', color: '#4744C8' }}>
-                          {ev.time}
+          {/* ── LEFT — Events (the living core) ──────────────────────────── */}
+          <div>
+            <EventsSection allEvents={allEvents} cityId={cityId} />
+          </div>
+
+          {/* ── RIGHT SIDEBAR ─────────────────────────────────────────────── */}
+          <div className="space-y-6">
+
+            {/* City pulse — Reddit */}
+            {reddit.length > 0 && (
+              <section>
+                <Mastlabel>City pulse</Mastlabel>
+                <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: '#1C1A2E' }}>
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 pt-4 pb-3.5"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black" style={{ color: '#FF4500' }}>r/{cityId}</span>
+                      <span className="flex items-center gap-1">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
                         </span>
-                      )}
+                        <span className="text-[9px] font-medium" style={{ color: 'rgba(245,236,215,0.25)' }}>live</span>
+                      </span>
                     </div>
-                    <p className="text-sm font-bold text-espresso leading-snug flex-1 group-hover:text-terracotta transition-colors mb-2">
-                      {ev.title}
-                    </p>
-                    {ev.venue && (
-                      <p className="text-xs text-stone/60 truncate">{ev.venue}</p>
-                    )}
-                  </a>
-                ))}
-              </div>
-              <div className="mt-4">
-                <Link href={`/${cityId}/connect`} className="text-xs font-bold hover:opacity-70 transition-opacity" style={{ color: '#4744C8' }}>
-                  All events in What&apos;s On →
-                </Link>
-              </div>
-            </section>
-          )}
+                    <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
+                      className="text-[9px] font-black hover:opacity-60 transition-opacity"
+                      style={{ color: 'rgba(245,236,215,0.22)', letterSpacing: '0.08em' }}>
+                      OPEN ↗
+                    </a>
+                  </div>
 
-          {/* ── What people are asking ─────────────────────────────────── */}
-          {reddit.length > 0 && (
-            <section>
-              <SectionLabel>What people are asking</SectionLabel>
-              <div className="mt-5 rounded-2xl border border-sand/50 overflow-hidden divide-y divide-sand/40 bg-white">
-                {reddit.map(post => {
-                  const diff = Math.floor(Date.now() / 1000) - post.created
-                  const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m`
-                            : diff < 86400 ? `${Math.floor(diff / 3600)}h`
-                            : `${Math.floor(diff / 86400)}d`
-                  return (
-                    <a
-                      key={post.id}
-                      href={post.permalink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-4 px-5 py-4 hover:bg-parchment/40 transition-colors group"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-espresso leading-snug line-clamp-1 group-hover:text-terracotta transition-colors">
+                  {/* Featured top post */}
+                  {(() => {
+                    const top  = reddit[0]
+                    const diff = Math.floor(Date.now() / 1000) - top.created
+                    const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
+                    return (
+                      <a href={top.permalink} target="_blank" rel="noopener noreferrer"
+                        className="block px-4 py-4 group hover:opacity-80 transition-opacity"
+                        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                        <div className="flex items-start gap-3">
+                          <div className="shrink-0 text-center" style={{ minWidth: 30 }}>
+                            <p className="text-lg font-black leading-none" style={{ color: '#FF4500' }}>↑</p>
+                            <p className="text-[10px] font-black mt-0.5" style={{ color: '#FF4500' }}>
+                              {top.score >= 1000 ? `${(top.score / 1000).toFixed(1)}k` : top.score}
+                            </p>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            {top.flair && (
+                              <span className="inline-block text-[8px] font-black px-1.5 py-0.5 rounded-full mb-1.5"
+                                style={{ background: 'rgba(255,69,0,0.18)', color: '#FF4500', letterSpacing: '0.06em' }}>
+                                {top.flair.toUpperCase()}
+                              </span>
+                            )}
+                            <p className="text-xs font-bold leading-snug" style={{ color: '#F5ECD7' }}>
+                              {top.title}
+                            </p>
+                            <p className="text-[9px] mt-1.5" style={{ color: 'rgba(245,236,215,0.28)' }}>
+                              {top.comments} comments · {ago}
+                            </p>
+                          </div>
+                        </div>
+                      </a>
+                    )
+                  })()}
+
+                  {/* Remaining posts */}
+                  {reddit.slice(1).map((post) => {
+                    const diff = Math.floor(Date.now() / 1000) - post.created
+                    const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
+                    const maxScore = Math.max(...reddit.map(p => p.score))
+                    const barPct = maxScore > 0 ? Math.round((post.score / maxScore) * 100) : 0
+                    return (
+                      <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 px-4 py-3 group hover:opacity-70 transition-opacity"
+                        style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                        <div className="shrink-0 flex flex-col items-center gap-0.5" style={{ width: 24 }}>
+                          <p className="text-[9px] font-black leading-none" style={{ color: 'rgba(255,69,0,0.65)' }}>
+                            {post.score >= 1000 ? `${(post.score / 1000).toFixed(1)}k` : post.score}
+                          </p>
+                          <div className="w-full h-0.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                            <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: '#FF4500' }} />
+                          </div>
+                        </div>
+                        <p className="flex-1 min-w-0 text-[10px] font-semibold leading-snug line-clamp-2"
+                          style={{ color: 'rgba(245,236,215,0.65)' }}>
                           {post.title}
                         </p>
-                        {post.flair && (
-                          <span className="text-xs text-stone/50 mt-0.5 inline-block">{post.flair}</span>
-                        )}
-                      </div>
-                      <div className="shrink-0 flex items-center gap-3 text-xs text-stone/40">
-                        <span>{post.comments} replies</span>
-                        <span>{ago}</span>
-                      </div>
-                    </a>
-                  )
-                })}
-              </div>
-              <div className="mt-4 flex items-center gap-4">
-                <Link href={`/${cityId}/connect`} className="text-xs font-bold hover:opacity-70 transition-opacity" style={{ color: '#4744C8' }}>
-                  Ask your own question →
-                </Link>
-                <span className="text-xs text-stone/40">via r/{cityId === 'lisbon' ? 'portugal' : cityId}</span>
-              </div>
-            </section>
-          )}
+                        <span className="shrink-0 text-[9px]" style={{ color: 'rgba(245,236,215,0.18)' }}>{ago}</span>
+                      </a>
+                    )
+                  })}
 
-          {/* ── In the news ────────────────────────────────────────────── */}
-          {news.length > 0 && (
+                  {/* Footer */}
+                  <div className="px-4 py-3.5 flex items-center justify-between"
+                    style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                    <Link href={`/${cityId}/connect`}
+                      className="text-[9px] font-black tracking-wider hover:opacity-60 transition-opacity"
+                      style={{ color: '#FF3EBA', letterSpacing: '0.08em' }}>
+                      POST IN COMMUNITY →
+                    </Link>
+                    <span className="text-[9px]" style={{ color: 'rgba(245,236,215,0.15)' }}>via Reddit</span>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* In the news — compact sidebar */}
+            {news.length > 0 && (
+              <section>
+                <Mastlabel>In the news</Mastlabel>
+                <div className="mt-4 rounded-xl overflow-hidden bg-white"
+                  style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
+                  {news.map((item, i) => {
+                    const srcColor = SOURCE_COLOR[item.source] ?? '#252450'
+                    return (
+                      <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-start gap-2.5 px-4 py-3.5 group hover:bg-parchment/40 transition-colors"
+                        style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.05)' : 'none' }}>
+                        <div className="w-0.5 shrink-0 self-stretch rounded-full" style={{ background: srcColor }} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[8px] font-black tracking-wider uppercase mb-1" style={{ color: srcColor }}>
+                            {item.source === 'The Bulletin' ? 'Bulletin' : 'Politico EU'}
+                          </p>
+                          <p className="text-xs font-semibold leading-snug line-clamp-3 group-hover:opacity-55 transition-opacity"
+                            style={{ color: '#252450' }}>
+                            {item.title}
+                          </p>
+                        </div>
+                        <span className="shrink-0 text-[10px] mt-0.5 opacity-25 group-hover:opacity-50 transition-opacity"
+                          style={{ color: '#252450' }}>↗</span>
+                      </a>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Tools */}
             <section>
-              <SectionLabel>In the news</SectionLabel>
-              <div className="mt-5 space-y-2">
-                {news.map((item, i) => (
-                  <a
-                    key={i}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 bg-white rounded-xl border border-sand/50 px-5 py-4 hover:bg-parchment/30 hover:border-sand transition-all group"
-                  >
-                    <span className="shrink-0 text-[10px] font-black tracking-wider uppercase px-2 py-1 rounded" style={{ background: 'rgba(37,36,80,0.07)', color: '#252450' }}>
-                      {item.source === 'The Bulletin' ? 'Bulletin' : 'Politico'}
-                    </span>
-                    <p className="flex-1 min-w-0 text-sm font-medium text-espresso line-clamp-1 group-hover:text-terracotta transition-colors">
-                      {item.title}
-                    </p>
-                    <span className="shrink-0 text-xs opacity-0 group-hover:opacity-100 transition-opacity font-semibold" style={{ color: '#4744C8' }}>→</span>
-                  </a>
+              <Mastlabel>Tools</Mastlabel>
+              <div className="mt-4 bg-white rounded-xl overflow-hidden"
+                style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
+                {[
+                  { href: `/${cityId}/ask`,    label: 'Ask anything', sub: 'AI answers about city life', dot: '#38C0F0' },
+                  { href: `/${cityId}/connect`, label: 'Community',   sub: 'Posts, tips, people',        dot: '#FF3EBA' },
+                  { href: `/${cityId}/settle`,  label: 'Settle in',   sub: 'Admin, commune, bank',       dot: '#FAB400' },
+                ].map((item, i) => (
+                  <Link key={item.href} href={item.href}
+                    className="flex items-center gap-3 px-4 py-3.5 group hover:bg-parchment/30 transition-colors"
+                    style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.05)' : 'none' }}>
+                    <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: item.dot }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold" style={{ color: '#252450' }}>{item.label}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(37,36,80,0.38)' }}>{item.sub}</p>
+                    </div>
+                    <span className="text-xs opacity-20 group-hover:opacity-50 transition-opacity" style={{ color: '#252450' }}>→</span>
+                  </Link>
                 ))}
               </div>
-              <div className="mt-4">
-                <Link href={`/${cityId}/connect`} className="text-xs font-bold hover:opacity-70 transition-opacity" style={{ color: '#4744C8' }}>
-                  Full news feed →
-                </Link>
-              </div>
             </section>
-          )}
 
-          {/* ── Utility strip ──────────────────────────────────────────── */}
-          <section>
-            <SectionLabel>When you need them</SectionLabel>
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link
-                href={`/${cityId}/settle`}
-                className="group flex items-center gap-4 rounded-2xl px-6 py-5 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
-                style={{ background: '#FAB400' }}
-              >
-                <div className="flex-1">
-                  <p className="text-xs font-black tracking-widest uppercase mb-1" style={{ color: 'rgba(37,36,80,0.45)' }}>Settle</p>
-                  <p className="text-base font-bold leading-tight" style={{ color: '#252450' }}>
-                    Registration, mutuelle, bank — step by step.
-                  </p>
-                </div>
-                <span className="text-2xl font-black opacity-30 group-hover:opacity-60 transition-opacity" style={{ color: '#252450' }}>→</span>
-              </Link>
-
-              <Link
-                href={`/${cityId}/ask`}
-                className="group flex items-center gap-4 rounded-2xl px-6 py-5 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
-                style={{ background: '#38C0F0' }}
-              >
-                <div className="flex-1">
-                  <p className="text-xs font-black tracking-widest uppercase mb-1" style={{ color: 'rgba(37,36,80,0.45)' }}>Ask</p>
-                  <p className="text-base font-bold leading-tight" style={{ color: '#252450' }}>
-                    Any question about living in {city.name}.
-                  </p>
-                </div>
-                <span className="text-2xl font-black opacity-30 group-hover:opacity-60 transition-opacity" style={{ color: '#252450' }}>→</span>
-              </Link>
-            </div>
-          </section>
-
+          </div>
         </div>
       </div>
     </div>
@@ -366,13 +329,15 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function Mastlabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
     <div className="flex items-center gap-4">
-      <h2 className="text-[10px] font-black tracking-[0.22em] uppercase shrink-0" style={{ color: 'rgba(37,36,80,0.35)' }}>
+      <h2 className="text-[10px] font-black tracking-[0.22em] uppercase shrink-0"
+        style={{ color: 'rgba(37,36,80,0.35)' }}>
         {children}
       </h2>
       <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.1)' }} />
+      {right && <div className="shrink-0">{right}</div>}
     </div>
   )
 }
