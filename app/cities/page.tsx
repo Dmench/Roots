@@ -1,8 +1,11 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { CITIES } from '@/lib/data/cities'
+import { useProfile } from '@/lib/hooks/use-profile'
 import { Nav } from '@/components/layout/Nav'
+import type { CityId } from '@/lib/types'
 
 /* ── PDF palette ─────────────────────────────────────────────────────────────
    Indigo #4744C8  Sky #38C0F0  Magenta #FF3EBA  Gold #FAB400  Navy #252450
@@ -19,10 +22,24 @@ const CITY_CONFIG: Record<string, { bg: string; shape1: string; shape2: string }
 }
 
 export default function CitiesPage() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const fromProfile  = searchParams.get('from') === 'profile'
+  const { setCity }  = useProfile()
+
   const [waitlistCity,  setWaitlistCity]  = useState<string | null>(null)
   const [waitlistEmail, setWaitlistEmail] = useState('')
   const [submitted,     setSubmitted]     = useState<Record<string, boolean>>({})
   const [loading,       setLoading]       = useState(false)
+
+  function handleCitySelect(cityId: string) {
+    if (fromProfile) {
+      setCity(cityId as CityId)
+      router.push('/profile')
+    } else {
+      router.push(`/${cityId}`)
+    }
+  }
 
   const joinWaitlist = async (cityId: string) => {
     if (!waitlistEmail.trim() || loading) return
@@ -68,16 +85,17 @@ export default function CitiesPage() {
         </div>
 
         <div className="max-w-6xl mx-auto relative">
-          <p className="text-xs uppercase tracking-[0.3em] mb-6 font-semibold" style={{ color: '#252450', opacity: 0.45 }}>Cities</p>
+          <p className="text-xs uppercase tracking-[0.3em] mb-6 font-semibold" style={{ color: '#252450', opacity: 0.45 }}>
+            {fromProfile ? '← Profile · Choose your city' : 'Cities'}
+          </p>
           <h1
             className="font-display font-black leading-[0.85] tracking-tight mb-6"
             style={{ fontSize: 'clamp(3.5rem, 10vw, 9rem)', color: '#252450' }}
           >
-            Where are<br />
-            <em className="not-italic" style={{ color: '#4744C8' }}>you going?</em>
+            {fromProfile ? <>Which city<br /><em className="not-italic" style={{ color: '#4744C8' }}>is home?</em></> : <>Where are<br /><em className="not-italic" style={{ color: '#4744C8' }}>you going?</em></>}
           </h1>
           <p className="text-lg leading-relaxed max-w-sm mb-2" style={{ color: '#252450', opacity: 0.6 }}>
-            Pick your city. We walk you through every step.
+            {fromProfile ? 'Pick your city to personalise your digest and checklist.' : 'Pick your city. We walk you through every step.'}
           </p>
         </div>
       </section>
@@ -88,10 +106,10 @@ export default function CitiesPage() {
           {CITIES.map(city => {
             const cfg = CITY_CONFIG[city.id] ?? CITY_CONFIG.brussels
             return city.active ? (
-              <Link
+              <button
                 key={city.id}
-                href={`/${city.id}`}
-                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-espresso/15"
+                onClick={() => handleCitySelect(city.id)}
+                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-espresso/15 text-left w-full"
                 style={{ background: cfg.bg, minHeight: 240 }}
               >
                 {/* Geometric decorations */}
@@ -132,11 +150,11 @@ export default function CitiesPage() {
                     <span
                       className="text-sm font-bold text-white opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0"
                     >
-                      Enter →
+                      {fromProfile ? 'Select →' : 'Enter →'}
                     </span>
                   </div>
                 </div>
-              </Link>
+              </button>
             ) : (
               <div
                 key={city.id}

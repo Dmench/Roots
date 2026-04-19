@@ -257,7 +257,7 @@ export default function ProfilePage() {
         {!city && (
           <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
             <p className="text-xs uppercase tracking-[0.2em] text-stone mb-3">City</p>
-            <Link href="/cities" className="text-sm font-medium text-terracotta hover:opacity-80 transition-opacity">
+            <Link href="/cities?from=profile" className="text-sm font-medium text-terracotta hover:opacity-80 transition-opacity">
               Choose a city to get started →
             </Link>
           </div>
