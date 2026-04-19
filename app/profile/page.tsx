@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { AuthModal } from '@/components/auth/AuthModal'
-import { getCity, STAGES, SITUATIONS } from '@/lib/data/cities'
+import { getCity, STAGES, SITUATIONS, NEIGHBORHOODS, LANGUAGES } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { Nav } from '@/components/layout/Nav'
 import { cn } from '@/lib/utils'
@@ -22,7 +22,7 @@ function daysInCity(arrivalDate?: string): number | null {
 export default function ProfilePage() {
   const router = useRouter()
   const { user, loading: authLoading, signOut } = useAuth()
-  const { profile, hydrated, setStage, setArrivalDate, setDisplayName, toggleSituation } = useProfile()
+  const { profile, hydrated, setStage, setArrivalDate, setDisplayName, setNeighborhood, toggleLanguage, toggleSituation } = useProfile()
 
   const [authOpen,    setAuthOpen]    = useState(false)
   const [editingName, setEditingName] = useState(false)
@@ -274,6 +274,60 @@ export default function ProfilePage() {
           />
           {days !== null && (
             <p className="text-xs text-stone mt-2">{days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''} in ${city?.name ?? 'your city'}`}</p>
+          )}
+        </div>
+
+        {/* ── Neighborhood ─────────────────────────────────────────────── */}
+        {city && (
+          <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
+            <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-4">Neighborhood</p>
+            <select
+              value={profile.neighborhood ?? ''}
+              onChange={e => setNeighborhood(e.target.value || undefined)}
+              className="w-full px-4 py-2.5 bg-ivory border border-sand rounded-sm text-sm text-espresso focus:outline-none focus:border-terracotta/40 transition-colors appearance-none"
+            >
+              <option value="">Select your neighborhood…</option>
+              {(NEIGHBORHOODS[city.id] ?? []).map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+            {profile.neighborhood && (
+              <p className="text-xs text-stone mt-2">
+                You&apos;re in {profile.neighborhood}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* ── Languages ────────────────────────────────────────────────── */}
+        <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
+          <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-1">Languages</p>
+          <p className="text-xs text-stone mb-4">Select all you speak — helps connect you with the right people</p>
+          <div className="flex flex-wrap gap-2">
+            {LANGUAGES.map(lang => {
+              const active = (profile.languages ?? []).includes(lang.code)
+              return (
+                <button
+                  key={lang.code}
+                  onClick={() => toggleLanguage(lang.code)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-2 rounded-sm text-sm font-medium transition-all duration-150 border',
+                    active
+                      ? 'text-white border-transparent'
+                      : 'bg-ivory border-sand text-walnut hover:border-espresso/30 hover:text-espresso'
+                  )}
+                  style={active ? { background: '#3D3CAC', borderColor: '#3D3CAC' } : {}}
+                >
+                  <span>{lang.flag}</span>
+                  <span>{lang.label}</span>
+                </button>
+              )
+            })}
+          </div>
+          {(profile.languages ?? []).length > 0 && (
+            <p className="text-xs text-stone mt-3">
+              {(profile.languages ?? []).length} language{(profile.languages ?? []).length !== 1 ? 's' : ''} selected
+            </p>
           )}
         </div>
 

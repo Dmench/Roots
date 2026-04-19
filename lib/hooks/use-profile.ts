@@ -22,6 +22,8 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
     id:               data.id as string,
     displayName:      (data.display_name as string | null) ?? undefined,
     cityId:           (data.city_id as string | null) as CityId | undefined,
+    neighborhood:     (data.neighborhood as string | null) ?? undefined,
+    languages:        (data.languages as string[]) ?? [],
     arrivalDate:      (data.arrival_date as string | null) ?? undefined,
     stage:            (data.stage as Stage | null) ?? undefined,
     situations:       (data.situations as SituationTag[]) ?? [],
@@ -98,6 +100,8 @@ export function useProfile() {
             id:                 user.id,
             display_name:       next.displayName      ?? null,
             city_id:            next.cityId            ?? null,
+            neighborhood:       next.neighborhood      ?? null,
+            languages:          next.languages         ?? [],
             arrival_date:       next.arrivalDate       ?? null,
             stage:              next.stage             ?? null,
             situations:         next.situations        ?? [],
@@ -116,6 +120,16 @@ export function useProfile() {
   const setStage         = (stage: Stage | undefined) => updateProfile({ stage })
   const setArrivalDate   = (date: string)             => updateProfile({ arrivalDate: date })
   const setDisplayName   = (name: string)             => updateProfile({ displayName: name })
+  const setNeighborhood  = (n: string | undefined)    => updateProfile({ neighborhood: n })
+
+  const toggleLanguage = (code: string) => {
+    const current = profile.languages ?? []
+    updateProfile({
+      languages: current.includes(code)
+        ? current.filter(l => l !== code)
+        : [...current, code],
+    })
+  }
 
   const toggleSituation = (tag: SituationTag) => {
     const current = profile.situations ?? []
@@ -144,6 +158,8 @@ export function useProfile() {
     setStage,
     setArrivalDate,
     setDisplayName,
+    setNeighborhood,
+    toggleLanguage,
     toggleSituation,
     toggleTaskDone,
     isOnboarded,

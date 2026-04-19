@@ -101,6 +101,8 @@ export interface UserProfile {
   id: string
   displayName?: string
   cityId: CityId
+  neighborhood?: string
+  languages: string[]
   arrivalDate?: string
   stage: Stage
   situations: SituationTag[]

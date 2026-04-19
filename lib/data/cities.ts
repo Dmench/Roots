@@ -88,6 +88,78 @@ export const STAGES: StageConfig[] = [
   { id: 'settled',      label: 'Settled in',         sublabel: 'You know the ropes',  months: '6+ months in' },
 ]
 
+// ── Neighborhoods per city ────────────────────────────────────────────────────
+
+export const NEIGHBORHOODS: Record<string, string[]> = {
+  brussels: [
+    'Ixelles / Elsene',
+    'Saint-Gilles / Sint-Gillis',
+    'Etterbeek',
+    'Uccle / Ukkel',
+    'Woluwe-Saint-Lambert',
+    'Woluwe-Saint-Pierre',
+    'Schaerbeek / Schaarbeek',
+    'Anderlecht',
+    'Molenbeek-Saint-Jean',
+    'Forest / Vorst',
+    'Laeken / Laken',
+    'Evere',
+    'Auderghem / Oudergem',
+    'Watermael-Boitsfort',
+    'Jette',
+    'Ganshoren',
+    'Koekelberg',
+    'Berchem-Sainte-Agathe',
+    'City centre / Pentagone',
+    'European Quarter',
+    'Louise / Louiza',
+    'Châtelain',
+    'Flagey',
+    'Matongé',
+  ],
+  lisbon: [
+    'Príncipe Real',
+    'Bairro Alto',
+    'Alfama',
+    'Mouraria',
+    'Intendente',
+    'Arroios',
+    'Avenidas Novas',
+    'Campo de Ourique',
+    'Estrela',
+    'Belém',
+    'Parque das Nações',
+    'Areeiro',
+    'Alvalade',
+    'Lumiar',
+    'Benfica',
+    'Cascais',
+    'Sintra',
+    'Almada',
+    'Barreiro',
+  ],
+}
+
+// ── Languages ─────────────────────────────────────────────────────────────────
+
+export const LANGUAGES: { code: string; label: string; flag: string }[] = [
+  { code: 'en', label: 'English',    flag: '🇬🇧' },
+  { code: 'fr', label: 'French',     flag: '🇫🇷' },
+  { code: 'nl', label: 'Dutch',      flag: '🇳🇱' },
+  { code: 'de', label: 'German',     flag: '🇩🇪' },
+  { code: 'es', label: 'Spanish',    flag: '🇪🇸' },
+  { code: 'pt', label: 'Portuguese', flag: '🇵🇹' },
+  { code: 'it', label: 'Italian',    flag: '🇮🇹' },
+  { code: 'ar', label: 'Arabic',     flag: '🇲🇦' },
+  { code: 'zh', label: 'Mandarin',   flag: '🇨🇳' },
+  { code: 'ja', label: 'Japanese',   flag: '🇯🇵' },
+  { code: 'pl', label: 'Polish',     flag: '🇵🇱' },
+  { code: 'ro', label: 'Romanian',   flag: '🇷🇴' },
+  { code: 'tr', label: 'Turkish',    flag: '🇹🇷' },
+  { code: 'ru', label: 'Russian',    flag: '🇷🇺' },
+  { code: 'other', label: 'Other',   flag: '🌐' },
+]
+
 export const SITUATIONS: SituationConfig[] = [
   { id: 'renting',       label: 'Renting',                    icon: '🏠' },
   { id: 'buying',        label: 'Buying property',            icon: '🔑' },
