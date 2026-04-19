@@ -25,7 +25,23 @@ export function useAuth() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signIn = async (email: string): Promise<{ error: Error | null }> => {
+  const signIn = async (email: string, password: string): Promise<{ error: Error | null }> => {
+    if (!supabase) return { error: new Error('Sign-in not available') }
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    return { error: error ?? null }
+  }
+
+  const signUp = async (email: string, password: string, displayName?: string): Promise<{ error: Error | null }> => {
+    if (!supabase) return { error: new Error('Sign-up not available') }
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { display_name: displayName ?? '' } },
+    })
+    return { error: error ?? null }
+  }
+
+  const signInWithMagicLink = async (email: string): Promise<{ error: Error | null }> => {
     if (!supabase) return { error: new Error('Sign-in not available') }
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -39,5 +55,5 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  return { user, loading, signIn, signOut }
+  return { user, loading, signIn, signUp, signInWithMagicLink, signOut }
 }

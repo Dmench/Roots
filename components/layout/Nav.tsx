@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 export function Nav() {
   const pathname     = usePathname()
   const { profile }  = useProfile()
-  const { user }     = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [authOpen,   setAuthOpen]   = useState(false)
 
@@ -86,7 +86,9 @@ export function Nav() {
               </Link>
             )}
 
-            {user ? (
+            {authLoading ? (
+              <div className="w-16 h-7 rounded animate-pulse" style={{ background: 'rgba(37,36,80,0.06)' }} />
+            ) : user ? (
               <Link
                 href="/profile"
                 className={cn(
