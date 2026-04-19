@@ -22,7 +22,7 @@ function daysInCity(arrivalDate?: string): number | null {
 export default function ProfilePage() {
   const router = useRouter()
   const { user, loading: authLoading, signOut } = useAuth()
-  const { profile, hydrated, setStage, setArrivalDate, setDisplayName, setNeighborhood, toggleLanguage, toggleSituation } = useProfile()
+  const { profile, hydrated, setStage, setArrivalDate, setDisplayName, setNeighborhood, setShowInDirectory, toggleLanguage, toggleSituation } = useProfile()
 
   const [authOpen,    setAuthOpen]    = useState(false)
   const [editingName, setEditingName] = useState(false)
@@ -329,6 +329,29 @@ export default function ProfilePage() {
               {(profile.languages ?? []).length} language{(profile.languages ?? []).length !== 1 ? 's' : ''} selected
             </p>
           )}
+        </div>
+
+        {/* ── Directory visibility ─────────────────────────────────────── */}
+        <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-1.5">Visible to other settlers</p>
+              <p className="text-xs text-stone/70 leading-relaxed">
+                Show your name and neighborhood to others joining {city?.name ?? 'your city'}. Helps new settlers know who else is here.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowInDirectory(profile.showInDirectory === false ? true : false)}
+              className="relative shrink-0 w-10 h-6 rounded-full transition-colors duration-200 mt-0.5"
+              style={{ background: profile.showInDirectory !== false ? '#3D3CAC' : 'rgba(37,36,80,0.12)' }}
+              aria-label="Toggle directory visibility"
+            >
+              <span
+                className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200"
+                style={{ transform: profile.showInDirectory !== false ? 'translateX(18px)' : 'translateX(2px)' }}
+              />
+            </button>
+          </div>
         </div>
 
         {/* ── Situation tags ────────────────────────────────────────────── */}

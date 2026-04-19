@@ -108,4 +108,5 @@ export interface UserProfile {
   situations: SituationTag[]
   completedTaskIds: string[]
   savedTaskIds: string[]
+  showInDirectory?: boolean
 }

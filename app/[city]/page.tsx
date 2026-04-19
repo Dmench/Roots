@@ -7,6 +7,7 @@ import { getRedditPosts } from '@/lib/data/reddit'
 import { getNews } from '@/lib/data/news'
 import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
+import { SettlersStrip } from '@/components/city/SettlersStrip'
 
 
 export function generateStaticParams() {
@@ -149,6 +150,9 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </Link>
             ))}
           </div>
+
+          {/* New settlers this month */}
+          <SettlersStrip cityId={cityId} />
         </div>
       </div>
 

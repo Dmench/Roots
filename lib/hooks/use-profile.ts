@@ -27,8 +27,9 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
     arrivalDate:      (data.arrival_date as string | null) ?? undefined,
     stage:            (data.stage as Stage | null) ?? undefined,
     situations:       (data.situations as SituationTag[]) ?? [],
-    completedTaskIds: (data.completed_task_ids as string[]) ?? [],
-    savedTaskIds:     (data.saved_task_ids as string[]) ?? [],
+    completedTaskIds:  (data.completed_task_ids as string[]) ?? [],
+    savedTaskIds:      (data.saved_task_ids as string[]) ?? [],
+    showInDirectory:   (data.show_in_directory as boolean | null) ?? true,
   }
 }
 
@@ -107,6 +108,7 @@ export function useProfile() {
             situations:         next.situations        ?? [],
             completed_task_ids: next.completedTaskIds  ?? [],
             saved_task_ids:     next.savedTaskIds      ?? [],
+            show_in_directory:  next.showInDirectory   ?? true,
             updated_at:         new Date().toISOString(),
           })
         })
@@ -120,7 +122,8 @@ export function useProfile() {
   const setStage         = (stage: Stage | undefined) => updateProfile({ stage })
   const setArrivalDate   = (date: string)             => updateProfile({ arrivalDate: date })
   const setDisplayName   = (name: string)             => updateProfile({ displayName: name })
-  const setNeighborhood  = (n: string | undefined)    => updateProfile({ neighborhood: n })
+  const setNeighborhood    = (n: string | undefined)    => updateProfile({ neighborhood: n })
+  const setShowInDirectory = (val: boolean)             => updateProfile({ showInDirectory: val })
 
   const toggleLanguage = (code: string) => {
     const current = profile.languages ?? []
@@ -159,6 +162,7 @@ export function useProfile() {
     setArrivalDate,
     setDisplayName,
     setNeighborhood,
+    setShowInDirectory,
     toggleLanguage,
     toggleSituation,
     toggleTaskDone,
