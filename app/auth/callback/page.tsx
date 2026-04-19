@@ -12,13 +12,20 @@ export default function AuthCallback() {
     const params = new URLSearchParams(window.location.search)
     const code   = params.get('code')
 
+    function getRedirect() {
+      const stored = sessionStorage.getItem('roots:returnTo')
+      sessionStorage.removeItem('roots:returnTo')
+      if (stored && stored.startsWith('/') && !stored.startsWith('/auth')) return stored
+      return '/profile'
+    }
+
     if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(() => router.replace('/profile'))
+      supabase.auth.exchangeCodeForSession(code).then(() => router.replace(getRedirect()))
       return
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') router.replace('/profile')
+      if (event === 'SIGNED_IN') router.replace(getRedirect())
     })
 
     return () => subscription.unsubscribe()

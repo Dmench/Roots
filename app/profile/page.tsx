@@ -239,7 +239,7 @@ export default function ProfilePage() {
                 </Link>
                 <span className="text-xs text-stone">{city.country}</span>
               </div>
-              <Link href="/cities" className="text-xs text-stone hover:text-espresso transition-colors">Change</Link>
+              <Link href="/cities?from=profile" className="text-xs text-stone hover:text-espresso transition-colors">Change</Link>
             </div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-stone">{doneCount} of {allTasks.length} tasks complete</p>

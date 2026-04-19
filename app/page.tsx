@@ -183,7 +183,7 @@ export default function HomePage() {
         </Link>
       </div>
 
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} returnTo="/brussels" />
     </div>
   )
 }

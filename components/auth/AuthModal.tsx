@@ -1,18 +1,30 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/use-auth'
 
 interface Props {
   isOpen: boolean
   onClose: () => void
+  /** Override where to redirect after sign-in. Defaults to current page. */
+  returnTo?: string
 }
 
-export function AuthModal({ isOpen, onClose }: Props) {
+export function AuthModal({ isOpen, onClose, returnTo }: Props) {
   const { signIn }  = useAuth()
   const [email, setEmail]     = useState('')
   const [sent,  setSent]      = useState(false)
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
+
+  // Store where the user was when they opened the modal so the callback
+  // can bring them back after clicking the magic link
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return
+    const dest = returnTo ?? window.location.pathname
+    // Don't redirect back to auth pages or root (root → profile is better)
+    const safe = dest.startsWith('/auth') || dest === '/' ? '/profile' : dest
+    sessionStorage.setItem('roots:returnTo', safe)
+  }, [isOpen, returnTo])
 
   if (!isOpen) return null
 
