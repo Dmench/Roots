@@ -4,22 +4,18 @@ import { supabase } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
+  const [user,    setUser]    = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false)
-      return
-    }
+    if (!supabase) { setLoading(false); return }
 
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user ?? null)
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    // onAuthStateChange fires INITIAL_SESSION synchronously from localStorage —
+    // no network call, no delay. Subsequent events (SIGNED_IN, SIGNED_OUT, etc.)
+    // update state as they happen.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
+      if (event === 'INITIAL_SESSION') setLoading(false)
     })
 
     return () => subscription.unsubscribe()

@@ -166,7 +166,7 @@ export default function HomePage() {
           </div>
 
           <p className="mt-6 text-xs" style={{ color: 'rgba(245,236,215,0.25)' }}>
-            No password needed — just your email.
+            Free to join. Your city, your data.
           </p>
         </div>
       </div>

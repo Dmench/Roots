@@ -27,9 +27,9 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
     arrivalDate:      (data.arrival_date as string | null) ?? undefined,
     stage:            (data.stage as Stage | null) ?? undefined,
     situations:       (data.situations as SituationTag[]) ?? [],
-    completedTaskIds:  (data.completed_task_ids as string[]) ?? [],
-    savedTaskIds:      (data.saved_task_ids as string[]) ?? [],
-    showInDirectory:   (data.show_in_directory as boolean | null) ?? true,
+    completedTaskIds: (data.completed_task_ids as string[]) ?? [],
+    savedTaskIds:     (data.saved_task_ids as string[]) ?? [],
+    showInDirectory:  (data.show_in_directory as boolean | null) ?? true,
   }
 }
 
@@ -43,12 +43,13 @@ export function useProfile() {
     setHydrated(true)
   }, [])
 
-  // 2. When authenticated, pull Supabase profile (cross-device source of truth)
+  // 2. When authenticated, pull Supabase profile (cross-device source of truth).
+  //    Handles both page-load (INITIAL_SESSION) and new sign-ins (SIGNED_IN).
   useEffect(() => {
     if (!supabase || !hydrated) return
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
         const { data } = await supabase!
           .from('profiles')
           .select('*')
@@ -61,27 +62,11 @@ export function useProfile() {
         }
       }
       if (event === 'SIGNED_OUT') {
-        // Keep local profile but clear the id so it re-syncs on next login
         setProfileState(prev => {
           const next = { ...prev, id: undefined }
           saveProfile(next)
           return next
         })
-      }
-    })
-
-    // Also check current session on mount
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return
-      const { data } = await supabase!
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      if (data) {
-        const merged = mapSupabaseProfile(data)
-        setProfileState(merged)
-        saveProfile(merged)
       }
     })
 
@@ -118,10 +103,10 @@ export function useProfile() {
     })
   }, [])
 
-  const setCity          = (cityId: CityId)           => updateProfile({ cityId })
-  const setStage         = (stage: Stage | undefined) => updateProfile({ stage })
-  const setArrivalDate   = (date: string)             => updateProfile({ arrivalDate: date })
-  const setDisplayName   = (name: string)             => updateProfile({ displayName: name })
+  const setCity            = (cityId: CityId)           => updateProfile({ cityId })
+  const setStage           = (stage: Stage | undefined) => updateProfile({ stage })
+  const setArrivalDate     = (date: string)             => updateProfile({ arrivalDate: date })
+  const setDisplayName     = (name: string)             => updateProfile({ displayName: name })
   const setNeighborhood    = (n: string | undefined)    => updateProfile({ neighborhood: n })
   const setShowInDirectory = (val: boolean)             => updateProfile({ showInDirectory: val })
 

@@ -1,16 +1,18 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/use-auth'
 
 interface Props {
-  isOpen: boolean
-  onClose: () => void
+  isOpen:    boolean
+  onClose:   () => void
   returnTo?: string
 }
 
 type View = 'signin' | 'signup' | 'magic-sent'
 
 export function AuthModal({ isOpen, onClose, returnTo }: Props) {
+  const router = useRouter()
   const { signIn, signUp, signInWithMagicLink } = useAuth()
 
   const [view,     setView]     = useState<View>('signin')
@@ -20,7 +22,8 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
 
-  // Store returnTo path so auth callback knows where to redirect
+  // Store returnTo in sessionStorage so magic-link callback and password auth
+  // both know where to send the user after signing in.
   useEffect(() => {
     if (!isOpen || typeof window === 'undefined') return
     const dest = returnTo ?? window.location.pathname
@@ -37,6 +40,16 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
 
   if (!isOpen) return null
 
+  // After email/password auth, consume the returnTo and navigate there
+  function navigateAfterAuth() {
+    const dest = sessionStorage.getItem('roots:returnTo')
+    sessionStorage.removeItem('roots:returnTo')
+    onClose()
+    if (dest && typeof window !== 'undefined' && dest !== window.location.pathname) {
+      router.push(dest)
+    }
+  }
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password) return
@@ -46,7 +59,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
     if (err) {
       setError(err.message.includes('Invalid login') ? 'Wrong email or password.' : err.message)
     } else {
-      onClose()
+      navigateAfterAuth()
     }
   }
 
@@ -60,7 +73,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
     if (err) {
       setError(err.message.includes('already registered') ? 'Account already exists — sign in instead.' : err.message)
     } else {
-      onClose()
+      navigateAfterAuth()
     }
   }
 
