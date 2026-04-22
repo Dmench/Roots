@@ -156,13 +156,8 @@ export default function HomePage() {
               onClick={() => setAuthOpen(true)}
               className="inline-flex items-center justify-center px-10 py-4 text-base font-bold rounded-full hover:opacity-90 transition-opacity"
               style={{ background: '#F5F4F0', color: '#252450' }}>
-              Open Brussels →
+              Join Roots →
             </button>
-            <Link href="/brussels"
-              className="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full hover:opacity-60 transition-opacity"
-              style={{ color: 'rgba(245,236,215,0.4)' }}>
-              Browse first
-            </Link>
           </div>
 
           <p className="mt-6 text-xs" style={{ color: 'rgba(245,236,215,0.25)' }}>

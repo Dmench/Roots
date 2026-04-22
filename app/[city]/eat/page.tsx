@@ -4,6 +4,7 @@ import { getCity, ACTIVE_CITIES } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
 import { getRedditPosts } from '@/lib/data/reddit'
 import EatSection from '@/components/city/EatSection'
+import AuthGate from '@/components/auth/AuthGate'
 
 export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
@@ -22,6 +23,7 @@ export default async function EatPage({ params }: { params: Promise<{ city: stri
   ])
 
   return (
+    <AuthGate cityName={city.name} cityId={cityId}>
     <div style={{ background: '#F5F4F0', minHeight: '100vh' }}>
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
@@ -52,5 +54,6 @@ export default async function EatPage({ params }: { params: Promise<{ city: stri
         <EatSection venues={venues} reddit={reddit} cityId={cityId} />
       </div>
     </div>
+    </AuthGate>
   )
 }

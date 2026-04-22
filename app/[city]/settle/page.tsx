@@ -2,7 +2,9 @@
 import { use, useState } from 'react'
 import Link from 'next/link'
 import { useProfile } from '@/lib/hooks/use-profile'
+import { useAuth } from '@/lib/hooks/use-auth'
 import { getCity, STAGES, SITUATIONS } from '@/lib/data/cities'
+import AuthGate from '@/components/auth/AuthGate'
 import { getTasksForCity, filterTasks } from '@/lib/data/tasks'
 import { cn } from '@/lib/utils'
 import type { Stage, SituationTag, TaskCategory } from '@/lib/types'
@@ -28,12 +30,14 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
   const { city: cityId } = use(params)
   const city = getCity(cityId)
   const { profile, hydrated, setStage, toggleSituation, toggleTaskDone } = useProfile()
+  const { user, loading: authLoading } = useAuth()
   const [expandedTask,   setExpandedTask]   = useState<string | null>(null)
   const [showFilters,    setShowFilters]    = useState(false)
   const [activeCategory, setActiveCategory] = useState<TaskCategory | 'all'>('all')
 
   if (!city) return null
-  if (!hydrated) return <div className="min-h-screen" style={{ background: '#F5F4F0' }} />
+  if (authLoading || !hydrated) return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
+  if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
   const allTasks      = getTasksForCity(city.id)
   const filteredTasks = filterTasks(allTasks, profile.stage as Stage | undefined, profile.situations as SituationTag[] | undefined)

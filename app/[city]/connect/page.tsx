@@ -3,6 +3,7 @@ import { use, useState, useEffect, useRef } from 'react'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
+import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -116,7 +117,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const { city: cityId } = use(params)
   const city        = getCity(cityId)
   const { profile } = useProfile()
-  const { user }    = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const composerRef = useRef<HTMLTextAreaElement>(null)
 
   const [posts,       setPosts]       = useState<Post[]>([])
@@ -152,6 +153,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   }, [cityId, feedState])
 
   if (!city) return null
+  if (authLoading) return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
+  if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
   const resources = RESOURCES.filter(r => r.cityId === cityId)
   const channel   = CHANNELS.find(c => c.id === activeChannel)!

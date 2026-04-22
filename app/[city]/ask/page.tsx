@@ -3,6 +3,7 @@ import { use, useState, useRef, useEffect } from 'react'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
+import AuthGate from '@/components/auth/AuthGate'
 import { getCity, STAGES } from '@/lib/data/cities'
 import { cn } from '@/lib/utils'
 
@@ -180,7 +181,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   const { city: cityId } = use(params)
   const city    = getCity(cityId)
   const { profile } = useProfile()
-  const { user }    = useAuth()
+  const { user, loading: authLoading } = useAuth()
 
   const [messages,  setMessages]  = useState<Message[]>([])
   const [input,     setInput]     = useState('')
@@ -196,6 +197,8 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   }, [messages, loading])
 
   if (!city) return null
+  if (authLoading) return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
+  if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
   const stageLabel  = profile.stage ? STAGES.find(s => s.id === profile.stage)?.label : null
   const starterGroups = STARTERS[cityId] ?? STARTERS.brussels

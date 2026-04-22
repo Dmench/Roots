@@ -9,6 +9,7 @@ import { getVenues } from '@/lib/data/venues'
 import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
+import AuthGate from '@/components/auth/AuthGate'
 
 
 export function generateStaticParams() {
@@ -56,6 +57,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const secondaryNews  = news.slice(1, 4)
 
   return (
+    <AuthGate cityName={city.name} cityId={cityId}>
     <div style={{ background: '#F5F4F0', minHeight: '100vh' }}>
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
@@ -365,6 +367,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         </div>
       </div>
     </div>
+  </AuthGate>
   )
 }
 
