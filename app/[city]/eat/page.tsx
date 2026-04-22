@@ -9,7 +9,8 @@ export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
 }
 
-export const revalidate = 3600
+// Fully static — rebuilt on each deployment. Venue data doesn't change minute to minute.
+export const dynamic = 'force-static'
 
 export default async function EatPage({ params }: { params: Promise<{ city: string }> }) {
   const { city: cityId } = await params
