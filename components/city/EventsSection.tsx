@@ -86,41 +86,45 @@ export default function EventsSection({
       </div>
 
       {/* ── Bucketed sections ──────────────────────────────────────────── */}
-      <div className="space-y-10">
+      <div className="space-y-12">
         {buckets.map(bucket => {
+          const isTonight  = bucket.label === 'Today'
+          const isWeekend  = bucket.label === 'This weekend'
           const items = bucket.items.slice(0, bucket.label === 'Coming up' ? 8 : 99)
+
+          // Label copy + accent
+          const labelText    = isTonight ? 'Tonight' : isWeekend ? 'This Weekend' : 'Coming Up'
+          const accentColor  = isTonight ? '#FF3EBA' : isWeekend ? '#FAB400' : 'rgba(37,36,80,0.2)'
 
           return (
             <div key={bucket.label}>
               {/* Section header */}
-              <div className="flex items-center gap-4 mb-5">
-                <div>
-                  <p className="text-[9px] font-black tracking-[0.25em] uppercase"
-                    style={{ color: 'rgba(37,36,80,0.3)' }}>
-                    {bucket.label === 'Today' ? '— Tonight' :
-                     bucket.label === 'This weekend' ? '— This weekend' :
-                     '— Coming up'}
-                  </p>
+              <div className="flex items-end justify-between mb-5 pb-3"
+                style={{ borderBottom: `2px solid ${accentColor}` }}>
+                <div className="flex items-baseline gap-3">
+                  <h2 className="font-display font-black leading-none"
+                    style={{ fontSize: 'clamp(1.4rem, 3vw, 1.75rem)', color: '#0F0E1E' }}>
+                    {labelText}
+                  </h2>
+                  <span className="text-xs font-medium" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                    {bucket.items.length} event{bucket.items.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
-                <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.08)' }} />
                 {bucket.label === 'Coming up' && (
                   <Link href={`/${cityId}/connect`}
-                    className="text-[10px] font-bold hover:opacity-60 transition-opacity shrink-0"
+                    className="text-[10px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity shrink-0"
                     style={{ color: '#4744C8' }}>
                     See all →
                   </Link>
                 )}
-                <span className="text-[10px] font-bold shrink-0"
-                  style={{ color: 'rgba(37,36,80,0.25)' }}>
-                  {bucket.items.length} event{bucket.items.length !== 1 ? 's' : ''}
-                </span>
               </div>
 
               {/* ── Grid ─────────────────────────────────────────────── */}
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {items.map(({ ev, dates }, idx) => {
-                  const venueColor = VENUE_COLOR[ev.source] ?? '#4744C8'
-                  const isHero     = idx === 0 && bucket.label !== 'Coming up'
+                  const venueColor  = VENUE_COLOR[ev.source] ?? '#4744C8'
+                  const isHero      = idx === 0 && bucket.label !== 'Coming up'
+                  const isDarkHero  = isHero && isTonight
 
                   const isSaved = savedIds.has(ev.id)
 
@@ -131,11 +135,15 @@ export default function EventsSection({
                       target="_blank"
                       rel="noopener noreferrer"
                       className={
-                        isHero
+                        isDarkHero
+                          ? 'group rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col sm:col-span-2 relative'
+                          : isHero
                           ? 'group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col sm:col-span-2 relative'
                           : 'group bg-white rounded-2xl overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col relative'
                       }
-                      style={{ border: '1px solid rgba(37,36,80,0.07)' }}
+                      style={isDarkHero
+                        ? { background: '#0F0E1E', border: '1px solid rgba(255,62,186,0.15)' }
+                        : { border: '1px solid rgba(37,36,80,0.07)' }}
                     >
                       {/* Save button — always top-right */}
                       <div className="absolute top-3 right-3 z-10">
@@ -211,24 +219,54 @@ export default function EventsSection({
                         </div>
                       )}
 
-                      {/* Hero body — just extra dates + venue if needed */}
-                      {isHero && (
-                        <div className="px-4 py-3 flex items-center justify-between">
+                      {/* Hero body — dark card no-image fallback + extra dates */}
+                      {isHero && !ev.image && (
+                        <div className="px-5 py-5 flex flex-col flex-1">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full"
+                              style={{ background: venueColor, color: '#fff' }}>
+                              {ev.source.toUpperCase()}
+                            </span>
+                          </div>
+                          <p className="text-[11px] font-black tracking-wider uppercase mb-3"
+                            style={{ color: isDarkHero ? '#FF3EBA' : '#10B981' }}>
+                            {dates[0].date}
+                            {dates[0].time && <span className="ml-2 opacity-70">{dates[0].time}</span>}
+                          </p>
+                          <p className="font-display font-bold leading-snug flex-1"
+                            style={{ fontSize: '1.15rem', color: isDarkHero ? '#F5ECD7' : '#252450' }}>
+                            {ev.title}
+                          </p>
+                          {ev.venue && ev.venue !== ev.source && (
+                            <p className="text-[10px] mt-3 truncate"
+                              style={{ color: isDarkHero ? 'rgba(245,236,215,0.35)' : 'rgba(37,36,80,0.35)' }}>
+                              {ev.venue}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Hero body with image — extra dates footer */}
+                      {isHero && ev.image && (
+                        <div className="px-4 py-3 flex items-center justify-between"
+                          style={{ background: isDarkHero ? 'rgba(255,255,255,0.04)' : undefined }}>
                           <div className="flex flex-wrap gap-x-3 gap-y-0.5">
                             {dates.slice(1, 4).map((d, i) => (
                               <span key={i} className="text-[10px] font-bold"
-                                style={{ color: 'rgba(37,36,80,0.4)' }}>
+                                style={{ color: isDarkHero ? 'rgba(245,236,215,0.35)' : 'rgba(37,36,80,0.4)' }}>
                                 {d.date.split(' ').slice(0, 3).join(' ')}
                               </span>
                             ))}
                             {dates.length > 4 && (
-                              <span className="text-[10px] opacity-35" style={{ color: '#252450' }}>
+                              <span className="text-[10px] opacity-35"
+                                style={{ color: isDarkHero ? '#F5ECD7' : '#252450' }}>
                                 +{dates.length - 4} more
                               </span>
                             )}
                           </div>
                           {ev.venue && ev.venue !== ev.source && (
-                            <p className="text-[10px] shrink-0 ml-3" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                            <p className="text-[10px] shrink-0 ml-3"
+                              style={{ color: isDarkHero ? 'rgba(245,236,215,0.3)' : 'rgba(37,36,80,0.35)' }}>
                               {ev.venue}
                             </p>
                           )}
