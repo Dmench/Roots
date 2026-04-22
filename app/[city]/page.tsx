@@ -8,7 +8,6 @@ import { getNews } from '@/lib/data/news'
 import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
-import { NewsImage } from '@/components/city/NewsImage'
 
 
 export function generateStaticParams() {
@@ -177,36 +176,33 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
                 {/* Featured story */}
                 <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
-                  className="group block mt-5 mb-1">
-                  <NewsImage
-                    src={featuredNews.image ?? ''}
-                    source={featuredNews.source}
-                    sourceColor={SOURCE_COLOR[featuredNews.source] ?? '#252450'}
-                    aspectClass="aspect-[16/9] w-full"
-                    className="mb-3"
-                  />
-                  <span className="text-[9px] font-black tracking-widest uppercase block mb-2"
-                    style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
-                    {featuredNews.source}
-                  </span>
+                  className="group block mt-5 pb-5"
+                  style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2.5 h-2.5 rounded-sm shrink-0"
+                      style={{ background: SOURCE_COLOR[featuredNews.source] ?? '#252450' }} />
+                    <span className="text-[9px] font-black tracking-widest uppercase"
+                      style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
+                      {featuredNews.source}
+                    </span>
+                  </div>
                   <h3 className="font-display font-bold leading-[1.15] group-hover:opacity-55 transition-opacity"
-                    style={{ fontSize: '1.05rem', color: '#0F0E1E' }}>
+                    style={{ fontSize: '1.1rem', color: '#0F0E1E' }}>
                     {featuredNews.title}
                   </h3>
+                  <span className="inline-block mt-3 text-[9px] font-black tracking-widest uppercase opacity-30 group-hover:opacity-60 transition-opacity"
+                    style={{ color: '#0F0E1E' }}>
+                    Read ↗
+                  </span>
                 </a>
 
                 {/* Supporting stories */}
                 {secondaryNews.map((item, i) => (
                   <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
-                    className="group flex gap-3 py-4 hover:opacity-55 transition-opacity"
-                    style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
-                    <NewsImage
-                      src={item.image ?? ''}
-                      source={item.source}
-                      sourceColor={SOURCE_COLOR[item.source] ?? '#252450'}
-                      aspectClass="w-[72px] h-[56px]"
-                      className="shrink-0"
-                    />
+                    className="group flex items-start gap-3 py-4 hover:opacity-55 transition-opacity"
+                    style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+                    <div className="shrink-0 w-1 self-stretch rounded-full mt-0.5"
+                      style={{ background: SOURCE_COLOR[item.source] ?? '#252450' }} />
                     <div className="flex-1 min-w-0">
                       <span className="text-[8px] font-black tracking-widest uppercase block mb-1.5"
                         style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(37,36,80,0.4)' }}>
