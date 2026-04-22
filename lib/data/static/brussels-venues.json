@@ -195,5 +195,71 @@
     "tags": ["italian", "groups", "pasta", "no-reservations", "lively"],
     "openingHours": "Mo-Th 12:00-14:00,18:30-22:00; Fr 12:00-22:15; Sa-Su 12:00-22:15",
     "website": "https://www.bigmammagroup.com"
+  },
+  {
+    "id": "curated-le-203",
+    "name": "Le 203",
+    "category": "Creative seasonal",
+    "broadType": "restaurant",
+    "neighborhood": "Saint-Gilles",
+    "price": "€€€",
+    "vibe": "Candlelit stone and brick, weekly-changing menu, Pacific-French-Asian in one room.",
+    "why": "South African chef, French front of house, no fixed menu. One of the most interesting kitchens in the city right now.",
+    "tags": ["creative", "seasonal", "intimate", "chef-driven", "dinner"],
+    "address": "Chaussée de Waterloo 203",
+    "openingHours": "Tu-Fr lunch & dinner",
+    "website": "https://www.le203brussels.com"
+  },
+  {
+    "id": "curated-moutarde",
+    "name": "Moutarde",
+    "category": "Belgo-French brasserie",
+    "broadType": "restaurant",
+    "neighborhood": "Ixelles",
+    "price": "€€€",
+    "vibe": "Midnight-blue velvet, dark wood, américain frites and Comté gougères until 1am.",
+    "why": "Victor Roisin (of Gratin) does the classic brasserie right — zero-waste kitchen, real ingredients, open late.",
+    "tags": ["late-night", "brasserie", "belgian", "dinner", "occasion"],
+    "address": "Rue Saint-Boniface 13",
+    "openingHours": "Daily 12:00-01:00"
+  },
+  {
+    "id": "curated-malo-coffee",
+    "name": "Malō Coffee",
+    "category": "Specialty coffee",
+    "broadType": "cafe",
+    "neighborhood": "Ixelles / Châtelain",
+    "price": "€",
+    "vibe": "Blue-green interiors near Tenbosch Park, NY-style bagels, precise espresso.",
+    "why": "The specialty coffee shop that doesn't feel like it's trying. Artisan roasters, seasonal bagels, proper baristas.",
+    "tags": ["specialty-coffee", "remote-work", "bagels", "expat-favorite", "quiet"],
+    "address": "Chaussée de Waterloo 586"
+  },
+  {
+    "id": "curated-de-hoef",
+    "name": "De Hoef 1627",
+    "category": "Historic estaminet",
+    "broadType": "restaurant",
+    "neighborhood": "Uccle",
+    "price": "€€€",
+    "vibe": "Old tiles, exposed beams, wood fire, Burgundy snails. Four generations of the same family.",
+    "why": "Established as a restaurant in the 1950s in a 17th-century coaching inn. Grilled meats over fire, courtyard terrace, the real Belgian deal.",
+    "tags": ["belgian", "historic", "institution", "terrace", "occasion"],
+    "address": "Rue Edith Cavell 218",
+    "openingHours": "We-Fr 12:00-14:00,19:00-22:00; Sa 18:30-22:30; Su 12:00-14:30,19:00-22:00",
+    "website": "https://dehoef-1627.com"
+  },
+  {
+    "id": "curated-koku-ramen",
+    "name": "Koku Ramen",
+    "category": "Japanese ramen",
+    "broadType": "restaurant",
+    "neighborhood": "Ixelles",
+    "price": "€€",
+    "vibe": "Counter seating, no reservations, queues out the door. Worth every minute.",
+    "why": "Homemade tonkotsu broth, chicken oil, the real thing. Opens twice daily for short windows — if you can get a seat, you'll be back.",
+    "tags": ["japanese", "ramen", "no-reservations", "counter-dining", "expat-favorite"],
+    "address": "Rue Saint-Boniface 11",
+    "openingHours": "Dinner from 19:00 (limited service windows, call ahead)"
   }
 ]
