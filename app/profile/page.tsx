@@ -255,10 +255,15 @@ export default function ProfilePage() {
         )}
 
         {!city && (
-          <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-            <p className="text-xs uppercase tracking-[0.2em] text-stone mb-3">City</p>
-            <Link href="/cities?from=profile" className="text-sm font-medium text-terracotta hover:opacity-80 transition-opacity">
-              Choose a city to get started →
+          <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-stone mb-1">City</p>
+              <p className="text-sm text-walnut/60">No city selected yet</p>
+            </div>
+            <Link href="/cities?from=profile"
+              className="shrink-0 text-xs font-black tracking-widest uppercase px-4 py-2 rounded-full hover:opacity-80 transition-opacity"
+              style={{ background: '#252450', color: '#fff' }}>
+              Choose city →
             </Link>
           </div>
         )}

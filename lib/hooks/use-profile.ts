@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { CityId, Stage, SituationTag, UserProfile } from '@/lib/types'
 
@@ -37,36 +37,63 @@ export function useProfile() {
   const [profile, setProfileState] = useState<Partial<UserProfile>>({})
   const [hydrated, setHydrated]    = useState(false)
 
-  // 1. Hydrate from localStorage
+  // Cached userId from auth event — avoids calling getUser() on every update
+  const userIdRef = useRef<string | null>(null)
+
+  // 1. Hydrate from localStorage immediately (synchronous, no flash)
   useEffect(() => {
     setProfileState(loadProfile())
     setHydrated(true)
   }, [])
 
-  // 2. When authenticated, pull Supabase profile (cross-device source of truth).
-  //    Handles both page-load (INITIAL_SESSION) and new sign-ins (SIGNED_IN).
+  // 2. On auth state, sync from Supabase.
+  //    Merge strategy: DB values win for fields that are set there.
+  //    Never clobber local values with null/empty (handles new signups where
+  //    the DB row was just created and fields aren't written yet).
   useEffect(() => {
     if (!supabase || !hydrated) return
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+        userIdRef.current = session.user.id
+
         const { data } = await supabase!
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single()
+
         if (data) {
-          const merged = mapSupabaseProfile(data)
-          setProfileState(merged)
-          saveProfile(merged)
+          const db = mapSupabaseProfile(data)
+          setProfileState(prev => {
+            // DB wins on fields it has; local wins on fields DB has as null/empty
+            const merged: Partial<UserProfile> = { ...prev, id: session.user.id }
+            if (db.cityId)            merged.cityId            = db.cityId
+            if (db.stage)             merged.stage             = db.stage
+            if (db.displayName)       merged.displayName       = db.displayName
+            if (db.neighborhood)      merged.neighborhood      = db.neighborhood
+            if (db.arrivalDate)       merged.arrivalDate       = db.arrivalDate
+            if (db.languages?.length) merged.languages         = db.languages
+            if (db.situations?.length) merged.situations       = db.situations
+            if (db.completedTaskIds?.length) merged.completedTaskIds = db.completedTaskIds
+            merged.showInDirectory = db.showInDirectory ?? prev.showInDirectory ?? true
+            saveProfile(merged)
+            return merged
+          })
+        } else {
+          // Brand-new user — no DB row yet, just stamp the id
+          setProfileState(prev => {
+            const next = { ...prev, id: session.user.id }
+            saveProfile(next)
+            return next
+          })
         }
       }
+
       if (event === 'SIGNED_OUT') {
-        setProfileState(prev => {
-          const next = { ...prev, id: undefined }
-          saveProfile(next)
-          return next
-        })
+        userIdRef.current = null
+        saveProfile({})
+        setProfileState({})
       }
     })
 
@@ -78,24 +105,24 @@ export function useProfile() {
       const next = { ...prev, ...updates }
       saveProfile(next)
 
-      // Fire-and-forget sync to Supabase when authenticated
-      if (supabase) {
-        supabase.auth.getUser().then(({ data: { user } }) => {
-          if (!user) return
-          supabase!.from('profiles').upsert({
-            id:                 user.id,
-            display_name:       next.displayName      ?? null,
-            city_id:            next.cityId            ?? null,
-            neighborhood:       next.neighborhood      ?? null,
-            languages:          next.languages         ?? [],
-            arrival_date:       next.arrivalDate       ?? null,
-            stage:              next.stage             ?? null,
-            situations:         next.situations        ?? [],
-            completed_task_ids: next.completedTaskIds  ?? [],
-            saved_task_ids:     next.savedTaskIds      ?? [],
-            show_in_directory:  next.showInDirectory   ?? true,
-            updated_at:         new Date().toISOString(),
-          })
+      // Upsert to Supabase using cached userId — no extra getUser() network call
+      const uid = userIdRef.current
+      if (supabase && uid) {
+        supabase.from('profiles').upsert({
+          id:                 uid,
+          display_name:       next.displayName      ?? null,
+          city_id:            next.cityId            ?? null,
+          neighborhood:       next.neighborhood      ?? null,
+          languages:          next.languages         ?? [],
+          arrival_date:       next.arrivalDate       ?? null,
+          stage:              next.stage             ?? null,
+          situations:         next.situations        ?? [],
+          completed_task_ids: next.completedTaskIds  ?? [],
+          saved_task_ids:     next.savedTaskIds      ?? [],
+          show_in_directory:  next.showInDirectory   ?? true,
+          updated_at:         new Date().toISOString(),
+        }).then(({ error }) => {
+          if (error) console.error('[profile] upsert failed:', error.message)
         })
       }
 
@@ -152,5 +179,6 @@ export function useProfile() {
     toggleSituation,
     toggleTaskDone,
     isOnboarded,
+    updateProfile,
   }
 }

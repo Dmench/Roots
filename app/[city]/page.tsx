@@ -10,6 +10,7 @@ import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
 import AuthGate from '@/components/auth/AuthGate'
+import OnboardingPrompt from '@/components/city/OnboardingPrompt'
 
 
 export function generateStaticParams() {
@@ -367,6 +368,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         </div>
       </div>
     </div>
+    <OnboardingPrompt cityId={cityId} cityName={city.name} />
   </AuthGate>
   )
 }

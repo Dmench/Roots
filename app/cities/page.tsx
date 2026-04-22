@@ -30,8 +30,9 @@ function CitiesInner() {
   const [loading,       setLoading]       = useState(false)
 
   function handleCitySelect(cityId: string) {
+    // Always persist the city — regardless of where we came from
+    setCity(cityId as CityId)
     if (fromProfile) {
-      setCity(cityId as CityId)
       router.push('/profile')
     } else {
       router.push(`/${cityId}`)
@@ -197,7 +198,6 @@ function CitiesInner() {
           <div className="flex flex-wrap gap-8 text-sm text-stone">
             <Link href="/" className="hover:text-espresso transition-colors">Home</Link>
             <Link href="/brussels" className="hover:text-espresso transition-colors">Brussels</Link>
-            <Link href="/lisbon" className="hover:text-espresso transition-colors">Lisbon</Link>
             <a href="mailto:hello@roots.so" className="hover:text-espresso transition-colors">Contact</a>
           </div>
         </div>
