@@ -202,10 +202,10 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                           Exclusive deal
                         </span>
                       </div>
-                      <p className="text-xs font-black truncate" style={{ color: '#F5ECD7' }}>{p.name}</p>
+                      <p className="text-xs font-black truncate" style={{ color: '#F5F4F0' }}>{p.name}</p>
                       {p.deal && (
-                        <p className="text-[9px] mt-1 line-clamp-1" style={{ color: 'rgba(245,236,215,0.45)' }}>
-                          🍺 {p.deal}
+                        <p className="text-[9px] mt-1 line-clamp-1" style={{ color: 'rgba(245,244,240,0.45)' }}>
+                          {p.deal}
                         </p>
                       )}
                     </Link>
@@ -214,16 +214,19 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
                 <div className="space-y-0">
                   {venues.filter(v => !v.featured).slice(0, 4).map((v, idx) => {
-                    const typeColor = v.broadType === 'bar' ? '#4744C8' : v.broadType === 'cafe' ? '#FAB400' : '#E8612A'
+                    const typeColor = v.broadType === 'bar' ? '#4744C8' : v.broadType === 'cafe' ? '#B08800' : '#E8612A'
                     return (
                       <div key={v.id}
-                        className="flex items-center gap-3 py-2.5"
+                        className="flex items-start gap-3 py-2.5"
                         style={{ borderTop: idx > 0 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
-                        <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: typeColor }} />
+                        <span className="shrink-0 w-1.5 h-1.5 rounded-full mt-1.5" style={{ background: typeColor }} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold truncate" style={{ color: '#0F0E1E' }}>{v.name}</p>
+                          <div className="flex items-baseline justify-between gap-1">
+                            <p className="text-xs font-bold truncate" style={{ color: '#0F0E1E' }}>{v.name}</p>
+                            {'price' in v && <span className="text-[9px] font-bold shrink-0" style={{ color: typeColor }}>{(v as {price?: string}).price}</span>}
+                          </div>
                           <p className="text-[9px]" style={{ color: 'rgba(37,36,80,0.35)' }}>
-                            {v.category}{v.neighborhood ? ` · ${v.neighborhood}` : ''}
+                            {v.neighborhood} · {(v as {vibe?: string}).vibe?.split(',')[0] ?? v.category}
                           </p>
                         </div>
                       </div>

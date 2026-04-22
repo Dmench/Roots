@@ -6,8 +6,11 @@ export interface Venue {
   category:     string
   broadType:    'restaurant' | 'bar' | 'cafe' | 'other'
   neighborhood: string
-  address:      string
-  cuisine?:     string
+  price:        '€' | '€€' | '€€€' | '€€€€'
+  vibe:         string   // e.g. "Buzzing communal brasserie, chalkboard menu"
+  why:          string   // e.g. "The most Brussels restaurant in Brussels"
+  tags:         string[] // e.g. ['craft-beer', 'natural-wine', 'no-reservations']
+  address?:     string
   openingHours?: string
   website?:     string
   featured?:    boolean
