@@ -1,0 +1,439 @@
+[
+  {
+    "id": "osm-838968810",
+    "name": "'t Zuidpaleis",
+    "category": "Bar",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-698288168",
+    "name": "Anata",
+    "category": "Japanese",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "japanese",
+    "website": "https://restaurant-anata.be/"
+  },
+  {
+    "id": "osm-954546467",
+    "name": "Aquarius",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-826830627",
+    "name": "Arion Café",
+    "category": "Regional",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "regional",
+    "openingHours": "Su-Fr 12:00-22:30; Sa 12:00-23:00",
+    "website": "https://www.arionbrussels.be/"
+  },
+  {
+    "id": "osm-714030664",
+    "name": "Art's & Bagels",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": "",
+    "openingHours": "Mo-Fr 06:45-17:30; Sa-Su 11:00-16:00",
+    "website": "https://www.artsnbagels.com"
+  },
+  {
+    "id": "osm-574849365",
+    "name": "Au Bon Coin",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": "",
+    "openingHours": "Tu-Th 10:30-21:30; Fr,Sa 10:30-22:45; Su 10:30-20:00",
+    "website": "https://zekaa.com/au-bon-coin"
+  },
+  {
+    "id": "osm-993030379",
+    "name": "Bab Dar",
+    "category": "Moroccan",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "moroccan",
+    "openingHours": "Mo-Fr 12:00-14:30,19:00-22:30; Sa 19:00-22:30",
+    "website": "http://www.babdar.be/"
+  },
+  {
+    "id": "osm-457877372",
+    "name": "Balmoral",
+    "category": "American",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "american",
+    "openingHours": "We,Th,Su 10:00-17:00; Fr,Sa 10:00-21:45"
+  },
+  {
+    "id": "osm-692913049",
+    "name": "Barracuda",
+    "category": "Italian",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "italian",
+    "openingHours": "Mo-Th 12:00-14:00,18:30-22:00; Fr 12:00-14:00,18:30-22:15; Sa 12:00-14:45,18:30-22:15; Su 12:00-14:45,18:30-22:00",
+    "website": "https://www.bigmammagroup.com/"
+  },
+  {
+    "id": "osm-463174855",
+    "name": "BBP Bailli",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": "",
+    "openingHours": "Mo,Tu 17:00-24:00, We 17:00-01:00, Th,Fr 17:00-02:00, Sa 15:00-02:00, Su 15:00-24:00",
+    "website": "https://www.beerproject.be/en/taproom/bailli/"
+  },
+  {
+    "id": "osm-843729088",
+    "name": "Belgica",
+    "category": "Bar",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": "",
+    "website": "http://www.lebelgica.be"
+  },
+  {
+    "id": "osm-826830634",
+    "name": "Belgo Nero",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-356304553",
+    "name": "Bistropolitan Brussels",
+    "category": "French",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "french",
+    "website": "https://restaurant-bistropolitan.be/"
+  },
+  {
+    "id": "osm-1151269436",
+    "name": "Bombay Inn",
+    "category": "Indian",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "indian",
+    "openingHours": "Mo-Sa,PH 12:00-14:30,18:00-23:30; Su 17:00-22:30",
+    "website": "https://www.bombayinn.be/"
+  },
+  {
+    "id": "osm-1106127078",
+    "name": "Brasserie de l’Expo",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-417672904",
+    "name": "Brasserie Gribaumont",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-769482802",
+    "name": "Brasserie Park Café",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-474985854",
+    "name": "Brasserie Verschueren",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-843729093",
+    "name": "C'est ma Tournée",
+    "category": "Bar",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-1037462990",
+    "name": "Café Capitale",
+    "category": "Coffee shop",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "coffee_shop",
+    "openingHours": "Mo-Fr 08:00-19:00, Sa-Su 08:30-19:00",
+    "website": "https://www.blackpotioncoffee.com"
+  },
+  {
+    "id": "osm-870247035",
+    "name": "Café De Markten",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": "",
+    "openingHours": "Mo-Sa 08:00-00:00; Su 10:00-24:00",
+    "website": "https://www.cafedemarkten.be/"
+  },
+  {
+    "id": "osm-619171187",
+    "name": "Café des Sports",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-488330417",
+    "name": "Café du Parc",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-751802476",
+    "name": "Cafe Inn",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": "",
+    "openingHours": "Mo-Su,PH 07:00-24:00"
+  },
+  {
+    "id": "osm-700760735",
+    "name": "Café Italia",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-1099540273",
+    "name": "Café Le Batonnier",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-642094471",
+    "name": "Café Nico's",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-1078589903",
+    "name": "Café Queen's",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-350815522",
+    "name": "Café Tulipant",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": "",
+    "openingHours": "Mo-Fr 16:00-01:00; Sa-Su 10:00-02:00",
+    "website": "https://compagnieabc.be/restaurant/cafe-tulipant/"
+  },
+  {
+    "id": "osm-1189927187",
+    "name": "Cantina La Général",
+    "category": "Mexican",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "mexican",
+    "openingHours": "Mo-Sa 18:30-23:00; Tu-Fr 12:00-15:00",
+    "website": "https://www.lageneral.be/"
+  },
+  {
+    "id": "osm-766847696",
+    "name": "Chez Amina",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-488330252",
+    "name": "Chez Firas",
+    "category": "Syrian",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "syrian"
+  },
+  {
+    "id": "osm-674681221",
+    "name": "Chicago Trattoria",
+    "category": "Pizza",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "pizza",
+    "openingHours": "Tu-Fr 12:00-14:00, 18:00-22:00; Sa-Su 18:00-22:00",
+    "website": "https://chicagocafe.be/chicago-trattoria-home"
+  },
+  {
+    "id": "osm-724211843",
+    "name": "Cinnamon Curry",
+    "category": "Indian",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "indian"
+  },
+  {
+    "id": "osm-698638693",
+    "name": "Con fusion",
+    "category": "Bar",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-474985851",
+    "name": "Coq D'Or",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-943781798",
+    "name": "De Zandloper",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-1037464041",
+    "name": "Dolores",
+    "category": "Bar",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-694045674",
+    "name": "Drug Opera",
+    "category": "Regional",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "regional",
+    "openingHours": "Mo-Fr 12:00-23:00, Sa,Su 12:00-24:00",
+    "website": "https://www.drugopera.be/"
+  },
+  {
+    "id": "osm-353155953",
+    "name": "ES Europa",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-954546628",
+    "name": "FameX",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-954546471",
+    "name": "Faraya",
+    "category": "Lebanese",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "lebanese",
+    "website": "http://www.faraya.be"
+  },
+  {
+    "id": "osm-1150890635",
+    "name": "Fille vlek",
+    "category": "Café",
+    "broadType": "cafe",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-698638650",
+    "name": "Food Inspiration",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "openingHours": "Mo-Fr 09:45-17:15",
+    "website": "https://www.foodinspiration.store/"
+  },
+  {
+    "id": "osm-1138950172",
+    "name": "Frasca",
+    "category": "Italian",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "italian",
+    "openingHours": "We-Sa 10:00-22:00",
+    "website": "https://www.frasca.be/"
+  },
+  {
+    "id": "osm-1025220504",
+    "name": "Friture René",
+    "category": "Belgian",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": "",
+    "cuisine": "belgian",
+    "openingHours": "Mo-Tu off;We-Su 11:45-14:30,18:00-22:00"
+  },
+  {
+    "id": "osm-796253129",
+    "name": "Galya",
+    "category": "Restaurant",
+    "broadType": "restaurant",
+    "neighborhood": "",
+    "address": ""
+  },
+  {
+    "id": "osm-1094136069",
+    "name": "Games Café",
+    "category": "Pub",
+    "broadType": "bar",
+    "neighborhood": "",
+    "address": ""
+  }
+]

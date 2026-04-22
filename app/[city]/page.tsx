@@ -22,7 +22,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const city = getCity(cityId)
   if (!city || !city.active) notFound()
 
-  const [eventsRaw, reddit, news, venues] = await Promise.all([getEvents(cityId), getRedditPosts(cityId), getNews(cityId), getVenues(cityId, 6)])
+  const [eventsRaw, reddit, news, venues] = await Promise.all([getEvents(cityId), getRedditPosts(cityId), getNews(cityId), getVenues(cityId)])
 
   // Deduplicate events by normalised title
   const grouped = new Map<string, { ev: EventPreview; dates: { date: string; time: string; url: string }[] }>()
