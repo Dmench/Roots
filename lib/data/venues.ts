@@ -1,81 +1,102 @@
 export interface Venue {
   id:           string
   name:         string
-  category:     string   // Foursquare category name e.g. "Belgian Restaurant"
+  category:     string
   broadType:    'restaurant' | 'bar' | 'cafe' | 'other'
   neighborhood: string
   address:      string
-  rating:       number | null  // 0–10 Foursquare scale
-  price:        number | null  // 1–4
-  photo?:       string         // CDN URL, no hotlink block
-  tip?:         string         // first community tip
+  cuisine?:     string
+  openingHours?: string
+  website?:     string
 }
 
-const FSQ_KEY = process.env.FOURSQUARE_API_KEY
-
-const CITY_LL: Record<string, string> = {
-  brussels: '50.8503,4.3517',
-  lisbon:   '38.7169,-9.1399',
-  berlin:   '52.5200,13.4050',
-  barcelona:'41.3851,2.1734',
-  amsterdam:'52.3676,4.9041',
-  prague:   '50.0755,14.4378',
+// Brussels bounding box
+const CITY_BBOX: Record<string, string> = {
+  brussels:  '50.7950,4.2860,50.9100,4.4300',
+  lisbon:    '38.6910,-9.2300,38.7970,-9.0900',
+  berlin:    '52.4000,13.2000,52.6200,13.6000',
+  barcelona: '41.3200,2.0500,41.4700,2.2900',
+  amsterdam: '52.3200,4.7600,52.4500,5.0700',
+  prague:    '49.9700,14.2200,50.1800,14.7000',
 }
 
-function broadType(catName: string): Venue['broadType'] {
-  const n = catName.toLowerCase()
-  if (n.includes('coffee') || n.includes('café') || n.includes('cafe') || n.includes('bakery') || n.includes('tea room')) return 'cafe'
-  if (n.includes('bar') || n.includes('pub') || n.includes('cocktail') || n.includes('brewery') || n.includes('wine') || n.includes('nightclub') || n.includes('beer')) return 'bar'
-  if (n.includes('restaurant') || n.includes('brasserie') || n.includes('bistro') || n.includes('kitchen') || n.includes('eatery') || n.includes('diner')) return 'restaurant'
+function broadType(amenity: string, cuisine?: string): Venue['broadType'] {
+  if (amenity === 'bar' || amenity === 'pub' || amenity === 'biergarten' || amenity === 'wine_bar' || amenity === 'cocktail_bar') return 'bar'
+  if (amenity === 'cafe' || amenity === 'coffee_shop' || cuisine?.includes('coffee') || cuisine?.includes('tea')) return 'cafe'
+  if (amenity === 'restaurant' || amenity === 'fast_food' || amenity === 'food_court' || amenity === 'brasserie') return 'restaurant'
   return 'other'
 }
 
-export async function getVenues(cityId: string, limit = 24): Promise<Venue[]> {
-  if (!FSQ_KEY) return []
+function categoryLabel(amenity: string, cuisine?: string): string {
+  if (cuisine) {
+    const c = cuisine.replace(/_/g, ' ')
+    return c.charAt(0).toUpperCase() + c.slice(1)
+  }
+  const MAP: Record<string, string> = {
+    restaurant: 'Restaurant', cafe: 'Café', bar: 'Bar', pub: 'Pub',
+    biergarten: 'Beer garden', wine_bar: 'Wine bar', cocktail_bar: 'Cocktail bar',
+    fast_food: 'Fast food', brasserie: 'Brasserie', coffee_shop: 'Coffee shop',
+  }
+  return MAP[amenity] ?? 'Venue'
+}
 
-  const ll = CITY_LL[cityId] ?? CITY_LL.brussels
+export async function getVenues(cityId: string, limit = 24): Promise<Venue[]> {
+  const bbox = CITY_BBOX[cityId] ?? CITY_BBOX.brussels
+
+  // Overpass QL — fetch named restaurants, bars, cafés with all useful tags
+  const query = `
+    [out:json][timeout:20];
+    (
+      node["amenity"~"^(restaurant|bar|pub|cafe|biergarten|wine_bar|cocktail_bar|brasserie)$"]["name"](${bbox});
+      way["amenity"~"^(restaurant|bar|pub|cafe|biergarten|wine_bar|cocktail_bar|brasserie)$"]["name"](${bbox});
+    );
+    out body ${limit * 3};
+  `.trim()
 
   try {
-    const params = new URLSearchParams({
-      ll,
-      categories: '13000',   // Dining and Drinking (restaurants + bars + cafes)
-      sort:       'POPULARITY',
-      limit:      String(limit),
-      fields:     'fsq_id,name,categories,location,rating,price,photos,tips',
+    const res = await fetch('https://overpass-api.de/api/interpreter', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:    `data=${encodeURIComponent(query)}`,
+      next:    { revalidate: 3600 },
     })
-
-    const res = await fetch(
-      `https://api.foursquare.com/v3/places/search?${params}`,
-      {
-        headers: { Authorization: `Bearer ${FSQ_KEY}`, Accept: 'application/json' },
-        next: { revalidate: 3600 },
-      },
-    )
     if (!res.ok) return []
 
     const json = await res.json()
+    const elements: Record<string, unknown>[] = json.elements ?? []
 
-    return (json.results ?? []).map((p: Record<string, unknown>): Venue => {
-      const cats   = (p.categories as { name: string }[] | undefined) ?? []
-      const loc    = (p.location   as Record<string, unknown> | undefined) ?? {}
-      const hoods  = (loc.neighborhood as string[] | undefined) ?? []
-      const photos = (p.photos as { prefix: string; suffix: string }[] | undefined) ?? []
-      const tips   = (p.tips   as { text:   string }[] | undefined) ?? []
-      const catName = cats[0]?.name ?? 'Venue'
+    // Filter: must have a name and be a venue type we care about
+    const results: Venue[] = elements
+      .filter(el => {
+        const tags = el.tags as Record<string, string> | undefined
+        return tags?.name && tags?.amenity
+      })
+      .map(el => {
+        const tags    = el.tags as Record<string, string>
+        const amenity = tags.amenity ?? ''
+        const cuisine = tags.cuisine?.split(';')[0]?.trim()
+        const street  = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ')
+        const suburb  = tags['addr:suburb'] ?? tags['addr:neighbourhood'] ?? ''
 
-      return {
-        id:           p.fsq_id as string,
-        name:         p.name as string,
-        category:     catName,
-        broadType:    broadType(catName),
-        neighborhood: hoods[0] ?? '',
-        address:      (loc.address as string | undefined) ?? '',
-        rating:       typeof p.rating === 'number' ? Math.round(p.rating * 10) / 10 : null,
-        price:        typeof p.price  === 'number' ? p.price  : null,
-        photo:        photos[0] ? `${photos[0].prefix}500x300${photos[0].suffix}` : undefined,
-        tip:          tips[0]?.text,
-      }
-    })
+        return {
+          id:           `osm-${el.id as string}`,
+          name:         tags.name,
+          category:     categoryLabel(amenity, cuisine),
+          broadType:    broadType(amenity, cuisine),
+          neighborhood: suburb,
+          address:      street,
+          cuisine,
+          openingHours: tags.opening_hours,
+          website:      tags.website ?? tags['contact:website'],
+        }
+      })
+      // Deduplicate by name
+      .filter((v, i, arr) => arr.findIndex(x => x.name === v.name) === i)
+      // Alphabetical within type for consistent ordering
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, limit)
+
+    return results
   } catch {
     return []
   }

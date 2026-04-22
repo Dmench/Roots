@@ -186,27 +186,22 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                   </Link>
                 </div>
                 <div className="space-y-0">
-                  {venues.slice(0, 5).map((v, i) => (
-                    <div key={v.id}
-                      className="flex items-center gap-3 py-3"
-                      style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
-                      <span className="text-xs font-black tabular-nums shrink-0 w-6 text-right"
-                        style={{ color: v.rating && v.rating >= 9 ? '#10B981' : v.rating && v.rating >= 8 ? '#FAB400' : 'rgba(37,36,80,0.25)' }}>
-                        {v.rating ? v.rating.toFixed(1) : '—'}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold truncate" style={{ color: '#0F0E1E' }}>{v.name}</p>
-                        <p className="text-[9px]" style={{ color: 'rgba(37,36,80,0.35)' }}>
-                          {v.category}{v.neighborhood ? ` · ${v.neighborhood}` : ''}
-                        </p>
+                  {venues.slice(0, 5).map((v, idx) => {
+                    const typeColor = v.broadType === 'bar' ? '#4744C8' : v.broadType === 'cafe' ? '#FAB400' : '#E8612A'
+                    return (
+                      <div key={v.id}
+                        className="flex items-center gap-3 py-2.5"
+                        style={{ borderTop: idx > 0 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                        <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: typeColor }} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold truncate" style={{ color: '#0F0E1E' }}>{v.name}</p>
+                          <p className="text-[9px]" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                            {v.category}{v.neighborhood ? ` · ${v.neighborhood}` : ''}
+                          </p>
+                        </div>
                       </div>
-                      {v.price && (
-                        <span className="text-[9px] font-black shrink-0" style={{ color: 'rgba(37,36,80,0.3)' }}>
-                          {'$'.repeat(v.price)}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </section>
             )}
@@ -322,7 +317,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               {[
                 { href: `/${cityId}/ask`,    label: 'Ask anything', sub: 'AI that knows the city', dot: '#38C0F0' },
                 { href: `/${cityId}/settle`, label: 'Settle in',    sub: 'Admin, commune, bank',   dot: '#FAB400' },
-              ].map((item, i) => (
+              ].map((item) => (
                 <Link key={item.href} href={item.href}
                   className="flex items-center gap-3 py-3 group hover:opacity-60 transition-opacity"
                   style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>

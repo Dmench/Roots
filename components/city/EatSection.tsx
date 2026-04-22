@@ -8,45 +8,41 @@ type Filter = 'all' | 'restaurant' | 'bar' | 'cafe'
 const FILTER_TABS: { id: Filter; label: string; color: string }[] = [
   { id: 'all',        label: 'All',         color: '#252450' },
   { id: 'restaurant', label: 'Restaurants', color: '#E8612A' },
-  { id: 'bar',        label: 'Bars',        color: '#4744C8' },
+  { id: 'bar',        label: 'Bars & Pubs', color: '#4744C8' },
   { id: 'cafe',       label: 'Cafés',       color: '#FAB400' },
 ]
 
-function PriceTag({ price }: { price: number }) {
-  return (
-    <span className="text-[9px] font-black tracking-wide" style={{ color: 'rgba(37,36,80,0.4)' }}>
-      {'$'.repeat(price)}<span style={{ opacity: 0.2 }}>{'$'.repeat(4 - price)}</span>
-    </span>
-  )
+const TYPE_COLOR: Record<string, string> = {
+  restaurant: '#E8612A',
+  bar:        '#4744C8',
+  cafe:       '#FAB400',
+  other:      '#252450',
 }
 
-function RatingBadge({ rating }: { rating: number }) {
-  const color = rating >= 9 ? '#10B981' : rating >= 8 ? '#FAB400' : rating >= 7 ? '#38C0F0' : 'rgba(37,36,80,0.3)'
-  return (
-    <span className="text-xs font-black tabular-nums" style={{ color }}>
-      {rating.toFixed(1)}
-    </span>
-  )
+function isOpenNow(hours?: string): boolean | null {
+  if (!hours) return null
+  // Very rough check — just detect "24/7"
+  if (hours === '24/7') return true
+  return null  // parsing full OSM opening_hours is complex, skip for now
 }
 
 interface Props {
-  venues:    Venue[]
-  reddit:    RedditPost[]
-  cityId:    string
+  venues: Venue[]
+  reddit: RedditPost[]
+  cityId: string
 }
 
 export default function EatSection({ venues, reddit, cityId }: Props) {
   const [filter, setFilter] = useState<Filter>('all')
 
-  const filtered = filter === 'all'
-    ? venues
-    : venues.filter(v => v.broadType === filter)
+  const filtered = filter === 'all' ? venues : venues.filter(v => v.broadType === filter)
 
-  // Food-relevant Reddit posts
-  const FOOD_KW = ['restaurant', 'food', 'eat', 'bar', 'drink', 'coffee', 'brunch', 'lunch', 'dinner', 'café', 'cafe', 'recommend', 'pizza', 'burger', 'vegan', 'beer', 'frites', 'belgian', 'hidden gem', 'best place', 'where to', 'sushi', 'wine', 'brasserie', 'bistro']
-  const foodPosts = reddit.filter(p =>
-    FOOD_KW.some(kw => p.title.toLowerCase().includes(kw))
-  ).slice(0, 6)
+  const FOOD_KW = ['restaurant', 'food', 'eat', 'bar', 'drink', 'coffee', 'brunch', 'lunch', 'dinner',
+    'café', 'cafe', 'recommend', 'pizza', 'burger', 'vegan', 'beer', 'frites', 'belgian',
+    'hidden gem', 'best place', 'where to', 'sushi', 'wine', 'brasserie', 'bistro', 'kebab', 'thai']
+  const foodPosts = reddit
+    .filter(p => FOOD_KW.some(kw => p.title.toLowerCase().includes(kw)))
+    .slice(0, 8)
 
   return (
     <div>
@@ -72,82 +68,77 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
         })}
       </div>
 
-      {/* No venues state — show if API key not configured */}
       {venues.length === 0 && (
         <div className="py-20 text-center">
           <p className="text-sm font-medium" style={{ color: 'rgba(37,36,80,0.35)' }}>
-            Venue data coming soon.
-          </p>
-          <p className="text-xs mt-2" style={{ color: 'rgba(37,36,80,0.2)' }}>
-            Below — what the {cityId} community is saying.
+            Loading venue data…
           </p>
         </div>
       )}
 
       {/* Venue grid */}
       {filtered.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-16">
-          {filtered.map(venue => (
-            <div
-              key={venue.id}
-              className="bg-white rounded-2xl overflow-hidden flex flex-col"
-              style={{ border: '1px solid rgba(37,36,80,0.07)' }}
-            >
-              {/* Photo */}
-              {venue.photo ? (
-                <div className="w-full h-36 overflow-hidden bg-parchment shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={venue.photo}
-                    alt=""
-                    className="w-full h-full object-cover"
-                    onError={e => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none' }}
-                  />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-16">
+          {filtered.map(venue => {
+            const color   = TYPE_COLOR[venue.broadType]
+            const openNow = isOpenNow(venue.openingHours)
+
+            return (
+              <div
+                key={venue.id}
+                className="bg-white rounded-xl flex flex-col overflow-hidden"
+                style={{ border: '1px solid rgba(37,36,80,0.07)' }}
+              >
+                {/* Type accent bar */}
+                <div className="h-1 w-full shrink-0" style={{ background: color }} />
+
+                <div className="px-4 py-4 flex flex-col flex-1">
+                  {/* Name + open badge */}
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    {venue.website ? (
+                      <a href={venue.website} target="_blank" rel="noopener noreferrer"
+                        className="text-sm font-bold leading-snug hover:opacity-60 transition-opacity"
+                        style={{ color: '#0F0E1E' }}>
+                        {venue.name} ↗
+                      </a>
+                    ) : (
+                      <p className="text-sm font-bold leading-snug" style={{ color: '#0F0E1E' }}>
+                        {venue.name}
+                      </p>
+                    )}
+                    {openNow === true && (
+                      <span className="shrink-0 text-[8px] font-black tracking-wide px-1.5 py-0.5 rounded-sm"
+                        style={{ background: '#10B98115', color: '#10B981' }}>
+                        24/7
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Category + cuisine */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[9px] font-black tracking-wide uppercase px-2 py-0.5 rounded-sm"
+                      style={{ background: `${color}12`, color }}>
+                      {venue.category}
+                    </span>
+                  </div>
+
+                  {/* Location */}
+                  {(venue.neighborhood || venue.address) && (
+                    <p className="text-[10px] mt-auto pt-2" style={{ color: 'rgba(37,36,80,0.38)' }}>
+                      {[venue.neighborhood, venue.address].filter(Boolean).join(' · ')}
+                    </p>
+                  )}
+
+                  {/* Opening hours */}
+                  {venue.openingHours && venue.openingHours !== '24/7' && (
+                    <p className="text-[9px] mt-1 truncate" style={{ color: 'rgba(37,36,80,0.28)' }}>
+                      {venue.openingHours}
+                    </p>
+                  )}
                 </div>
-              ) : (
-                <div className="w-full h-2 shrink-0"
-                  style={{ background: FILTER_TABS.find(t => t.id === venue.broadType)?.color ?? '#252450' }} />
-              )}
-
-              <div className="px-4 py-4 flex flex-col flex-1">
-                {/* Header row */}
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <p className="text-sm font-bold leading-snug" style={{ color: '#0F0E1E' }}>
-                    {venue.name}
-                  </p>
-                  {venue.rating && <RatingBadge rating={venue.rating} />}
-                </div>
-
-                {/* Meta row */}
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[9px] font-black tracking-wide uppercase px-2 py-0.5 rounded-sm"
-                    style={{
-                      background: `${FILTER_TABS.find(t => t.id === venue.broadType)?.color ?? '#252450'}12`,
-                      color: FILTER_TABS.find(t => t.id === venue.broadType)?.color ?? '#252450',
-                    }}>
-                    {venue.category}
-                  </span>
-                  {venue.price && <PriceTag price={venue.price} />}
-                </div>
-
-                {/* Neighborhood */}
-                {venue.neighborhood && (
-                  <p className="text-[10px] mb-2" style={{ color: 'rgba(37,36,80,0.4)' }}>
-                    {venue.neighborhood}
-                    {venue.address && ` · ${venue.address}`}
-                  </p>
-                )}
-
-                {/* Community tip */}
-                {venue.tip && (
-                  <p className="text-[10px] leading-snug mt-auto pt-3 italic line-clamp-2"
-                    style={{ color: 'rgba(37,36,80,0.5)', borderTop: '1px solid rgba(37,36,80,0.06)' }}>
-                    &ldquo;{venue.tip}&rdquo;
-                  </p>
-                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
