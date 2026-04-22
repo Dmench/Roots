@@ -8,6 +8,7 @@ import { getNews } from '@/lib/data/news'
 import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
+import { NewsImage } from '@/components/city/NewsImage'
 
 
 export function generateStaticParams() {
@@ -127,23 +128,32 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       {/* ── Editorial body ───────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12">
 
-        {/* Top rule */}
-        <div className="flex items-center gap-4 pt-7 pb-6" style={{ borderBottom: '2px solid #252450' }}>
-          <span className="text-[9px] font-black tracking-[0.28em] uppercase" style={{ color: '#252450' }}>
+        {/* Column headers */}
+        <div className="hidden lg:grid lg:grid-cols-[1fr_1px_320px] gap-0">
+          <div className="lg:pr-9 pt-7 pb-4" style={{ borderBottom: '2px solid #252450' }}>
+            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#252450' }}>
+              What&rsquo;s On
+            </span>
+            <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(37,36,80,0.3)' }}>
+              {allEvents.length} upcoming events
+            </span>
+          </div>
+          <div />
+          <div className="lg:pl-9 pt-7 pb-4" style={{ borderBottom: '2px solid #252450' }}>
+            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#252450' }}>
+              Around the city
+            </span>
+          </div>
+        </div>
+
+        {/* Mobile header */}
+        <div className="lg:hidden pt-7 pb-4" style={{ borderBottom: '2px solid #252450' }}>
+          <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#252450' }}>
             What&rsquo;s On
           </span>
-          <span className="text-[9px]" style={{ color: 'rgba(37,36,80,0.2)' }}>·</span>
-          <span className="text-[9px] font-medium" style={{ color: 'rgba(37,36,80,0.35)' }}>
-            {allEvents.length} upcoming events
+          <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(37,36,80,0.3)' }}>
+            {allEvents.length} upcoming
           </span>
-          {news.length > 0 && (
-            <>
-              <span className="text-[9px] ml-auto" style={{ color: 'rgba(37,36,80,0.2)' }}>·</span>
-              <span className="text-[9px] font-black tracking-[0.28em] uppercase" style={{ color: '#252450' }}>
-                In the News
-              </span>
-            </>
-          )}
         </div>
 
         {/* Two-column editorial grid */}
@@ -158,66 +168,47 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <div className="hidden lg:block" style={{ background: 'rgba(37,36,80,0.1)' }} />
 
           {/* ── RIGHT: News + Reddit ────────────────────────────────────── */}
-          <div className="lg:pl-9 pt-7 space-y-0">
+          <div className="lg:pl-9 pt-7">
 
             {/* ── In the news ──────────────────────────────────────────── */}
             {featuredNews && (
-              <section>
-                <div className="flex items-center gap-3 mb-5 pb-3" style={{ borderBottom: '1px solid rgba(37,36,80,0.1)' }}>
-                  <span className="text-[9px] font-black tracking-[0.25em] uppercase" style={{ color: 'rgba(37,36,80,0.4)' }}>
-                    In the news
-                  </span>
-                </div>
+              <section className="mb-10">
+                <SectionLabel>In the news</SectionLabel>
 
-                {/* Featured news story */}
+                {/* Featured story */}
                 <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
-                  className="group block mb-5">
-                  {/* Image */}
-                  {featuredNews.image ? (
-                    <div className="w-full aspect-[16/9] rounded-sm overflow-hidden mb-3"
-                      style={{ background: 'rgba(37,36,80,0.06)' }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={featuredNews.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                  ) : (
-                    <div className="w-full aspect-[16/9] rounded-sm mb-3 flex items-end p-4"
-                      style={{ background: `linear-gradient(135deg, ${SOURCE_COLOR[featuredNews.source] ?? '#252450'}22, ${SOURCE_COLOR[featuredNews.source] ?? '#252450'}08)`, border: `1px solid ${SOURCE_COLOR[featuredNews.source] ?? '#252450'}18` }}>
-                      <span className="text-[9px] font-black tracking-widest uppercase"
-                        style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
-                        {featuredNews.source}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="text-[8px] font-black tracking-widest uppercase"
-                      style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
-                      {featuredNews.source}
-                    </span>
-                  </div>
-                  <h3 className="font-display font-bold leading-[1.15] group-hover:opacity-60 transition-opacity"
+                  className="group block mt-5 mb-1">
+                  <NewsImage
+                    src={featuredNews.image ?? ''}
+                    source={featuredNews.source}
+                    sourceColor={SOURCE_COLOR[featuredNews.source] ?? '#252450'}
+                    aspectClass="aspect-[16/9] w-full"
+                    className="mb-3"
+                  />
+                  <span className="text-[9px] font-black tracking-widest uppercase block mb-2"
+                    style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
+                    {featuredNews.source}
+                  </span>
+                  <h3 className="font-display font-bold leading-[1.15] group-hover:opacity-55 transition-opacity"
                     style={{ fontSize: '1.05rem', color: '#0F0E1E' }}>
                     {featuredNews.title}
                   </h3>
                 </a>
 
-                {/* Supporting news stories */}
+                {/* Supporting stories */}
                 {secondaryNews.map((item, i) => (
                   <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
-                    className="group flex gap-3 py-4 hover:opacity-60 transition-opacity"
-                    style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
-                    {item.image && (
-                      <div className="shrink-0 w-16 h-14 rounded-sm overflow-hidden"
-                        style={{ background: 'rgba(37,36,80,0.06)' }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.image} alt="" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    {!item.image && (
-                      <div className="shrink-0 w-1 self-stretch rounded-full"
-                        style={{ background: SOURCE_COLOR[item.source] ?? '#252450' }} />
-                    )}
+                    className="group flex gap-3 py-4 hover:opacity-55 transition-opacity"
+                    style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
+                    <NewsImage
+                      src={item.image ?? ''}
+                      source={item.source}
+                      sourceColor={SOURCE_COLOR[item.source] ?? '#252450'}
+                      aspectClass="w-[72px] h-[56px]"
+                      className="shrink-0"
+                    />
                     <div className="flex-1 min-w-0">
-                      <span className="text-[8px] font-black tracking-widest uppercase block mb-1"
+                      <span className="text-[8px] font-black tracking-widest uppercase block mb-1.5"
                         style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(37,36,80,0.4)' }}>
                         {item.source}
                       </span>
@@ -233,37 +224,34 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
             {/* ── City pulse — Reddit ──────────────────────────────────── */}
             {reddit.length > 0 && (
-              <section className="mt-8">
-                <div className="flex items-center justify-between mb-5 pb-3"
-                  style={{ borderBottom: '1px solid rgba(37,36,80,0.1)' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-black tracking-[0.25em] uppercase" style={{ color: 'rgba(37,36,80,0.4)' }}>
-                      City pulse
-                    </span>
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
-                    </span>
-                  </div>
-                  <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-                    className="text-[8px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
-                    style={{ color: 'rgba(37,36,80,0.3)' }}>
-                    r/{cityId} ↗
-                  </a>
+              <section className="mb-10">
+                <div className="flex items-center justify-between">
+                  <SectionLabel right={
+                    <div className="flex items-center gap-1.5">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
+                      </span>
+                      <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
+                        className="text-[9px] font-bold hover:opacity-50 transition-opacity"
+                        style={{ color: 'rgba(37,36,80,0.35)' }}>
+                        r/{cityId} ↗
+                      </a>
+                    </div>
+                  }>City pulse</SectionLabel>
                 </div>
 
                 {reddit.slice(0, 5).map((post, i) => {
                   const diff = Math.floor(Date.now() / 1000) - post.created
-                  const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m ago` : diff < 86400 ? `${Math.floor(diff / 3600)}h ago` : `${Math.floor(diff / 86400)}d ago`
+                  const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
                   return (
                     <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer"
-                      className="group flex gap-3 py-3.5 hover:opacity-60 transition-opacity"
-                      style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
-                      <div className="shrink-0 text-right" style={{ minWidth: 28 }}>
-                        <span className="text-[9px] font-black" style={{ color: '#FF4500' }}>
-                          {post.score >= 1000 ? `${(post.score / 1000).toFixed(1)}k` : post.score}
-                        </span>
-                      </div>
+                      className="group flex gap-3 py-3.5 hover:opacity-55 transition-opacity"
+                      style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
+                      <span className="shrink-0 text-[10px] font-black w-7 text-right leading-tight pt-0.5"
+                        style={{ color: '#FF4500' }}>
+                        {post.score >= 1000 ? `${(post.score / 1000).toFixed(1)}k` : post.score}
+                      </span>
                       <div className="flex-1 min-w-0">
                         {post.flair && (
                           <span className="text-[7px] font-black tracking-wide uppercase px-1.5 py-0.5 rounded-sm mr-1.5 inline-block mb-1"
@@ -271,8 +259,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                             {post.flair}
                           </span>
                         )}
-                        <p className="text-xs font-semibold leading-snug line-clamp-2"
-                          style={{ color: '#0F0E1E' }}>
+                        <p className="text-xs font-semibold leading-snug line-clamp-2" style={{ color: '#0F0E1E' }}>
                           {post.title}
                         </p>
                         <p className="text-[9px] mt-1" style={{ color: 'rgba(37,36,80,0.3)' }}>
@@ -292,14 +279,15 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             )}
 
             {/* ── Tools ────────────────────────────────────────────────── */}
-            <section className="mt-8 pt-8" style={{ borderTop: '2px solid rgba(37,36,80,0.08)' }}>
+            <section>
+              <SectionLabel>Explore</SectionLabel>
               {[
-                { href: `/${cityId}/ask`,     label: 'Ask anything', sub: 'AI that knows the city', dot: '#38C0F0' },
-                { href: `/${cityId}/settle`,   label: 'Settle in',   sub: 'Admin, commune, bank',   dot: '#FAB400' },
+                { href: `/${cityId}/ask`,    label: 'Ask anything', sub: 'AI that knows the city', dot: '#38C0F0' },
+                { href: `/${cityId}/settle`, label: 'Settle in',    sub: 'Admin, commune, bank',   dot: '#FAB400' },
               ].map((item, i) => (
                 <Link key={item.href} href={item.href}
                   className="flex items-center gap-3 py-3 group hover:opacity-60 transition-opacity"
-                  style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                  style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
                   <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: item.dot }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold" style={{ color: '#252450' }}>{item.label}</p>
@@ -313,6 +301,19 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ── Section label ───────────────────────────────────────────────────────── */
+
+function SectionLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between pb-3 mb-1" style={{ borderBottom: '1px solid rgba(37,36,80,0.15)' }}>
+      <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(37,36,80,0.5)' }}>
+        {children}
+      </span>
+      {right}
     </div>
   )
 }
