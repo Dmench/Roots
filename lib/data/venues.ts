@@ -44,8 +44,9 @@ export async function getVenues(cityId: string, limit = 24): Promise<Venue[]> {
   const bbox = CITY_BBOX[cityId] ?? CITY_BBOX.brussels
 
   // Overpass QL — fetch named restaurants, bars, cafés with all useful tags
+  // [timeout:25] tells the Overpass server to give up after 25s
   const query = `
-    [out:json][timeout:20];
+    [out:json][timeout:25];
     (
       node["amenity"~"^(restaurant|bar|pub|cafe|biergarten|wine_bar|cocktail_bar|brasserie)$"]["name"](${bbox});
       way["amenity"~"^(restaurant|bar|pub|cafe|biergarten|wine_bar|cocktail_bar|brasserie)$"]["name"](${bbox});
@@ -53,51 +54,57 @@ export async function getVenues(cityId: string, limit = 24): Promise<Venue[]> {
     out body ${limit * 3};
   `.trim()
 
-  try {
-    const res = await fetch('https://overpass-api.de/api/interpreter', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body:    `data=${encodeURIComponent(query)}`,
-      next:    { revalidate: 3600 },
-    })
-    if (!res.ok) return []
+  // Two Overpass mirrors — fall back if primary is slow
+  const ENDPOINTS = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+  ]
 
-    const json = await res.json()
-    const elements: Record<string, unknown>[] = json.elements ?? []
-
-    // Filter: must have a name and be a venue type we care about
-    const results: Venue[] = elements
-      .filter(el => {
-        const tags = el.tags as Record<string, string> | undefined
-        return tags?.name && tags?.amenity
+  for (const endpoint of ENDPOINTS) {
+    try {
+      const res = await fetch(endpoint, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    `data=${encodeURIComponent(query)}`,
+        next:    { revalidate: 3600 },
+        signal:  AbortSignal.timeout(28000),
       })
-      .map(el => {
-        const tags    = el.tags as Record<string, string>
-        const amenity = tags.amenity ?? ''
-        const cuisine = tags.cuisine?.split(';')[0]?.trim()
-        const street  = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ')
-        const suburb  = tags['addr:suburb'] ?? tags['addr:neighbourhood'] ?? ''
+      if (!res.ok) continue
 
-        return {
-          id:           `osm-${el.id as string}`,
-          name:         tags.name,
-          category:     categoryLabel(amenity, cuisine),
-          broadType:    broadType(amenity, cuisine),
-          neighborhood: suburb,
-          address:      street,
-          cuisine,
-          openingHours: tags.opening_hours,
-          website:      tags.website ?? tags['contact:website'],
-        }
-      })
-      // Deduplicate by name
-      .filter((v, i, arr) => arr.findIndex(x => x.name === v.name) === i)
-      // Alphabetical within type for consistent ordering
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .slice(0, limit)
+      const json = await res.json()
+      const elements: Record<string, unknown>[] = json.elements ?? []
 
-    return results
-  } catch {
-    return []
+      const results: Venue[] = elements
+        .filter(el => {
+          const tags = el.tags as Record<string, string> | undefined
+          return tags?.name && tags?.amenity
+        })
+        .map(el => {
+          const tags    = el.tags as Record<string, string>
+          const amenity = tags.amenity ?? ''
+          const cuisine = tags.cuisine?.split(';')[0]?.trim()
+          const street  = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ')
+          const suburb  = tags['addr:suburb'] ?? tags['addr:neighbourhood'] ?? ''
+
+          return {
+            id:           `osm-${el.id as string}`,
+            name:         tags.name,
+            category:     categoryLabel(amenity, cuisine),
+            broadType:    broadType(amenity, cuisine),
+            neighborhood: suburb,
+            address:      street,
+            cuisine,
+            openingHours: tags.opening_hours,
+            website:      tags.website ?? tags['contact:website'],
+          }
+        })
+        .filter((v, i, arr) => arr.findIndex(x => x.name === v.name) === i)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .slice(0, limit)
+
+      if (results.length > 0) return results
+    } catch { continue }
   }
+
+  return []
 }
