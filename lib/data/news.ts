@@ -9,7 +9,7 @@ const FEED_MAP: Record<string, { url: string; source: string }[]> = {
   ],
 }
 
-export async function getNews(cityId: string, limit = 4): Promise<NewsItem[]> {
+export async function getNews(cityId: string, limit = 6): Promise<NewsItem[]> {
   const feeds = FEED_MAP[cityId] ?? FEED_MAP.brussels
   const items: NewsItem[] = []
   for (const feed of feeds) {
@@ -23,7 +23,7 @@ export async function getNews(cityId: string, limit = 4): Promise<NewsItem[]> {
       const xml = await res.text()
       const block = /<item>([\s\S]*?)<\/item>/g
       let m: RegExpExecArray | null; let count = 0
-      while ((m = block.exec(xml)) !== null && count < 2) {
+      while ((m = block.exec(xml)) !== null && count < 3) {
         const c     = m[1]
         const title = c.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/)?.[1]?.trim()
         const link  = c.match(/<link>([^<]+)<\/link>/)?.[1]?.trim() ?? c.match(/<link[^>]+href=["']([^"']+)["']/)?.[1]

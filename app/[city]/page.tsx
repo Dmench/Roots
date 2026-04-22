@@ -33,7 +33,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       grouped.set(key, { ev, dates: [{ date: ev.date, time: ev.time, url: ev.url }] })
     }
   }
-  // Serialize for client component (Date → timestamp number)
   const allEvents: GroupedEvent[] = [...grouped.values()].map(({ ev, dates }) => ({
     ev: {
       id: ev.id, title: ev.title, date: ev.date, time: ev.time,
@@ -49,14 +48,21 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
   const SOURCE_COLOR: Record<string, string> = {
     'The Bulletin': '#4744C8',
-    'Politico EU':  '#EF3340',
+    'Politico EU':  '#C8152A',
   }
+  const SOURCE_LABEL: Record<string, string> = {
+    'The Bulletin': 'The Bulletin',
+    'Politico EU':  'Politico EU',
+  }
+
+  const featuredNews    = news[0]
+  const supportingNews  = news.slice(1)
 
   return (
     <div style={{ background: '#F5ECD7', minHeight: '100vh' }}>
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
-      <div style={{ background: '#252450', borderBottom: '1px solid rgba(245,236,215,0.1)' }}>
+      <div style={{ background: '#252450' }}>
         {/* Thin color bar */}
         <div className="flex h-1">
           {['#FF3EBA','#38C0F0','#FAB400','#4744C8'].map(c => (
@@ -64,11 +70,11 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           ))}
         </div>
 
-        <div className="max-w-5xl mx-auto px-6 md:px-12 py-7 md:py-9">
+        <div className="max-w-5xl mx-auto px-6 md:px-12 py-7 md:py-10">
           {/* Three-column masthead */}
           <div className="flex items-center justify-between gap-4">
             {/* Date */}
-            <div className="hidden sm:block">
+            <div className="hidden sm:block shrink-0">
               <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(245,236,215,0.35)' }}>
                 {dayName}
               </p>
@@ -77,7 +83,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </p>
             </div>
 
-            {/* City name — centred on desktop, left on mobile */}
+            {/* City name */}
             <div className="flex-1 sm:text-center">
               <h1 className="font-display font-black leading-none tracking-tight"
                 style={{ fontSize: 'clamp(3rem, 10vw, 7rem)', color: '#F5ECD7' }}>
@@ -90,7 +96,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
 
             {/* Live count */}
-            <div className="hidden sm:flex flex-col items-end gap-1">
+            <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
               <div className="flex items-center gap-1.5">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
@@ -108,40 +114,12 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
           </div>
 
-          {/* ── Compact news signal — woven into masthead ────────────────── */}
-          {news.length > 0 && (
-            <div className="mt-5 pt-5 flex items-start gap-4 flex-wrap"
-              style={{ borderTop: '1px solid rgba(245,236,215,0.07)' }}>
-              <span className="text-[8px] font-black tracking-[0.22em] uppercase shrink-0 mt-1"
-                style={{ color: 'rgba(245,236,215,0.18)' }}>
-                In the news
-              </span>
-              <div className="flex flex-wrap gap-x-5 gap-y-1.5 flex-1 min-w-0">
-                {news.slice(0, 3).map((item, i) => (
-                  <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
-                    className="group flex items-baseline gap-1.5 min-w-0 hover:opacity-70 transition-opacity"
-                    style={{ maxWidth: '30ch' }}>
-                    <span className="text-[8px] font-black uppercase shrink-0 tracking-wide"
-                      style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(245,236,215,0.35)' }}>
-                      {item.source === 'The Bulletin' ? 'Bulletin' : item.source.split(' ')[0]}
-                    </span>
-                    <span className="text-[10px] font-medium truncate leading-snug"
-                      style={{ color: 'rgba(245,236,215,0.38)' }}>
-                      {item.title}
-                    </span>
-                    <span className="text-[9px] shrink-0" style={{ color: 'rgba(245,236,215,0.15)' }}>↗</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Nav pills */}
-          <div className="flex items-center gap-2 flex-wrap mt-5">
+          <div className="flex items-center gap-2 flex-wrap mt-6">
             {[
-              { href: `/${cityId}/connect`, label: 'Community',   color: '#FF3EBA' },
+              { href: `/${cityId}/connect`, label: 'Community',    color: '#FF3EBA' },
               { href: `/${cityId}/ask`,     label: 'Ask anything', color: '#38C0F0' },
-              { href: `/${cityId}/settle`,  label: 'Get set up',  color: '#FAB400' },
+              { href: `/${cityId}/settle`,  label: 'Get set up',   color: '#FAB400' },
             ].map(p => (
               <Link key={p.href} href={p.href}
                 className="px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-wide transition-all hover:opacity-80"
@@ -155,6 +133,78 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <SettlersStrip cityId={cityId} />
         </div>
       </div>
+
+      {/* ── Front page news ──────────────────────────────────────────────── */}
+      {featuredNews && (
+        <div style={{ background: '#FDFAF3', borderBottom: '1px solid rgba(37,36,80,0.09)' }}>
+          <div className="max-w-5xl mx-auto px-6 md:px-12">
+
+            {/* Section header rule */}
+            <div className="flex items-center gap-5 py-3" style={{ borderBottom: '2px solid #252450' }}>
+              <span className="text-[9px] font-black tracking-[0.25em] uppercase" style={{ color: '#252450' }}>
+                Front page
+              </span>
+              <div className="flex items-center gap-2 ml-auto">
+                {Array.from(new Set(news.map(n => n.source))).map(src => (
+                  <span key={src}
+                    className="text-[8px] font-black tracking-wide px-2 py-0.5 rounded-sm"
+                    style={{ background: (SOURCE_COLOR[src] ?? '#252450') + '14', color: SOURCE_COLOR[src] ?? '#252450' }}>
+                    {SOURCE_LABEL[src] ?? src}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Editorial grid */}
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_1px_1fr_1px_1fr] gap-0 py-5">
+
+              {/* Featured story — takes first column */}
+              <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
+                className="group pr-0 md:pr-7 pb-5 md:pb-0">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-3 h-3 rounded-sm shrink-0"
+                    style={{ background: SOURCE_COLOR[featuredNews.source] ?? '#252450' }} />
+                  <span className="text-[9px] font-black tracking-widest uppercase"
+                    style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
+                    {SOURCE_LABEL[featuredNews.source] ?? featuredNews.source}
+                  </span>
+                </div>
+                <h2 className="font-display font-bold leading-[1.1] mb-3 group-hover:opacity-60 transition-opacity"
+                  style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.45rem)', color: '#0F0E1E' }}>
+                  {featuredNews.title}
+                </h2>
+                <span className="inline-flex items-center gap-1 text-[9px] font-black tracking-widest uppercase transition-opacity group-hover:opacity-40"
+                  style={{ color: 'rgba(37,36,80,0.3)' }}>
+                  Read story <span>↗</span>
+                </span>
+              </a>
+
+              {/* Vertical divider */}
+              <div className="hidden md:block" style={{ background: 'rgba(37,36,80,0.08)' }} />
+
+              {/* Supporting stories — 2 remaining columns */}
+              {supportingNews.slice(0, 4).map((item, i) => (
+                <>
+                  <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
+                    className="group px-0 md:px-7 py-4 md:py-0 flex flex-col justify-center hover:opacity-60 transition-opacity"
+                    style={{ borderTop: i === 0 ? '1px solid rgba(37,36,80,0.08)' : i % 2 === 0 ? '1px solid rgba(37,36,80,0.08)' : 'none',
+                             paddingTop: i > 0 && i % 2 !== 0 ? 20 : undefined }}>
+                    <span className="text-[8px] font-black tracking-widest uppercase mb-2 block"
+                      style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(37,36,80,0.35)' }}>
+                      {SOURCE_LABEL[item.source] ?? item.source}
+                    </span>
+                    <p className="text-sm font-semibold leading-snug" style={{ color: '#0F0E1E' }}>
+                      {item.title}
+                    </p>
+                  </a>
+                  {/* Divider between pairs on desktop */}
+                  {i === 1 && <div className="hidden md:block" style={{ background: 'rgba(37,36,80,0.08)' }} />}
+                </>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Body ─────────────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12 py-8">
@@ -173,7 +223,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               <section>
                 <Mastlabel>City pulse</Mastlabel>
                 <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: '#1C1A2E' }}>
-                  {/* Header */}
                   <div className="flex items-center justify-between px-4 pt-4 pb-3.5"
                     style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                     <div className="flex items-center gap-2">
@@ -228,7 +277,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                     )
                   })()}
 
-                  {/* Remaining posts */}
                   {reddit.slice(1).map((post) => {
                     const diff = Math.floor(Date.now() / 1000) - post.created
                     const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
@@ -255,7 +303,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                     )
                   })}
 
-                  {/* Footer */}
                   <div className="px-4 py-3.5 flex items-center justify-between"
                     style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                     <Link href={`/${cityId}/connect`}
@@ -269,46 +316,15 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </section>
             )}
 
-            {/* In the news — compact sidebar */}
-            {news.length > 0 && (
-              <section>
-                <Mastlabel>In the news</Mastlabel>
-                <div className="mt-4 rounded-xl overflow-hidden bg-white"
-                  style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
-                  {news.map((item, i) => {
-                    const srcColor = SOURCE_COLOR[item.source] ?? '#252450'
-                    return (
-                      <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-start gap-2.5 px-4 py-3.5 group hover:bg-parchment/40 transition-colors"
-                        style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.05)' : 'none' }}>
-                        <div className="w-0.5 shrink-0 self-stretch rounded-full" style={{ background: srcColor }} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[8px] font-black tracking-wider uppercase mb-1" style={{ color: srcColor }}>
-                            {item.source === 'The Bulletin' ? 'Bulletin' : 'Politico EU'}
-                          </p>
-                          <p className="text-xs font-semibold leading-snug line-clamp-3 group-hover:opacity-55 transition-opacity"
-                            style={{ color: '#252450' }}>
-                            {item.title}
-                          </p>
-                        </div>
-                        <span className="shrink-0 text-[10px] mt-0.5 opacity-25 group-hover:opacity-50 transition-opacity"
-                          style={{ color: '#252450' }}>↗</span>
-                      </a>
-                    )
-                  })}
-                </div>
-              </section>
-            )}
-
             {/* Tools */}
             <section>
               <Mastlabel>Tools</Mastlabel>
               <div className="mt-4 bg-white rounded-xl overflow-hidden"
                 style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
                 {[
-                  { href: `/${cityId}/ask`,    label: 'Ask anything', sub: 'AI answers about city life', dot: '#38C0F0' },
-                  { href: `/${cityId}/connect`, label: 'Community',   sub: 'Posts, tips, people',        dot: '#FF3EBA' },
-                  { href: `/${cityId}/settle`,  label: 'Settle in',   sub: 'Admin, commune, bank',       dot: '#FAB400' },
+                  { href: `/${cityId}/ask`,     label: 'Ask anything', sub: 'AI answers about city life', dot: '#38C0F0' },
+                  { href: `/${cityId}/connect`,  label: 'Community',   sub: 'Posts, tips, people',        dot: '#FF3EBA' },
+                  { href: `/${cityId}/settle`,   label: 'Settle in',   sub: 'Admin, commune, bank',       dot: '#FAB400' },
                 ].map((item, i) => (
                   <Link key={item.href} href={item.href}
                     className="flex items-center gap-3 px-4 py-3.5 group hover:bg-parchment/30 transition-colors"
