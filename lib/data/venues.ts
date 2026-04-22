@@ -10,6 +10,9 @@ export interface Venue {
   cuisine?:     string
   openingHours?: string
   website?:     string
+  featured?:    boolean
+  deal?:        string
+  dealTag?:     string
 }
 
 const STATIC: Record<string, Venue[]> = {

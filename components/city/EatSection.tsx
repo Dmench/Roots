@@ -19,23 +19,92 @@ const TYPE_COLOR: Record<string, string> = {
   other:      '#252450',
 }
 
-function isOpenNow(hours?: string): boolean | null {
-  if (!hours) return null
-  // Very rough check — just detect "24/7"
-  if (hours === '24/7') return true
-  return null  // parsing full OSM opening_hours is complex, skip for now
-}
-
 interface Props {
   venues: Venue[]
   reddit: RedditPost[]
   cityId: string
 }
 
+function PartnerCard({ venue }: { venue: Venue }) {
+  return (
+    <div className="rounded-2xl overflow-hidden mb-10"
+      style={{ background: '#0F0E1E', border: '1px solid rgba(255,255,255,0.06)' }}>
+
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-5 pt-4 pb-3"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <span className="text-[9px] font-black tracking-widest uppercase"
+          style={{ color: '#E8612A' }}>
+          {venue.dealTag ?? 'Partner Venue'}
+        </span>
+        <span className="text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-sm"
+          style={{ background: '#E8612A18', color: '#E8612A' }}>
+          Exclusive deal
+        </span>
+      </div>
+
+      <div className="px-5 py-5">
+        {/* Venue name + category */}
+        <div className="flex items-start justify-between gap-4 mb-1">
+          <h3 className="font-display font-black leading-tight"
+            style={{ fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: '#F5ECD7' }}>
+            {venue.name}
+          </h3>
+          <span className="shrink-0 text-[9px] font-black tracking-wide uppercase px-2 py-1 rounded-sm mt-1"
+            style={{ background: `${TYPE_COLOR[venue.broadType]}20`, color: TYPE_COLOR[venue.broadType] }}>
+            {venue.category}
+          </span>
+        </div>
+
+        {/* Address */}
+        {(venue.neighborhood || venue.address) && (
+          <p className="text-xs mb-4" style={{ color: 'rgba(245,236,215,0.4)' }}>
+            {[venue.neighborhood, venue.address].filter(Boolean).join(' · ')}
+          </p>
+        )}
+
+        {/* Deal */}
+        <div className="rounded-xl px-4 py-3 mb-5"
+          style={{ background: 'rgba(232,97,42,0.1)', border: '1px solid rgba(232,97,42,0.2)' }}>
+          <p className="text-xs font-bold" style={{ color: '#F5ECD7' }}>
+            🍺 {venue.deal}
+          </p>
+        </div>
+
+        {/* CTA row */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {venue.website && (
+            <a href={venue.website} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-wide px-4 py-2 rounded-full transition-opacity hover:opacity-75"
+              style={{ background: '#E8612A', color: '#fff' }}>
+              View venue ↗
+            </a>
+          )}
+          <span className="text-[10px] font-bold px-4 py-2 rounded-full cursor-default"
+            style={{ background: 'rgba(245,236,215,0.06)', color: 'rgba(245,236,215,0.35)' }}>
+            QR redemption coming soon
+          </span>
+        </div>
+      </div>
+
+      {/* Opening hours footer */}
+      {venue.openingHours && (
+        <div className="px-5 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <p className="text-[9px] truncate" style={{ color: 'rgba(245,236,215,0.25)' }}>
+            {venue.openingHours}
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function EatSection({ venues, reddit, cityId }: Props) {
   const [filter, setFilter] = useState<Filter>('all')
 
-  const filtered = filter === 'all' ? venues : venues.filter(v => v.broadType === filter)
+  const featured  = venues.find(v => v.featured)
+  const regular   = venues.filter(v => !v.featured)
+  const filtered  = filter === 'all' ? regular : regular.filter(v => v.broadType === filter)
 
   const FOOD_KW = ['restaurant', 'food', 'eat', 'bar', 'drink', 'coffee', 'brunch', 'lunch', 'dinner',
     'café', 'cafe', 'recommend', 'pizza', 'burger', 'vegan', 'beer', 'frites', 'belgian',
@@ -46,10 +115,13 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
 
   return (
     <div>
+      {/* Partner hero card */}
+      {featured && <PartnerCard venue={featured} />}
+
       {/* Filter tabs */}
       <div className="flex items-center gap-1.5 flex-wrap mb-8">
         {FILTER_TABS.map(tab => {
-          const count  = tab.id === 'all' ? venues.length : venues.filter(v => v.broadType === tab.id).length
+          const count  = tab.id === 'all' ? regular.length : regular.filter(v => v.broadType === tab.id).length
           const active = filter === tab.id
           if (count === 0 && tab.id !== 'all') return null
           return (
@@ -68,10 +140,10 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
         })}
       </div>
 
-      {venues.length === 0 && (
+      {regular.length === 0 && (
         <div className="py-20 text-center">
           <p className="text-sm font-medium" style={{ color: 'rgba(37,36,80,0.35)' }}>
-            Loading venue data…
+            No venues found.
           </p>
         </div>
       )}
@@ -80,20 +152,15 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
       {filtered.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-16">
           {filtered.map(venue => {
-            const color   = TYPE_COLOR[venue.broadType]
-            const openNow = isOpenNow(venue.openingHours)
-
+            const color = TYPE_COLOR[venue.broadType]
             return (
               <div
                 key={venue.id}
                 className="bg-white rounded-xl flex flex-col overflow-hidden"
                 style={{ border: '1px solid rgba(37,36,80,0.07)' }}
               >
-                {/* Type accent bar */}
                 <div className="h-1 w-full shrink-0" style={{ background: color }} />
-
                 <div className="px-4 py-4 flex flex-col flex-1">
-                  {/* Name + open badge */}
                   <div className="flex items-start justify-between gap-2 mb-1.5">
                     {venue.website ? (
                       <a href={venue.website} target="_blank" rel="noopener noreferrer"
@@ -106,31 +173,19 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
                         {venue.name}
                       </p>
                     )}
-                    {openNow === true && (
-                      <span className="shrink-0 text-[8px] font-black tracking-wide px-1.5 py-0.5 rounded-sm"
-                        style={{ background: '#10B98115', color: '#10B981' }}>
-                        24/7
-                      </span>
-                    )}
                   </div>
-
-                  {/* Category + cuisine */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-[9px] font-black tracking-wide uppercase px-2 py-0.5 rounded-sm"
                       style={{ background: `${color}12`, color }}>
                       {venue.category}
                     </span>
                   </div>
-
-                  {/* Location */}
                   {(venue.neighborhood || venue.address) && (
                     <p className="text-[10px] mt-auto pt-2" style={{ color: 'rgba(37,36,80,0.38)' }}>
                       {[venue.neighborhood, venue.address].filter(Boolean).join(' · ')}
                     </p>
                   )}
-
-                  {/* Opening hours */}
-                  {venue.openingHours && venue.openingHours !== '24/7' && (
+                  {venue.openingHours && (
                     <p className="text-[9px] mt-1 truncate" style={{ color: 'rgba(37,36,80,0.28)' }}>
                       {venue.openingHours}
                     </p>
@@ -157,7 +212,7 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
             </a>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
-            {foodPosts.map((post, i) => {
+            {foodPosts.map((post) => {
               const diff = Math.floor(Date.now() / 1000) - post.created
               const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
               return (

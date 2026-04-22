@@ -185,8 +185,35 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                     See all →
                   </Link>
                 </div>
+
+                {/* Featured partner venue */}
+                {venues.find(v => v.featured) && (() => {
+                  const p = venues.find(v => v.featured)!
+                  return (
+                    <Link href={`/${cityId}/eat`}
+                      className="block rounded-xl p-3.5 mb-3 hover:opacity-90 transition-opacity"
+                      style={{ background: '#0F0E1E' }}>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-[8px] font-black tracking-widest uppercase" style={{ color: '#E8612A' }}>
+                          {p.dealTag ?? 'Partner venue'}
+                        </span>
+                        <span className="text-[8px] font-black tracking-wide px-1.5 py-0.5 rounded-sm"
+                          style={{ background: 'rgba(232,97,42,0.15)', color: '#E8612A' }}>
+                          Exclusive deal
+                        </span>
+                      </div>
+                      <p className="text-xs font-black truncate" style={{ color: '#F5ECD7' }}>{p.name}</p>
+                      {p.deal && (
+                        <p className="text-[9px] mt-1 line-clamp-1" style={{ color: 'rgba(245,236,215,0.45)' }}>
+                          🍺 {p.deal}
+                        </p>
+                      )}
+                    </Link>
+                  )
+                })()}
+
                 <div className="space-y-0">
-                  {venues.slice(0, 5).map((v, idx) => {
+                  {venues.filter(v => !v.featured).slice(0, 4).map((v, idx) => {
                     const typeColor = v.broadType === 'bar' ? '#4744C8' : v.broadType === 'cafe' ? '#FAB400' : '#E8612A'
                     return (
                       <div key={v.id}
