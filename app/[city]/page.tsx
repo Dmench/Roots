@@ -5,6 +5,7 @@ import { getEvents } from '@/lib/data/events'
 import type { EventPreview } from '@/lib/data/events'
 import { getRedditPosts } from '@/lib/data/reddit'
 import { getNews } from '@/lib/data/news'
+import { getVenues } from '@/lib/data/venues'
 import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
@@ -21,7 +22,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const city = getCity(cityId)
   if (!city || !city.active) notFound()
 
-  const [eventsRaw, reddit, news] = await Promise.all([getEvents(cityId), getRedditPosts(cityId), getNews(cityId)])
+  const [eventsRaw, reddit, news, venues] = await Promise.all([getEvents(cityId), getRedditPosts(cityId), getNews(cityId), getVenues(cityId, 6)])
 
   // Deduplicate events by normalised title
   const grouped = new Map<string, { ev: EventPreview; dates: { date: string; time: string; url: string }[] }>()
@@ -109,6 +110,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <div className="flex items-center gap-2 flex-wrap mt-6">
             {[
               { href: `/${cityId}/connect`, label: 'Community',    color: '#FF3EBA' },
+              { href: `/${cityId}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
               { href: `/${cityId}/ask`,     label: 'Ask anything', color: '#38C0F0' },
               { href: `/${cityId}/settle`,  label: 'Get set up',   color: '#FAB400' },
             ].map(p => (
@@ -168,6 +170,46 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
           {/* ── RIGHT: News + Reddit ────────────────────────────────────── */}
           <div className="lg:pl-9 pt-7">
+
+            {/* ── Eat & Drink strip ────────────────────────────────────── */}
+            {venues.length > 0 && (
+              <section className="mb-10">
+                <div className="flex items-center justify-between pb-3 mb-4"
+                  style={{ borderBottom: '1px solid rgba(37,36,80,0.15)' }}>
+                  <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(37,36,80,0.5)' }}>
+                    Eat &amp; Drink
+                  </span>
+                  <Link href={`/${cityId}/eat`}
+                    className="text-[9px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
+                    style={{ color: '#E8612A' }}>
+                    See all →
+                  </Link>
+                </div>
+                <div className="space-y-0">
+                  {venues.slice(0, 5).map((v, i) => (
+                    <div key={v.id}
+                      className="flex items-center gap-3 py-3"
+                      style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                      <span className="text-xs font-black tabular-nums shrink-0 w-6 text-right"
+                        style={{ color: v.rating && v.rating >= 9 ? '#10B981' : v.rating && v.rating >= 8 ? '#FAB400' : 'rgba(37,36,80,0.25)' }}>
+                        {v.rating ? v.rating.toFixed(1) : '—'}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold truncate" style={{ color: '#0F0E1E' }}>{v.name}</p>
+                        <p className="text-[9px]" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                          {v.category}{v.neighborhood ? ` · ${v.neighborhood}` : ''}
+                        </p>
+                      </div>
+                      {v.price && (
+                        <span className="text-[9px] font-black shrink-0" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                          {'$'.repeat(v.price)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* ── In the news ──────────────────────────────────────────── */}
             {featuredNews && (
