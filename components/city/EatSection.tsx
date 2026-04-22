@@ -5,18 +5,18 @@ import type { RedditPost } from '@/lib/data/reddit'
 
 type Filter = 'all' | 'restaurant' | 'bar' | 'cafe'
 
-const FILTER_TABS: { id: Filter; label: string; color: string }[] = [
-  { id: 'all',        label: 'All',         color: '#252450' },
-  { id: 'restaurant', label: 'Restaurants', color: '#E8612A' },
-  { id: 'bar',        label: 'Bars & Pubs', color: '#4744C8' },
-  { id: 'cafe',       label: 'Cafés',       color: '#FAB400' },
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: 'all',         label: 'All'         },
+  { id: 'restaurant',  label: 'Restaurants' },
+  { id: 'bar',         label: 'Bars & Pubs' },
+  { id: 'cafe',        label: 'Cafés'       },
 ]
 
-const TYPE_COLOR: Record<string, string> = {
-  restaurant: '#E8612A',
-  bar:        '#4744C8',
-  cafe:       '#FAB400',
-  other:      '#252450',
+const TYPE_LABEL: Record<string, string> = {
+  restaurant: 'Restaurant',
+  bar:        'Bar',
+  cafe:       'Café',
+  other:      'Venue',
 }
 
 interface Props {
@@ -25,76 +25,50 @@ interface Props {
   cityId: string
 }
 
-function PartnerCard({ venue }: { venue: Venue }) {
+function PartnerFeature({ venue }: { venue: Venue }) {
   return (
-    <div className="rounded-2xl overflow-hidden mb-10"
-      style={{ background: '#0F0E1E', border: '1px solid rgba(255,255,255,0.06)' }}>
-
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <span className="text-[9px] font-black tracking-widest uppercase"
-          style={{ color: '#E8612A' }}>
+    <div className="mb-16">
+      {/* Rule + label */}
+      <div className="flex items-center gap-4 mb-8">
+        <div className="flex-1 h-px" style={{ background: '#0F0E1E' }} />
+        <span className="text-[9px] font-black tracking-[0.3em] uppercase shrink-0"
+          style={{ color: '#0F0E1E' }}>
           {venue.dealTag ?? 'Partner Venue'}
         </span>
-        <span className="text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-sm"
-          style={{ background: '#E8612A18', color: '#E8612A' }}>
-          Exclusive deal
-        </span>
+        <div className="flex-1 h-px" style={{ background: '#0F0E1E' }} />
       </div>
 
-      <div className="px-5 py-5">
-        {/* Venue name + category */}
-        <div className="flex items-start justify-between gap-4 mb-1">
-          <h3 className="font-display font-black leading-tight"
-            style={{ fontSize: 'clamp(1.4rem, 4vw, 1.9rem)', color: '#F5ECD7' }}>
-            {venue.name}
-          </h3>
-          <span className="shrink-0 text-[9px] font-black tracking-wide uppercase px-2 py-1 rounded-sm mt-1"
-            style={{ background: `${TYPE_COLOR[venue.broadType]}20`, color: TYPE_COLOR[venue.broadType] }}>
-            {venue.category}
-          </span>
-        </div>
+      {/* Venue name */}
+      <h2 className="font-display font-black leading-none mb-3"
+        style={{ fontSize: 'clamp(2.8rem, 9vw, 5.5rem)', color: '#0F0E1E', letterSpacing: '-0.02em' }}>
+        {venue.name}
+      </h2>
 
-        {/* Address */}
-        {(venue.neighborhood || venue.address) && (
-          <p className="text-xs mb-4" style={{ color: 'rgba(245,236,215,0.4)' }}>
-            {[venue.neighborhood, venue.address].filter(Boolean).join(' · ')}
-          </p>
-        )}
+      {/* Category + hours on one line */}
+      <p className="text-xs mb-6" style={{ color: 'rgba(15,14,30,0.4)' }}>
+        {venue.category}
+        {venue.openingHours ? ` · ${venue.openingHours}` : ''}
+      </p>
 
-        {/* Deal */}
-        <div className="rounded-xl px-4 py-3 mb-5"
-          style={{ background: 'rgba(232,97,42,0.1)', border: '1px solid rgba(232,97,42,0.2)' }}>
-          <p className="text-xs font-bold" style={{ color: '#F5ECD7' }}>
-            🍺 {venue.deal}
-          </p>
-        </div>
-
-        {/* CTA row */}
-        <div className="flex items-center gap-3 flex-wrap">
-          {venue.website && (
-            <a href={venue.website} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-wide px-4 py-2 rounded-full transition-opacity hover:opacity-75"
-              style={{ background: '#E8612A', color: '#fff' }}>
-              View venue ↗
-            </a>
-          )}
-          <span className="text-[10px] font-bold px-4 py-2 rounded-full cursor-default"
-            style={{ background: 'rgba(245,236,215,0.06)', color: 'rgba(245,236,215,0.35)' }}>
-            QR redemption coming soon
-          </span>
-        </div>
-      </div>
-
-      {/* Opening hours footer */}
-      {venue.openingHours && (
-        <div className="px-5 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-[9px] truncate" style={{ color: 'rgba(245,236,215,0.25)' }}>
-            {venue.openingHours}
-          </p>
-        </div>
+      {/* The deal — set as body copy, no box */}
+      {venue.deal && (
+        <p className="text-base mb-6 max-w-lg"
+          style={{ color: '#0F0E1E', fontStyle: 'italic', lineHeight: 1.55 }}>
+          "{venue.deal}"
+        </p>
       )}
+
+      {/* Link */}
+      {venue.website && (
+        <a href={venue.website} target="_blank" rel="noopener noreferrer"
+          className="link-hover text-[10px] font-black tracking-widest uppercase"
+          style={{ color: '#0F0E1E' }}>
+          Visit {venue.name} ↗
+        </a>
+      )}
+
+      {/* Bottom rule */}
+      <div className="mt-8 h-px" style={{ background: 'rgba(15,14,30,0.1)' }} />
     </div>
   )
 }
@@ -102,9 +76,9 @@ function PartnerCard({ venue }: { venue: Venue }) {
 export default function EatSection({ venues, reddit, cityId }: Props) {
   const [filter, setFilter] = useState<Filter>('all')
 
-  const featured  = venues.find(v => v.featured)
-  const regular   = venues.filter(v => !v.featured)
-  const filtered  = filter === 'all' ? regular : regular.filter(v => v.broadType === filter)
+  const featured = venues.find(v => v.featured)
+  const regular  = venues.filter(v => !v.featured)
+  const filtered = filter === 'all' ? regular : regular.filter(v => v.broadType === filter)
 
   const FOOD_KW = ['restaurant', 'food', 'eat', 'bar', 'drink', 'coffee', 'brunch', 'lunch', 'dinner',
     'café', 'cafe', 'recommend', 'pizza', 'burger', 'vegan', 'beer', 'frites', 'belgian',
@@ -115,119 +89,122 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
 
   return (
     <div>
-      {/* Partner hero card */}
-      {featured && <PartnerCard venue={featured} />}
+      {/* Partner feature */}
+      {featured && <PartnerFeature venue={featured} />}
 
-      {/* Filter tabs */}
-      <div className="flex items-center gap-1.5 flex-wrap mb-8">
-        {FILTER_TABS.map(tab => {
-          const count  = tab.id === 'all' ? regular.length : regular.filter(v => v.broadType === tab.id).length
-          const active = filter === tab.id
-          if (count === 0 && tab.id !== 'all') return null
+      {/* Filter tabs — text with underline indicator */}
+      <div className="flex items-center gap-6 mb-10"
+        style={{ borderBottom: '1px solid rgba(15,14,30,0.1)' }}>
+        {FILTERS.map(f => {
+          const count  = f.id === 'all' ? regular.length : regular.filter(v => v.broadType === f.id).length
+          const active = filter === f.id
+          if (count === 0 && f.id !== 'all') return null
           return (
-            <button
-              key={tab.id}
-              onClick={() => setFilter(tab.id)}
-              className="px-3.5 py-1.5 rounded-full text-[10px] font-black tracking-wide transition-all"
-              style={active
-                ? { background: tab.color, color: '#fff' }
-                : { background: `${tab.color}10`, color: tab.color }}
-            >
-              {tab.label}
-              <span className="ml-1.5 opacity-50">·{count}</span>
+            <button key={f.id}
+              onClick={() => setFilter(f.id)}
+              className="pb-3 text-[10px] font-black tracking-widest uppercase transition-all relative"
+              style={{ color: active ? '#0F0E1E' : 'rgba(15,14,30,0.3)' }}>
+              {f.label}
+              {active && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5"
+                  style={{ background: '#0F0E1E' }} />
+              )}
             </button>
           )
         })}
       </div>
 
       {regular.length === 0 && (
-        <div className="py-20 text-center">
-          <p className="text-sm font-medium" style={{ color: 'rgba(37,36,80,0.35)' }}>
-            No venues found.
-          </p>
-        </div>
+        <p className="py-20 text-center text-sm" style={{ color: 'rgba(15,14,30,0.3)' }}>
+          No venues found.
+        </p>
       )}
 
-      {/* Venue grid */}
+      {/* Editorial list */}
       {filtered.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-16">
-          {filtered.map(venue => {
-            const color = TYPE_COLOR[venue.broadType]
-            return (
-              <div
-                key={venue.id}
-                className="bg-white rounded-xl flex flex-col overflow-hidden"
-                style={{ border: '1px solid rgba(37,36,80,0.07)' }}
-              >
-                <div className="h-1 w-full shrink-0" style={{ background: color }} />
-                <div className="px-4 py-4 flex flex-col flex-1">
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
-                    {venue.website ? (
-                      <a href={venue.website} target="_blank" rel="noopener noreferrer"
-                        className="text-sm font-bold leading-snug hover:opacity-60 transition-opacity"
-                        style={{ color: '#0F0E1E' }}>
-                        {venue.name} ↗
-                      </a>
-                    ) : (
-                      <p className="text-sm font-bold leading-snug" style={{ color: '#0F0E1E' }}>
-                        {venue.name}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[9px] font-black tracking-wide uppercase px-2 py-0.5 rounded-sm"
-                      style={{ background: `${color}12`, color }}>
-                      {venue.category}
-                    </span>
-                  </div>
-                  {(venue.neighborhood || venue.address) && (
-                    <p className="text-[10px] mt-auto pt-2" style={{ color: 'rgba(37,36,80,0.38)' }}>
-                      {[venue.neighborhood, venue.address].filter(Boolean).join(' · ')}
-                    </p>
-                  )}
-                  {venue.openingHours && (
-                    <p className="text-[9px] mt-1 truncate" style={{ color: 'rgba(37,36,80,0.28)' }}>
-                      {venue.openingHours}
-                    </p>
-                  )}
-                </div>
+        <div className="mb-20">
+          {filtered.map((venue, i) => (
+            <div key={venue.id}
+              className="group grid py-4"
+              style={{
+                gridTemplateColumns: '2.5rem 1fr auto',
+                borderTop: '1px solid rgba(15,14,30,0.08)',
+                alignItems: 'start',
+              }}>
+              {/* Index */}
+              <span className="text-[10px] font-black pt-0.5"
+                style={{ color: 'rgba(15,14,30,0.2)', fontVariantNumeric: 'tabular-nums' }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+
+              {/* Name + meta */}
+              <div className="min-w-0 pr-4">
+                {venue.website ? (
+                  <a href={venue.website} target="_blank" rel="noopener noreferrer"
+                    className="link-hover font-bold text-sm leading-snug"
+                    style={{ color: '#0F0E1E' }}>
+                    {venue.name}
+                  </a>
+                ) : (
+                  <p className="font-bold text-sm leading-snug" style={{ color: '#0F0E1E' }}>
+                    {venue.name}
+                  </p>
+                )}
+                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(15,14,30,0.38)' }}>
+                  {venue.category}
+                  {venue.neighborhood ? ` · ${venue.neighborhood}` : ''}
+                </p>
               </div>
-            )
-          })}
+
+              {/* Hours or website arrow */}
+              <div className="text-right shrink-0">
+                {venue.openingHours ? (
+                  <p className="text-[9px] leading-tight max-w-[160px] text-right"
+                    style={{ color: 'rgba(15,14,30,0.25)' }}>
+                    {venue.openingHours.split(';')[0]}
+                  </p>
+                ) : venue.website ? (
+                  <span className="text-[10px]" style={{ color: 'rgba(15,14,30,0.2)' }}>↗</span>
+                ) : null}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {/* Community voices */}
       {foodPosts.length > 0 && (
         <section>
-          <div className="flex items-center justify-between pb-3 mb-6"
-            style={{ borderBottom: '2px solid #252450' }}>
-            <h2 className="font-display font-black" style={{ fontSize: '1.3rem', color: '#0F0E1E' }}>
-              What the community says
-            </h2>
-            <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-              className="text-[9px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
-              style={{ color: 'rgba(37,36,80,0.3)' }}>
-              r/{cityId} ↗
-            </a>
+          <div className="flex items-center gap-4 mb-10">
+            <div className="flex-1 h-px" style={{ background: 'rgba(15,14,30,0.1)' }} />
+            <span className="text-[9px] font-black tracking-[0.3em] uppercase shrink-0"
+              style={{ color: 'rgba(15,14,30,0.4)' }}>
+              Community
+            </span>
+            <div className="flex-1 h-px" style={{ background: 'rgba(15,14,30,0.1)' }} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
             {foodPosts.map((post) => {
               const diff = Math.floor(Date.now() / 1000) - post.created
-              const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
+              const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m`
+                         : diff < 86400 ? `${Math.floor(diff / 3600)}h`
+                         : `${Math.floor(diff / 86400)}d`
               return (
                 <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer"
-                  className="group flex gap-3 py-4 hover:opacity-60 transition-opacity"
-                  style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
-                  <span className="shrink-0 text-[10px] font-black w-7 text-right pt-0.5" style={{ color: '#FF4500' }}>
+                  className="flex gap-4 py-4 hover:opacity-50 transition-opacity"
+                  style={{ borderTop: '1px solid rgba(15,14,30,0.07)' }}>
+                  <span className="shrink-0 text-[10px] font-black w-6 pt-0.5 text-right"
+                    style={{ color: '#FF4500' }}>
                     {post.score >= 1000 ? `${(post.score / 1000).toFixed(1)}k` : post.score}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold leading-snug line-clamp-2" style={{ color: '#0F0E1E' }}>
+                    <p className="text-xs font-semibold leading-snug line-clamp-2"
+                      style={{ color: '#0F0E1E' }}>
                       {post.title}
                     </p>
-                    <p className="text-[9px] mt-1" style={{ color: 'rgba(37,36,80,0.3)' }}>
-                      {post.comments} comments · {ago}
+                    <p className="text-[9px] mt-1" style={{ color: 'rgba(15,14,30,0.3)' }}>
+                      {post.comments} comments · {ago} · r/{cityId}
                     </p>
                   </div>
                 </a>
