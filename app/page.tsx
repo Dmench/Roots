@@ -22,7 +22,7 @@ export default function HomePage() {
   // ── Signed-in ────────────────────────────────────────────────────────────
   if (user) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: '#F5ECD7' }}>
+      <div className="min-h-screen flex flex-col" style={{ background: '#F5F4F0' }}>
         {/* Shapes */}
         <div className="fixed rounded-full pointer-events-none"
           style={{ background: '#4744C8', width: 400, height: 400, top: -160, right: -100, opacity: 0.85 }} />
@@ -155,7 +155,7 @@ export default function HomePage() {
             <button
               onClick={() => setAuthOpen(true)}
               className="inline-flex items-center justify-center px-10 py-4 text-base font-bold rounded-full hover:opacity-90 transition-opacity"
-              style={{ background: '#F5ECD7', color: '#252450' }}>
+              style={{ background: '#F5F4F0', color: '#252450' }}>
               Open Brussels →
             </button>
             <Link href="/brussels"

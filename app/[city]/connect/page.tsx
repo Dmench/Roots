@@ -199,7 +199,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     <div style={{ background: '#F8F7F4', minHeight: '100vh' }}>
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden px-6 md:px-12 pt-10 pb-10" style={{ background: '#F5ECD7' }}>
+      <div className="relative overflow-hidden px-6 md:px-12 pt-10 pb-10" style={{ background: '#F5F4F0' }}>
         <div className="absolute rounded-full pointer-events-none opacity-60"
           style={{ background: '#4744C8', width: 220, height: 220, top: -100, right: -60 }} />
         <div className="absolute rounded-full pointer-events-none opacity-50"

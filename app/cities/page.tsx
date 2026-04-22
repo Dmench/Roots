@@ -59,7 +59,7 @@ function CitiesInner() {
       <Nav />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden px-6 md:px-10 pt-16 md:pt-24 pb-20 md:pb-28" style={{ background: '#F5ECD7' }}>
+      <section className="relative overflow-hidden px-6 md:px-10 pt-16 md:pt-24 pb-20 md:pb-28" style={{ background: '#F5F4F0' }}>
         <div className="absolute rounded-full pointer-events-none"
           style={{ background: '#4744C8', width: '36vw', height: '36vw', maxWidth: 480, maxHeight: 480, top: '-22%', right: '-10%' }} />
         <div className="absolute rounded-full pointer-events-none"
@@ -132,7 +132,7 @@ function CitiesInner() {
             ) : (
               <div key={city.id}
                 className="relative rounded-2xl overflow-hidden border border-sand/30 opacity-55"
-                style={{ background: '#F5ECD7', minHeight: 240 }}>
+                style={{ background: '#F5F4F0', minHeight: 240 }}>
                 <div className="absolute rounded-full pointer-events-none"
                   style={{ background: '#D8CABB', opacity: 0.35, width: 120, height: 120, bottom: -30, right: -20 }} />
                 <div className="relative p-8 flex flex-col justify-between h-full" style={{ minHeight: 240 }}>
@@ -210,7 +210,7 @@ function CitiesInner() {
 
 export default function CitiesPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen" style={{ background: '#F5ECD7' }} />}>
+    <Suspense fallback={<div className="min-h-screen" style={{ background: '#F5F4F0' }} />}>
       <CitiesInner />
     </Suspense>
   )

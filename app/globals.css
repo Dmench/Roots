@@ -7,10 +7,10 @@
   --font-sans:    var(--font-inter), 'Inter', system-ui, sans-serif;
 
   /* Base surfaces */
-  --color-cream:     #FAFAF8;
-  --color-ivory:     #F5ECD7;
-  --color-parchment: #EDE0C8;
-  --color-sand:      #D8CABB;
+  --color-cream:     #F5F4F0;
+  --color-ivory:     #EEECEA;
+  --color-parchment: #E4E2DD;
+  --color-sand:      #CECBC4;
   --color-stone:     #8A7868;
   --color-walnut:    #4A3F32;
   --color-espresso:  #0D0C0A;

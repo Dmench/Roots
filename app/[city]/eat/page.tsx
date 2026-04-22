@@ -22,7 +22,7 @@ export default async function EatPage({ params }: { params: Promise<{ city: stri
   ])
 
   return (
-    <div style={{ background: '#F5ECD7', minHeight: '100vh' }}>
+    <div style={{ background: '#F5F4F0', minHeight: '100vh' }}>
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="max-w-3xl mx-auto px-6 md:px-12 pt-12 pb-0">

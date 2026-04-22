@@ -56,7 +56,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const secondaryNews  = news.slice(1, 4)
 
   return (
-    <div style={{ background: '#F5ECD7', minHeight: '100vh' }}>
+    <div style={{ background: '#F5F4F0', minHeight: '100vh' }}>
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
       <div style={{ background: '#252450' }}>

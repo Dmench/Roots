@@ -33,7 +33,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
   const [activeCategory, setActiveCategory] = useState<TaskCategory | 'all'>('all')
 
   if (!city) return null
-  if (!hydrated) return <div className="min-h-screen" style={{ background: '#F5ECD7' }} />
+  if (!hydrated) return <div className="min-h-screen" style={{ background: '#F5F4F0' }} />
 
   const allTasks      = getTasksForCity(city.id)
   const filteredTasks = filterTasks(allTasks, profile.stage as Stage | undefined, profile.situations as SituationTag[] | undefined)
@@ -107,7 +107,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden px-6 md:px-12 pt-10 pb-10"
-        style={{ background: '#F5ECD7' }}>
+        style={{ background: '#F5F4F0' }}>
         <div className="absolute rounded-full pointer-events-none"
           style={{ background: stageColor, width: 200, height: 200, top: -80, right: -50, opacity: 0.5 }} />
 
