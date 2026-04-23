@@ -9,21 +9,67 @@ interface Props {
   returnTo?: string
 }
 
-type View = 'signin' | 'signup' | 'magic-sent'
+type View = 'signin' | 'signup' | 'magic-sent' | 'confirm-email'
+
+function EyeIcon({ open }: { open: boolean }) {
+  return open ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  )
+}
+
+function PasswordInput({
+  value, onChange, placeholder, id,
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+  id: string
+}) {
+  const [show, setShow] = useState(false)
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type={show ? 'text' : 'password'}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        required
+        className="w-full px-4 py-3 pr-11 bg-white border border-sand rounded-xl text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors"
+      />
+      <button
+        type="button"
+        onClick={() => setShow(s => !s)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-walnut/30 hover:text-walnut/60 transition-colors"
+        tabIndex={-1}
+        aria-label={show ? 'Hide password' : 'Show password'}
+      >
+        <EyeIcon open={show} />
+      </button>
+    </div>
+  )
+}
 
 export function AuthModal({ isOpen, onClose, returnTo }: Props) {
   const router = useRouter()
   const { signIn, signUp, signInWithMagicLink } = useAuth()
 
-  const [view,     setView]     = useState<View>('signin')
-  const [email,    setEmail]    = useState('')
-  const [password, setPassword] = useState('')
-  const [name,     setName]     = useState('')
-  const [loading,  setLoading]  = useState(false)
-  const [error,    setError]    = useState('')
+  const [view,      setView]      = useState<View>('signin')
+  const [email,     setEmail]     = useState('')
+  const [password,  setPassword]  = useState('')
+  const [confirm,   setConfirm]   = useState('')
+  const [name,      setName]      = useState('')
+  const [loading,   setLoading]   = useState(false)
+  const [error,     setError]     = useState('')
 
-  // Store returnTo in sessionStorage so magic-link callback and password auth
-  // both know where to send the user after signing in.
   useEffect(() => {
     if (!isOpen || typeof window === 'undefined') return
     const dest = returnTo ?? window.location.pathname
@@ -31,16 +77,14 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
     sessionStorage.setItem('roots:returnTo', safe)
   }, [isOpen, returnTo])
 
-  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setView('signin'); setEmail(''); setPassword(''); setName(''); setError('')
+      setView('signin'); setEmail(''); setPassword(''); setConfirm(''); setName(''); setError('')
     }
   }, [isOpen])
 
   if (!isOpen) return null
 
-  // After email/password auth, consume the returnTo and navigate there
   function navigateAfterAuth() {
     const dest = sessionStorage.getItem('roots:returnTo')
     sessionStorage.removeItem('roots:returnTo')
@@ -67,13 +111,15 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
     e.preventDefault()
     if (!email.trim() || !password) return
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return }
+    if (password !== confirm)  { setError('Passwords don\'t match.'); return }
     setLoading(true); setError('')
     const { error: err } = await signUp(email.trim(), password, name.trim() || undefined)
     setLoading(false)
     if (err) {
       setError(err.message.includes('already registered') ? 'Account already exists — sign in instead.' : err.message)
     } else {
-      navigateAfterAuth()
+      // Show email confirmation screen — Supabase sends a confirm email by default
+      setView('confirm-email')
     }
   }
 
@@ -85,6 +131,12 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
     if (err) setError(err.message)
     else setView('magic-sent')
   }
+
+  const isConfirmView  = view === 'confirm-email' || view === 'magic-sent'
+  const confirmHeading = view === 'confirm-email' ? 'Check your email' : 'Magic link sent'
+  const confirmBody    = view === 'confirm-email'
+    ? `We've sent a confirmation link to ${email}. Click it to activate your account and sign in.`
+    : `Sign-in link sent to ${email}. Click it to sign in — no password needed.`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -101,32 +153,49 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
           </svg>
         </button>
 
-        {view === 'magic-sent' ? (
+        {/* Email confirmation / magic link sent */}
+        {isConfirmView && (
           <div className="text-center py-2">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-6" style={{ background: '#3D3CAC' }}>
-              <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-                <path d="M1 7l5 6L17 1" stroke="#F5ECD7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-6"
+              style={{ background: '#252450' }}>
+              <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+                <rect x="1" y="1" width="18" height="14" rx="2" stroke="#F5F4F0" strokeWidth="1.5" />
+                <path d="M1 4l9 6 9-6" stroke="#F5F4F0" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </div>
-            <h3 className="font-display font-bold text-espresso text-xl mb-2">Check your email</h3>
-            <p className="text-walnut/60 text-sm leading-relaxed">
-              Sign-in link sent to <strong className="text-espresso">{email}</strong>. Click it to sign in.
+            <h3 className="font-display font-bold text-espresso text-xl mb-3">{confirmHeading}</h3>
+            <p className="text-walnut/60 text-sm leading-relaxed mb-1">
+              {confirmBody}
             </p>
-            <button onClick={() => setView('signin')} className="mt-6 text-xs text-walnut/40 hover:text-espresso transition-colors">
-              Back
+            {view === 'confirm-email' && (
+              <p className="text-xs text-walnut/40 mt-3 leading-relaxed">
+                Didn't get it? Check spam, or{' '}
+                <button
+                  onClick={() => { setView('signup'); setPassword(''); setConfirm('') }}
+                  className="underline underline-offset-2 hover:text-espresso transition-colors">
+                  try again
+                </button>.
+              </p>
+            )}
+            <button
+              onClick={() => setView('signin')}
+              className="mt-6 text-xs text-walnut/40 hover:text-espresso transition-colors">
+              Back to sign in
             </button>
           </div>
-        ) : (
+        )}
+
+        {/* Sign in / Sign up forms */}
+        {!isConfirmView && (
           <>
-            {/* Tab switcher */}
             <div className="flex gap-1 p-1 rounded-lg mb-6" style={{ background: 'rgba(37,36,80,0.06)' }}>
               {(['signin', 'signup'] as View[]).map(v => (
                 <button
                   key={v}
-                  onClick={() => { setView(v); setError('') }}
+                  onClick={() => { setView(v); setError(''); setPassword(''); setConfirm('') }}
                   className="flex-1 py-2 rounded-md text-xs font-bold transition-all"
                   style={view === v
-                    ? { background: '#252450', color: '#F5ECD7' }
+                    ? { background: '#252450', color: '#F5F4F0' }
                     : { color: 'rgba(37,36,80,0.45)' }}
                 >
                   {v === 'signin' ? 'Sign in' : 'Create account'}
@@ -144,6 +213,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
                   className="w-full px-4 py-3 bg-white border border-sand rounded-xl text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors"
                 />
               )}
+
               <input
                 type="email"
                 value={email}
@@ -153,18 +223,30 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
                 required
                 className="w-full px-4 py-3 bg-white border border-sand rounded-xl text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors"
               />
-              <input
-                type="password"
+
+              <PasswordInput
+                id="password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={view === 'signup' ? 'Password (min 8 characters)' : 'Password'}
-                required
-                className="w-full px-4 py-3 bg-white border border-sand rounded-xl text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors"
+                onChange={setPassword}
+                placeholder={view === 'signup' ? 'Password (min. 8 characters)' : 'Password'}
               />
-              {error && <p className="text-xs text-red-500 leading-snug">{error}</p>}
+
+              {view === 'signup' && (
+                <PasswordInput
+                  id="confirm"
+                  value={confirm}
+                  onChange={setConfirm}
+                  placeholder="Confirm password"
+                />
+              )}
+
+              {error && (
+                <p className="text-xs leading-snug" style={{ color: '#C8152A' }}>{error}</p>
+              )}
+
               <button
                 type="submit"
-                disabled={!email.trim() || !password || loading}
+                disabled={!email.trim() || !password || (view === 'signup' && !confirm) || loading}
                 className="w-full py-3.5 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity disabled:opacity-30 text-sm"
                 style={{ background: '#252450' }}
               >
@@ -172,14 +254,13 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
               </button>
             </form>
 
-            {/* Magic link fallback */}
             <div className="mt-5 pt-4 border-t border-sand/40 text-center">
               <button
                 onClick={handleMagicLink}
                 disabled={loading}
                 className="text-xs text-walnut/35 hover:text-walnut/60 transition-colors"
               >
-                {view === 'signin' ? 'Forgot password? Send a magic link instead' : 'Or send a magic link instead'}
+                {view === 'signin' ? 'Forgot password? Send a magic link' : 'Or send a magic link instead'}
               </button>
             </div>
           </>
