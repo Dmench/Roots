@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
 
@@ -12,12 +12,10 @@ interface Props {
 export default function AuthGate({ children, cityName = 'Brussels', cityId = 'brussels' }: Props) {
   const { user, loading } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
-  const [mounted,  setMounted]  = useState(false)
 
-  useEffect(() => { setMounted(true) }, [])
-
-  // While resolving from localStorage — show dark screen, no flash
-  if (!mounted || loading) {
+  // Auth context lives in the layout and persists across navigations.
+  // loading=true only on the very first app load (sub-100ms from localStorage).
+  if (loading) {
     return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
   }
 
