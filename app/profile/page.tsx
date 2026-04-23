@@ -29,6 +29,18 @@ export default function ProfilePage() {
   const [nameInput,   setNameInput]   = useState('')
   const [saved,       setSaved]       = useState(false)
 
+  // Flash "Saved" on any profile change
+  function flash() { setSaved(true); setTimeout(() => setSaved(false), 1800) }
+  function wrap<T extends unknown[]>(fn: (...args: T) => void) {
+    return (...args: T) => { fn(...args); flash() }
+  }
+  const _setStage           = wrap(setStage)
+  const _setArrivalDate     = wrap(setArrivalDate)
+  const _setNeighborhood    = wrap(setNeighborhood)
+  const _setShowInDirectory = wrap(setShowInDirectory)
+  const _toggleLanguage     = wrap(toggleLanguage)
+  const _toggleSituation    = wrap(toggleSituation)
+
   const city         = profile.cityId ? getCity(profile.cityId) : undefined
   const currentStage = profile.stage  ? STAGES.find(s => s.id === profile.stage) : undefined
   const allTasks     = city ? getTasksForCity(city.id) : []
@@ -42,8 +54,7 @@ export default function ProfilePage() {
     if (!nameInput.trim()) return
     setDisplayName(nameInput.trim())
     setEditingName(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    flash()
   }
 
   if (authLoading || !hydrated) {
@@ -136,12 +147,18 @@ export default function ProfilePage() {
             <p className="text-stone text-sm">{user.email}</p>
             {saved && <p className="text-xs text-sage mt-1">Saved ✓</p>}
           </div>
-          <button
-            onClick={handleSignOut}
-            className="text-xs text-stone hover:text-espresso transition-colors mt-1 shrink-0"
-          >
-            Sign out
-          </button>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            {saved && (
+              <span className="text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-full"
+                style={{ background: 'rgba(16,185,129,0.12)', color: '#10B981' }}>
+                Saved ✓
+              </span>
+            )}
+            <button onClick={handleSignOut}
+              className="text-xs text-stone hover:text-espresso transition-colors mt-1">
+              Sign out
+            </button>
+          </div>
         </div>
 
         {/* ── Stats row ────────────────────────────────────────────────── */}
@@ -163,7 +180,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-5">
             <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium">Your journey</p>
             {currentStage && (
-              <button onClick={() => setStage(undefined)} className="text-xs text-stone hover:text-espresso transition-colors">
+              <button onClick={() => _setStage(undefined)} className="text-xs text-stone hover:text-espresso transition-colors">
                 Change
               </button>
             )}
@@ -179,7 +196,7 @@ export default function ProfilePage() {
                   return (
                     <div key={s} className="flex items-center flex-1">
                       <button
-                        onClick={() => setStage(s)}
+                        onClick={() => _setStage(s)}
                         className={cn(
                           'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0',
                           active   ? 'text-white scale-110' : '',
@@ -218,7 +235,7 @@ export default function ProfilePage() {
               {STAGES.map(s => (
                 <button
                   key={s.id}
-                  onClick={() => setStage(s.id as Stage)}
+                  onClick={() => _setStage(s.id as Stage)}
                   className="text-left px-4 py-3 bg-ivory border border-sand rounded-sm hover:border-terracotta/40 transition-colors group"
                 >
                   <p className="text-xs text-stone mb-0.5">{s.months}</p>
@@ -274,7 +291,7 @@ export default function ProfilePage() {
           <input
             type="date"
             value={profile.arrivalDate ?? ''}
-            onChange={e => setArrivalDate(e.target.value)}
+            onChange={e => _setArrivalDate(e.target.value)}
             className="px-4 py-2.5 bg-ivory border border-sand rounded-sm text-sm text-espresso focus:outline-none focus:border-terracotta/40 transition-colors w-full max-w-[200px]"
           />
           {days !== null && (
@@ -288,7 +305,7 @@ export default function ProfilePage() {
             <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-4">Neighborhood</p>
             <select
               value={profile.neighborhood ?? ''}
-              onChange={e => setNeighborhood(e.target.value || undefined)}
+              onChange={e => _setNeighborhood(e.target.value || undefined)}
               className="w-full px-4 py-2.5 bg-ivory border border-sand rounded-sm text-sm text-espresso focus:outline-none focus:border-terracotta/40 transition-colors appearance-none"
             >
               <option value="">Select your neighborhood…</option>
@@ -314,7 +331,7 @@ export default function ProfilePage() {
               return (
                 <button
                   key={lang.code}
-                  onClick={() => toggleLanguage(lang.code)}
+                  onClick={() => _toggleLanguage(lang.code)}
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-2 rounded-sm text-sm font-medium transition-all duration-150 border',
                     active
@@ -346,7 +363,7 @@ export default function ProfilePage() {
               </p>
             </div>
             <button
-              onClick={() => setShowInDirectory(profile.showInDirectory === false ? true : false)}
+              onClick={() => _setShowInDirectory(profile.showInDirectory !== false ? false : true)}
               className="relative shrink-0 w-10 h-6 rounded-full transition-colors duration-200 mt-0.5"
               style={{ background: profile.showInDirectory !== false ? '#3D3CAC' : 'rgba(37,36,80,0.12)' }}
               aria-label="Toggle directory visibility"
@@ -368,7 +385,7 @@ export default function ProfilePage() {
               return (
                 <button
                   key={s.id}
-                  onClick={() => toggleSituation(s.id as SituationTag)}
+                  onClick={() => _toggleSituation(s.id as SituationTag)}
                   className={cn(
                     'px-3 py-2 rounded-sm text-sm font-medium transition-all duration-150 border',
                     active
