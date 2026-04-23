@@ -199,14 +199,31 @@ function rssDateToUnix(d: string): number {
 const UA = 'Mozilla/5.0 (compatible; Roots/1.0; +https://roots.so)'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const REDDIT_UAS = [
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+]
+
 async function fetchReddit(subs: string[]): Promise<{ items: FeedItem[]; source: SourceResult }> {
+  const ua = REDDIT_UAS[Math.floor(Math.random() * REDDIT_UAS.length)]
+  const headers = { 'User-Agent': ua, 'Accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.9' }
+
   const results = await Promise.allSettled(
-    subs.map(sub =>
-      fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=20`, {
-        headers: { 'User-Agent': 'Roots/1.0 (+https://roots.so; contact: hello@roots.so)' },
-        cache: 'no-store',
-      }).then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-    )
+    subs.map(async sub => {
+      // Try www first, fall back to old.reddit
+      for (const base of ['https://www.reddit.com', 'https://old.reddit.com']) {
+        try {
+          const res = await fetch(`${base}/r/${sub}/hot.json?limit=20&raw_json=1`, {
+            headers,
+            next: { revalidate: 1800 },
+            signal: AbortSignal.timeout(10000),
+          })
+          if (res.ok) return res.json()
+        } catch { continue }
+      }
+      throw new Error('all endpoints failed')
+    })
   )
 
   const items: FeedItem[] = []

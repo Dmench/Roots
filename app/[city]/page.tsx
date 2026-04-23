@@ -17,6 +17,9 @@ export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
 }
 
+// Rebuild every 30 minutes — Reddit + news stay fresh without Vercel IP blocks
+export const revalidate = 1800
+
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
 export default async function CityPage({ params }: { params: Promise<{ city: string }> }) {
