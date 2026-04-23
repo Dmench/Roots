@@ -3,39 +3,21 @@ import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic()
 
-// In-memory rate limiter — 10 req / IP / minute
-// Replace with Upstash Redis for multi-instance / serverless production
-const rl = new Map<string, { count: number; reset: number }>()
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rl.get(ip)
-  if (!entry || now > entry.reset) {
-    rl.set(ip, { count: 1, reset: now + 60_000 })
-    return true
-  }
-  if (entry.count >= 10) return false
-  entry.count++
-  return true
-}
+// Hard spend cap: max tokens per request is already 1024 (set below).
+// Additional guard: reject if question is suspiciously large.
+// For production scale, swap to Upstash Redis rate limiting.
+// Each serverless invocation is stateless — in-memory maps don't persist across requests.
+const MAX_QUESTION_CHARS = 600
 
 export async function POST(req: NextRequest) {
-  // Rate limit
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json(
-      { error: 'Too many requests — wait a minute and try again.' },
-      { status: 429, headers: { 'Retry-After': '60' } }
-    )
-  }
-
   try {
     const { question, city, stage, situations } = await req.json()
 
     if (!question?.trim()) {
       return NextResponse.json({ error: 'Question required' }, { status: 400 })
     }
-    if (question.length > 1000) {
-      return NextResponse.json({ error: 'Question too long (max 1000 characters)' }, { status: 400 })
+    if (question.length > MAX_QUESTION_CHARS) {
+      return NextResponse.json({ error: `Question too long (max ${MAX_QUESTION_CHARS} characters)` }, { status: 400 })
     }
 
     const cityName       = city ? city.charAt(0).toUpperCase() + city.slice(1) : 'your city'
