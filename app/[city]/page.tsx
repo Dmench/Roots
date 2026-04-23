@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation'
 import { getCity, ACTIVE_CITIES } from '@/lib/data/cities'
 import { getEvents } from '@/lib/data/events'
 import type { EventPreview } from '@/lib/data/events'
-import { getRedditPosts } from '@/lib/data/reddit'
 import { getNews } from '@/lib/data/news'
 import { getVenues } from '@/lib/data/venues'
 import EventsSection from '@/components/city/EventsSection'
@@ -11,6 +10,7 @@ import type { GroupedEvent } from '@/components/city/EventsSection'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
 import AuthGate from '@/components/auth/AuthGate'
 import OnboardingPrompt from '@/components/city/OnboardingPrompt'
+import RedditFeed from '@/components/city/RedditFeed'
 
 
 export function generateStaticParams() {
@@ -27,7 +27,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const city = getCity(cityId)
   if (!city || !city.active) notFound()
 
-  const [eventsRaw, reddit, news, venues] = await Promise.all([getEvents(cityId), getRedditPosts(cityId), getNews(cityId), getVenues(cityId)])
+  const [eventsRaw, news, venues] = await Promise.all([getEvents(cityId), getNews(cityId), getVenues(cityId)])
 
   // Deduplicate events by normalised title
   const grouped = new Map<string, { ev: EventPreview; dates: { date: string; time: string; url: string }[] }>()
@@ -291,61 +291,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </section>
             )}
 
-            {/* ── City pulse — Reddit ──────────────────────────────────── */}
-            {reddit.length > 0 && (
-              <section className="mb-10">
-                <div className="flex items-center justify-between">
-                  <SectionLabel right={
-                    <div className="flex items-center gap-1.5">
-                      <span className="relative flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
-                      </span>
-                      <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-                        className="text-[9px] font-bold hover:opacity-50 transition-opacity"
-                        style={{ color: 'rgba(37,36,80,0.35)' }}>
-                        r/{cityId} ↗
-                      </a>
-                    </div>
-                  }>City pulse</SectionLabel>
-                </div>
-
-                {reddit.slice(0, 5).map((post, i) => {
-                  const diff = Math.floor(Date.now() / 1000) - post.created
-                  const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
-                  return (
-                    <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer"
-                      className="group flex gap-3 py-3.5 hover:opacity-55 transition-opacity"
-                      style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
-                      <span className="shrink-0 text-[10px] font-black w-7 text-right leading-tight pt-0.5"
-                        style={{ color: '#FF4500' }}>
-                        {post.score >= 1000 ? `${(post.score / 1000).toFixed(1)}k` : post.score}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        {post.flair && (
-                          <span className="text-[7px] font-black tracking-wide uppercase px-1.5 py-0.5 rounded-sm mr-1.5 inline-block mb-1"
-                            style={{ background: 'rgba(255,69,0,0.1)', color: '#FF4500' }}>
-                            {post.flair}
-                          </span>
-                        )}
-                        <p className="text-xs font-semibold leading-snug line-clamp-2" style={{ color: '#0F0E1E' }}>
-                          {post.title}
-                        </p>
-                        <p className="text-[9px] mt-1" style={{ color: 'rgba(37,36,80,0.3)' }}>
-                          {post.comments} comments · {ago}
-                        </p>
-                      </div>
-                    </a>
-                  )
-                })}
-
-                <Link href={`/${cityId}/connect`}
-                  className="block mt-4 pt-4 text-[9px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
-                  style={{ borderTop: '1px solid rgba(37,36,80,0.07)', color: '#FF3EBA' }}>
-                  Join the community →
-                </Link>
-              </section>
-            )}
+            {/* ── City pulse — Reddit (client-side fetch, bypasses Vercel IP block) ── */}
+            <RedditFeed cityId={cityId} />
 
             {/* ── Tools ────────────────────────────────────────────────── */}
             <section>

@@ -124,8 +124,10 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [newPost,     setNewPost]     = useState({ text: '' })
   const [submitted,   setSubmitted]   = useState(false)
   const [authOpen,    setAuthOpen]    = useState(false)
-  const [feedItems,   setFeedItems]   = useState<FeedItem[]>([])
-  const [feedState,   setFeedState]   = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [feedItems,    setFeedItems]    = useState<FeedItem[]>([])
+  const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [redditPosts,  setRedditPosts]  = useState<FeedItem[]>([])
+  const [redditFetch,  setRedditFetch]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [activeChannel, setActiveChannel] = useState<ChannelId>('tips')
 
   useEffect(() => {
@@ -152,6 +154,48 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
       .catch(() => setFeedState('error'))
   }, [cityId, feedState])
 
+  // Fetch Reddit directly from the browser — Vercel IPs are blocked by Reddit,
+  // but user IPs never are, and Reddit supports CORS on .json endpoints.
+  useEffect(() => {
+    if (redditFetch !== 'idle') return
+    const SUB_MAP: Record<string, string> = {
+      brussels: 'brussels', lisbon: 'portugal', berlin: 'berlin',
+      barcelona: 'barcelona', amsterdam: 'amsterdam', prague: 'prague',
+    }
+    const sub = SUB_MAP[cityId] ?? cityId
+    setRedditFetch('loading')
+    fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=20&raw_json=1`, {
+      headers: { 'Accept': 'application/json' },
+    })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then(json => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const items: FeedItem[] = (json.data?.children ?? [])
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((c: any) => !c.data.over_18 && !c.data.stickied)
+          .slice(0, 8)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((c: any) => ({
+            id:          c.data.id,
+            source:      'reddit' as const,
+            sourceLabel: `r/${sub}`,
+            category:    'community' as const,
+            title:       c.data.title,
+            summary:     (c.data.selftext ?? '').slice(0, 220),
+            url:         `https://reddit.com${c.data.permalink}`,
+            published:   c.data.created_utc,
+            subreddit:   c.data.subreddit,
+            flair:       c.data.link_flair_text ?? undefined,
+            score:       c.data.score,
+            comments:    c.data.num_comments,
+            author:      c.data.author,
+          }))
+        setRedditPosts(items)
+        setRedditFetch('done')
+      })
+      .catch(() => setRedditFetch('error'))
+  }, [cityId, redditFetch])
+
   if (!city) return null
   if (authLoading) return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
   if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
@@ -161,7 +205,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
   // Content per channel
   const newsItems   = feedItems.filter(i => i.category === 'news')
-  const redditItems = feedItems.filter(i => i.source === 'reddit').slice(0, 8)
+  const redditItems = redditPosts
 
   // Community post counts per channel
   const postCounts: Record<string, number> = {
@@ -169,7 +213,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     questions:  posts.filter(p => p.category === 'question').length,
     'heads-up': posts.filter(p => p.category === 'heads-up').length,
     news:       newsItems.length,
-    reddit:     redditItems.length,
+    reddit:     redditPosts.length,
   }
 
   const activePosts = channel.cat
@@ -554,7 +598,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* ── Reddit channel ───────────────────────────────────────── */}
             {channel.id === 'reddit' && (
               <>
-                {feedState === 'loading' && (
+                {redditFetch === 'loading' && (
                   <div className="rounded-2xl overflow-hidden" style={{ background: '#1C1A2E' }}>
                     {[1,2,3,4].map(i => (
                       <div key={i} className="px-5 py-4 animate-pulse flex gap-3"
@@ -568,7 +612,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     ))}
                   </div>
                 )}
-                {feedState !== 'loading' && redditItems.length === 0 && (
+                {redditFetch !== 'loading' && redditItems.length === 0 && (
                   <div className="py-16 text-center">
                     <p className="text-3xl mb-3">🔴</p>
                     <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No Reddit posts right now</p>
