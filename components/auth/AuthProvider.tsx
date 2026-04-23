@@ -4,23 +4,21 @@ import { supabase } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
 interface AuthCtx {
-  user:                User | null
-  loading:             boolean
-  signIn:              (email: string, password: string) => Promise<{ error: Error | null }>
-  signUp:              (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>
-  signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>
-  resetPassword:       (email: string) => Promise<{ error: Error | null }>
-  signOut:             () => Promise<void>
+  user:          User | null
+  loading:       boolean
+  signIn:        (email: string, password: string) => Promise<{ error: Error | null }>
+  signUp:        (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>
+  resetPassword: (email: string) => Promise<{ error: Error | null }>
+  signOut:       () => Promise<void>
 }
 
 const AuthContext = createContext<AuthCtx>({
-  user:                null,
-  loading:             true,
-  signIn:              async () => ({ error: null }),
-  signUp:              async () => ({ error: null }),
-  signInWithMagicLink: async () => ({ error: null }),
-  resetPassword:       async () => ({ error: null }),
-  signOut:             async () => {},
+  user:          null,
+  loading:       true,
+  signIn:        async () => ({ error: null }),
+  signUp:        async () => ({ error: null }),
+  resetPassword: async () => ({ error: null }),
+  signOut:       async () => {},
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -31,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) { setLoading(false); return }
 
     // Single subscription for the entire app lifetime (layout never unmounts).
-    // INITIAL_SESSION fires synchronously from localStorage — no network call.
+    // INITIAL_SESSION fires from localStorage — no network call, no delay.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
       if (event === 'INITIAL_SESSION') setLoading(false)
@@ -56,19 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error ?? null }
   }, [])
 
-  const signInWithMagicLink = useCallback(async (email: string) => {
-    if (!supabase) return { error: new Error('Not configured') }
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    })
-    return { error: error ?? null }
-  }, [])
-
   const resetPassword = useCallback(async (email: string) => {
     if (!supabase) return { error: new Error('Not configured') }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      // Send directly to the set-password page — no callback detour
+      redirectTo: `${window.location.origin}/auth/reset-password`,
     })
     return { error: error ?? null }
   }, [])
@@ -79,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signInWithMagicLink, resetPassword, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, resetPassword, signOut }}>
       {children}
     </AuthContext.Provider>
   )
