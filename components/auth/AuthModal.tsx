@@ -9,7 +9,7 @@ interface Props {
   returnTo?: string
 }
 
-type View = 'signin' | 'signup' | 'magic-sent' | 'confirm-email'
+type View = 'signin' | 'signup' | 'magic-sent' | 'confirm-email' | 'reset-sent'
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -60,7 +60,7 @@ function PasswordInput({
 
 export function AuthModal({ isOpen, onClose, returnTo }: Props) {
   const router = useRouter()
-  const { signIn, signUp, signInWithMagicLink } = useAuth()
+  const { signIn, signUp, signInWithMagicLink, resetPassword } = useAuth()
 
   const [view,      setView]      = useState<View>('signin')
   const [email,     setEmail]     = useState('')
@@ -132,10 +132,23 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
     else setView('magic-sent')
   }
 
-  const isConfirmView  = view === 'confirm-email' || view === 'magic-sent'
-  const confirmHeading = view === 'confirm-email' ? 'Check your email' : 'Magic link sent'
+  const handleForgotPassword = async () => {
+    if (!email.trim()) { setError('Enter your email first.'); return }
+    setLoading(true); setError('')
+    const { error: err } = await resetPassword(email.trim())
+    setLoading(false)
+    if (err) setError(err.message)
+    else setView('reset-sent')
+  }
+
+  const isConfirmView  = view === 'confirm-email' || view === 'magic-sent' || view === 'reset-sent'
+  const confirmHeading = view === 'confirm-email' ? 'Check your email'
+    : view === 'reset-sent'  ? 'Password reset sent'
+    : 'Magic link sent'
   const confirmBody    = view === 'confirm-email'
     ? `We've sent a confirmation link to ${email}. Click it to activate your account and sign in.`
+    : view === 'reset-sent'
+    ? `We've sent a password reset link to ${email}. Click it to choose a new password.`
     : `Sign-in link sent to ${email}. Click it to sign in — no password needed.`
 
   return (
@@ -254,13 +267,22 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
               </button>
             </form>
 
-            <div className="mt-5 pt-4 border-t border-sand/40 text-center">
+            <div className="mt-5 pt-4 border-t border-sand/40 text-center space-y-2">
+              {view === 'signin' && (
+                <button
+                  onClick={handleForgotPassword}
+                  disabled={loading}
+                  className="block w-full text-xs text-walnut/35 hover:text-walnut/60 transition-colors"
+                >
+                  Forgot password?
+                </button>
+              )}
               <button
                 onClick={handleMagicLink}
                 disabled={loading}
-                className="text-xs text-walnut/35 hover:text-walnut/60 transition-colors"
+                className="block w-full text-xs text-walnut/25 hover:text-walnut/50 transition-colors"
               >
-                {view === 'signin' ? 'Forgot password? Send a magic link' : 'Or send a magic link instead'}
+                {view === 'signin' ? 'Or sign in with a magic link' : 'Or send a magic link instead'}
               </button>
             </div>
           </>
