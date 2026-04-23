@@ -28,11 +28,12 @@ export function Nav() {
   const profileCity = profile.cityId ? getCity(profile.cityId) : undefined
 
   const cityNav = pathCity ? [
-    { href: `/${pathCity.id}`,         label: pathCity.name, color: '#10B981', home: true },
-    { href: `/${pathCity.id}/connect`, label: 'Connect',     color: '#FF3EBA' },
-    { href: `/${pathCity.id}/people`,  label: 'People',      color: '#4744C8' },
-    { href: `/${pathCity.id}/ask`,     label: 'Ask',         color: '#38C0F0' },
-    { href: `/${pathCity.id}/settle`,  label: 'Settle',      color: '#FAB400' },
+    { href: `/${pathCity.id}`,         label: pathCity.name,  color: '#10B981', home: true },
+    { href: `/${pathCity.id}/connect`, label: 'Connect',      color: '#FF3EBA' },
+    { href: `/${pathCity.id}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
+    { href: `/${pathCity.id}/people`,  label: 'People',       color: '#4744C8' },
+    { href: `/${pathCity.id}/ask`,     label: 'Ask',          color: '#38C0F0' },
+    { href: `/${pathCity.id}/settle`,  label: 'Settle',       color: '#FAB400' },
   ] : []
 
   const isActive = (href: string) => pathname.startsWith(href)
