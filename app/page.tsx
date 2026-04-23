@@ -3,20 +3,28 @@ import { getCity } from '@/lib/data/cities'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { AuthModal } from '@/components/auth/AuthModal'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function HomePage() {
   const { user, loading, signOut } = useAuth()
   const { profile } = useProfile()
-  const [authOpen, setAuthOpen] = useState(false)
+  const [authOpen,      setAuthOpen]      = useState(false)
+  const [memberCount,   setMemberCount]   = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/settlers/brussels')
+      .then(r => r.json())
+      .then(d => { if (typeof d.total === 'number') setMemberCount(d.total) })
+      .catch(() => {})
+  }, [])
 
   const cityObj   = profile.cityId ? getCity(profile.cityId) : null
   const firstName = profile.displayName?.split(' ')[0]
 
   // ── Loading ──────────────────────────────────────────────────────────────
   if (loading) {
-    return <div className="min-h-screen" style={{ background: '#252450' }} />
+    return <div className="min-h-screen bg-cream" />
   }
 
   // ── Signed-in ────────────────────────────────────────────────────────────
@@ -169,7 +177,7 @@ export default function HomePage() {
       {/* Footer strip */}
       <div className="relative px-8 md:px-12 pb-8 flex items-center justify-between">
         <p className="text-xs" style={{ color: 'rgba(245,236,215,0.2)' }}>
-          312 people settling in Brussels
+          {memberCount !== null ? memberCount : 312} people settling in Brussels
         </p>
         <Link href="/brussels"
           className="text-xs font-medium hover:opacity-70 transition-opacity"

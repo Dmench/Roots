@@ -116,7 +116,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <div className="flex items-center gap-2 flex-wrap mt-6">
             {[
               { href: `/${cityId}/connect`, label: 'Community',    color: '#FF3EBA' },
-              { href: `/${cityId}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
+              { href: `/${cityId}/people`,  label: 'People',       color: '#4744C8' },
               { href: `/${cityId}/ask`,     label: 'Ask anything', color: '#38C0F0' },
               { href: `/${cityId}/settle`,  label: 'Get set up',   color: '#FAB400' },
             ].map(p => (
@@ -180,16 +180,11 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {/* ── Eat & Drink strip ────────────────────────────────────── */}
             {venues.length > 0 && (
               <section className="mb-10">
-                <div className="flex items-center justify-between pb-3 mb-4"
+                <div className="pb-3 mb-4"
                   style={{ borderBottom: '1px solid rgba(37,36,80,0.15)' }}>
                   <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(37,36,80,0.5)' }}>
                     Eat &amp; Drink
                   </span>
-                  <Link href={`/${cityId}/eat`}
-                    className="text-[9px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
-                    style={{ color: '#E8612A' }}>
-                    See all →
-                  </Link>
                 </div>
 
                 {/* Featured partner venue */}

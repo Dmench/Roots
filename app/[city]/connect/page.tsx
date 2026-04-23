@@ -318,8 +318,41 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
               })}
             </nav>
 
-            {/* Find your people */}
+            {/* Settlers directory */}
             <div className="mt-8">
+              <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
+                style={{ color: 'rgba(37,36,80,0.3)' }}>
+                Settlers
+              </p>
+              <a href={`/${cityId}/people`}
+                className="flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-white transition-all group"
+                style={{ border: '1px solid rgba(37,36,80,0.08)', background: 'rgba(71,68,200,0.03)' }}>
+                <div className="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: 'rgba(71,68,200,0.12)' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <circle cx="9" cy="7" r="4" stroke="#4744C8" strokeWidth="1.5" />
+                    <path d="M3 20c0-3.3 2.7-6 6-6" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
+                    <circle cx="17" cy="10" r="3" stroke="#4744C8" strokeWidth="1.5" />
+                    <path d="M14 20c0-2.8 2.2-5 4.9-5" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold" style={{ color: '#4744C8' }}>
+                    Directory
+                  </p>
+                  <p className="text-[9px] leading-tight mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>
+                    Meet settlers in {city.name}
+                  </p>
+                </div>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                  className="opacity-0 group-hover:opacity-40 transition-opacity shrink-0">
+                  <path d="M2 5h6M5 2l3 3-3 3" stroke="#252450" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+            </div>
+
+            {/* Find your people */}
+            <div className="mt-6">
               <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
                 style={{ color: 'rgba(37,36,80,0.3)' }}>
                 Groups

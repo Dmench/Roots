@@ -113,13 +113,13 @@ export default function AuthGate({ children, cityName = 'Brussels', cityId = 'br
           </div>
         </div>
 
-        {/* Bottom — locked signal */}
+        {/* Bottom */}
         <div className="relative px-8 md:px-12 pb-8">
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: 'rgba(245,244,240,0.06)' }} />
             <span className="text-[8px] font-black tracking-[0.3em] uppercase"
               style={{ color: 'rgba(245,244,240,0.12)' }}>
-              Private · Invite-based access coming soon
+              Free to join · Your city, your data
             </span>
             <div className="flex-1 h-px" style={{ background: 'rgba(245,244,240,0.06)' }} />
           </div>

@@ -75,7 +75,7 @@ export function SettlersStrip({ cityId }: { cityId: string }) {
 
         {overflow > 0 && (
           <Link
-            href={`/${cityId}/connect`}
+            href={`/${cityId}/people`}
             className="text-[9px] font-black hover:opacity-60 transition-opacity"
             style={{ color: 'rgba(245,236,215,0.22)', letterSpacing: '0.05em' }}
           >

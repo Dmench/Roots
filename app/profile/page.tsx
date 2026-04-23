@@ -19,6 +19,11 @@ function daysInCity(arrivalDate?: string): number | null {
   return Math.max(0, Math.floor(diff / 86400000))
 }
 
+function memberSince(date?: string): string {
+  if (!date) return ''
+  return new Date(date).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+}
+
 export default function ProfilePage() {
   const router = useRouter()
   const { user, loading: authLoading, signOut } = useAuth()
@@ -29,8 +34,7 @@ export default function ProfilePage() {
   const [nameInput,   setNameInput]   = useState('')
   const [saved,       setSaved]       = useState(false)
 
-  // Flash "Saved" on any profile change
-  function flash() { setSaved(true); setTimeout(() => setSaved(false), 1800) }
+  function flash() { setSaved(true); setTimeout(() => setSaved(false), 2000) }
   function wrap<T extends unknown[]>(fn: (...args: T) => void) {
     return (...args: T) => { fn(...args); flash() }
   }
@@ -73,13 +77,11 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-cream">
         <Nav />
         <div className="max-w-md mx-auto px-6 py-28 text-center">
-          <div
-            className="w-16 h-16 rounded-sm flex items-center justify-center mx-auto mb-8"
-            style={{ background: '#CCCBF0' }}
-          >
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-8"
+            style={{ background: 'linear-gradient(135deg, #3D3CAC 0%, #FF3EBA 100%)' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="4" stroke="#3D3CAC" strokeWidth="1.5" />
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#3D3CAC" strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="1.5" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
           <p className="text-xs uppercase tracking-[0.25em] text-stone mb-4">Profile</p>
@@ -87,14 +89,14 @@ export default function ProfilePage() {
             Sign in to save<br />your progress
           </h1>
           <p className="text-walnut/60 text-sm mb-10 leading-relaxed">
-            Your stage, tasks, and community posts sync across devices. One click, no password.
+            Your stage, tasks, and community posts sync across devices when you have an account.
           </p>
           <button
             onClick={() => setAuthOpen(true)}
-            className="px-10 py-4 text-white rounded-sm font-semibold hover:opacity-90 transition-opacity text-sm"
+            className="px-10 py-4 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity text-sm"
             style={{ background: '#3D3CAC' }}
           >
-            Sign in with email →
+            Sign in or create account →
           </button>
           <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
         </div>
@@ -102,94 +104,148 @@ export default function ProfilePage() {
     )
   }
 
+  const displayInitial = (profile.displayName ?? user.email ?? '?')[0].toUpperCase()
+  const joinedDate = user.created_at ? memberSince(user.created_at) : ''
+
   return (
     <div className="min-h-screen bg-cream">
       <Nav />
 
-      <div className="max-w-2xl mx-auto px-6 md:px-10 py-14 md:py-20">
+      <div className="max-w-2xl mx-auto px-4 md:px-8 py-8 md:py-12">
 
-        {/* ── Identity ─────────────────────────────────────────────────── */}
-        <div className="flex items-start gap-5 mb-10">
-          {/* Avatar */}
-          <div
-            className="w-16 h-16 rounded-sm flex items-center justify-center shrink-0 text-2xl font-display font-black"
-            style={{ background: 'linear-gradient(135deg, #3D3CAC 0%, #FF3EBA 100%)', color: '#fff' }}
-          >
-            {(profile.displayName ?? user.email ?? '?')[0].toUpperCase()}
+        {/* ── Membership card ──────────────────────────────────────────────── */}
+        <div
+          className="relative rounded-2xl overflow-hidden mb-8 select-none"
+          style={{ background: 'linear-gradient(145deg, #0F0E1E 0%, #1A1840 60%, #0F0E1E 100%)' }}
+        >
+          {/* Ambient glow */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute rounded-full"
+              style={{ width: 300, height: 300, top: -80, right: -60, background: '#4744C8', opacity: 0.12, filter: 'blur(60px)' }} />
+            <div className="absolute rounded-full"
+              style={{ width: 180, height: 180, bottom: -40, left: -40, background: '#FF3EBA', opacity: 0.08, filter: 'blur(50px)' }} />
           </div>
-          <div className="flex-1 min-w-0">
-            {editingName ? (
-              <div className="flex items-center gap-2">
-                <input
-                  autoFocus
-                  value={nameInput}
-                  onChange={e => setNameInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setEditingName(false) }}
-                  placeholder="Your name"
-                  className="flex-1 px-3 py-1.5 bg-white border border-sand rounded text-sm text-espresso focus:outline-none focus:border-terracotta/40"
-                />
-                <button onClick={saveName} className="text-xs font-medium text-terracotta hover:opacity-80 transition-opacity">Save</button>
-                <button onClick={() => setEditingName(false)} className="text-xs text-stone hover:text-espresso transition-colors">Cancel</button>
-              </div>
-            ) : (
-              <button
-                onClick={() => { setNameInput(profile.displayName ?? ''); setEditingName(true) }}
-                className="group flex items-center gap-2 mb-0.5"
-              >
-                <h1 className="font-display font-bold text-espresso text-2xl leading-tight">
-                  {profile.displayName ?? 'Add your name'}
-                </h1>
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="opacity-0 group-hover:opacity-30 transition-opacity mt-0.5">
-                  <path d="M8.5 1.5l2 2-7 7H1.5v-2l7-7z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                </svg>
-              </button>
-            )}
-            <p className="text-stone text-sm">{user.email}</p>
-            {saved && <p className="text-xs text-sage mt-1">Saved ✓</p>}
-          </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            {saved && (
-              <span className="text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-full"
-                style={{ background: 'rgba(16,185,129,0.12)', color: '#10B981' }}>
-                Saved ✓
-              </span>
-            )}
-            <button onClick={handleSignOut}
-              className="text-xs text-stone hover:text-espresso transition-colors mt-1">
-              Sign out
-            </button>
-          </div>
-        </div>
 
-        {/* ── Stats row ────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-3 gap-px bg-sand/40 border border-sand/40 mb-10 rounded-sm overflow-hidden">
-          {[
-            { label: 'Tasks done', value: doneCount > 0 ? `${doneCount}/${allTasks.length}` : city ? `0/${allTasks.length}` : '—' },
-            { label: 'Days in city', value: days !== null ? String(days) : '—' },
-            { label: 'Stage', value: currentStage?.label ?? '—' },
-          ].map(stat => (
-            <div key={stat.label} className="bg-white px-5 py-4 text-center">
-              <p className="text-xl font-display font-bold text-espresso leading-tight">{stat.value}</p>
-              <p className="text-xs text-stone mt-0.5">{stat.label}</p>
+          <div className="relative px-7 pt-7 pb-6">
+            {/* Top row: label + saved badge */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-[9px] font-black tracking-[0.3em] uppercase" style={{ color: 'rgba(245,244,240,0.25)' }}>
+                Roots · Member
+              </p>
+              {saved && (
+                <span className="text-[9px] font-black tracking-[0.2em] uppercase px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(16,185,129,0.18)', color: '#10B981' }}>
+                  Saved ✓
+                </span>
+              )}
             </div>
-          ))}
-        </div>
 
-        {/* ── Stage journey ────────────────────────────────────────────── */}
-        <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-          <div className="flex items-center justify-between mb-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium">Your journey</p>
-            {currentStage && (
-              <button onClick={() => _setStage(undefined)} className="text-xs text-stone hover:text-espresso transition-colors">
-                Change
-              </button>
-            )}
+            {/* Name + avatar */}
+            <div className="flex items-end justify-between gap-4 mb-5">
+              <div className="flex-1 min-w-0">
+                {editingName ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      autoFocus
+                      value={nameInput}
+                      onChange={e => setNameInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setEditingName(false) }}
+                      placeholder="Your name"
+                      className="flex-1 px-3 py-1.5 rounded-lg text-sm focus:outline-none"
+                      style={{ background: 'rgba(245,244,240,0.1)', border: '1px solid rgba(245,244,240,0.2)', color: '#F5F4F0' }}
+                    />
+                    <button onClick={saveName}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-opacity hover:opacity-80"
+                      style={{ background: '#4744C8', color: '#F5F4F0' }}>
+                      Save
+                    </button>
+                    <button onClick={() => setEditingName(false)}
+                      className="text-xs transition-opacity hover:opacity-60"
+                      style={{ color: 'rgba(245,244,240,0.35)' }}>
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => { setNameInput(profile.displayName ?? ''); setEditingName(true) }}
+                    className="group flex items-center gap-2 text-left"
+                  >
+                    <h1 className="font-display font-bold leading-tight"
+                      style={{ fontSize: '2rem', color: '#F5F4F0' }}>
+                      {profile.displayName ?? 'Add your name'}
+                    </h1>
+                    <svg width="13" height="13" viewBox="0 0 12 12" fill="none"
+                      className="mb-1 opacity-0 group-hover:opacity-30 transition-opacity shrink-0">
+                      <path d="M8.5 1.5l2 2-7 7H1.5v-2l7-7z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"
+                        style={{ color: '#F5F4F0' }} />
+                    </svg>
+                  </button>
+                )}
+                <p className="text-xs mt-1" style={{ color: 'rgba(245,244,240,0.35)' }}>{user.email}</p>
+              </div>
+
+              {/* Avatar circle */}
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-display font-black shrink-0"
+                style={{ background: 'linear-gradient(135deg, #4744C8 0%, #FF3EBA 100%)', color: '#fff' }}
+              >
+                {displayInitial}
+              </div>
+            </div>
+
+            {/* Badges row */}
+            <div className="flex flex-wrap items-center gap-2">
+              {city && (
+                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(245,244,240,0.1)', color: 'rgba(245,244,240,0.7)' }}>
+                  {city.name}
+                </span>
+              )}
+              {currentStage && (
+                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(71,68,200,0.35)', color: '#A5A3F5' }}>
+                  {currentStage.label}
+                </span>
+              )}
+              {days !== null && (
+                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(16,185,129,0.18)', color: '#34D399' }}>
+                  Day {days}
+                </span>
+              )}
+              {joinedDate && (
+                <span className="text-[11px] px-2.5 py-1 rounded-full"
+                  style={{ color: 'rgba(245,244,240,0.25)' }}>
+                  Member since {joinedDate}
+                </span>
+              )}
+            </div>
           </div>
 
+          {/* Progress bar at bottom of card */}
+          {city && allTasks.length > 0 && (
+            <div className="relative px-7 pb-5">
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-[10px]" style={{ color: 'rgba(245,244,240,0.3)' }}>
+                  Settlement progress
+                </p>
+                <p className="text-[10px] font-semibold" style={{ color: 'rgba(245,244,240,0.4)' }}>
+                  {doneCount}/{allTasks.length} tasks · {pct}%
+                </p>
+              </div>
+              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(245,244,240,0.08)' }}>
+                <div className="h-full rounded-full transition-all duration-700"
+                  style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #4744C8, #FF3EBA)' }} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Stage journey ─────────────────────────────────────────────────── */}
+        <Section label="Your journey">
           {profile.stage ? (
             <>
-              {/* Progress track */}
-              <div className="flex items-center gap-0 mb-5">
+              <div className="flex items-center gap-0 mb-4">
                 {STAGE_ORDER.map((s, i) => {
                   const active   = stageIdx === i
                   const complete = stageIdx > i
@@ -199,7 +255,7 @@ export default function ProfilePage() {
                         onClick={() => _setStage(s)}
                         className={cn(
                           'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0',
-                          active   ? 'text-white scale-110' : '',
+                          active ? 'text-white scale-110' : '',
                           complete ? 'text-white' : !active ? 'text-stone bg-ivory border border-sand' : ''
                         )}
                         style={active ? { background: '#3D3CAC' } : complete ? { background: '#10B981' } : {}}
@@ -220,7 +276,7 @@ export default function ProfilePage() {
                   )
                 })}
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between mb-1">
                 {STAGE_ORDER.map((s, i) => (
                   <div key={s} className="flex-1 text-center" style={{ width: 0, minWidth: 0 }}>
                     <p className={cn('text-[10px] leading-tight truncate px-1', stageIdx === i ? 'text-espresso font-medium' : 'text-stone')}>
@@ -229,6 +285,10 @@ export default function ProfilePage() {
                   </div>
                 ))}
               </div>
+              <button onClick={() => _setStage(undefined)}
+                className="text-xs text-stone hover:text-espresso transition-colors mt-3">
+                Change stage
+              </button>
             </>
           ) : (
             <div className="grid grid-cols-2 gap-2">
@@ -236,95 +296,71 @@ export default function ProfilePage() {
                 <button
                   key={s.id}
                   onClick={() => _setStage(s.id as Stage)}
-                  className="text-left px-4 py-3 bg-ivory border border-sand rounded-sm hover:border-terracotta/40 transition-colors group"
+                  className="text-left px-4 py-3 bg-ivory border border-sand rounded-xl hover:border-walnut/30 transition-colors group"
                 >
                   <p className="text-xs text-stone mb-0.5">{s.months}</p>
-                  <p className="text-sm font-medium text-espresso group-hover:text-terracotta transition-colors">{s.label}</p>
+                  <p className="text-sm font-medium text-espresso group-hover:text-walnut transition-colors">{s.label}</p>
                 </button>
               ))}
             </div>
           )}
-        </div>
+        </Section>
 
-        {/* ── City & progress ──────────────────────────────────────────── */}
-        {city && allTasks.length > 0 && (
-          <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <Link href={`/${city.id}`} className="font-display font-bold text-espresso text-xl hover:text-terracotta transition-colors">
-                  {city.name}
-                </Link>
-                <span className="text-xs text-stone">{city.country}</span>
-              </div>
-              <Link href="/cities?from=profile" className="text-xs text-stone hover:text-espresso transition-colors">Change</Link>
-            </div>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-stone">{doneCount} of {allTasks.length} tasks complete</p>
-              <p className="text-xs text-stone">{pct}%</p>
-            </div>
-            <div className="h-1.5 bg-ivory rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #3D3CAC, #FF3EBA)' }}
-              />
-            </div>
-          </div>
-        )}
-
-        {!city && (
-          <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-stone mb-1">City</p>
-              <p className="text-sm text-walnut/60">No city selected yet</p>
-            </div>
-            <Link href="/cities?from=profile"
-              className="shrink-0 text-xs font-black tracking-widest uppercase px-4 py-2 rounded-full hover:opacity-80 transition-opacity"
-              style={{ background: '#252450', color: '#fff' }}>
-              Choose city →
-            </Link>
-          </div>
-        )}
-
-        {/* ── Arrival date ─────────────────────────────────────────────── */}
-        <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-          <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-4">Arrival date</p>
+        {/* ── Arrival date ──────────────────────────────────────────────────── */}
+        <Section label="Arrival date">
           <input
             type="date"
             value={profile.arrivalDate ?? ''}
             onChange={e => _setArrivalDate(e.target.value)}
-            className="px-4 py-2.5 bg-ivory border border-sand rounded-sm text-sm text-espresso focus:outline-none focus:border-terracotta/40 transition-colors w-full max-w-[200px]"
+            className="px-4 py-2.5 bg-ivory border border-sand rounded-xl text-sm text-espresso focus:outline-none focus:border-walnut/30 transition-colors"
           />
           {days !== null && (
-            <p className="text-xs text-stone mt-2">{days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''} in ${city?.name ?? 'your city'}`}</p>
+            <p className="text-xs text-stone mt-2">
+              {days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''} in ${city?.name ?? 'your city'}`}
+            </p>
           )}
-        </div>
+        </Section>
 
-        {/* ── Neighborhood ─────────────────────────────────────────────── */}
+        {/* ── City ──────────────────────────────────────────────────────────── */}
+        <Section label="City" action={city ? { label: 'Change', href: '/cities?from=profile' } : undefined}>
+          {city ? (
+            <div className="flex items-center gap-3">
+              <Link href={`/${city.id}`}
+                className="font-semibold text-espresso hover:text-walnut transition-colors">
+                {city.name}
+              </Link>
+              <span className="text-xs text-stone">{city.country}</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm text-walnut/50">No city selected yet</p>
+              <Link href="/cities?from=profile"
+                className="text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full hover:opacity-80 transition-opacity"
+                style={{ background: '#252450', color: '#fff' }}>
+                Choose →
+              </Link>
+            </div>
+          )}
+        </Section>
+
+        {/* ── Neighborhood ──────────────────────────────────────────────────── */}
         {city && (
-          <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-            <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-4">Neighborhood</p>
+          <Section label="Neighborhood">
             <select
               value={profile.neighborhood ?? ''}
               onChange={e => _setNeighborhood(e.target.value || undefined)}
-              className="w-full px-4 py-2.5 bg-ivory border border-sand rounded-sm text-sm text-espresso focus:outline-none focus:border-terracotta/40 transition-colors appearance-none"
+              className="w-full max-w-xs px-4 py-2.5 bg-ivory border border-sand rounded-xl text-sm text-espresso focus:outline-none focus:border-walnut/30 transition-colors appearance-none"
             >
               <option value="">Select your neighborhood…</option>
               {(NEIGHBORHOODS[city.id] ?? []).map(n => (
                 <option key={n} value={n}>{n}</option>
               ))}
             </select>
-            {profile.neighborhood && (
-              <p className="text-xs text-stone mt-2">
-                You&apos;re in {profile.neighborhood}
-              </p>
-            )}
-          </div>
+          </Section>
         )}
 
-        {/* ── Languages ────────────────────────────────────────────────── */}
-        <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-          <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-1">Languages</p>
-          <p className="text-xs text-stone mb-4">Select all you speak — helps connect you with the right people</p>
+        {/* ── Languages ─────────────────────────────────────────────────────── */}
+        <Section label="Languages" sub="Select all you speak — helps connect you with the right people">
           <div className="flex flex-wrap gap-2">
             {LANGUAGES.map(lang => {
               const active = (profile.languages ?? []).includes(lang.code)
@@ -333,10 +369,10 @@ export default function ProfilePage() {
                   key={lang.code}
                   onClick={() => _toggleLanguage(lang.code)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-2 rounded-sm text-sm font-medium transition-all duration-150 border',
+                    'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 border',
                     active
                       ? 'text-white border-transparent'
-                      : 'bg-ivory border-sand text-walnut hover:border-espresso/30 hover:text-espresso'
+                      : 'bg-ivory border-sand text-walnut hover:border-walnut/30'
                   )}
                   style={active ? { background: '#3D3CAC', borderColor: '#3D3CAC' } : {}}
                 >
@@ -346,25 +382,41 @@ export default function ProfilePage() {
               )
             })}
           </div>
-          {(profile.languages ?? []).length > 0 && (
-            <p className="text-xs text-stone mt-3">
-              {(profile.languages ?? []).length} language{(profile.languages ?? []).length !== 1 ? 's' : ''} selected
-            </p>
-          )}
-        </div>
+        </Section>
 
-        {/* ── Directory visibility ─────────────────────────────────────── */}
-        <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-          <div className="flex items-start justify-between gap-6">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-1.5">Visible to other settlers</p>
-              <p className="text-xs text-stone/70 leading-relaxed">
-                Show your name and neighborhood to others joining {city?.name ?? 'your city'}. Helps new settlers know who else is here.
-              </p>
-            </div>
+        {/* ── Situation tags ────────────────────────────────────────────────── */}
+        <Section label="Your situation" sub="Helps filter tasks and connect you with people in similar positions">
+          <div className="flex flex-wrap gap-2">
+            {SITUATIONS.map(s => {
+              const active = (profile.situations ?? []).includes(s.id as SituationTag)
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => _toggleSituation(s.id as SituationTag)}
+                  className={cn(
+                    'px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 border',
+                    active
+                      ? 'text-white border-transparent'
+                      : 'bg-ivory border-sand text-walnut hover:border-walnut/30'
+                  )}
+                  style={active ? { background: '#3D3CAC', borderColor: '#3D3CAC' } : {}}
+                >
+                  {s.icon} {s.label}
+                </button>
+              )
+            })}
+          </div>
+        </Section>
+
+        {/* ── Directory visibility ──────────────────────────────────────────── */}
+        <Section label="Visible to other settlers">
+          <div className="flex items-center justify-between gap-6">
+            <p className="text-sm text-walnut/60 leading-relaxed">
+              Show your name and neighborhood in the community directory. Helps new settlers know who else is here.
+            </p>
             <button
               onClick={() => _setShowInDirectory(profile.showInDirectory !== false ? false : true)}
-              className="relative shrink-0 w-10 h-6 rounded-full transition-colors duration-200 mt-0.5"
+              className="relative shrink-0 w-10 h-6 rounded-full transition-colors duration-200"
               style={{ background: profile.showInDirectory !== false ? '#3D3CAC' : 'rgba(37,36,80,0.12)' }}
               aria-label="Toggle directory visibility"
             >
@@ -374,73 +426,17 @@ export default function ProfilePage() {
               />
             </button>
           </div>
-        </div>
-
-        {/* ── Situation tags ────────────────────────────────────────────── */}
-        <div className="border border-sand/40 p-6 mb-8 bg-white rounded-sm">
-          <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-4">Your situation</p>
-          <div className="flex flex-wrap gap-2">
-            {SITUATIONS.map(s => {
-              const active = (profile.situations ?? []).includes(s.id as SituationTag)
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => _toggleSituation(s.id as SituationTag)}
-                  className={cn(
-                    'px-3 py-2 rounded-sm text-sm font-medium transition-all duration-150 border',
-                    active
-                      ? 'text-white border-transparent'
-                      : 'bg-ivory border-sand text-walnut hover:border-espresso/30 hover:text-espresso'
-                  )}
-                  style={active ? { background: '#3D3CAC', borderColor: '#3D3CAC' } : {}}
-                >
-                  {s.icon} {s.label}
-                </button>
-              )
-            })}
-          </div>
-          {(profile.situations ?? []).length > 0 && city && (
-            <p className="text-xs text-stone mt-3">
-              {(profile.situations ?? []).length} situation{(profile.situations ?? []).length !== 1 ? 's' : ''} selected — tasks are filtered to match
-            </p>
-          )}
-        </div>
-
-        {/* ── What's On preview ───────────────────────────────────────── */}
-        {city && (
-          <div
-            className="border p-6 mb-8 rounded-sm"
-            style={{ borderColor: 'rgba(99,102,241,0.25)', background: '#F5F3FF' }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-xs uppercase tracking-[0.2em] font-medium" style={{ color: '#3D3CAC' }}>
-                What&apos;s On in {city.name}
-              </p>
-              <Link
-                href={`/${city.id}/connect`}
-                className="text-xs font-medium hover:opacity-80 transition-opacity"
-                style={{ color: '#3D3CAC' }}
-              >
-                See all →
-              </Link>
-            </div>
-            <p className="text-sm text-espresso/70 leading-relaxed mb-4">
-              You know the ropes — now stay in the loop. Events, community alerts, and local tips, all in one place.
-            </p>
-            <Link
-              href={`/${city.id}/connect`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-              style={{ background: '#3D3CAC' }}
-            >
-              Open community →
+          {city && (
+            <Link href={`/${city.id}/people`}
+              className="inline-flex items-center gap-1.5 text-xs text-walnut/50 hover:text-espresso transition-colors mt-3">
+              View settler directory →
             </Link>
-          </div>
-        )}
+          )}
+        </Section>
 
-        {/* ── Quick links ──────────────────────────────────────────────── */}
+        {/* ── Quick links ──────────────────────────────────────────────────── */}
         {city && (
-          <div className="border border-sand/40 p-6 bg-white rounded-sm">
-            <p className="text-xs uppercase tracking-[0.2em] text-stone font-medium mb-4">Go to</p>
+          <div className="mt-2 mb-8">
             <div className="grid grid-cols-3 gap-3">
               {[
                 { href: `/${city.id}/connect`, label: 'Connect',  sub: "What's On" },
@@ -450,9 +446,9 @@ export default function ProfilePage() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="py-4 px-4 bg-ivory border border-sand rounded-sm hover:border-terracotta/30 transition-colors group text-left"
+                  className="py-4 px-4 bg-white border border-sand/60 rounded-xl hover:border-walnut/20 transition-colors group text-left shadow-sm"
                 >
-                  <p className="text-sm font-medium text-espresso group-hover:text-terracotta transition-colors">{link.label}</p>
+                  <p className="text-sm font-semibold text-espresso group-hover:text-walnut transition-colors">{link.label}</p>
                   <p className="text-xs text-stone mt-0.5">{link.sub}</p>
                 </Link>
               ))}
@@ -460,7 +456,43 @@ export default function ProfilePage() {
           </div>
         )}
 
+        {/* ── Sign out ──────────────────────────────────────────────────────── */}
+        <div className="pb-10 flex justify-center">
+          <button onClick={handleSignOut}
+            className="text-xs text-stone hover:text-espresso transition-colors">
+            Sign out
+          </button>
+        </div>
+
       </div>
+    </div>
+  )
+}
+
+/* ── Section wrapper ──────────────────────────────────────────────────────── */
+
+function Section({
+  label, sub, action, children,
+}: {
+  label: string
+  sub?: string
+  action?: { label: string; href: string }
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-white border border-sand/50 rounded-2xl p-6 mb-4 shadow-sm">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone">{label}</p>
+          {sub && <p className="text-xs text-walnut/50 mt-0.5 leading-snug">{sub}</p>}
+        </div>
+        {action && (
+          <Link href={action.href} className="text-xs text-stone hover:text-espresso transition-colors shrink-0">
+            {action.label}
+          </Link>
+        )}
+      </div>
+      {children}
     </div>
   )
 }
