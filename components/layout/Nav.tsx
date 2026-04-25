@@ -58,7 +58,7 @@ export function Nav() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-all',
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
                       active ? '' : 'text-walnut/60 hover:text-espresso hover:bg-parchment/60'
                     )}
                     style={active ? { background: link.color + '18', color: link.color } : {}}

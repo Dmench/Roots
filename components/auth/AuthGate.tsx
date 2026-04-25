@@ -16,7 +16,7 @@ export default function AuthGate({ children, cityName = 'Brussels', cityId = 'br
   // Auth context lives in the layout and persists across navigations.
   // loading=true only on the very first app load (sub-100ms from localStorage).
   if (loading) {
-    return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
+    return <div className="min-h-screen bg-cream" />
   }
 
   // Authenticated — render the page

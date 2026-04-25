@@ -36,7 +36,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
   const [activeCategory, setActiveCategory] = useState<TaskCategory | 'all'>('all')
 
   if (!city) return null
-  if (authLoading || !hydrated) return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
+  if (authLoading || !hydrated) return <div className="min-h-screen bg-cream" />
   if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
   const allTasks      = getTasksForCity(city.id)

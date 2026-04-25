@@ -65,7 +65,7 @@ const PINNED: Record<string, Record<string, CuratedPin[]>> = {
 
 /* ── Channel definitions ─────────────────────────────────────────────────── */
 
-type ChannelId = 'tips' | 'questions' | 'heads-up' | 'news' | 'reddit'
+type ChannelId = 'tips' | 'questions' | 'heads-up' | 'events' | 'news' | 'reddit'
 
 interface Channel {
   id:       ChannelId
@@ -80,6 +80,7 @@ const CHANNELS: Channel[] = [
   { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',      color: '#10B981', cat: 'recommendation', icon: '💡' },
   { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', cat: 'question',       icon: '❓' },
   { id: 'heads-up',  label: 'Heads-up',  sub: 'Warnings & things to know',      color: '#FAB400', cat: 'heads-up',       icon: '⚠️' },
+  { id: 'events',    label: 'Events',     sub: 'What\'s happening this week',     color: '#E8612A', icon: '🎉' },
   { id: 'news',      label: 'News',       sub: 'Curated local headlines',         color: '#4744C8', icon: '📰' },
   { id: 'reddit',    label: 'Reddit',     sub: `What the city is talking about`,  color: '#FF4500', icon: '🔴' },
 ]
@@ -197,7 +198,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   }, [cityId, redditFetch])
 
   if (!city) return null
-  if (authLoading) return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
+  if (authLoading) return <div className="min-h-screen bg-cream" />
   if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
   const resources = RESOURCES.filter(r => r.cityId === cityId)
@@ -207,11 +208,15 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const newsItems   = feedItems.filter(i => i.category === 'news')
   const redditItems = redditPosts
 
+  const eventItems = feedItems.filter(i => i.category === 'events')
+    .sort((a, b) => a.published - b.published)
+
   // Community post counts per channel
   const postCounts: Record<string, number> = {
     tips:       posts.filter(p => p.category === 'recommendation').length,
     questions:  posts.filter(p => p.category === 'question').length,
     'heads-up': posts.filter(p => p.category === 'heads-up').length,
+    events:     eventItems.length,
     news:       newsItems.length,
     reddit:     redditPosts.length,
   }
@@ -548,6 +553,119 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     </div>
                   )
                 })()}
+              </>
+            )}
+
+            {/* ── Events channel ───────────────────────────────────────── */}
+            {channel.id === 'events' && (
+              <>
+                {feedState === 'loading' && (
+                  <div className="space-y-3">
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} className="bg-white rounded-xl p-5 animate-pulse flex gap-4"
+                        style={{ border: '1px solid rgba(37,36,80,0.06)' }}>
+                        <div className="w-14 h-14 bg-sand/30 rounded-xl shrink-0" />
+                        <div className="flex-1">
+                          <div className="h-3 bg-sand/40 rounded w-1/4 mb-2" />
+                          <div className="h-4 bg-sand/40 rounded w-full mb-1.5" />
+                          <div className="h-3 bg-sand/30 rounded w-1/2" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {feedState !== 'loading' && eventItems.length === 0 && (
+                  <div className="py-16 text-center">
+                    <p className="text-3xl mb-3">🎉</p>
+                    <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No events found right now</p>
+                  </div>
+                )}
+                {eventItems.length > 0 && (
+                  <div className="space-y-2.5">
+                    {eventItems.map((fi, idx) => {
+                      const diff = fi.published - Date.now() / 1000
+                      const when = diff < 86400  ? `Today`
+                               : diff < 172800  ? `Tomorrow`
+                               : new Date(fi.published * 1000).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+                      const SOURCE_COLOR: Record<string, string> = {
+                        visitbrussels: '#FF3EBA', magasin4: '#C62828', botanique: '#2E7D32',
+                        flagey: '#4744C8', halles: '#E8612A', recyclart: '#7B1FA2',
+                        lamonnaie: '#B8860B', meetup: '#E1523D', eventbrite: '#F05537',
+                        ticketmaster: '#026CDF',
+                      }
+                      const dotColor = SOURCE_COLOR[fi.source] ?? '#E8612A'
+                      const isLead   = idx === 0
+
+                      return isLead ? (
+                        <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
+                          className="block rounded-2xl overflow-hidden group hover:shadow-md transition-all"
+                          style={{ background: '#1A1118' }}>
+                          {fi.image && (
+                            <div className="relative h-44 overflow-hidden">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={fi.image} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-80 transition-opacity" />
+                              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, #1A1118 100%)' }} />
+                              <span className="absolute bottom-3 left-4 text-[9px] font-black tracking-[0.18em] uppercase px-2 py-1 rounded-full"
+                                style={{ background: `${dotColor}22`, color: dotColor, border: `1px solid ${dotColor}40` }}>
+                                {fi.sourceLabel}
+                              </span>
+                            </div>
+                          )}
+                          <div className={fi.image ? 'px-5 pb-5 pt-2' : 'px-5 pt-5 pb-5'}>
+                            {!fi.image && (
+                              <span className="text-[9px] font-black tracking-[0.18em] uppercase"
+                                style={{ color: dotColor }}>
+                                {fi.sourceLabel}
+                              </span>
+                            )}
+                            <p className="text-base font-bold leading-snug mt-1 group-hover:opacity-80 transition-opacity"
+                              style={{ color: '#F5F4F0' }}>
+                              {fi.title}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-xs font-semibold" style={{ color: dotColor }}>{when}</span>
+                              {fi.summary && <span className="text-[11px]" style={{ color: 'rgba(245,244,240,0.4)' }}>· {fi.summary}</span>}
+                            </div>
+                          </div>
+                        </a>
+                      ) : (
+                        <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-0 rounded-xl overflow-hidden group hover:shadow-sm transition-all bg-white"
+                          style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
+                          {fi.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={fi.image} alt="" className="w-16 h-16 object-cover shrink-0" />
+                          ) : (
+                            <div className="w-16 h-16 shrink-0 flex items-center justify-center text-2xl"
+                              style={{ background: `${dotColor}10` }}>
+                              🎉
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0 px-4 py-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[9px] font-black tracking-wider uppercase" style={{ color: dotColor }}>
+                                {fi.sourceLabel}
+                              </span>
+                              <span className="text-[9px] font-semibold" style={{ color: 'rgba(37,36,80,0.4)' }}>{when}</span>
+                            </div>
+                            <p className="text-sm font-semibold leading-snug group-hover:opacity-60 transition-opacity truncate"
+                              style={{ color: '#252450' }}>
+                              {fi.title}
+                            </p>
+                            {fi.summary && (
+                              <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(37,36,80,0.4)' }}>{fi.summary}</p>
+                            )}
+                          </div>
+                          <div className="pr-4 shrink-0 opacity-0 group-hover:opacity-30 transition-opacity">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <path d="M2 7h10M7 2l5 5-5 5" stroke="#252450" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                        </a>
+                      )
+                    })}
+                  </div>
+                )}
               </>
             )}
 

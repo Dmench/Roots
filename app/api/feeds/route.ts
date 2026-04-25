@@ -488,61 +488,154 @@ async function fetchEventbrite(city: string): Promise<{ items: FeedItem[]; sourc
 }
 
 /* ── Visit Brussels (official city agenda) ──────────────────────────────────── */
+// Scrapes https://www.visit.brussels/en/visitors/agenda
+// Method 1: JSON-LD embedded Event objects (most reliable)
+// Method 2: Extract event-detail links + datetime attrs from surrounding HTML
+// Method 3: Try English/French RSS feeds as last resort
 
 async function fetchVisitBrussels(): Promise<{ items: FeedItem[]; source: SourceResult }> {
-  const now = Date.now() / 1000
+  const now  = Date.now() / 1000
+  const BASE = 'https://www.visit.brussels'
+
+  // Helper: try RSS URLs as last resort
+  async function tryRSS(): Promise<FeedItem[]> {
+    for (const rssUrl of [`${BASE}/en/rss/agenda`, `${BASE}/fr/rss/agenda`]) {
+      try {
+        const r = await fetch(rssUrl, { headers: { 'User-Agent': UA }, cache: 'no-store', signal: AbortSignal.timeout(8000) })
+        if (!r.ok) continue
+        const xml  = await r.text()
+        const parsed = parseRSS(xml)
+        const items = parsed
+          .map(p => ({ ...p, published: rssDateToUnix(p.pubDate) }))
+          .filter(p => p.published >= now)
+          .slice(0, 12)
+          .map((p, i) => ({
+            id: `visitbru-rss-${i}-${Math.floor(p.published)}`,
+            source: 'visitbrussels' as const, sourceLabel: 'Visit Brussels',
+            category: 'events' as const,
+            title: p.title, summary: p.description.slice(0, 120),
+            url: p.link, published: p.published,
+          }))
+        if (items.length > 0) return items
+      } catch { /* try next */ }
+    }
+    return []
+  }
+
   try {
-    // Visit Brussels exposes a public JSON API for their agenda
-    const res = await fetch(
-      'https://visit.brussels/api/events?lang=en&limit=30&sort=startDate',
-      { headers: { 'User-Agent': UA, Accept: 'application/json' }, cache: 'no-store' }
-    )
+    const res = await fetch(`${BASE}/en/visitors/agenda`, {
+      headers: { 'User-Agent': UA, Accept: 'text/html' },
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(12000),
+    })
     if (!res.ok) {
-      // Fallback: scrape their agenda RSS if available
-      const rss = await fetch('https://visit.brussels/fr/rss/agenda', {
-        headers: { 'User-Agent': UA }, cache: 'no-store',
-      })
-      if (!rss.ok) return { items: [], source: { label: 'Visit Brussels', status: 'error', count: 0, error: `HTTP ${res.status}` } }
-      const xml   = await rss.text()
-      const parsed = parseRSS(xml)
-      const items: FeedItem[] = parsed
-        .map(p => ({ ...p, published: rssDateToUnix(p.pubDate) }))
-        .filter(p => p.published >= now)
-        .slice(0, 10)
-        .map((p, i) => ({
-          id: `visitbru-${i}-${Math.floor(p.published)}`,
-          source: 'visitbrussels' as const, sourceLabel: 'Visit Brussels',
-          category: 'events' as const,
-          title: p.title, summary: p.description.slice(0, 120),
-          url: p.link, published: p.published,
-        }))
-      console.log(`[feeds:visitbrussels] ${items.length} events via RSS`)
-      return { items, source: { label: 'Visit Brussels', status: 'ok', count: items.length } }
+      const rssItems = await tryRSS()
+      if (rssItems.length > 0) return { items: rssItems, source: { label: 'Visit Brussels', status: 'ok', count: rssItems.length } }
+      return { items: [], source: { label: 'Visit Brussels', status: 'error', count: 0, error: `HTTP ${res.status}` } }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const json: any = await res.json()
-    const items: FeedItem[] = (Array.isArray(json) ? json : json.results ?? json.items ?? [])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .flatMap((e: any): FeedItem[] => {
-        const name  = e.title?.en ?? e.title?.fr ?? e.name
-        const url   = e.url ?? e.link ?? e.permalink
-        const start = e.startDate ?? e.start_date ?? e.date
-        if (!name || !url || !start) return []
-        const published = new Date(start).getTime() / 1000
-        if (published < now) return []
-        return [{
-          id: `visitbru-${e.id ?? Buffer.from(url).toString('base64').slice(0, 10)}`,
-          source: 'visitbrussels', sourceLabel: 'Visit Brussels',
-          category: 'events', title: name,
-          summary: e.description?.en?.slice(0, 120) ?? '',
-          url, image: e.image ?? e.thumbnail ?? undefined, published,
-        }]
-      })
-      .slice(0, 15)
+    const html  = await res.text()
+    const items: FeedItem[] = []
+
+    // ── Method 1: JSON-LD structured Event objects ──────────────────────────
+    const jsonLdRe = /<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g
+    let m: RegExpExecArray | null
+    while ((m = jsonLdRe.exec(html)) !== null) {
+      try {
+        const data = JSON.parse(m[1])
+        const candidates = Array.isArray(data) ? data : (data['@graph'] ? data['@graph'] : [data])
+        for (const obj of candidates) {
+          if (obj['@type'] !== 'Event') continue
+          const name     = typeof obj.name     === 'string' ? obj.name.trim()    : undefined
+          const url      = typeof obj.url      === 'string' ? obj.url.trim()     : undefined
+          const startRaw = obj.startDate ?? obj.datePublished
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const imgRaw   = obj.image as any
+          const image    = typeof imgRaw === 'string' ? imgRaw : imgRaw?.url ?? undefined
+          const location = obj.location?.name ?? obj.location?.address?.addressLocality ?? ''
+          if (!name || !url || !startRaw) continue
+          const published = new Date(startRaw).getTime() / 1000
+          if (published < now) continue
+          items.push({
+            id: `visitbru-ld-${Buffer.from(url).toString('base64').slice(0, 16)}`,
+            source: 'visitbrussels', sourceLabel: 'Visit Brussels',
+            category: 'events', title: name,
+            summary: location || '',
+            url, image, published,
+          })
+        }
+      } catch { /* skip malformed block */ }
+    }
+
+    // ── Method 2: Extract event-detail links + contextual datetime attrs ────
+    if (items.length === 0) {
+      const seen    = new Set<string>()
+      // Match both relative and absolute event-detail URLs
+      const linkRe  = /href="((?:https:\/\/www\.visit\.brussels)?\/en\/visitors\/agenda\/event-detail\.[^"#?]+)"/g
+      while ((m = linkRe.exec(html)) !== null) {
+        let href = m[1]
+        if (href.startsWith('/')) href = BASE + href
+        if (seen.has(href)) continue
+        seen.add(href)
+
+        // Derive title from the slug (between "event-detail." and trailing ".ID")
+        const pathPart = href.split('/').pop() ?? ''
+        const titleRaw = pathPart
+          .replace(/^event-detail\./, '')  // strip prefix
+          .replace(/\.\d+$/, '')           // strip trailing numeric ID
+          .replace(/\./g, ' ')             // dots → spaces
+          .replace(/-/g, ' ')             // hyphens → spaces
+          .replace(/\s+/g, ' ')
+          .trim()
+        const title = titleRaw
+          .split(' ')
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ')
+
+        // Look for a <time datetime="..."> in the HTML within a 2kB window around the link
+        const linkIdx  = html.indexOf(m[0])
+        const ctxStart = Math.max(0, linkIdx - 800)
+        const context  = html.slice(ctxStart, linkIdx + 2000)
+        const dateMatch = context.match(/datetime="(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?/)
+        const published = dateMatch
+          ? new Date(`${dateMatch[1]}T${dateMatch[2] ?? '20:00'}:00`).getTime() / 1000
+          : now + (items.length + 1) * 86400 // spread unknowns into the future
+        if (dateMatch && published < now) continue
+
+        // Extract first image near this link
+        const imgMatch = context.match(/src="([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/i)
+        const image    = imgMatch?.[1]
+
+        // Numeric ID from end of URL path
+        const numId = pathPart.match(/\.(\d+)$/)?.[1] ?? Buffer.from(href).toString('base64').slice(0, 10)
+
+        items.push({
+          id:          `visitbru-${numId}`,
+          source:      'visitbrussels',
+          sourceLabel: 'Visit Brussels',
+          category:    'events',
+          title:       title || 'Event in Brussels',
+          summary:     dateMatch ? new Date(`${dateMatch[1]}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' }) : '',
+          url:         href,
+          image,
+          published,
+        })
+        if (items.length >= 20) break
+      }
+      items.sort((a, b) => a.published - b.published)
+    }
+
+    // ── Method 3: RSS fallback if HTML scrape found nothing ─────────────────
+    if (items.length === 0) {
+      const rssItems = await tryRSS()
+      if (rssItems.length > 0) {
+        console.log(`[feeds:visitbrussels] ${rssItems.length} events via RSS`)
+        return { items: rssItems, source: { label: 'Visit Brussels', status: 'ok', count: rssItems.length } }
+      }
+    }
 
     console.log(`[feeds:visitbrussels] ${items.length} events`)
-    return { items, source: { label: 'Visit Brussels', status: 'ok', count: items.length } }
+    return { items: items.slice(0, 15), source: { label: 'Visit Brussels', status: 'ok', count: items.length } }
   } catch (err) {
     console.error('[feeds:visitbrussels] threw:', err)
     return { items: [], source: { label: 'Visit Brussels', status: 'error', count: 0, error: String(err) } }

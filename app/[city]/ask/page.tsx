@@ -197,7 +197,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   }, [messages, loading])
 
   if (!city) return null
-  if (authLoading) return <div className="min-h-screen" style={{ background: '#0F0E1E' }} />
+  if (authLoading) return <div className="min-h-screen bg-cream" />
   if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
   const stageLabel  = profile.stage ? STAGES.find(s => s.id === profile.stage)?.label : null
