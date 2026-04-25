@@ -9,23 +9,30 @@ interface Props {
   cityName: string
 }
 
+const DISMISSED_KEY = 'roots:onboarding-dismissed'
+
 export default function OnboardingPrompt({ cityId, cityName }: Props) {
   const { profile, hydrated, setCity, setStage } = useProfile()
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(true) // start hidden to avoid flash
 
-  // Auto-set city from URL — the most common path is landing on /brussels after sign-up
+  useEffect(() => {
+    setDismissed(localStorage.getItem(DISMISSED_KEY) === '1')
+  }, [])
+
+  // Auto-set city from URL
   useEffect(() => {
     if (!hydrated) return
-    if (!profile.cityId) {
-      setCity(cityId as CityId)
-    }
+    if (!profile.cityId) setCity(cityId as CityId)
   }, [hydrated, profile.cityId, cityId, setCity])
 
   if (!hydrated) return null
   if (dismissed) return null
-
-  // City is set and stage is set — fully onboarded, nothing to show
   if (profile.cityId && profile.stage) return null
+
+  function dismiss() {
+    localStorage.setItem(DISMISSED_KEY, '1')
+    setDismissed(true)
+  }
 
   // Prompt: pick your stage
   return (
@@ -45,7 +52,7 @@ export default function OnboardingPrompt({ cityId, cityName }: Props) {
               </p>
             </div>
             <button
-              onClick={() => setDismissed(true)}
+              onClick={dismiss}
               className="text-[10px] mt-0.5 hover:opacity-60 transition-opacity"
               style={{ color: 'rgba(245,244,240,0.3)' }}>
               ✕

@@ -132,17 +132,15 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
         {/* Loading skeleton */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="divide-y divide-sand/40">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white border border-sand/50 rounded-2xl p-5 animate-pulse">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-xl bg-sand/60" />
-                  <div className="flex-1">
-                    <div className="h-3.5 bg-sand/60 rounded w-24 mb-2" />
-                    <div className="h-2.5 bg-sand/40 rounded w-16" />
-                  </div>
+              <div key={i} className="py-4 flex items-center gap-4 animate-pulse">
+                <div className="w-8 h-8 rounded-full bg-sand/60 shrink-0" />
+                <div className="flex-1">
+                  <div className="h-3.5 bg-sand/60 rounded w-32 mb-1.5" />
+                  <div className="h-2.5 bg-sand/40 rounded w-20" />
                 </div>
-                <div className="h-2.5 bg-sand/40 rounded w-20" />
+                <div className="h-2.5 bg-sand/40 rounded w-24 hidden sm:block" />
               </div>
             ))}
           </div>
@@ -150,83 +148,68 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
         {/* Empty state */}
         {!loading && filtered.length === 0 && (
-          <div className="text-center py-20">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5"
-              style={{ background: 'rgba(37,36,80,0.06)' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <circle cx="9" cy="7" r="4" stroke="#252450" strokeWidth="1.4" strokeOpacity="0.4" />
-                <path d="M3 20c0-3.3 2.7-6 6-6" stroke="#252450" strokeWidth="1.4" strokeOpacity="0.4" strokeLinecap="round" />
-                <circle cx="17" cy="10" r="3" stroke="#252450" strokeWidth="1.4" strokeOpacity="0.4" />
-                <path d="M14 20c0-2.8 2.2-5 4.9-5" stroke="#252450" strokeWidth="1.4" strokeOpacity="0.4" strokeLinecap="round" />
-              </svg>
-            </div>
+          <div className="py-20 border-t border-sand/40">
             <p className="text-sm font-medium text-espresso mb-1.5">
               {filter === 'all' ? 'No members yet' : `No ${stageLabel(filter as Stage).toLowerCase()} members yet`}
             </p>
-            <p className="text-xs text-walnut/50 max-w-xs mx-auto">
-              Members who opt in to the directory will appear here. You can toggle visibility on your profile.
+            <p className="text-xs text-walnut/50 mb-6">
+              Members who opt in to the directory will appear here.
             </p>
             <Link href="/profile"
-              className="inline-block mt-5 text-xs font-semibold px-4 py-2 rounded-full hover:opacity-80 transition-opacity"
-              style={{ background: '#252450', color: '#fff' }}>
-              Update your profile →
+              className="text-xs font-semibold text-espresso underline underline-offset-4 hover:opacity-60 transition-opacity">
+              Update your visibility settings →
             </Link>
           </div>
         )}
 
-        {/* Member grid */}
+        {/* Member list */}
         {!loading && filtered.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="divide-y divide-sand/30">
             {filtered.map(m => {
-              const days     = daysInCity(m.arrivalDate)
-              const stage    = m.stage
-              const colors   = stage ? STAGE_COLORS[stage] : null
-              const langFlags = LANGUAGES.filter(l => m.languages.includes(l.code)).map(l => l.flag)
-              const initial  = (m.displayName ?? '?')[0].toUpperCase()
+              const days   = daysInCity(m.arrivalDate)
+              const stage  = m.stage
+              const colors = stage ? STAGE_COLORS[stage] : null
+              const hasName = !!m.displayName
 
               return (
                 <div key={m.id}
-                  className="bg-white border border-sand/50 rounded-2xl p-5 hover:border-walnut/20 transition-colors shadow-sm group">
-                  <div className="flex items-start gap-3">
-                    {/* Avatar */}
-                    <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center text-base font-display font-black shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #E8E7F8 0%, #F5D0EC 100%)', color: '#3D3CAC' }}
-                    >
-                      {initial}
-                    </div>
+                  className="py-4 flex items-center gap-4 group hover:bg-white/60 -mx-2 px-2 rounded-lg transition-colors">
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-espresso text-sm leading-tight truncate">
-                        {m.displayName ?? 'Settler'}
-                      </p>
-                      {m.neighborhood && (
-                        <p className="text-xs text-walnut/50 mt-0.5 truncate">{m.neighborhood}</p>
-                      )}
-                    </div>
+                  {/* Avatar dot */}
+                  <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold"
+                    style={{ background: 'linear-gradient(135deg, #E8E7F8 0%, #F0DCF5 100%)', color: '#3D3CAC' }}>
+                    {hasName
+                      ? m.displayName![0].toUpperCase()
+                      : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="8" r="4" stroke="#3D3CAC" strokeWidth="1.8" />
+                          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#3D3CAC" strokeWidth="1.8" strokeLinecap="round" />
+                        </svg>
+                      )
+                    }
+                  </div>
 
-                    {/* Language flags */}
-                    {langFlags.length > 0 && (
-                      <div className="flex gap-0.5 shrink-0">
-                        {langFlags.slice(0, 3).map((f, i) => (
-                          <span key={i} className="text-sm leading-none">{f}</span>
-                        ))}
-                      </div>
+                  {/* Name + location */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-espresso leading-tight truncate">
+                      {m.displayName ?? 'Anonymous settler'}
+                    </p>
+                    {m.neighborhood && (
+                      <p className="text-xs text-walnut/45 mt-0.5">{m.neighborhood}</p>
                     )}
                   </div>
 
-                  {/* Stage + days badges */}
-                  <div className="flex flex-wrap gap-1.5 mt-3.5">
-                    {stage && colors && (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                        style={{ background: colors.bg, color: colors.text }}>
-                        {stageLabel(stage)}
+                  {/* Right: stage + days */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    {days !== null && (
+                      <span className="text-xs text-walnut/35 hidden sm:block">
+                        Day {days}
                       </span>
                     )}
-                    {days !== null && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(37,36,80,0.05)', color: 'rgba(37,36,80,0.45)' }}>
-                        Day {days}
+                    {stage && colors && (
+                      <span className="text-[11px] font-medium"
+                        style={{ color: colors.text }}>
+                        {stageLabel(stage)}
                       </span>
                     )}
                   </div>

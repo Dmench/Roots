@@ -10,10 +10,10 @@ import type { Venue } from '@/lib/data/venues'
 /* ── Editorial collections ───────────────────────────────────────────────── */
 
 const COLLECTIONS = [
-  { id: 'walk-in', label: 'Just walk in',     sub: 'No reservations, no apps',       color: '#10B981', emoji: '🚶', matchTag: 'no-reservations' },
-  { id: 'remote',  label: 'Work from here',   sub: 'Wifi, plugs, and no rush',       color: '#38C0F0', emoji: '💻', matchTag: 'remote-work'     },
-  { id: 'belgian', label: 'Belgian classics', sub: 'The real thing, no tourist tax', color: '#FAB400', emoji: '🍺', matchTag: 'belgian'         },
-  { id: 'late',    label: 'Still open late',  sub: 'When dinner turns into drinks',  color: '#FF3EBA', emoji: '🌙', matchTag: 'late-night'      },
+  { id: 'walk-in', label: 'Just walk in',     sub: 'No reservations, no apps',       color: '#10B981', matchTag: 'no-reservations' },
+  { id: 'remote',  label: 'Work from here',   sub: 'Wifi, plugs, and no rush',       color: '#38C0F0', matchTag: 'remote-work'     },
+  { id: 'belgian', label: 'Belgian classics', sub: 'The real thing, no tourist tax', color: '#FAB400', matchTag: 'belgian'         },
+  { id: 'late',    label: 'Still open late',  sub: 'When dinner turns into drinks',  color: '#FF3EBA', matchTag: 'late-night'      },
 ]
 
 /* ── Neighbourhood primer ────────────────────────────────────────────────── */
@@ -295,7 +295,6 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                     boxShadow: active ? `0 4px 20px ${col.color}30` : '0 1px 3px rgba(0,0,0,0.04)',
                     transform: active ? 'translateY(-1px)' : 'none',
                   }}>
-                  <span className="text-xl block mb-2">{col.emoji}</span>
                   <p className="text-xs font-black leading-tight mb-0.5" style={{ color: active ? '#fff' : '#252450' }}>
                     {col.label}
                   </p>

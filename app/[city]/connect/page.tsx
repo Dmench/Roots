@@ -68,21 +68,20 @@ const PINNED: Record<string, Record<string, CuratedPin[]>> = {
 type ChannelId = 'tips' | 'questions' | 'heads-up' | 'events' | 'news' | 'reddit'
 
 interface Channel {
-  id:       ChannelId
-  label:    string
-  sub:      string
-  color:    string
-  cat?:     PostCategory   // maps to post category if community channel
-  icon:     string
+  id:    ChannelId
+  label: string
+  sub:   string
+  color: string
+  cat?:  PostCategory
 }
 
 const CHANNELS: Channel[] = [
-  { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',      color: '#10B981', cat: 'recommendation', icon: '💡' },
-  { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', cat: 'question',       icon: '❓' },
-  { id: 'heads-up',  label: 'Heads-up',  sub: 'Warnings & things to know',      color: '#FAB400', cat: 'heads-up',       icon: '⚠️' },
-  { id: 'events',    label: 'Events',     sub: 'What\'s happening this week',     color: '#E8612A', icon: '🎉' },
-  { id: 'news',      label: 'News',       sub: 'Curated local headlines',         color: '#4744C8', icon: '📰' },
-  { id: 'reddit',    label: 'Reddit',     sub: `What the city is talking about`,  color: '#FF4500', icon: '🔴' },
+  { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',      color: '#10B981', cat: 'recommendation' },
+  { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', cat: 'question'       },
+  { id: 'heads-up',  label: 'Heads-up',  sub: 'Warnings & things to know',      color: '#FAB400', cat: 'heads-up'       },
+  { id: 'events',    label: 'Events',     sub: 'What\'s happening this week',     color: '#E8612A'                        },
+  { id: 'news',      label: 'News',       sub: 'Curated local headlines',         color: '#4744C8'                        },
+  { id: 'reddit',    label: 'Reddit',     sub: 'What the city is talking about',  color: '#FF4500'                        },
 ]
 
 const CAT_META: Record<PostCategory, { color: string; label: string }> = {
@@ -298,7 +297,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       : { border: '1px solid transparent' }
                     }
                   >
-                    <span className="text-sm shrink-0 leading-none">{ch.icon}</span>
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-0.5" style={{ background: ch.color }} />
                     <div className="flex-1 min-w-0">
                       <p className={cn('text-xs font-bold leading-tight truncate', active ? '' : 'group-hover:opacity-80')}
                         style={{ color: active ? ch.color : 'rgba(37,36,80,0.65)' }}>
@@ -389,7 +388,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* Channel header */}
             <div className="flex items-center gap-3 mb-6 pb-5"
               style={{ borderBottom: '2px solid rgba(37,36,80,0.06)' }}>
-              <span className="text-xl leading-none">{channel.icon}</span>
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: channel.color }} />
               <div>
                 <h2 className="text-lg font-black leading-tight" style={{ color: '#252450' }}>
                   #{channel.label}
@@ -410,7 +409,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 <div className="bg-white rounded-2xl p-5 mb-6"
                   style={{ border: `1px solid ${channel.color}25`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm">{channel.icon}</span>
                     <p className="text-xs font-bold" style={{ color: channel.color }}>
                       Post a {channel.label.toLowerCase().replace(/s$/, '')}
                     </p>
@@ -544,7 +542,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       {/* No pins, no posts */}
                       {showPins && pins.length === 0 && (
                         <div className="py-16 text-center">
-                          <p className="text-3xl mb-3">{channel.icon}</p>
                           <p className="text-xs" style={{ color: 'rgba(37,36,80,0.35)' }}>
                             Be the first to post in #{channel.label}
                           </p>
@@ -575,8 +572,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
                 {feedState !== 'loading' && eventItems.length === 0 && (
-                  <div className="py-16 text-center">
-                    <p className="text-3xl mb-3">🎉</p>
+                  <div className="py-16">
                     <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No events found right now</p>
                   </div>
                 )}
@@ -636,10 +632,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={fi.image} alt="" className="w-16 h-16 object-cover shrink-0" />
                           ) : (
-                            <div className="w-16 h-16 shrink-0 flex items-center justify-center text-2xl"
-                              style={{ background: `${dotColor}10` }}>
-                              🎉
-                            </div>
+                            <div className="w-16 h-16 shrink-0"
+                              style={{ background: `${dotColor}10` }} />
                           )}
                           <div className="flex-1 min-w-0 px-4 py-3">
                             <div className="flex items-center gap-2 mb-1">
@@ -685,8 +679,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
                 {feedState !== 'loading' && newsItems.length === 0 && (
-                  <div className="py-16 text-center">
-                    <p className="text-3xl mb-3">📰</p>
+                  <div className="py-16">
                     <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No headlines right now</p>
                   </div>
                 )}
@@ -764,8 +757,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
                 {redditFetch !== 'loading' && redditItems.length === 0 && (
-                  <div className="py-16 text-center">
-                    <p className="text-3xl mb-3">🔴</p>
+                  <div className="py-16">
                     <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No Reddit posts right now</p>
                   </div>
                 )}
