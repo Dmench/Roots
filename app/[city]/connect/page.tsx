@@ -303,13 +303,11 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {channel.cat && (
               <>
                 {/* Composer */}
-                <div className="bg-white rounded-2xl p-5 mb-6"
-                  style={{ border: `1px solid ${channel.color}25`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <p className="text-xs font-bold" style={{ color: channel.color }}>
-                      Post a {channel.label.toLowerCase().replace(/s$/, '')}
-                    </p>
-                  </div>
+                <div className="mb-6 pb-6" style={{ borderBottom: '1px solid rgba(37,36,80,0.1)' }}>
+                  <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
+                    style={{ color: channel.color }}>
+                    Post a {channel.label.toLowerCase().replace(/s$/, '')}
+                  </p>
                   <textarea
                     ref={composerRef}
                     value={newPost.text}
@@ -320,25 +318,19 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       'Something others should know about…'
                     }
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-stone/40 focus:outline-none resize-none"
+                    className="w-full py-2 text-sm placeholder:text-stone/30 focus:outline-none resize-none bg-transparent"
                     style={{
-                      background: '#F8F7F4',
-                      border: '1px solid rgba(37,36,80,0.08)',
+                      borderBottom: `1px solid rgba(37,36,80,0.12)`,
                       color: '#252450',
-                      fontSize: 15,
+                      fontSize: 14,
                     }}
                   />
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs" style={{ color: 'rgba(37,36,80,0.25)' }}>{newPost.text.length}/280</span>
-                      {profile.stage && (
-                        <span className="text-xs" style={{ color: 'rgba(37,36,80,0.3)' }}>
-                          {STAGE_LABELS[profile.stage as Stage]}
-                        </span>
-                      )}
+                      <span className="text-[10px]" style={{ color: 'rgba(37,36,80,0.25)' }}>{newPost.text.length}/280</span>
                       {!user && (
                         <button onClick={() => setAuthOpen(true)}
-                          className="text-xs font-bold hover:opacity-70 transition-opacity"
+                          className="text-[10px] font-bold hover:opacity-60 transition-opacity"
                           style={{ color: '#4744C8' }}>
                           Sign in to post
                         </button>
@@ -347,8 +339,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     <button
                       onClick={submit}
                       disabled={!newPost.text.trim()}
-                      className="px-5 py-2 text-xs font-bold text-white rounded-lg transition-all disabled:opacity-25 hover:opacity-90"
-                      style={{ background: channel.color }}
+                      className="text-xs font-bold hover:opacity-60 transition-opacity disabled:opacity-25"
+                      style={{ color: channel.color }}
                     >
                       {submitted ? 'Posted ✓' : 'Post →'}
                     </button>
@@ -362,48 +354,39 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   const showPins   = allContent.length === 0
 
                   return (
-                    <div className="space-y-2">
-                      {/* Pinned curated content — shown until community posts exist */}
+                    <div>
+                      {/* Pinned curated content */}
                       {showPins && pins.length > 0 && (
                         <>
-                          <p className="text-[9px] font-black uppercase tracking-widest mb-3"
+                          <p className="text-[9px] font-black uppercase tracking-[0.22em] mb-4"
                             style={{ color: 'rgba(37,36,80,0.25)' }}>
                             From Roots
                           </p>
-                          {pins.map(pin => (
+                          {pins.map((pin, i) => (
                             <div key={pin.id}
-                              className="rounded-xl overflow-hidden flex"
-                              style={{ border: '1px solid rgba(71,68,200,0.12)', background: 'rgba(71,68,200,0.03)' }}>
-                              <div className="w-1 shrink-0" style={{ background: '#4744C8' }} />
-                              <div className="flex-1 min-w-0 px-5 py-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full"
-                                    style={{ background: 'rgba(71,68,200,0.1)', color: '#4744C8' }}>
-                                    {pin.label}
-                                  </span>
-                                </div>
+                              className="flex gap-4 py-4"
+                              style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.07)' : 'none' }}>
+                              <div className="w-0.5 shrink-0 self-stretch" style={{ background: '#4744C8' }} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-1.5"
+                                  style={{ color: '#4744C8' }}>
+                                  {pin.label}
+                                </p>
                                 <p className="text-sm leading-relaxed" style={{ color: 'rgba(37,36,80,0.7)' }}>
                                   {pin.text}
                                 </p>
                               </div>
                             </div>
                           ))}
-                          <div className="pt-2 pb-1">
-                            <div className="h-px" style={{ background: 'rgba(37,36,80,0.06)' }} />
-                            <p className="text-[9px] font-black uppercase tracking-widest mt-3 mb-1"
+                          <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(37,36,80,0.1)' }}>
+                            <p className="text-[9px] font-black uppercase tracking-[0.22em] mb-4"
                               style={{ color: 'rgba(37,36,80,0.25)' }}>
                               Community posts
                             </p>
-                          </div>
-                          <div className="py-8 text-center rounded-xl"
-                            style={{ border: '1.5px dashed rgba(37,36,80,0.1)' }}>
-                            <p className="text-xs font-bold mb-1" style={{ color: '#252450' }}>
-                              Be the first to post in #{channel.label}
-                            </p>
-                            <p className="text-[10px]" style={{ color: 'rgba(37,36,80,0.35)' }}>
-                              {channel.id === 'tips'      ? 'Share something that made life in this city easier.' :
-                               channel.id === 'questions' ? 'Ask anything — someone in the community will answer.' :
-                               'Flag something others should know about.'}
+                            <p className="text-xs py-6" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                              {channel.id === 'tips'      ? 'Be the first to share a tip.' :
+                               channel.id === 'questions' ? 'Be the first to ask a question.' :
+                               'Be the first to post a heads-up.'}
                             </p>
                           </div>
                         </>
@@ -414,17 +397,18 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         const m = CAT_META[post.category]
                         return (
                           <div key={post.id}
-                            className="bg-white rounded-xl overflow-hidden flex"
-                            style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
-                            <div className="w-1 shrink-0" style={{ background: m.color }} />
-                            <div className="flex-1 min-w-0 px-5 py-4">
-                              <div className="flex items-center gap-2 mb-2">
+                            className="flex gap-4 py-4"
+                            style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
+                            <div className="w-0.5 shrink-0 self-stretch" style={{ background: m.color }} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1.5">
                                 {post.authorStage && (
-                                  <span className="text-[10px]" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                                  <span className="text-[9px] font-black tracking-[0.15em] uppercase"
+                                    style={{ color: 'rgba(37,36,80,0.3)' }}>
                                     {STAGE_LABELS[post.authorStage]}
                                   </span>
                                 )}
-                                <span className="text-[10px] ml-auto" style={{ color: 'rgba(37,36,80,0.25)' }}>
+                                <span className="text-[9px] ml-auto" style={{ color: 'rgba(37,36,80,0.2)' }}>
                                   {post.time}
                                 </span>
                               </div>
@@ -436,13 +420,11 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         )
                       })}
 
-                      {/* No pins, no posts */}
+                      {/* No content */}
                       {showPins && pins.length === 0 && (
-                        <div className="py-16 text-center">
-                          <p className="text-xs" style={{ color: 'rgba(37,36,80,0.35)' }}>
-                            Be the first to post in #{channel.label}
-                          </p>
-                        </div>
+                        <p className="text-xs py-8" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                          Be the first to post.
+                        </p>
                       )}
                     </div>
                   )
@@ -454,15 +436,15 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {channel.id === 'events' && (
               <>
                 {feedState === 'loading' && (
-                  <div className="space-y-3">
+                  <div>
                     {[1,2,3,4,5].map(i => (
-                      <div key={i} className="bg-white rounded-xl p-5 animate-pulse flex gap-4"
-                        style={{ border: '1px solid rgba(37,36,80,0.06)' }}>
-                        <div className="w-14 h-14 bg-sand/30 rounded-xl shrink-0" />
-                        <div className="flex-1">
-                          <div className="h-3 bg-sand/40 rounded w-1/4 mb-2" />
-                          <div className="h-4 bg-sand/40 rounded w-full mb-1.5" />
-                          <div className="h-3 bg-sand/30 rounded w-1/2" />
+                      <div key={i} className="flex gap-4 py-4 animate-pulse"
+                        style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                        <div className="w-12 h-12 bg-sand/40 shrink-0" />
+                        <div className="flex-1 pt-1">
+                          <div className="h-2.5 bg-sand/40 rounded w-1/4 mb-2" />
+                          <div className="h-3.5 bg-sand/40 rounded w-full mb-1.5" />
+                          <div className="h-2.5 bg-sand/30 rounded w-1/2" />
                         </div>
                       </div>
                     ))}
@@ -474,77 +456,78 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
                 {eventItems.length > 0 && (
-                  <div className="space-y-2.5">
+                  <div>
                     {eventItems.map((fi, idx) => {
                       const diff = fi.published - Date.now() / 1000
-                      const when = diff < 86400  ? `Today`
-                               : diff < 172800  ? `Tomorrow`
+                      const when = diff < 86400  ? 'Today'
+                               : diff < 172800  ? 'Tomorrow'
                                : new Date(fi.published * 1000).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
                       const dotColor = SOURCE_COLOR[fi.source] ?? '#E8612A'
                       const isLead   = idx === 0
 
                       return isLead ? (
+                        /* Lead — full-bleed dark cinematic card, no border-radius on image */
                         <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="block rounded-2xl overflow-hidden group hover:shadow-md transition-all"
-                          style={{ background: '#1A1118' }}>
+                          className="block mb-2 group"
+                          style={{ background: '#0F0E1E', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
                           {fi.image && (
-                            <div className="relative h-44 overflow-hidden">
+                            <div className="relative h-48 overflow-hidden">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={fi.image} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-80 transition-opacity" />
-                              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, #1A1118 100%)' }} />
-                              <span className="absolute bottom-3 left-4 text-[9px] font-black tracking-[0.18em] uppercase px-2 py-1 rounded-full"
-                                style={{ background: `${dotColor}22`, color: dotColor, border: `1px solid ${dotColor}40` }}>
-                                {fi.sourceLabel}
-                              </span>
+                              <img src={fi.image} alt="" className="w-full h-full object-cover opacity-60 group-hover:opacity-70 transition-opacity" />
+                              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 20%, #0F0E1E 100%)' }} />
                             </div>
                           )}
-                          <div className={fi.image ? 'px-5 pb-5 pt-2' : 'px-5 pt-5 pb-5'}>
-                            {!fi.image && (
+                          <div className="px-5 pt-3 pb-5">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[9px] font-black tracking-[0.22em] uppercase"
+                                style={{ color: dotColor }}>
+                                {fi.sourceLabel}
+                              </span>
+                              <span className="text-[9px]" style={{ color: 'rgba(245,244,240,0.3)' }}>·</span>
+                              <span className="text-[9px] font-semibold" style={{ color: 'rgba(245,244,240,0.4)' }}>{when}</span>
+                            </div>
+                            <p className="text-base font-bold leading-snug group-hover:opacity-70 transition-opacity"
+                              style={{ color: '#F5F4F0' }}>
+                              {fi.title}
+                            </p>
+                            {fi.summary && (
+                              <p className="text-xs mt-1 line-clamp-1" style={{ color: 'rgba(245,244,240,0.35)' }}>
+                                {fi.summary}
+                              </p>
+                            )}
+                          </div>
+                        </a>
+                      ) : (
+                        /* Secondary — editorial row with image thumb, divider */
+                        <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-start gap-4 py-3.5 group hover:opacity-70 transition-opacity"
+                          style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+                          {fi.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={fi.image} alt="" className="w-14 h-14 object-cover shrink-0" />
+                          ) : (
+                            <div className="w-14 h-14 shrink-0 flex items-center justify-center"
+                              style={{ background: `${dotColor}12` }}>
+                              <div className="w-1.5 h-1.5 rounded-full" style={{ background: dotColor }} />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <div className="flex items-center gap-2 mb-1">
                               <span className="text-[9px] font-black tracking-[0.18em] uppercase"
                                 style={{ color: dotColor }}>
                                 {fi.sourceLabel}
                               </span>
-                            )}
-                            <p className="text-base font-bold leading-snug mt-1 group-hover:opacity-80 transition-opacity"
-                              style={{ color: '#F5F4F0' }}>
-                              {fi.title}
-                            </p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className="text-xs font-semibold" style={{ color: dotColor }}>{when}</span>
-                              {fi.summary && <span className="text-[11px]" style={{ color: 'rgba(245,244,240,0.4)' }}>· {fi.summary}</span>}
+                              <span className="text-[9px]" style={{ color: 'rgba(37,36,80,0.3)' }}>{when}</span>
                             </div>
-                          </div>
-                        </a>
-                      ) : (
-                        <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-0 rounded-xl overflow-hidden group hover:shadow-sm transition-all bg-white"
-                          style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
-                          {fi.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={fi.image} alt="" className="w-16 h-16 object-cover shrink-0" />
-                          ) : (
-                            <div className="w-16 h-16 shrink-0"
-                              style={{ background: `${dotColor}10` }} />
-                          )}
-                          <div className="flex-1 min-w-0 px-4 py-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[9px] font-black tracking-wider uppercase" style={{ color: dotColor }}>
-                                {fi.sourceLabel}
-                              </span>
-                              <span className="text-[9px] font-semibold" style={{ color: 'rgba(37,36,80,0.4)' }}>{when}</span>
-                            </div>
-                            <p className="text-sm font-semibold leading-snug group-hover:opacity-60 transition-opacity truncate"
+                            <p className="text-sm font-semibold leading-snug truncate"
                               style={{ color: '#252450' }}>
                               {fi.title}
                             </p>
                             {fi.summary && (
-                              <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(37,36,80,0.4)' }}>{fi.summary}</p>
+                              <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(37,36,80,0.4)' }}>
+                                {fi.summary}
+                              </p>
                             )}
-                          </div>
-                          <div className="pr-4 shrink-0 opacity-0 group-hover:opacity-30 transition-opacity">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                              <path d="M2 7h10M7 2l5 5-5 5" stroke="#252450" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
                           </div>
                         </a>
                       )
@@ -560,11 +543,14 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 {feedState === 'loading' && (
                   <div className="space-y-3">
                     {[1,2,3,4].map(i => (
-                      <div key={i} className="bg-white rounded-xl p-5 animate-pulse"
-                        style={{ border: '1px solid rgba(37,36,80,0.06)' }}>
-                        <div className="h-3 bg-sand/40 rounded w-1/4 mb-3" />
-                        <div className="h-4 bg-sand/40 rounded w-full mb-1.5" />
-                        <div className="h-3 bg-sand/30 rounded w-3/4" />
+                      <div key={i} className="flex gap-4 py-4 animate-pulse"
+                        style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                        <div className="w-0.5 h-12 bg-sand/40 shrink-0" />
+                        <div className="flex-1 pt-0.5">
+                          <div className="h-2.5 bg-sand/40 rounded w-1/4 mb-2" />
+                          <div className="h-3.5 bg-sand/40 rounded w-full mb-1.5" />
+                          <div className="h-2.5 bg-sand/30 rounded w-2/3" />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -575,7 +561,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
                 {newsItems.length > 0 && (
-                  <div className="space-y-3">
+                  <div>
                     {newsItems.map((fi, idx) => {
                       const ss   = SOURCE_STYLE[fi.source] ?? { color: '#252450', label: fi.sourceLabel }
                       const diff = Math.floor(Date.now() / 1000) - fi.published
@@ -584,40 +570,36 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                  : `${Math.floor(diff / 86400)}d`
                       const isLead = idx === 0
                       return isLead ? (
+                        /* Lead — coloured masthead strip */
                         <a key={`${fi.id}-${idx}`} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="block rounded-2xl overflow-hidden group hover:shadow-md transition-all"
-                          style={{ background: ss.color }}>
-                          <div className="px-6 pt-5 pb-1">
-                            <p className="text-[9px] font-black tracking-[0.18em] uppercase"
-                              style={{ color: 'rgba(255,255,255,0.5)' }}>
-                              {ss.label} · {ago}
-                            </p>
-                          </div>
-                          <div className="px-6 pb-6 pt-3">
-                            <p className="text-xl font-bold leading-snug group-hover:opacity-80 transition-opacity"
-                              style={{ color: '#fff' }}>
-                              {fi.title}
-                            </p>
-                            <p className="text-[10px] mt-4 font-medium"
-                              style={{ color: 'rgba(255,255,255,0.4)' }}>
-                              Read full story ↗
-                            </p>
-                          </div>
+                          className="block mb-1 group hover:opacity-80 transition-opacity"
+                          style={{ borderLeft: `4px solid ${ss.color}`, paddingLeft: 16, paddingTop: 4, paddingBottom: 16 }}>
+                          <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-2"
+                            style={{ color: ss.color }}>
+                            {ss.label} · {ago}
+                          </p>
+                          <p className="font-display font-bold text-xl leading-snug"
+                            style={{ color: '#252450' }}>
+                            {fi.title}
+                          </p>
+                          <p className="text-[10px] mt-2" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                            Read full story ↗
+                          </p>
                         </a>
                       ) : (
                         <a key={`${fi.id}-${idx}`} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-start gap-0 rounded-xl overflow-hidden group hover:shadow-sm transition-all bg-white"
-                          style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
-                          <div className="w-1 shrink-0 self-stretch" style={{ background: ss.color }} />
-                          <div className="flex-1 min-w-0 px-4 py-4">
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <p className="text-[9px] font-black tracking-wider uppercase"
+                          className="flex gap-4 py-3.5 group hover:opacity-60 transition-opacity"
+                          style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
+                          <div className="w-0.5 shrink-0 self-stretch" style={{ background: ss.color }} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-[9px] font-black tracking-[0.18em] uppercase"
                                 style={{ color: ss.color }}>
                                 {ss.label}
                               </p>
                               <span className="text-[9px]" style={{ color: 'rgba(37,36,80,0.25)' }}>{ago}</span>
                             </div>
-                            <p className="text-sm font-semibold leading-snug group-hover:opacity-60 transition-opacity"
+                            <p className="text-sm font-semibold leading-snug"
                               style={{ color: '#252450' }}>
                               {fi.title}
                             </p>
@@ -634,7 +616,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {channel.id === 'reddit' && (
               <>
                 {redditFetch === 'loading' && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: '#1C1A2E' }}>
+                  <div style={{ background: '#1C1A2E' }}>
                     {[1,2,3,4].map(i => (
                       <div key={i} className="px-5 py-4 animate-pulse flex gap-3"
                         style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
@@ -653,7 +635,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
                 {redditItems.length > 0 && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: '#1C1A2E' }}>
+                  <div style={{ background: '#1C1A2E' }}>
                     <div className="flex items-center justify-between px-5 py-4"
                       style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                       <div className="flex items-center gap-2">
@@ -691,7 +673,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                             </div>
                             <div className="flex-1 min-w-0">
                               {top.flair && (
-                                <span className="inline-block text-[9px] font-black px-2 py-0.5 rounded-full mb-2"
+                                <span className="inline-block text-[9px] font-black px-2 py-0.5 mb-2"
                                   style={{ background: 'rgba(255,69,0,0.2)', color: '#FF4500', letterSpacing: '0.06em' }}>
                                   {top.flair.toUpperCase()}
                                 </span>
@@ -755,44 +737,39 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
             {/* Settlers */}
             <div>
-              <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
-                style={{ color: 'rgba(37,36,80,0.3)' }}>Settlers</p>
+              <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
+                style={{ color: 'rgba(37,36,80,0.3)', borderBottom: '1px solid rgba(37,36,80,0.1)', paddingBottom: 8 }}>
+                Settlers
+              </p>
               <a href={`/${cityId}/people`}
-                className="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-white transition-all group"
-                style={{ border: '1px solid rgba(37,36,80,0.08)', background: 'rgba(71,68,200,0.03)' }}>
-                <div className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center"
-                  style={{ background: 'rgba(71,68,200,0.12)' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <circle cx="9" cy="7" r="4" stroke="#4744C8" strokeWidth="1.5" />
-                    <path d="M3 20c0-3.3 2.7-6 6-6" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
-                    <circle cx="17" cy="10" r="3" stroke="#4744C8" strokeWidth="1.5" />
-                    <path d="M14 20c0-2.8 2.2-5 4.9-5" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold" style={{ color: '#4744C8' }}>Settler directory</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>
-                    Who else is settling in {city.name}
-                  </p>
-                </div>
+                className="flex items-center justify-between py-2 group hover:opacity-60 transition-opacity">
+                <p className="text-sm font-semibold" style={{ color: '#252450' }}>
+                  Settler directory
+                </p>
+                <span className="text-xs" style={{ color: 'rgba(37,36,80,0.3)' }}>→</span>
               </a>
+              <p className="text-xs" style={{ color: 'rgba(37,36,80,0.4)' }}>
+                Who else is settling in {city.name}
+              </p>
             </div>
 
             {/* Community groups */}
             {resources.length > 0 && (
               <div>
-                <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
-                  style={{ color: 'rgba(37,36,80,0.3)' }}>Community groups</p>
-                <div className="space-y-1">
-                  {resources.map(r => (
+                <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
+                  style={{ color: 'rgba(37,36,80,0.3)', borderBottom: '1px solid rgba(37,36,80,0.1)', paddingBottom: 8 }}>
+                  Community groups
+                </p>
+                <div>
+                  {resources.map((r, i) => (
                     <div key={r.id}
-                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg hover:bg-white/80 transition-all"
-                      style={{ border: '1px solid rgba(37,36,80,0.05)' }}>
-                      <span className="text-[9px] font-black shrink-0 w-5"
+                      className="flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
+                      style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                      <span className="text-[9px] font-black shrink-0 w-4"
                         style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
                         {r.type === 'facebook' ? 'fb' : 'r/'}
                       </span>
-                      <p className="text-[11px] font-medium truncate" style={{ color: '#252450' }}>{r.name}</p>
+                      <p className="text-xs truncate" style={{ color: '#252450' }}>{r.name}</p>
                     </div>
                   ))}
                 </div>
