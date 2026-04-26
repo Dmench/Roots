@@ -3,7 +3,6 @@ import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { getCity, STAGES, LANGUAGES } from '@/lib/data/cities'
-import { Nav } from '@/components/layout/Nav'
 import { cn } from '@/lib/utils'
 import type { Stage, SituationTag } from '@/lib/types'
 
@@ -68,11 +67,8 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
   if (!city) {
     return (
-      <div className="min-h-screen bg-cream">
-        <Nav />
-        <div className="max-w-2xl mx-auto px-6 py-24 text-center">
-          <p className="text-stone text-sm">City not found.</p>
-        </div>
+      <div className="max-w-2xl mx-auto px-6 py-24 text-center">
+        <p className="text-stone text-sm">City not found.</p>
       </div>
     )
   }
@@ -82,7 +78,6 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
   return (
     <div className="min-h-screen bg-cream">
-      <Nav />
 
       <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 md:py-14">
 

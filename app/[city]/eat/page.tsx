@@ -4,7 +4,6 @@ import { useAuth } from '@/lib/hooks/use-auth'
 import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
-import { Nav } from '@/components/layout/Nav'
 import type { Venue } from '@/lib/data/venues'
 
 /* ── Editorial collections ───────────────────────────────────────────────── */
@@ -242,7 +241,6 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
 
   return (
     <div className="min-h-screen" style={{ background: '#F5F4F0' }}>
-      <Nav />
 
       {/* Header */}
       <div className="relative overflow-hidden" style={{ background: '#0F0E1E' }}>

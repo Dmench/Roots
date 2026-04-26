@@ -18,9 +18,9 @@ export default async function CityLayout({
   if (!city || !city.active) notFound()
 
   return (
-    <div className="min-h-screen bg-cream">
+    <>
       <Nav />
       <main>{children}</main>
-    </div>
+    </>
   )
 }

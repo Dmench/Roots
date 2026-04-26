@@ -5,7 +5,6 @@ import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
 import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
-import { Nav } from '@/components/layout/Nav'
 import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { Post, PostCategory, Stage } from '@/lib/types'
@@ -256,7 +255,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
   return (
     <div style={{ background: '#F8F7F4', minHeight: '100vh' }}>
-      <Nav />
 
       {/* ── Tab bar ──────────────────────────────────────────────────────── */}
       <div style={{ background: '#F5F4F0', borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
