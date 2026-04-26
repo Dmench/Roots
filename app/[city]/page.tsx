@@ -198,7 +198,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                   const p = venues.find(v => v.featured)!
                   return (
                     <Link href={`/${cityId}/eat`}
-                      className="block rounded-xl p-3.5 mb-3 hover:opacity-90 transition-opacity"
+                      className="block p-3.5 mb-3 hover:opacity-90 transition-opacity"
                       style={{ background: '#0F0E1E' }}>
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <span className="text-[8px] font-black tracking-widest uppercase" style={{ color: '#E8612A' }}>

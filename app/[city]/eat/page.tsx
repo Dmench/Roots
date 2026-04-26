@@ -52,7 +52,7 @@ const FOOD_KW = ['restaurant','food','eat','bar','drink','coffee','brunch','lunc
 function PartnerCard({ venue }: { venue: Venue }) {
   const color = TYPE_COLOR[venue.broadType] ?? '#252450'
   return (
-    <div className="rounded-2xl overflow-hidden mb-12" style={{ background: '#0F0E1E' }}>
+    <div className="mb-12" style={{ background: '#0F0E1E' }}>
       <div className="relative px-7 pt-6 pb-5 overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <span className="absolute right-0 top-0 font-display font-black select-none pointer-events-none"
           style={{ fontSize: '10rem', color: 'rgba(255,255,255,0.03)', lineHeight: 1, transform: 'translate(8%,-10%)' }}>
@@ -62,7 +62,7 @@ function PartnerCard({ venue }: { venue: Venue }) {
           <span className="text-[9px] font-black tracking-[0.28em] uppercase" style={{ color }}>
             {venue.dealTag ?? 'Roots Pick'} · Exclusive deal
           </span>
-          <span className="text-[9px] font-black tracking-wider px-2 py-1 rounded-full"
+          <span className="text-[9px] font-black tracking-wider px-2 py-1"
             style={{ background: `${color}20`, color }}>
             Members only
           </span>
@@ -81,15 +81,15 @@ function PartnerCard({ venue }: { venue: Venue }) {
           &ldquo;{venue.why}&rdquo;
         </p>
         {venue.deal && (
-          <div className="inline-block rounded-lg px-4 py-3 mb-5" style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
+          <div className="inline-block px-4 py-3 mb-5" style={{ borderLeft: `3px solid ${color}`, background: `${color}10` }}>
             <p className="text-xs font-semibold" style={{ color }}>🎟 {venue.deal}</p>
           </div>
         )}
         <div className="flex items-center gap-4 flex-wrap">
           {venue.website && (
             <a href={venue.website} target="_blank" rel="noopener noreferrer"
-              className="text-[10px] font-black tracking-widest uppercase px-5 py-2.5 rounded-lg hover:opacity-80 transition-opacity"
-              style={{ background: color, color: '#fff' }}>
+              className="text-[10px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
+              style={{ color }}>
               Visit ↗
             </a>
           )}
@@ -110,22 +110,16 @@ function VenueCard({ venue }: { venue: Venue }) {
   const color   = TYPE_COLOR[venue.broadType] ?? '#252450'
   const signals = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
   return (
-    <div className="bg-white rounded-xl overflow-hidden flex flex-col"
-      style={{ border: '1px solid rgba(37,36,80,0.07)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-      <div className="relative px-4 pt-4 pb-3 overflow-hidden" style={{ background: `${color}09`, minHeight: 72 }}>
-        <span className="absolute right-1 bottom-0 font-display font-black select-none pointer-events-none leading-none"
-          style={{ fontSize: '4.5rem', color, opacity: 0.1 }}>
-          {venue.name.charAt(0)}
-        </span>
-        <div className="relative flex items-end justify-between gap-2">
+    <div className="flex gap-3 py-4" style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
+      <div className="w-0.5 shrink-0 self-stretch" style={{ background: color }} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-2 mb-0.5">
           <span className="text-[9px] font-black tracking-widest uppercase" style={{ color }}>{venue.neighborhood}</span>
           <span className="text-xs font-bold shrink-0" style={{ color }}>{venue.price}</span>
         </div>
-      </div>
-      <div className="px-4 pt-3 pb-4 flex flex-col flex-1">
         {venue.website ? (
           <a href={venue.website} target="_blank" rel="noopener noreferrer"
-            className="font-bold text-sm leading-snug hover:opacity-50 transition-opacity mb-1 block"
+            className="font-bold text-sm leading-snug hover:opacity-50 transition-opacity mb-0.5 block"
             style={{ color: '#0F0E1E' }}>
             {venue.name} ↗
           </a>
@@ -177,7 +171,7 @@ function RedditFoodPanel({ cityId }: { cityId: string }) {
   }, [cityId])
   if (posts.length === 0) return null
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: '#1C1A2E' }}>
+    <div style={{ background: '#1C1A2E' }}>
       <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-2">
           <span className="text-sm font-black" style={{ color: '#FF4500' }}>r/{cityId}</span>
@@ -286,12 +280,9 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
               const active = activeCol === col.id
               return (
                 <button key={col.id} onClick={() => setActiveCol(active ? null : col.id)}
-                  className="text-left p-4 rounded-xl transition-all"
+                  className="text-left py-3 transition-all"
                   style={{
-                    background: active ? col.color : '#fff',
-                    border: `1px solid ${active ? col.color : 'rgba(37,36,80,0.08)'}`,
-                    boxShadow: active ? `0 4px 20px ${col.color}30` : '0 1px 3px rgba(0,0,0,0.04)',
-                    transform: active ? 'translateY(-1px)' : 'none',
+                    borderTop: `2px solid ${active ? col.color : 'rgba(37,36,80,0.12)'}`,
                   }}>
                   <p className="text-xs font-black leading-tight mb-0.5" style={{ color: active ? '#fff' : '#252450' }}>
                     {col.label}
@@ -336,7 +327,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
               <p className="text-sm" style={{ color: 'rgba(37,36,80,0.4)' }}>No venues match — try a different filter.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
               {filtered.map(v => <VenueCard key={v.id} venue={v} />)}
             </div>
           )}
@@ -352,11 +343,10 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
               </p>
               <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.1)' }} />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
               {hoods.map(h => (
-                <div key={h.name} className="flex gap-4 p-5 bg-white rounded-xl"
-                  style={{ border: '1px solid rgba(37,36,80,0.07)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                  <div className="w-1 rounded-full shrink-0 self-stretch" style={{ background: h.color }} />
+                <div key={h.name} className="flex gap-4 py-4" style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
+                  <div className="w-0.5 shrink-0 self-stretch" style={{ background: h.color }} />
                   <div className="min-w-0">
                     <div className="flex items-baseline gap-2 mb-1.5 flex-wrap">
                       <p className="text-sm font-black" style={{ color: '#252450' }}>{h.name}</p>

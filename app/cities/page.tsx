@@ -96,7 +96,7 @@ function CitiesInner() {
               <button
                 key={city.id}
                 onClick={() => handleCitySelect(city.id)}
-                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-espresso/15 text-left w-full"
+                className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-espresso/15 text-left w-full"
                 style={{ background: cfg.bg, minHeight: 240 }}
               >
                 <div className="absolute rounded-full pointer-events-none"
@@ -132,7 +132,7 @@ function CitiesInner() {
               </button>
             ) : (
               <div key={city.id}
-                className="relative rounded-2xl overflow-hidden border border-sand/30 opacity-55"
+                className="relative overflow-hidden border border-sand/30 opacity-55"
                 style={{ background: '#F5F4F0', minHeight: 240 }}>
                 <div className="absolute rounded-full pointer-events-none"
                   style={{ background: '#D8CABB', opacity: 0.35, width: 120, height: 120, bottom: -30, right: -20 }} />
