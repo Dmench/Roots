@@ -119,8 +119,8 @@ function ToggleRow({
 
 function FieldGroup({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl overflow-hidden mb-6"
-      style={{ background: '#fff', border: '1px solid rgba(37,36,80,0.08)' }}>
+    <div className="mb-6"
+      style={{ borderTop: '1px solid rgba(37,36,80,0.1)', borderBottom: '1px solid rgba(37,36,80,0.1)', background: '#fff' }}>
       {children}
     </div>
   )
@@ -183,7 +183,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-cream">
         <Nav />
         <div className="max-w-sm mx-auto px-6 py-28 text-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-8"
+          <div className="w-14 h-14 flex items-center justify-center mx-auto mb-8"
             style={{ background: 'linear-gradient(135deg, #3D3CAC 0%, #FF3EBA 100%)' }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="1.5" />
@@ -198,7 +198,7 @@ export default function ProfilePage() {
           </p>
           <button
             onClick={() => setAuthOpen(true)}
-            className="px-8 py-3.5 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity text-sm"
+            className="px-8 py-3.5 text-white font-semibold hover:opacity-90 transition-opacity text-sm"
             style={{ background: '#3D3CAC' }}
           >
             Sign in or create account
@@ -220,7 +220,7 @@ export default function ProfilePage() {
       <div className="max-w-md mx-auto px-4 py-8 md:py-12">
 
         {/* ── Hero card ─────────────────────────────────────────────────────── */}
-        <div className="relative rounded-2xl overflow-hidden mb-8"
+        <div className="relative overflow-hidden mb-8"
           style={{ background: 'linear-gradient(145deg, #0F0E1E 0%, #1A1840 55%, #0F0E1E 100%)' }}>
 
           {/* Ambient blobs */}
@@ -239,8 +239,8 @@ export default function ProfilePage() {
                 Roots member
               </p>
               {saved && (
-                <span className="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(16,185,129,0.18)', color: '#10B981' }}>
+                <span className="text-[9px] font-black tracking-[0.18em] uppercase"
+                  style={{ color: '#10B981' }}>
                   Saved ✓
                 </span>
               )}
@@ -249,7 +249,7 @@ export default function ProfilePage() {
             {/* Avatar + name */}
             <div className="flex items-center gap-4 mb-4">
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-display font-black shrink-0"
+                className="w-12 h-12 flex items-center justify-center text-lg font-display font-black shrink-0"
                 style={{ background: 'linear-gradient(135deg, #4744C8 0%, #FF3EBA 100%)', color: '#fff' }}>
                 {displayInitial}
               </div>
@@ -266,11 +266,11 @@ export default function ProfilePage() {
                         if (e.key === 'Escape') setEditingName(false)
                       }}
                       placeholder="Your name"
-                      className="flex-1 min-w-0 px-3 py-1.5 rounded-lg text-sm focus:outline-none"
+                      className="flex-1 min-w-0 px-3 py-1.5 text-sm focus:outline-none"
                       style={{ background: 'rgba(245,244,240,0.1)', border: '1px solid rgba(245,244,240,0.2)', color: '#F5F4F0' }}
                     />
                     <button onClick={saveName}
-                      className="shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg"
+                      className="shrink-0 text-xs font-bold px-3 py-1.5"
                       style={{ background: '#4744C8', color: '#F5F4F0' }}>
                       Save
                     </button>
@@ -314,8 +314,8 @@ export default function ProfilePage() {
             {/* Stage pill */}
             {currentStage ? (
               <div className="flex items-center gap-2">
-                <span className="text-[11px] px-2.5 py-1 rounded-full font-medium"
-                  style={{ background: 'rgba(71,68,200,0.25)', color: '#A5A3F5' }}>
+                <span className="text-[11px] font-semibold"
+                  style={{ color: '#A5A3F5' }}>
                   {currentStage.label}
                 </span>
                 <button onClick={() => setStageOpen(true)}
@@ -326,9 +326,9 @@ export default function ProfilePage() {
               </div>
             ) : (
               <button onClick={() => setStageOpen(true)}
-                className="text-xs px-3 py-1.5 rounded-full border border-dashed"
-                style={{ borderColor: 'rgba(245,244,240,0.18)', color: 'rgba(245,244,240,0.35)' }}>
-                Set your stage
+                className="text-xs underline underline-offset-2"
+                style={{ color: 'rgba(245,244,240,0.35)' }}>
+                Set your stage →
               </button>
             )}
           </div>
@@ -439,40 +439,37 @@ export default function ProfilePage() {
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setStageOpen(false)}>
           <div
-            className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl"
+            className="w-full sm:max-w-sm shadow-2xl"
             style={{ background: '#fff' }}
             onClick={e => e.stopPropagation()}>
-            <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-0.5"
-              style={{ color: 'rgba(37,36,80,0.4)' }}>
-              Your stage
-            </p>
-            <p className="text-xs mb-4 leading-relaxed" style={{ color: 'rgba(37,36,80,0.5)' }}>
-              Filters your Settle checklist to what matters right now.
-            </p>
-            <div className="space-y-1.5">
-              {STAGES.map(s => {
-                const active = profile.stage === s.id
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => { setStage(s.id as Stage); flash(); setStageOpen(false) }}
-                    className="w-full text-left px-4 py-3 rounded-xl border transition-all"
-                    style={active
-                      ? { background: '#3D3CAC', borderColor: '#3D3CAC' }
-                      : { background: '#F5F4F0', borderColor: 'transparent' }}>
-                    <p className="text-sm font-semibold" style={{ color: active ? '#fff' : '#0F0E1E' }}>
-                      {s.label}
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: active ? 'rgba(255,255,255,0.55)' : 'rgba(37,36,80,0.4)' }}>
-                      {s.months}
-                    </p>
-                  </button>
-                )
-              })}
+            <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+              <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-0.5"
+                style={{ color: 'rgba(37,36,80,0.4)' }}>
+                Your stage
+              </p>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(37,36,80,0.5)' }}>
+                Filters your Settle checklist to what matters right now.
+              </p>
             </div>
+            {STAGES.map((s, i) => {
+              const active = profile.stage === s.id
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => { setStage(s.id as Stage); flash(); setStageOpen(false) }}
+                  className="w-full text-left px-5 py-4 hover:bg-stone-50 transition-colors"
+                  style={{ borderBottom: i < STAGES.length - 1 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                  <p className="text-sm font-semibold" style={{ color: active ? '#3D3CAC' : '#0F0E1E' }}>
+                    {s.label}
+                    {active && <span className="ml-2 text-[10px] font-black tracking-wider">✓</span>}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>{s.months}</p>
+                </button>
+              )
+            })}
             <button onClick={() => setStageOpen(false)}
-              className="mt-4 w-full py-3 text-sm"
-              style={{ color: 'rgba(37,36,80,0.4)' }}>
+              className="w-full py-4 text-sm"
+              style={{ color: 'rgba(37,36,80,0.35)', borderTop: '1px solid rgba(37,36,80,0.08)' }}>
               Cancel
             </button>
           </div>
@@ -486,32 +483,33 @@ export default function ProfilePage() {
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setNeighborhoodOpen(false)}>
           <div
-            className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl"
+            className="w-full sm:max-w-sm shadow-2xl"
             style={{ background: '#fff', maxHeight: '80vh', overflowY: 'auto' }}
             onClick={e => e.stopPropagation()}>
-            <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-4"
-              style={{ color: 'rgba(37,36,80,0.4)' }}>
-              Neighborhood
-            </p>
-            <div className="space-y-1">
-              {[{ value: '', label: 'Not specified' }, ...neighborhoods.map(n => ({ value: n, label: n }))].map(opt => {
-                const active = (profile.neighborhood ?? '') === opt.value
-                return (
-                  <button
-                    key={opt.value}
-                    onClick={() => { setNeighborhood(opt.value || undefined); flash(); setNeighborhoodOpen(false) }}
-                    className="w-full text-left px-4 py-2.5 rounded-xl transition-all"
-                    style={active
-                      ? { background: '#3D3CAC', color: '#fff' }
-                      : { color: '#0F0E1E' }}>
-                    <p className="text-sm">{opt.label}</p>
-                  </button>
-                )
-              })}
+            <div className="px-5 pt-5 pb-3 sticky top-0 bg-white" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+              <p className="text-[10px] font-black tracking-[0.2em] uppercase"
+                style={{ color: 'rgba(37,36,80,0.4)' }}>
+                Neighborhood
+              </p>
             </div>
+            {[{ value: '', label: 'Not specified' }, ...neighborhoods.map(n => ({ value: n, label: n }))].map((opt, i, arr) => {
+              const active = (profile.neighborhood ?? '') === opt.value
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => { setNeighborhood(opt.value || undefined); flash(); setNeighborhoodOpen(false) }}
+                  className="w-full text-left px-5 py-3.5 hover:bg-stone-50 transition-colors"
+                  style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                  <p className="text-sm font-medium" style={{ color: active ? '#3D3CAC' : '#0F0E1E' }}>
+                    {opt.label}
+                    {active && <span className="ml-2 text-[10px] font-black">✓</span>}
+                  </p>
+                </button>
+              )
+            })}
             <button onClick={() => setNeighborhoodOpen(false)}
-              className="mt-4 w-full py-3 text-sm"
-              style={{ color: 'rgba(37,36,80,0.4)' }}>
+              className="w-full py-4 text-sm"
+              style={{ color: 'rgba(37,36,80,0.35)', borderTop: '1px solid rgba(37,36,80,0.08)' }}>
               Cancel
             </button>
           </div>

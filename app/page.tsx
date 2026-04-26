@@ -59,25 +59,25 @@ export default function HomePage() {
               {cityObj ? (
                 <>
                   <Link href={`/${cityObj.id}`}
-                    className="inline-flex items-center justify-center px-8 py-4 text-white rounded-full font-bold text-sm hover:opacity-90 transition-opacity"
+                    className="inline-flex items-center justify-center px-8 py-4 text-white font-bold text-sm hover:opacity-90 transition-opacity"
                     style={{ background: '#4744C8' }}>
                     Open {cityObj.name} →
                   </Link>
                   <Link href={`/${cityObj.id}/ask`}
-                    className="inline-flex items-center justify-center px-8 py-4 rounded-full font-bold text-sm hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center justify-center px-8 py-4 font-bold text-sm hover:opacity-80 transition-opacity"
                     style={{ border: '2px solid rgba(37,36,80,0.15)', color: '#252450' }}>
                     Ask anything
                   </Link>
                 </>
               ) : (
                 <Link href="/cities"
-                  className="inline-flex items-center justify-center px-8 py-4 text-white rounded-full font-bold text-sm hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center justify-center px-8 py-4 text-white font-bold text-sm hover:opacity-90 transition-opacity"
                   style={{ background: '#4744C8' }}>
                   Choose your city →
                 </Link>
               )}
               <Link href="/profile"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-sm hover:opacity-70 transition-opacity"
+                className="inline-flex items-center justify-center px-8 py-4 font-medium text-sm hover:opacity-70 transition-opacity"
                 style={{ color: 'rgba(37,36,80,0.4)' }}>
                 Profile
               </Link>
@@ -144,15 +144,16 @@ export default function HomePage() {
           </p>
 
           {/* Three pillars */}
-          <div className="flex flex-wrap gap-2 mb-12">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 mb-12"
+            style={{ borderTop: '1px solid rgba(245,236,215,0.12)', paddingTop: 16 }}>
             {[
               { label: 'Events from every venue', color: '#FF3EBA' },
               { label: 'Local news & Reddit signal', color: '#38C0F0' },
               { label: 'AI that knows the city', color: '#FAB400' },
             ].map(p => (
               <span key={p.label}
-                className="px-4 py-2 rounded-full text-xs font-bold"
-                style={{ background: `${p.color}20`, color: p.color, border: `1px solid ${p.color}40` }}>
+                className="text-[10px] font-black tracking-[0.18em] uppercase"
+                style={{ color: p.color }}>
                 {p.label}
               </span>
             ))}
@@ -162,7 +163,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3 items-start">
             <button
               onClick={() => setAuthOpen(true)}
-              className="inline-flex items-center justify-center px-10 py-4 text-base font-bold rounded-full hover:opacity-90 transition-opacity"
+              className="inline-flex items-center justify-center px-10 py-4 text-base font-bold hover:opacity-90 transition-opacity"
               style={{ background: '#F5F4F0', color: '#252450' }}>
               Join Roots →
             </button>
