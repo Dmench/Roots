@@ -217,6 +217,94 @@ export async function getEvents(cityId: string): Promise<EventPreview[]> {
     } catch { return [] }
   }
 
+  async function fromVisitBrussels(): Promise<EventPreview[]> {
+    if (cityId !== 'brussels') return []
+    const BASE = 'https://www.visit.brussels'
+    try {
+      const res = await fetch(`${BASE}/en/visitors/agenda`, {
+        headers: { 'User-Agent': UA, Accept: 'text/html' },
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(12000),
+      })
+      if (!res.ok) return []
+      const html = await res.text()
+      const out: EventPreview[] = []
+
+      // Method 1: JSON-LD structured Event objects
+      const jsonLdRe = /<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g
+      let m: RegExpExecArray | null
+      while ((m = jsonLdRe.exec(html)) !== null) {
+        try {
+          const data = JSON.parse(m[1])
+          const candidates = Array.isArray(data) ? data : (data['@graph'] ? data['@graph'] : [data])
+          for (const obj of candidates) {
+            if (obj['@type'] !== 'Event') continue
+            const name     = typeof obj.name === 'string' ? obj.name.trim() : undefined
+            const url      = typeof obj.url  === 'string' ? obj.url.trim()  : undefined
+            const startRaw = obj.startDate ?? obj.datePublished
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const imgRaw   = obj.image as any
+            const image    = typeof imgRaw === 'string' ? imgRaw : imgRaw?.url ?? undefined
+            if (!name || !url || !startRaw) continue
+            const d = new Date(startRaw)
+            if (isNaN(d.getTime()) || d.getTime() < now) continue
+            out.push({
+              id:      `visitbru-ld-${url.split('/').pop()?.slice(0, 20) ?? Math.random().toString(36).slice(2)}`,
+              title:   name,
+              date:    d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+              time:    d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+              venue:   obj.location?.name ?? 'Brussels',
+              source:  'Visit Brussels',
+              url,
+              dateObj: d,
+              image,
+            })
+          }
+        } catch { /* skip malformed block */ }
+      }
+
+      // Method 2: link extraction fallback
+      if (out.length === 0) {
+        const seen   = new Set<string>()
+        const linkRe = /href="((?:https:\/\/www\.visit\.brussels)?\/en\/visitors\/agenda\/event-detail\.[^"#?]+)"/g
+        while ((m = linkRe.exec(html)) !== null) {
+          let href = m[1]
+          if (href.startsWith('/')) href = BASE + href
+          if (seen.has(href)) continue
+          seen.add(href)
+          const pathPart = href.split('/').pop() ?? ''
+          const titleRaw = pathPart.replace(/^event-detail\./, '').replace(/\.\d+$/, '').replace(/\./g, ' ').replace(/-/g, ' ').replace(/\s+/g, ' ').trim()
+          const title    = titleRaw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+          const linkIdx  = html.indexOf(m[0])
+          const ctxStart = Math.max(0, linkIdx - 800)
+          const context  = html.slice(ctxStart, linkIdx + 2000)
+          const dateMatch = context.match(/datetime="(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?/)
+          const d = dateMatch
+            ? new Date(`${dateMatch[1]}T${dateMatch[2] ?? '20:00'}:00`)
+            : new Date(now + (out.length + 1) * 86400000)
+          if (dateMatch && d.getTime() < now) continue
+          const imgMatch = context.match(/src="([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/i)
+          const numId    = pathPart.match(/\.(\d+)$/)?.[1] ?? Math.random().toString(36).slice(2)
+          out.push({
+            id:      `visitbru-${numId}`,
+            title:   title || 'Event in Brussels',
+            date:    d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+            time:    dateMatch?.[2] ?? '20:00',
+            venue:   'Brussels',
+            source:  'Visit Brussels',
+            url:     href,
+            dateObj: d,
+            image:   imgMatch?.[1],
+          })
+          if (out.length >= 30) break
+        }
+        out.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
+      }
+
+      return out.slice(0, 30)
+    } catch { return [] }
+  }
+
   async function fromLaMonnaie(): Promise<EventPreview[]> {
     if (cityId !== 'brussels') return []
     const BASE = 'https://www.lamonnaiedemunt.be'
@@ -246,11 +334,11 @@ export async function getEvents(cityId: string): Promise<EventPreview[]> {
     } catch { return [] }
   }
 
-  const [tm, m4, bot, flagey, halles, recyclart, lamonnaie] = await Promise.all([
-    fromTicketmaster(), fromMagasin4(), fromBotanique(),
+  const [tm, vb, m4, bot, flagey, halles, recyclart, lamonnaie] = await Promise.all([
+    fromTicketmaster(), fromVisitBrussels(), fromMagasin4(), fromBotanique(),
     fromFlagey(), fromHalles(), fromRecyclart(), fromLaMonnaie(),
   ])
-  return [...tm, ...m4, ...bot, ...flagey, ...halles, ...recyclart, ...lamonnaie]
+  return [...tm, ...vb, ...m4, ...bot, ...flagey, ...halles, ...recyclart, ...lamonnaie]
     .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
 }
 

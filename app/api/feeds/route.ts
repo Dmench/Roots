@@ -620,7 +620,7 @@ async function fetchVisitBrussels(): Promise<{ items: FeedItem[]; source: Source
           image,
           published,
         })
-        if (items.length >= 20) break
+        if (items.length >= 30) break
       }
       items.sort((a, b) => a.published - b.published)
     }
@@ -635,7 +635,7 @@ async function fetchVisitBrussels(): Promise<{ items: FeedItem[]; source: Source
     }
 
     console.log(`[feeds:visitbrussels] ${items.length} events`)
-    return { items: items.slice(0, 15), source: { label: 'Visit Brussels', status: 'ok', count: items.length } }
+    return { items: items.slice(0, 30), source: { label: 'Visit Brussels', status: 'ok', count: items.length } }
   } catch (err) {
     console.error('[feeds:visitbrussels] threw:', err)
     return { items: [], source: { label: 'Visit Brussels', status: 'error', count: 0, error: String(err) } }

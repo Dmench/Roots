@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
 import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
+import { Nav } from '@/components/layout/Nav'
 import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { Post, PostCategory, Stage } from '@/lib/types'
@@ -128,7 +129,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [redditPosts,  setRedditPosts]  = useState<FeedItem[]>([])
   const [redditFetch,  setRedditFetch]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-  const [activeChannel, setActiveChannel] = useState<ChannelId>('tips')
+  const [activeChannel, setActiveChannel] = useState<ChannelId>('events')
 
   useEffect(() => {
     if (!city || !supabase) return
@@ -246,161 +247,59 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     }
   }
 
+  const SOURCE_COLOR: Record<string, string> = {
+    visitbrussels: '#FF3EBA', magasin4: '#C62828', botanique: '#2E7D32',
+    flagey: '#4744C8', halles: '#E8612A', recyclart: '#7B1FA2',
+    lamonnaie: '#B8860B', meetup: '#E1523D', eventbrite: '#F05537',
+    ticketmaster: '#026CDF',
+  }
+
   return (
     <div style={{ background: '#F8F7F4', minHeight: '100vh' }}>
+      <Nav />
 
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden px-6 md:px-12 pt-10 pb-10" style={{ background: '#F5F4F0' }}>
-        <div className="absolute rounded-full pointer-events-none opacity-60"
-          style={{ background: '#4744C8', width: 220, height: 220, top: -100, right: -60 }} />
-        <div className="absolute rounded-full pointer-events-none opacity-50"
-          style={{ background: '#FF3EBA', width: 80, height: 80, bottom: -30, right: '28%' }} />
-        <div className="max-w-5xl mx-auto relative">
-          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-4"
-            style={{ color: 'rgba(37,36,80,0.3)' }}>
-            Connect · {city.name}
-          </p>
-          <h1 className="font-display font-black leading-[0.82] mb-4"
-            style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: '#252450' }}>
-            Community.
-          </h1>
-          <p className="text-sm max-w-sm" style={{ color: 'rgba(37,36,80,0.45)' }}>
-            Tips, questions, local news, and what {city.name} is talking about — each in its own space.
-          </p>
+      {/* ── Tab bar ──────────────────────────────────────────────────────── */}
+      <div style={{ background: '#F5F4F0', borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
+          <div className="flex gap-0 overflow-x-auto scrollbar-none">
+            {CHANNELS.map(ch => {
+              const active = ch.id === activeChannel
+              return (
+                <button
+                  key={ch.id}
+                  onClick={() => setActiveChannel(ch.id)}
+                  className="flex-none flex items-center gap-2 px-4 py-4 text-sm font-semibold transition-all border-b-2 whitespace-nowrap"
+                  style={{
+                    color: active ? ch.color : 'rgba(37,36,80,0.4)',
+                    borderBottomColor: active ? ch.color : 'transparent',
+                  }}
+                >
+                  {ch.label}
+                  {(postCounts[ch.id] ?? 0) > 0 && ch.id !== 'events' && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{ background: active ? `${ch.color}15` : 'rgba(37,36,80,0.06)', color: active ? ch.color : 'rgba(37,36,80,0.3)' }}>
+                      {postCounts[ch.id]}
+                    </span>
+                  )}
+                  {ch.id === 'events' && eventItems.length > 0 && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{ background: active ? `${ch.color}15` : 'rgba(37,36,80,0.06)', color: active ? ch.color : 'rgba(37,36,80,0.3)' }}>
+                      {eventItems.length}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
       {/* ── Main layout ──────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
 
-          {/* ── LEFT: Channel nav ────────────────────────────────────────── */}
-          <aside>
-            <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
-              style={{ color: 'rgba(37,36,80,0.3)' }}>
-              Channels
-            </p>
-            <nav className="space-y-1">
-              {CHANNELS.map(ch => {
-                const active = ch.id === activeChannel
-                const count  = postCounts[ch.id] ?? 0
-                return (
-                  <button
-                    key={ch.id}
-                    onClick={() => setActiveChannel(ch.id)}
-                    className={cn(
-                      'w-full text-left px-3.5 py-3 rounded-xl transition-all flex items-center gap-3 group',
-                      active ? 'shadow-sm' : 'hover:bg-white/60'
-                    )}
-                    style={active
-                      ? { background: '#fff', border: `1px solid ${ch.color}30`, boxShadow: `0 0 0 1px ${ch.color}18` }
-                      : { border: '1px solid transparent' }
-                    }
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-0.5" style={{ background: ch.color }} />
-                    <div className="flex-1 min-w-0">
-                      <p className={cn('text-xs font-bold leading-tight truncate', active ? '' : 'group-hover:opacity-80')}
-                        style={{ color: active ? ch.color : 'rgba(37,36,80,0.65)' }}>
-                        #{ch.label}
-                      </p>
-                      <p className="text-[9px] leading-tight mt-0.5 truncate"
-                        style={{ color: 'rgba(37,36,80,0.35)' }}>
-                        {ch.sub}
-                      </p>
-                    </div>
-                    {count > 0 && (
-                      <span className="shrink-0 text-[9px] font-black px-1.5 py-0.5 rounded-full"
-                        style={{
-                          background: active ? `${ch.color}18` : 'rgba(37,36,80,0.06)',
-                          color: active ? ch.color : 'rgba(37,36,80,0.3)',
-                        }}>
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </nav>
-
-            {/* Settlers directory */}
-            <div className="mt-8">
-              <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
-                style={{ color: 'rgba(37,36,80,0.3)' }}>
-                Settlers
-              </p>
-              <a href={`/${cityId}/people`}
-                className="flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-white transition-all group"
-                style={{ border: '1px solid rgba(37,36,80,0.08)', background: 'rgba(71,68,200,0.03)' }}>
-                <div className="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: 'rgba(71,68,200,0.12)' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <circle cx="9" cy="7" r="4" stroke="#4744C8" strokeWidth="1.5" />
-                    <path d="M3 20c0-3.3 2.7-6 6-6" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
-                    <circle cx="17" cy="10" r="3" stroke="#4744C8" strokeWidth="1.5" />
-                    <path d="M14 20c0-2.8 2.2-5 4.9-5" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-bold" style={{ color: '#4744C8' }}>
-                    Directory
-                  </p>
-                  <p className="text-[9px] leading-tight mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>
-                    Meet settlers in {city.name}
-                  </p>
-                </div>
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
-                  className="opacity-0 group-hover:opacity-40 transition-opacity shrink-0">
-                  <path d="M2 5h6M5 2l3 3-3 3" stroke="#252450" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </a>
-            </div>
-
-            {/* Find your people */}
-            <div className="mt-6">
-              <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
-                style={{ color: 'rgba(37,36,80,0.3)' }}>
-                Groups
-              </p>
-              <div className="space-y-1">
-                {resources.map(r => (
-                  <div key={r.id}
-                    className="flex items-center gap-2.5 px-3.5 py-2.5 bg-white/60 rounded-xl hover:bg-white transition-all"
-                    style={{ border: '1px solid rgba(37,36,80,0.06)' }}>
-                    <div className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-black"
-                      style={{
-                        background: r.type === 'facebook' ? 'rgba(24,119,242,0.1)' : 'rgba(255,69,0,0.1)',
-                        color: r.type === 'facebook' ? '#1877F2' : '#FF4500',
-                      }}>
-                      {r.type === 'facebook' ? 'f' : 'r/'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold truncate" style={{ color: '#252450' }}>{r.name}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* ── RIGHT: Channel content ───────────────────────────────────── */}
+          {/* ── LEFT: Main channel content ───────────────────────────────── */}
           <div className="min-w-0">
-
-            {/* Channel header */}
-            <div className="flex items-center gap-3 mb-6 pb-5"
-              style={{ borderBottom: '2px solid rgba(37,36,80,0.06)' }}>
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: channel.color }} />
-              <div>
-                <h2 className="text-lg font-black leading-tight" style={{ color: '#252450' }}>
-                  #{channel.label}
-                </h2>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>{channel.sub}</p>
-              </div>
-              {channel.cat && (
-                <div className="ml-auto shrink-0">
-                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: channel.color }} />
-                </div>
-              )}
-            </div>
 
             {/* ── Community channels (tips / questions / heads-up) ──────── */}
             {channel.cat && (
@@ -583,12 +482,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       const when = diff < 86400  ? `Today`
                                : diff < 172800  ? `Tomorrow`
                                : new Date(fi.published * 1000).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
-                      const SOURCE_COLOR: Record<string, string> = {
-                        visitbrussels: '#FF3EBA', magasin4: '#C62828', botanique: '#2E7D32',
-                        flagey: '#4744C8', halles: '#E8612A', recyclart: '#7B1FA2',
-                        lamonnaie: '#B8860B', meetup: '#E1523D', eventbrite: '#F05537',
-                        ticketmaster: '#026CDF',
-                      }
                       const dotColor = SOURCE_COLOR[fi.source] ?? '#E8612A'
                       const isLead   = idx === 0
 
@@ -858,6 +751,57 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             )}
 
           </div>
+
+          {/* ── RIGHT: Directory + groups ─────────────────────────────────── */}
+          <aside className="hidden lg:block space-y-8">
+
+            {/* Settlers */}
+            <div>
+              <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
+                style={{ color: 'rgba(37,36,80,0.3)' }}>Settlers</p>
+              <a href={`/${cityId}/people`}
+                className="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-white transition-all group"
+                style={{ border: '1px solid rgba(37,36,80,0.08)', background: 'rgba(71,68,200,0.03)' }}>
+                <div className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center"
+                  style={{ background: 'rgba(71,68,200,0.12)' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <circle cx="9" cy="7" r="4" stroke="#4744C8" strokeWidth="1.5" />
+                    <path d="M3 20c0-3.3 2.7-6 6-6" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
+                    <circle cx="17" cy="10" r="3" stroke="#4744C8" strokeWidth="1.5" />
+                    <path d="M14 20c0-2.8 2.2-5 4.9-5" stroke="#4744C8" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold" style={{ color: '#4744C8' }}>Settler directory</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>
+                    Who else is settling in {city.name}
+                  </p>
+                </div>
+              </a>
+            </div>
+
+            {/* Community groups */}
+            {resources.length > 0 && (
+              <div>
+                <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-3"
+                  style={{ color: 'rgba(37,36,80,0.3)' }}>Community groups</p>
+                <div className="space-y-1">
+                  {resources.map(r => (
+                    <div key={r.id}
+                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg hover:bg-white/80 transition-all"
+                      style={{ border: '1px solid rgba(37,36,80,0.05)' }}>
+                      <span className="text-[9px] font-black shrink-0 w-5"
+                        style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
+                        {r.type === 'facebook' ? 'fb' : 'r/'}
+                      </span>
+                      <p className="text-[11px] font-medium truncate" style={{ color: '#252450' }}>{r.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </aside>
+
         </div>
       </div>
 
