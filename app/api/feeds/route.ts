@@ -12,7 +12,7 @@ export type FeedCategory =
   | 'transport'
   | 'work'
 
-export type FeedSource = 'reddit' | 'bulletin' | 'expatica' | 'btimes' | 'politico' | 'eventbrite' | 'euobserver' | 'euronews' | 'meetup' | 'ticketmaster' | 'visitbrussels' | 'magasin4' | 'botanique' | 'flagey' | 'halles' | 'recyclart' | 'lamonnaie'
+export type FeedSource = 'reddit' | 'bulletin' | 'expatica' | 'btimes' | 'politico' | 'eventbrite' | 'euobserver' | 'euronews' | 'meetup' | 'ticketmaster' | 'visitbrussels' | 'magasin4' | 'botanique' | 'flagey' | 'halles' | 'recyclart' | 'lamonnaie' | 'feu'
 
 export interface FeedItem {
   id:          string
@@ -1081,13 +1081,122 @@ async function fetchLaMonnaie(): Promise<{ items: FeedItem[]; source: SourceResu
   }
 }
 
+/* ── Bruxelles Brûle T-Il (feu.ultravnr.be) — community underground calendar ── */
+// robots.txt: only /wp-admin/ blocked — public pages explicitly allowed
+
+function normalizeTimeStr(t: string): string {
+  const start = t.split(/\s*[-–]\s*/)[0].trim()
+  const hm = start.match(/^(\d{1,2})h(\d{2})?$/i)
+  if (hm) return `${hm[1].padStart(2,'0')}:${hm[2] ?? '00'}`
+  const col = start.match(/^(\d{1,2}):(\d{2})$/)
+  if (col) return `${col[1].padStart(2,'0')}:${col[2]}`
+  const pm = start.match(/^(\d{1,2})PM$/i)
+  if (pm) { const h = (parseInt(pm[1]) % 12) + 12; return `${h.toString().padStart(2,'0')}:00` }
+  const am = start.match(/^(\d{1,2})AM$/i)
+  if (am) return `${parseInt(am[1]).toString().padStart(2,'0')}:00`
+  return '20:00'
+}
+
+async function fetchFeu(): Promise<{ items: FeedItem[]; source: SourceResult }> {
+  const BASE  = 'https://feu.ultravnr.be'
+  const now   = Date.now() / 1000
+  const today = new Date()
+  const thisYear  = today.getFullYear()
+  const thisMonth = today.getMonth() + 1
+
+  try {
+    const res = await fetch(BASE, {
+      headers: { 'User-Agent': UA, Accept: 'text/html', 'Accept-Language': 'fr-BE,fr;q=0.9,en;q=0.8' },
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(10000),
+    })
+    if (!res.ok) return { items: [], source: { label: 'Bruxelles Brûle', status: 'error', count: 0, error: `HTTP ${res.status}` } }
+
+    const html  = await res.text()
+    const items: FeedItem[] = []
+    const liRe  = /<li>([\s\S]*?)<\/li>/gi
+    let   m: RegExpExecArray | null
+
+    while ((m = liRe.exec(html)) !== null) {
+      const raw = m[1]
+
+      // Must start with DD/MM date
+      const dateM = raw.match(/^(\d{2})\/(\d{2})/)
+      if (!dateM) continue
+      const day   = parseInt(dateM[1], 10)
+      const month = parseInt(dateM[2], 10)
+      if (day < 1 || day > 31 || month < 1 || month > 12) continue
+      // Roll over to next year if month already passed
+      const year = month < thisMonth - 1 ? thisYear + 1 : thisYear
+      const dateISO = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+
+      // Time — multiple formats: 21h-03h, 17:30-00:00, 9PM, 10:00 - 18:00
+      const timeM = raw.match(/^\d{2}\/\d{2}\s+(\d{1,2}[h:]\d{0,2}(?:\s*[-–]\s*\d{1,2}[h:]\d{0,2})?|\d{1,2}[AP]M(?:\s*-\s*\d{1,2}[AP]M)?)/i)
+      const startT = normalizeTimeStr(timeM?.[1]?.trim() ?? '20:00')
+
+      const d = new Date(`${dateISO}T${startT}:00`)
+      if (isNaN(d.getTime()) || d.getTime() / 1000 < now) continue
+
+      // Venue URL + name from @<a href="...">Name</a>
+      const venueM = raw.match(/@<a[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/)
+      const venueUrl  = venueM?.[1] ?? BASE
+      const venueName = venueM?.[2]?.trim() ?? ''
+
+      // Address: text after closing venue tag up to <br/line break
+      const addrM   = raw.match(/<\/a>\s*[-–]\s*([^\n<]{4,80})/)
+      const address = addrM?.[1]?.trim() ?? ''
+
+      // Artists: text after first newline or <br>
+      const artistM = raw.match(/(?:<br\s*\/?>\s*|\n)([^\n<]{3,})/)
+      const artists = artistM?.[1]?.trim() ?? ''
+
+      // Plain text of main line (strip HTML, collapse whitespace)
+      const textLine = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+
+      // Remove date+time prefix
+      const afterDT = textLine.replace(/^\d{2}\/\d{2}\s+\S+\s*/, '').trim()
+
+      // Title: everything up to " - Price/Genre/@"
+      const titleM = afterDT.match(/^(.+?)(?:\s+-\s+(?:\d|gratuit|prix libre)|\s+\([a-zÀ-ÿ][^)]{1,40}\)|\s+@)/i)
+      let title = (titleM?.[1] ?? afterDT.split('@')[0]).trim().replace(/\s*-\s*$/, '')
+
+      // Price
+      const priceM = textLine.match(/(\d+[-/]\d+[-/]?\d*\s*€|\d+\s*€|gratuit|prix libre)/i)
+      // Genre in parens
+      const genreM = textLine.match(/\(([a-zÀ-ÿ][^)]{1,40})\)/i)
+      const genre  = genreM?.[1]?.trim() ?? ''
+
+      const priceTag = priceM?.[1]?.trim() ?? ''
+      const summary = [genre || priceTag, artists, venueName && address ? `${venueName}, ${address.split(',')[0]}` : venueName].filter(Boolean).join(' · ').slice(0, 120)
+
+      items.push({
+        id:          `feu-${dateISO}-${Buffer.from(title.slice(0, 20)).toString('base64').slice(0, 10)}`,
+        source:      'feu',
+        sourceLabel: 'Bruxelles Brûle',
+        category:    'events',
+        title:       title || 'Event in Brussels',
+        summary,
+        url:         venueUrl,
+        published:   d.getTime() / 1000,
+      })
+    }
+
+    items.sort((a, b) => a.published - b.published)
+    console.log(`[feeds:feu] ${items.length} upcoming events`)
+    return { items: items.slice(0, 25), source: { label: 'Bruxelles Brûle', status: 'ok', count: items.length } }
+  } catch (err) {
+    console.error('[feeds:feu] threw:', err)
+    return { items: [], source: { label: 'Bruxelles Brûle', status: 'error', count: 0, error: String(err) } }
+  }
+}
+
 /* ── Route ─────────────────────────────────────────────────────────────────── */
 
 export async function GET(req: NextRequest) {
   const city  = req.nextUrl.searchParams.get('city') ?? 'brussels'
   const debug = req.nextUrl.searchParams.get('debug') === '1'
 
-  const subs     = CITY_SUBS[city] ?? CITY_SUBS.brussels
+  const subs     = CITY_SUBS[city] ?? []
   const rssFeeds = CITY_RSS[city] ?? []
 
   const isBrussels = city === 'brussels'
@@ -1097,6 +1206,7 @@ export async function GET(req: NextRequest) {
     redditResult, ticketmasterResult, meetupResult, eventbriteResult,
     visitBrusselsResult, magasin4Result, botaniqueResult,
     flageyResult, hallesResult, recyclartResult, lamonnaieResult,
+    feuResult,
     ...rssResults
   ] = await Promise.all([
     fetchReddit(subs),
@@ -1110,6 +1220,7 @@ export async function GET(req: NextRequest) {
     isBrussels ? fetchHalles()        : Promise.resolve(skip),
     isBrussels ? fetchRecyclart()     : Promise.resolve(skip),
     isBrussels ? fetchLaMonnaie()     : Promise.resolve(skip),
+    isBrussels ? fetchFeu()           : Promise.resolve(skip),
     ...rssFeeds.map(fetchRSS),
   ])
 
@@ -1125,6 +1236,7 @@ export async function GET(req: NextRequest) {
     ...hallesResult.items,
     ...recyclartResult.items,
     ...lamonnaieResult.items,
+    ...feuResult.items,
     ...rssResults.flatMap((r: { items: FeedItem[] }) => r.items),
   ].sort((a, b) => b.published - a.published)
 
@@ -1136,7 +1248,7 @@ export async function GET(req: NextRequest) {
   const sources = [
     redditResult.source, ticketmasterResult.source, meetupResult.source, eventbriteResult.source,
     visitBrusselsResult.source, magasin4Result.source, botaniqueResult.source,
-    flageyResult.source, hallesResult.source, recyclartResult.source, lamonnaieResult.source,
+    flageyResult.source, hallesResult.source, recyclartResult.source, lamonnaieResult.source, feuResult.source,
     ...rssResults.map((r: { source: SourceResult }) => r.source),
   ]
   console.log('[feeds] sources:', sources.map(s => `${s.label}:${s.status}(${s.count})`).join(' | '))

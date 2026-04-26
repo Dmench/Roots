@@ -251,7 +251,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     visitbrussels: '#FF3EBA', magasin4: '#C62828', botanique: '#2E7D32',
     flagey: '#4744C8', halles: '#E8612A', recyclart: '#7B1FA2',
     lamonnaie: '#B8860B', meetup: '#E1523D', eventbrite: '#F05537',
-    ticketmaster: '#026CDF',
+    ticketmaster: '#026CDF', feu: '#FF6B00',
   }
 
   return (
