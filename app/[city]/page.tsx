@@ -112,8 +112,9 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
           </div>
 
-          {/* Nav pills */}
-          <div className="flex items-center gap-2 flex-wrap mt-6">
+          {/* Nav — underline tabs */}
+          <div className="flex items-center gap-6 flex-wrap mt-7"
+            style={{ borderTop: '1px solid rgba(245,236,215,0.12)', paddingTop: 16 }}>
             {[
               { href: `/${cityId}/connect`, label: 'Community',    color: '#FF3EBA' },
               { href: `/${cityId}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
@@ -122,8 +123,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               { href: `/${cityId}/settle`,  label: 'Get set up',   color: '#FAB400' },
             ].map(p => (
               <Link key={p.href} href={p.href}
-                className="px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-wide transition-all hover:opacity-80"
-                style={{ background: `${p.color}18`, color: p.color, border: `1px solid ${p.color}28` }}>
+                className="text-[10px] font-black tracking-[0.18em] uppercase transition-opacity hover:opacity-60 pb-0.5"
+                style={{ color: p.color, borderBottom: `1px solid ${p.color}` }}>
                 {p.label}
               </Link>
             ))}
@@ -248,45 +249,33 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               <section className="mb-10">
                 <SectionLabel>In the news</SectionLabel>
 
-                {/* Featured story */}
+                {/* Lead story — headline first, no decoration */}
                 <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
-                  className="group block mt-5 pb-5"
-                  style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-2.5 h-2.5 rounded-sm shrink-0"
-                      style={{ background: SOURCE_COLOR[featuredNews.source] ?? '#252450' }} />
-                    <span className="text-[9px] font-black tracking-widest uppercase"
-                      style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
-                      {featuredNews.source}
-                    </span>
-                  </div>
-                  <h3 className="font-display font-bold leading-[1.15] group-hover:opacity-55 transition-opacity"
-                    style={{ fontSize: '1.1rem', color: '#0F0E1E' }}>
+                  className="group block pt-4 pb-5 hover:opacity-70 transition-opacity"
+                  style={{ borderBottom: '2px solid #252450' }}>
+                  <p className="text-[8px] font-black tracking-[0.28em] uppercase mb-2.5"
+                    style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
+                    {featuredNews.source}
+                  </p>
+                  <h3 className="font-display font-bold leading-[1.1]"
+                    style={{ fontSize: '1.05rem', color: '#0F0E1E', letterSpacing: '-0.01em' }}>
                     {featuredNews.title}
                   </h3>
-                  <span className="inline-block mt-3 text-[9px] font-black tracking-widest uppercase opacity-30 group-hover:opacity-60 transition-opacity"
-                    style={{ color: '#0F0E1E' }}>
-                    Read ↗
-                  </span>
                 </a>
 
-                {/* Supporting stories */}
+                {/* Supporting stories — compact digest */}
                 {secondaryNews.map((item, i) => (
                   <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
-                    className="group flex items-start gap-3 py-4 hover:opacity-55 transition-opacity"
-                    style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
-                    <div className="shrink-0 w-1 self-stretch rounded-full mt-0.5"
-                      style={{ background: SOURCE_COLOR[item.source] ?? '#252450' }} />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[8px] font-black tracking-widest uppercase block mb-1.5"
-                        style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(37,36,80,0.4)' }}>
-                        {item.source}
-                      </span>
-                      <p className="text-xs font-semibold leading-snug line-clamp-3"
-                        style={{ color: '#0F0E1E' }}>
-                        {item.title}
-                      </p>
-                    </div>
+                    className="group flex items-baseline gap-3 py-3 hover:opacity-60 transition-opacity"
+                    style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                    <span className="shrink-0 text-[8px] font-black tracking-wider uppercase"
+                      style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(37,36,80,0.4)', width: 60 }}>
+                      {item.source.split(' ')[0]}
+                    </span>
+                    <p className="flex-1 text-xs font-semibold leading-snug line-clamp-2"
+                      style={{ color: '#0F0E1E' }}>
+                      {item.title}
+                    </p>
                   </a>
                 ))}
               </section>

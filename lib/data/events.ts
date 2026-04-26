@@ -334,11 +334,56 @@ export async function getEvents(cityId: string): Promise<EventPreview[]> {
     } catch { return [] }
   }
 
-  const [tm, vb, m4, bot, flagey, halles, recyclart, lamonnaie] = await Promise.all([
+  async function fromFeu(): Promise<EventPreview[]> {
+    if (cityId !== 'brussels') return []
+    const BASE = 'https://feu.ultravnr.be'
+    const today = new Date()
+    const thisYear  = today.getFullYear()
+    const thisMonth = today.getMonth() + 1
+    try {
+      const res = await fetch(BASE, { headers: { 'User-Agent': UA, Accept: 'text/html' }, next: { revalidate: 3600 }, signal: AbortSignal.timeout(10000) })
+      if (!res.ok) return []
+      const html = await res.text()
+      const out: EventPreview[] = []
+      const liRe = /<li>([\s\S]*?)<\/li>/gi
+      let m: RegExpExecArray | null
+      while ((m = liRe.exec(html)) !== null) {
+        const raw = m[1]
+        const dateM = raw.match(/<span[^>]*l-date[^>]*>(\d{2})\/(\d{2})<\/span>/i)
+        if (!dateM) continue
+        const day = parseInt(dateM[1], 10), month = parseInt(dateM[2], 10)
+        if (day < 1 || day > 31 || month < 1 || month > 12) continue
+        const year = month < thisMonth - 1 ? thisYear + 1 : thisYear
+        const dateISO = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+        const timeRaw = raw.match(/<span[^>]*l-heure[^>]*>([^<]*)<\/span>/i)?.[1]?.trim() ?? '20:00'
+        const startT  = timeRaw.split(/[-–]/)[0].trim().replace(/^(\d{1,2})h(\d{2})?$/i, (_, h, min) => `${h.padStart(2,'0')}:${min ?? '00'}`)
+                          .replace(/^(\d{1,2}):(\d{2})$/, (_, h, min) => `${h.padStart(2,'0')}:${min}`) || '20:00'
+        const d = new Date(`${dateISO}T${startT}:00`)
+        if (isNaN(d.getTime()) || d.getTime() < now) continue
+        const venueM = raw.match(/@<a[^>]+href="([^"]*)"[^>]*>([^<]+)<\/a>/)
+        const venueUrl  = venueM?.[1] || BASE
+        const venueName = venueM?.[2]?.trim() ?? 'Brussels'
+        const stripped = raw
+          .replace(/<span[^>]*l-date[^>]*>[^<]*<\/span>/i, '')
+          .replace(/<span[^>]*l-heure[^>]*>[^<]*<\/span>/i, '')
+        const titleRaw = stripped.match(/^\s*([\s\S]+?)@<a/)?.[1] ?? stripped.replace(/<[^>]+>/g, ' ')
+        let title = titleRaw
+          .replace(/&amp;/g, '&').replace(/&#8211;/g, '–').replace(/&#039;/g, "'").replace(/&[a-zA-Z#0-9]+;/g, ' ')
+          .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+          .replace(/\s*-\s*(Entr[eé]e libre|Gratuit|GRATUIT|prix libre|chapeau|\d[\d€/–-]*€[^-]*).*$/i, '')
+          .replace(/\s*\([a-zA-ZÀ-ÿ/ ][^)]{1,60}\)\s*$/, '')
+          .replace(/\s*[-–]\s*$/, '').trim()
+        out.push({ id: `feu-${dateISO}-${title.slice(0,12).replace(/\W/g,'')}`, title: title || venueName, date: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }), time: startT, venue: venueName, source: 'Bruxelles Brûle', url: venueUrl, dateObj: d })
+      }
+      return out.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime()).slice(0, 25)
+    } catch { return [] }
+  }
+
+  const [tm, vb, m4, bot, flagey, halles, recyclart, lamonnaie, feu] = await Promise.all([
     fromTicketmaster(), fromVisitBrussels(), fromMagasin4(), fromBotanique(),
-    fromFlagey(), fromHalles(), fromRecyclart(), fromLaMonnaie(),
+    fromFlagey(), fromHalles(), fromRecyclart(), fromLaMonnaie(), fromFeu(),
   ])
-  return [...tm, ...vb, ...m4, ...bot, ...flagey, ...halles, ...recyclart, ...lamonnaie]
+  return [...tm, ...vb, ...m4, ...bot, ...flagey, ...halles, ...recyclart, ...lamonnaie, ...feu]
     .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
 }
 

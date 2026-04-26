@@ -560,55 +560,88 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No headlines right now</p>
                   </div>
                 )}
-                {newsItems.length > 0 && (
-                  <div>
-                    {newsItems.map((fi, idx) => {
-                      const ss   = SOURCE_STYLE[fi.source] ?? { color: '#252450', label: fi.sourceLabel }
-                      const diff = Math.floor(Date.now() / 1000) - fi.published
-                      const ago  = diff < 3600  ? `${Math.floor(diff / 60)}m`
-                                 : diff < 86400 ? `${Math.floor(diff / 3600)}h`
-                                 : `${Math.floor(diff / 86400)}d`
-                      const isLead = idx === 0
-                      return isLead ? (
-                        /* Lead — coloured masthead strip */
-                        <a key={`${fi.id}-${idx}`} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="block mb-1 group hover:opacity-80 transition-opacity"
-                          style={{ borderLeft: `4px solid ${ss.color}`, paddingLeft: 16, paddingTop: 4, paddingBottom: 16 }}>
-                          <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-2"
-                            style={{ color: ss.color }}>
-                            {ss.label} · {ago}
-                          </p>
-                          <p className="font-display font-bold text-xl leading-snug"
-                            style={{ color: '#252450' }}>
-                            {fi.title}
-                          </p>
-                          <p className="text-[10px] mt-2" style={{ color: 'rgba(37,36,80,0.35)' }}>
-                            Read full story ↗
-                          </p>
-                        </a>
-                      ) : (
-                        <a key={`${fi.id}-${idx}`} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="flex gap-4 py-3.5 group hover:opacity-60 transition-opacity"
-                          style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
-                          <div className="w-0.5 shrink-0 self-stretch" style={{ background: ss.color }} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="text-[9px] font-black tracking-[0.18em] uppercase"
-                                style={{ color: ss.color }}>
-                                {ss.label}
-                              </p>
-                              <span className="text-[9px]" style={{ color: 'rgba(37,36,80,0.25)' }}>{ago}</span>
-                            </div>
-                            <p className="text-sm font-semibold leading-snug"
-                              style={{ color: '#252450' }}>
-                              {fi.title}
+                {newsItems.length > 0 && (() => {
+                  const lead = newsItems[0]
+                  const tier2 = newsItems.slice(1, 3)
+                  const rest  = newsItems.slice(3)
+                  function ago(published: number) {
+                    const d = Math.floor(Date.now() / 1000) - published
+                    return d < 3600 ? `${Math.floor(d / 60)}m` : d < 86400 ? `${Math.floor(d / 3600)}h` : `${Math.floor(d / 86400)}d`
+                  }
+                  return (
+                    <div>
+                      {/* Lead — full width, headline-first */}
+                      {(() => {
+                        const ss = SOURCE_STYLE[lead.source] ?? { color: '#252450', label: lead.sourceLabel }
+                        return (
+                          <a href={lead.url} target="_blank" rel="noopener noreferrer"
+                            className="group block pb-6 mb-0 hover:opacity-70 transition-opacity"
+                            style={{ borderBottom: '2px solid #252450' }}>
+                            <p className="text-[8px] font-black tracking-[0.28em] uppercase mb-3" style={{ color: ss.color }}>
+                              {ss.label}
                             </p>
-                          </div>
-                        </a>
-                      )
-                    })}
-                  </div>
-                )}
+                            <h3 className="font-display font-bold leading-[1.1] mb-2"
+                              style={{ fontSize: 'clamp(1.3rem,3vw,1.6rem)', color: '#0F0E1E', letterSpacing: '-0.01em' }}>
+                              {lead.title}
+                            </h3>
+                            <p className="text-[9px] font-medium" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                              {ago(lead.published)}
+                            </p>
+                          </a>
+                        )
+                      })()}
+
+                      {/* Tier 2 — side by side when 2 stories */}
+                      {tier2.length > 0 && (
+                        <div className={`grid gap-0 ${tier2.length === 2 ? 'grid-cols-2' : 'grid-cols-1'} mb-0`}>
+                          {tier2.map((fi, i) => {
+                            const ss = SOURCE_STYLE[fi.source] ?? { color: '#252450', label: fi.sourceLabel }
+                            return (
+                              <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
+                                className="group block py-5 hover:opacity-70 transition-opacity"
+                                style={{
+                                  borderBottom: '1px solid rgba(37,36,80,0.12)',
+                                  borderLeft: i === 1 ? '1px solid rgba(37,36,80,0.12)' : 'none',
+                                  paddingLeft: i === 1 ? 16 : 0,
+                                  paddingRight: i === 0 && tier2.length === 2 ? 16 : 0,
+                                }}>
+                                <p className="text-[8px] font-black tracking-[0.24em] uppercase mb-2" style={{ color: ss.color }}>
+                                  {ss.label}
+                                </p>
+                                <p className="text-sm font-bold leading-snug mb-2" style={{ color: '#0F0E1E' }}>
+                                  {fi.title}
+                                </p>
+                                <p className="text-[9px]" style={{ color: 'rgba(37,36,80,0.3)' }}>{ago(fi.published)}</p>
+                              </a>
+                            )
+                          })}
+                        </div>
+                      )}
+
+                      {/* Compact digest — remaining stories */}
+                      {rest.length > 0 && (
+                        <div>
+                          {rest.map((fi) => {
+                            const ss = SOURCE_STYLE[fi.source] ?? { color: '#252450', label: fi.sourceLabel }
+                            return (
+                              <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
+                                className="group flex items-baseline gap-3 py-3 hover:opacity-60 transition-opacity"
+                                style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                                <span className="shrink-0 text-[8px] font-black tracking-wider uppercase w-16 leading-relaxed" style={{ color: ss.color }}>
+                                  {ss.label}
+                                </span>
+                                <span className="flex-1 text-xs font-semibold leading-snug" style={{ color: '#252450' }}>
+                                  {fi.title}
+                                </span>
+                                <span className="shrink-0 text-[9px]" style={{ color: 'rgba(37,36,80,0.2)' }}>{ago(fi.published)}</span>
+                              </a>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
               </>
             )}
 

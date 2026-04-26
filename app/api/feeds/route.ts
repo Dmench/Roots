@@ -1120,61 +1120,67 @@ async function fetchFeu(): Promise<{ items: FeedItem[]; source: SourceResult }> 
     while ((m = liRe.exec(html)) !== null) {
       const raw = m[1]
 
-      // Must start with DD/MM date
-      const dateM = raw.match(/^(\d{2})\/(\d{2})/)
+      // Date from <span class="l-date">DD/MM</span>
+      const dateM = raw.match(/<span[^>]*l-date[^>]*>(\d{2})\/(\d{2})<\/span>/i)
       if (!dateM) continue
       const day   = parseInt(dateM[1], 10)
       const month = parseInt(dateM[2], 10)
       if (day < 1 || day > 31 || month < 1 || month > 12) continue
-      // Roll over to next year if month already passed
       const year = month < thisMonth - 1 ? thisYear + 1 : thisYear
       const dateISO = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`
 
-      // Time — multiple formats: 21h-03h, 17:30-00:00, 9PM, 10:00 - 18:00
-      const timeM = raw.match(/^\d{2}\/\d{2}\s+(\d{1,2}[h:]\d{0,2}(?:\s*[-–]\s*\d{1,2}[h:]\d{0,2})?|\d{1,2}[AP]M(?:\s*-\s*\d{1,2}[AP]M)?)/i)
-      const startT = normalizeTimeStr(timeM?.[1]?.trim() ?? '20:00')
+      // Time from <span class="l-heure">...</span>
+      const timeRaw = raw.match(/<span[^>]*l-heure[^>]*>([^<]*)<\/span>/i)?.[1]?.trim() ?? '20:00'
+      const startT  = normalizeTimeStr(timeRaw)
 
       const d = new Date(`${dateISO}T${startT}:00`)
       if (isNaN(d.getTime()) || d.getTime() / 1000 < now) continue
 
       // Venue URL + name from @<a href="...">Name</a>
-      const venueM = raw.match(/@<a[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/)
-      const venueUrl  = venueM?.[1] ?? BASE
+      const venueM = raw.match(/@<a[^>]+href="([^"]*)"[^>]*>([^<]+)<\/a>/)
+      const venueUrl  = venueM?.[1] || BASE
       const venueName = venueM?.[2]?.trim() ?? ''
 
-      // Address: text after closing venue tag up to <br/line break
-      const addrM   = raw.match(/<\/a>\s*[-–]\s*([^\n<]{4,80})/)
+      // Address from <span>- ...</span> after the venue link
+      const addrM  = raw.match(/<\/a>\s*<span[^>]*>[-–]\s*([^<]{4,80})<\/span>/i)
       const address = addrM?.[1]?.trim() ?? ''
 
-      // Artists: text after first newline or <br>
-      const artistM = raw.match(/(?:<br\s*\/?>\s*|\n)([^\n<]{3,})/)
-      const artists = artistM?.[1]?.trim() ?? ''
+      // Title: plain text between l-heure closing tag and @<a, stripped of HTML entities
+      const stripped = raw
+        .replace(/<span[^>]*l-date[^>]*>[^<]*<\/span>/i, '')
+        .replace(/<span[^>]*l-heure[^>]*>[^<]*<\/span>/i, '')
+      const titleRaw = stripped.match(/^\s*([\s\S]+?)@<a/)?.[1]
+        ?? stripped.replace(/<[^>]+>/g, ' ')
+      let title = titleRaw
+        .replace(/&amp;/g, '&').replace(/&#8211;/g, '–').replace(/&#039;/g, "'").replace(/&[a-zA-Z#0-9]+;/g, ' ')
+        .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      // Strip trailing price / genre / separator
+      title = title
+        .replace(/\s*-\s*(Entr[eé]e libre|Gratuit|GRATUIT|prix libre|chapeau|\d[\d€/–-]*€[^-]*).*$/i, '')
+        .replace(/\s*\([a-zA-ZÀ-ÿ/ ][^)]{1,60}\)\s*$/, '')
+        .replace(/\s*[-–]\s*$/, '')
+        .trim()
 
-      // Plain text of main line (strip HTML, collapse whitespace)
-      const textLine = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-
-      // Remove date+time prefix
-      const afterDT = textLine.replace(/^\d{2}\/\d{2}\s+\S+\s*/, '').trim()
-
-      // Title: everything up to " - Price/Genre/@"
-      const titleM = afterDT.match(/^(.+?)(?:\s+-\s+(?:\d|gratuit|prix libre)|\s+\([a-zÀ-ÿ][^)]{1,40}\)|\s+@)/i)
-      let title = (titleM?.[1] ?? afterDT.split('@')[0]).trim().replace(/\s*-\s*$/, '')
-
-      // Price
-      const priceM = textLine.match(/(\d+[-/]\d+[-/]?\d*\s*€|\d+\s*€|gratuit|prix libre)/i)
-      // Genre in parens
-      const genreM = textLine.match(/\(([a-zÀ-ÿ][^)]{1,40})\)/i)
+      // Genre in parens from full raw text
+      const genreM = raw.match(/\(([a-zA-ZÀ-ÿ][^)]{1,60})\)/i)
       const genre  = genreM?.[1]?.trim() ?? ''
-
+      // Price
+      const priceM = raw.match(/(\d+€|\d+[-\/]\d+€|gratuit|prix libre|chapeau)/i)
       const priceTag = priceM?.[1]?.trim() ?? ''
+      // Artists from les-groupes div
+      const groupesM = raw.match(/<div[^>]*les-groupes[^>]*>([\s\S]*?)<\/div>/i)
+      const artists = groupesM
+        ? [...groupesM[1].matchAll(/href="[^"]*"[^>]*>([^<]+)<\/a>/g)].map(a => a[1].trim()).join(', ')
+        : ''
+
       const summary = [genre || priceTag, artists, venueName && address ? `${venueName}, ${address.split(',')[0]}` : venueName].filter(Boolean).join(' · ').slice(0, 120)
 
       items.push({
-        id:          `feu-${dateISO}-${Buffer.from(title.slice(0, 20)).toString('base64').slice(0, 10)}`,
+        id:          `feu-${dateISO}-${Buffer.from((title || venueName).slice(0, 20)).toString('base64').slice(0, 10)}`,
         source:      'feu',
         sourceLabel: 'Bruxelles Brûle',
         category:    'events',
-        title:       title || 'Event in Brussels',
+        title:       title || venueName || 'Event in Brussels',
         summary,
         url:         venueUrl,
         published:   d.getTime() / 1000,
