@@ -35,47 +35,68 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
 }
 
 export function useProfile() {
-  const { user } = useAuth()  // from shared context — always current, no race condition
+  const { user } = useAuth()
   const [profile, setProfileState] = useState<Partial<UserProfile>>({})
   const [hydrated, setHydrated]    = useState(false)
 
-  // 1. Hydrate from localStorage immediately
+  // 1. Hydrate from localStorage immediately (no network, no flash)
   useEffect(() => {
     setProfileState(loadProfile())
     setHydrated(true)
   }, [])
 
-  // 2. When auth state changes, sync from Supabase.
-  //    DB values win for fields that are set; local wins on null/empty DB fields.
+  // 2. Sync with Supabase whenever auth state changes
   useEffect(() => {
     if (!supabase || !hydrated) return
 
     if (!user) {
-      saveProfile({})
+      // Signed out — clear in-memory state but KEEP localStorage so data
+      // restores automatically when the same user signs back in.
       setProfileState({})
       return
     }
 
-    supabase.from('profiles').select('*').eq('id', user.id).single()
-      .then(({ data }) => {
+    // Different user signed in on same device — clear stale local data first
+    const localId = loadProfile().id
+    if (localId && localId !== user.id) {
+      saveProfile({})
+      setProfileState({})
+    }
+
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error && error.code !== 'PGRST116') {
+          // PGRST116 = no rows found (new user) — not an error
+          console.error('[profile] fetch error:', error.message)
+        }
+
         if (data) {
           const db = mapSupabaseProfile(data)
           setProfileState(prev => {
-            const merged: Partial<UserProfile> = { ...prev, id: user.id }
-            if (db.cityId)                   merged.cityId            = db.cityId
-            if (db.stage)                    merged.stage             = db.stage
-            if (db.displayName)              merged.displayName       = db.displayName
-            if (db.neighborhood)             merged.neighborhood      = db.neighborhood
-            if (db.arrivalDate)              merged.arrivalDate       = db.arrivalDate
-            if (db.languages?.length)        merged.languages         = db.languages
-            if (db.situations?.length)       merged.situations        = db.situations
-            if (db.completedTaskIds?.length) merged.completedTaskIds  = db.completedTaskIds
-            merged.showInDirectory = db.showInDirectory ?? prev.showInDirectory ?? true
+            // DB is source of truth for any field it has a value for.
+            // Local data fills gaps (e.g. fields set before first save).
+            const merged: Partial<UserProfile> = {
+              ...prev,
+              id: user.id,
+              ...(db.displayName              && { displayName:      db.displayName }),
+              ...(db.cityId                   && { cityId:           db.cityId }),
+              ...(db.stage                    && { stage:            db.stage }),
+              ...(db.neighborhood             && { neighborhood:     db.neighborhood }),
+              ...(db.arrivalDate              && { arrivalDate:      db.arrivalDate }),
+              ...(db.languages?.length        && { languages:        db.languages }),
+              ...(db.situations?.length       && { situations:       db.situations }),
+              ...(db.completedTaskIds?.length && { completedTaskIds: db.completedTaskIds }),
+              showInDirectory: db.showInDirectory ?? prev.showInDirectory ?? true,
+            }
             saveProfile(merged)
             return merged
           })
         } else {
-          // Brand-new user — no DB row yet
+          // New user — no DB row yet. Keep any local data, stamp with user.id
           setProfileState(prev => {
             const next = { ...prev, id: user.id }
             saveProfile(next)
@@ -95,15 +116,15 @@ export function useProfile() {
         supabase.from('profiles').upsert({
           id:                 uid,
           display_name:       next.displayName      ?? null,
-          city_id:            next.cityId            ?? null,
-          neighborhood:       next.neighborhood      ?? null,
-          languages:          next.languages         ?? [],
-          arrival_date:       next.arrivalDate       ?? null,
-          stage:              next.stage             ?? null,
-          situations:         next.situations        ?? [],
-          completed_task_ids: next.completedTaskIds  ?? [],
-          saved_task_ids:     next.savedTaskIds      ?? [],
-          show_in_directory:  next.showInDirectory   ?? true,
+          city_id:            next.cityId           ?? null,
+          neighborhood:       next.neighborhood     ?? null,
+          languages:          next.languages        ?? [],
+          arrival_date:       next.arrivalDate      ?? null,
+          stage:              next.stage            ?? null,
+          situations:         next.situations       ?? [],
+          completed_task_ids: next.completedTaskIds ?? [],
+          saved_task_ids:     next.savedTaskIds     ?? [],
+          show_in_directory:  next.showInDirectory  ?? true,
           updated_at:         new Date().toISOString(),
         }).then(({ error }) => {
           if (error) console.error('[profile] upsert failed:', error.message)

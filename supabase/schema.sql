@@ -15,19 +15,27 @@ create table public.profiles (
   id                 uuid references auth.users on delete cascade primary key,
   display_name       text,
   city_id            text,
+  neighborhood       text,
   arrival_date       text,
   stage              text,
+  languages          text[]      default '{}',
   situations         text[]      default '{}',
   completed_task_ids text[]      default '{}',
   saved_task_ids     text[]      default '{}',
+  show_in_directory  boolean     default true,
   digest_subscribed  boolean     default true,
   updated_at         timestamptz default now()
 );
 
 alter table public.profiles enable row level security;
 
+-- Users can always read their own profile
 create policy "profiles_select_own" on public.profiles
   for select using (auth.uid() = id);
+
+-- Users can read any profile opted in to the directory (needed for /people page)
+create policy "profiles_select_directory" on public.profiles
+  for select using (show_in_directory = true);
 
 create policy "profiles_insert_own" on public.profiles
   for insert with check (auth.uid() = id);
