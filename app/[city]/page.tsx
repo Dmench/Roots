@@ -62,34 +62,34 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
   return (
     <AuthGate cityName={city.name} cityId={cityId}>
-    <div style={{ background: '#F5F4F0', minHeight: '100vh' }}>
+    <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
-      <div style={{ background: '#252450' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '2px solid #0A0A0A' }}>
         <div className="flex h-1">
           {['#FF3EBA','#38C0F0','#FAB400','#4744C8'].map(c => (
             <div key={c} className="flex-1" style={{ background: c }} />
           ))}
         </div>
 
-        <div className="max-w-5xl mx-auto px-6 md:px-12 py-7 md:py-10">
+        <div className="max-w-5xl mx-auto px-6 md:px-12 py-6 md:py-8">
           <div className="flex items-center justify-between gap-4">
             <div className="hidden sm:block shrink-0">
-              <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(245,236,215,0.35)' }}>
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.3)' }}>
                 {dayName}
               </p>
-              <p className="text-xs font-medium mt-0.5" style={{ color: 'rgba(245,236,215,0.2)' }}>
+              <p className="text-xs font-medium mt-0.5" style={{ color: 'rgba(10,10,10,0.2)' }}>
                 {dateStr}
               </p>
             </div>
 
             <div className="flex-1 sm:text-center">
               <h1 className="font-display font-black leading-none tracking-tight"
-                style={{ fontSize: 'clamp(3rem, 10vw, 7rem)', color: '#F5ECD7' }}>
+                style={{ fontSize: 'clamp(3rem, 10vw, 7rem)', color: '#0A0A0A' }}>
                 {city.name}
               </h1>
               <p className="text-[10px] font-black tracking-[0.28em] uppercase mt-1"
-                style={{ color: 'rgba(245,236,215,0.25)' }}>
+                style={{ color: 'rgba(10,10,10,0.25)' }}>
                 {city.country} · Updated today
               </p>
             </div>
@@ -100,12 +100,12 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
                 </span>
-                <span className="text-xs font-medium" style={{ color: 'rgba(245,236,215,0.4)' }}>
+                <span className="text-xs font-medium" style={{ color: 'rgba(10,10,10,0.45)' }}>
                   {city.settlerCount} settling now
                 </span>
               </div>
               {allEvents.length > 0 && (
-                <p className="text-[10px]" style={{ color: 'rgba(245,236,215,0.25)' }}>
+                <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.25)' }}>
                   {allEvents.length} event{allEvents.length !== 1 ? 's' : ''} upcoming
                 </p>
               )}
@@ -113,8 +113,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           </div>
 
           {/* Nav — underline tabs */}
-          <div className="flex items-center gap-6 flex-wrap mt-7"
-            style={{ borderTop: '1px solid rgba(245,236,215,0.12)', paddingTop: 16 }}>
+          <div className="flex items-center gap-6 flex-wrap mt-6"
+            style={{ borderTop: '1px solid rgba(10,10,10,0.08)', paddingTop: 14 }}>
             {[
               { href: `/${cityId}/connect`, label: 'Community',    color: '#FF3EBA' },
               { href: `/${cityId}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
@@ -123,7 +123,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               { href: `/${cityId}/settle`,  label: 'Get set up',   color: '#FAB400' },
             ].map(p => (
               <Link key={p.href} href={p.href}
-                className="text-[10px] font-black tracking-[0.18em] uppercase transition-opacity hover:opacity-60 pb-0.5"
+                className="text-[10px] font-black tracking-[0.18em] uppercase transition-opacity hover:opacity-50 pb-0.5"
                 style={{ color: p.color, borderBottom: `1px solid ${p.color}` }}>
                 {p.label}
               </Link>
@@ -139,28 +139,28 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
         {/* Column headers */}
         <div className="hidden lg:grid lg:grid-cols-[1fr_1px_320px] gap-0">
-          <div className="lg:pr-9 pt-7 pb-4" style={{ borderBottom: '2px solid #252450' }}>
-            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#252450' }}>
+          <div className="lg:pr-9 pt-7 pb-4" style={{ borderBottom: '2px solid #0A0A0A' }}>
+            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#0A0A0A' }}>
               What&rsquo;s On
             </span>
-            <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(37,36,80,0.3)' }}>
+            <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(10,10,10,0.3)' }}>
               {allEvents.length} upcoming events
             </span>
           </div>
           <div />
-          <div className="lg:pl-9 pt-7 pb-4" style={{ borderBottom: '2px solid #252450' }}>
-            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#252450' }}>
+          <div className="lg:pl-9 pt-7 pb-4" style={{ borderBottom: '2px solid #0A0A0A' }}>
+            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#0A0A0A' }}>
               Around the city
             </span>
           </div>
         </div>
 
         {/* Mobile header */}
-        <div className="lg:hidden pt-7 pb-4" style={{ borderBottom: '2px solid #252450' }}>
-          <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#252450' }}>
+        <div className="lg:hidden pt-7 pb-4" style={{ borderBottom: '2px solid #0A0A0A' }}>
+          <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#0A0A0A' }}>
             What&rsquo;s On
           </span>
-          <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(37,36,80,0.3)' }}>
+          <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(10,10,10,0.3)' }}>
             {allEvents.length} upcoming
           </span>
         </div>
@@ -174,7 +174,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           </div>
 
           {/* Vertical rule — desktop only */}
-          <div className="hidden lg:block" style={{ background: 'rgba(37,36,80,0.1)' }} />
+          <div className="hidden lg:block" style={{ background: 'rgba(10,10,10,0.08)' }} />
 
           {/* ── RIGHT: News + Reddit ────────────────────────────────────── */}
           <div className="lg:pl-9 pt-7">
@@ -183,8 +183,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {venues.length > 0 && (
               <section className="mb-10">
                 <div className="flex items-center justify-between pb-3 mb-4"
-                  style={{ borderBottom: '1px solid rgba(37,36,80,0.15)' }}>
-                  <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(37,36,80,0.5)' }}>
+                  style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
+                  <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.4)' }}>
                     Eat &amp; Drink
                   </span>
                   <Link href={`/${cityId}/eat`}
@@ -200,19 +200,19 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                   return (
                     <Link href={`/${cityId}/eat`}
                       className="block p-3.5 mb-3 hover:opacity-90 transition-opacity"
-                      style={{ background: '#0F0E1E' }}>
+                      style={{ background: '#0A0A0A' }}>
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <span className="text-[8px] font-black tracking-widest uppercase" style={{ color: '#E8612A' }}>
                           {p.dealTag ?? 'Partner venue'}
                         </span>
-                        <span className="text-[8px] font-black tracking-wide px-1.5 py-0.5 rounded-sm"
+                        <span className="text-[8px] font-black tracking-wide px-1.5 py-0.5"
                           style={{ background: 'rgba(232,97,42,0.15)', color: '#E8612A' }}>
                           Exclusive deal
                         </span>
                       </div>
-                      <p className="text-xs font-black truncate" style={{ color: '#F5F4F0' }}>{p.name}</p>
+                      <p className="text-xs font-black truncate" style={{ color: '#FFFFFF' }}>{p.name}</p>
                       {p.deal && (
-                        <p className="text-[9px] mt-1 line-clamp-1" style={{ color: 'rgba(245,244,240,0.45)' }}>
+                        <p className="text-[9px] mt-1 line-clamp-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
                           {p.deal}
                         </p>
                       )}
@@ -226,14 +226,14 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                     return (
                       <div key={v.id}
                         className="flex items-start gap-3 py-2.5"
-                        style={{ borderTop: idx > 0 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                        style={{ borderTop: idx > 0 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
                         <span className="shrink-0 w-1.5 h-1.5 rounded-full mt-1.5" style={{ background: typeColor }} />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline justify-between gap-1">
-                            <p className="text-xs font-bold truncate" style={{ color: '#0F0E1E' }}>{v.name}</p>
+                            <p className="text-xs font-bold truncate" style={{ color: '#0A0A0A' }}>{v.name}</p>
                             {'price' in v && <span className="text-[9px] font-bold shrink-0" style={{ color: typeColor }}>{(v as {price?: string}).price}</span>}
                           </div>
-                          <p className="text-[9px]" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                          <p className="text-[9px]" style={{ color: 'rgba(10,10,10,0.35)' }}>
                             {v.neighborhood} · {(v as {vibe?: string}).vibe?.split(',')[0] ?? v.category}
                           </p>
                         </div>
@@ -252,13 +252,13 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 {/* Lead story — headline first, no decoration */}
                 <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
                   className="group block pt-4 pb-5 hover:opacity-70 transition-opacity"
-                  style={{ borderBottom: '2px solid #252450' }}>
+                  style={{ borderBottom: '2px solid #0A0A0A' }}>
                   <p className="text-[8px] font-black tracking-[0.28em] uppercase mb-2.5"
-                    style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#252450' }}>
+                    style={{ color: SOURCE_COLOR[featuredNews.source] ?? '#0A0A0A' }}>
                     {featuredNews.source}
                   </p>
                   <h3 className="font-display font-bold leading-[1.1]"
-                    style={{ fontSize: '1.05rem', color: '#0F0E1E', letterSpacing: '-0.01em' }}>
+                    style={{ fontSize: '1.05rem', color: '#0A0A0A', letterSpacing: '-0.01em' }}>
                     {featuredNews.title}
                   </h3>
                 </a>
@@ -267,13 +267,13 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 {secondaryNews.map((item, i) => (
                   <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
                     className="group flex items-baseline gap-3 py-3 hover:opacity-60 transition-opacity"
-                    style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                    style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
                     <span className="shrink-0 text-[8px] font-black tracking-wider uppercase"
-                      style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(37,36,80,0.4)', width: 60 }}>
+                      style={{ color: SOURCE_COLOR[item.source] ?? 'rgba(10,10,10,0.4)', width: 60 }}>
                       {item.source.split(' ')[0]}
                     </span>
                     <p className="flex-1 text-xs font-semibold leading-snug line-clamp-2"
-                      style={{ color: '#0F0E1E' }}>
+                      style={{ color: '#0A0A0A' }}>
                       {item.title}
                     </p>
                   </a>
@@ -293,13 +293,13 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               ].map((item) => (
                 <Link key={item.href} href={item.href}
                   className="flex items-center gap-3 py-3 group hover:opacity-60 transition-opacity"
-                  style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
+                  style={{ borderTop: '1px solid rgba(10,10,10,0.07)' }}>
                   <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: item.dot }} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold" style={{ color: '#252450' }}>{item.label}</p>
-                    <p className="text-[10px]" style={{ color: 'rgba(37,36,80,0.38)' }}>{item.sub}</p>
+                    <p className="text-xs font-bold" style={{ color: '#0A0A0A' }}>{item.label}</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.38)' }}>{item.sub}</p>
                   </div>
-                  <span className="text-xs opacity-20 group-hover:opacity-50 transition-opacity" style={{ color: '#252450' }}>→</span>
+                  <span className="text-xs opacity-20 group-hover:opacity-50 transition-opacity" style={{ color: '#0A0A0A' }}>→</span>
                 </Link>
               ))}
             </section>
@@ -317,8 +317,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
 function SectionLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between pb-3 mb-1" style={{ borderBottom: '1px solid rgba(37,36,80,0.15)' }}>
-      <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(37,36,80,0.5)' }}>
+    <div className="flex items-center justify-between pb-3 mb-1" style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
+      <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.4)' }}>
         {children}
       </span>
       {right}

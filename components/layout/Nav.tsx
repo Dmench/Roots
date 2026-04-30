@@ -14,11 +14,18 @@ export function Nav() {
   const { user, loading: authLoading } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [authOpen,   setAuthOpen]   = useState(false)
+  const [scrolled,   setScrolled]   = useState(false)
 
   useEffect(() => {
     const handler = () => setAuthOpen(true)
     window.addEventListener('roots:open-auth', handler)
     return () => window.removeEventListener('roots:open-auth', handler)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const cityMatch   = pathname.match(/^\/([a-z-]+)/)
@@ -40,28 +47,45 @@ export function Nav() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-cream border-b border-sand/60" style={{ backdropFilter: 'blur(16px)' }}>
-        <div className="max-w-6xl mx-auto px-6 md:px-8 h-14 flex items-center justify-between gap-6">
+      <header
+        className="sticky top-0 z-50 border-b border-neutral-200 transition-all duration-200"
+        style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)' }}
+      >
+        <div className={cn(
+          'max-w-6xl mx-auto px-6 md:px-8 flex items-center justify-between gap-6 transition-all duration-200',
+          scrolled ? 'h-10' : 'h-14'
+        )}>
 
           {/* Logo */}
-          <Link href="/" className="font-display font-black text-lg text-espresso tracking-tight shrink-0 hover:opacity-70 transition-opacity">
+          <Link
+            href="/"
+            className={cn(
+              'font-display font-black tracking-tight shrink-0 hover:opacity-60 transition-all duration-200 text-neutral-950',
+              scrolled ? 'text-base' : 'text-xl'
+            )}
+          >
             Roots
           </Link>
 
-          {/* City tabs */}
+          {/* City tabs — stretch to nav height so underline touches bottom */}
           {cityNav.length > 0 && (
-            <nav className="hidden md:flex items-center gap-0.5">
-              {cityNav.map((link, i) => {
+            <nav className="hidden md:flex items-stretch gap-0">
+              {cityNav.map((link) => {
                 const active = link.home ? pathname === link.href : isActive(link.href)
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                      active ? '' : 'text-walnut/60 hover:text-espresso hover:bg-parchment/60'
+                      'flex items-center gap-1.5 px-3 text-sm font-medium transition-colors',
+                      active
+                        ? 'font-semibold'
+                        : 'text-neutral-500 hover:text-neutral-900'
                     )}
-                    style={active ? { background: link.color + '18', color: link.color } : {}}
+                    style={active ? {
+                      color: link.color,
+                      boxShadow: `inset 0 -2px 0 ${link.color}`,
+                    } : {}}
                   >
                     {link.home && (
                       <span className="relative flex h-1.5 w-1.5 shrink-0">
@@ -70,7 +94,6 @@ export function Nav() {
                       </span>
                     )}
                     {link.label}
-                    {i === 0 && <span className="text-sand/60 text-xs ml-1">/</span>}
                   </Link>
                 )
               })}
@@ -82,22 +105,22 @@ export function Nav() {
             {!pathCity && (
               <Link
                 href={profileCity ? `/${profileCity.id}` : '/cities'}
-                className="hidden sm:flex px-4 py-1.5 text-sm font-medium text-walnut/60 hover:text-espresso transition-colors"
+                className="hidden sm:flex px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
               >
                 {profileCity ? profileCity.name : 'Cities'}
               </Link>
             )}
 
             {authLoading ? (
-              <div className="w-16 h-7 rounded animate-pulse" style={{ background: 'rgba(37,36,80,0.06)' }} />
+              <div className="w-16 h-7 animate-pulse bg-neutral-100" />
             ) : user ? (
               <Link
                 href="/profile"
                 className={cn(
-                  'flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium transition-all',
+                  'flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors',
                   pathname === '/profile'
-                    ? 'text-espresso bg-parchment/60'
-                    : 'text-walnut/60 hover:text-espresso hover:bg-parchment/40'
+                    ? 'text-neutral-900 bg-neutral-100'
+                    : 'text-neutral-500 hover:text-neutral-900'
                 )}
               >
                 <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#3D3CAC' }} />
@@ -106,8 +129,8 @@ export function Nav() {
             ) : (
               <button
                 onClick={() => setAuthOpen(true)}
-                className="px-4 py-1.5 text-sm font-semibold text-white rounded transition-opacity hover:opacity-90"
-                style={{ background: '#3D3CAC' }}
+                className="px-4 py-1.5 text-sm font-semibold text-white transition-opacity hover:opacity-85"
+                style={{ background: '#252450' }}
               >
                 Sign in
               </button>
@@ -115,7 +138,7 @@ export function Nav() {
 
             {/* Mobile hamburger */}
             <button
-              className="md:hidden p-2 text-walnut/60 hover:text-espresso transition-colors"
+              className="md:hidden p-2 text-neutral-500 hover:text-neutral-900 transition-colors"
               onClick={() => setMobileOpen(true)}
               aria-label="Menu"
             >
@@ -129,16 +152,16 @@ export function Nav() {
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-cream">
-          <div className="flex items-center justify-between px-6 h-14 border-b border-sand/60">
-            <span className="font-display font-black text-lg text-espresso">Roots</span>
-            <button onClick={() => setMobileOpen(false)} className="p-1.5 text-walnut/50 hover:text-espresso transition-colors">
+        <div className="fixed inset-0 z-50 flex flex-col bg-white">
+          <div className="flex items-center justify-between px-6 h-14 border-b border-neutral-200">
+            <span className="font-display font-black text-xl text-neutral-950">Roots</span>
+            <button onClick={() => setMobileOpen(false)} className="p-1.5 text-neutral-400 hover:text-neutral-900 transition-colors">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
           </div>
-          <nav className="flex flex-col p-6 gap-1 flex-1">
+          <nav className="flex flex-col p-6 gap-0 flex-1">
             {cityNav.map(link => {
               const active = link.home ? pathname === link.href : isActive(link.href)
               return (
@@ -146,8 +169,8 @@ export function Nav() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 px-4 py-3 text-base font-medium rounded transition-colors text-walnut/70 hover:text-espresso hover:bg-parchment/40"
-                  style={active ? { background: link.color + '18', color: link.color } : {}}
+                  className="flex items-center gap-3 px-4 py-3 text-base font-medium border-b border-neutral-100 transition-colors text-neutral-600 hover:text-neutral-900"
+                  style={active ? { color: link.color, borderLeft: `3px solid ${link.color}`, paddingLeft: 13 } : {}}
                 >
                   {link.home && (
                     <span className="relative flex h-1.5 w-1.5 shrink-0">
@@ -159,16 +182,16 @@ export function Nav() {
                 </Link>
               )
             })}
-            <div className="mt-auto pt-6 border-t border-sand/40 space-y-1">
-              <Link href="/cities" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-sm text-walnut/60 hover:text-espresso transition-colors">
+            <div className="mt-auto pt-6 border-t border-neutral-100 space-y-0">
+              <Link href="/cities" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-sm text-neutral-500 hover:text-neutral-900 transition-colors border-b border-neutral-100">
                 All cities
               </Link>
               {user ? (
-                <Link href="/profile" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-sm text-walnut/60 hover:text-espresso transition-colors">
+                <Link href="/profile" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-sm text-neutral-500 hover:text-neutral-900 transition-colors">
                   Profile
                 </Link>
               ) : (
-                <button onClick={() => { setMobileOpen(false); setAuthOpen(true) }} className="block w-full text-left px-4 py-3 text-sm text-walnut/60 hover:text-espresso transition-colors">
+                <button onClick={() => { setMobileOpen(false); setAuthOpen(true) }} className="block w-full text-left px-4 py-3 text-sm text-neutral-500 hover:text-neutral-900 transition-colors">
                   Sign in
                 </button>
               )}

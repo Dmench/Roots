@@ -30,7 +30,7 @@ export default function HomePage() {
   // ── Signed-in ────────────────────────────────────────────────────────────
   if (user) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: '#F5F4F0' }}>
+      <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
         {/* Shapes */}
         <div className="fixed rounded-full pointer-events-none"
           style={{ background: '#4744C8', width: 400, height: 400, top: -160, right: -100, opacity: 0.85 }} />
@@ -44,14 +44,14 @@ export default function HomePage() {
         <div className="flex-1 flex flex-col justify-center px-8 md:px-16 relative">
           <div className="max-w-lg">
             <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-6"
-              style={{ color: 'rgba(37,36,80,0.3)' }}>
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
               Roots · Welcome back
             </p>
             <h1 className="font-display font-black leading-[0.85] mb-5"
-              style={{ fontSize: 'clamp(3.5rem, 10vw, 8rem)', color: '#252450' }}>
+              style={{ fontSize: 'clamp(3.5rem, 10vw, 8rem)', color: '#0A0A0A' }}>
               {firstName ? `Hey,\n${firstName}.` : 'Welcome\nback.'}
             </h1>
-            <p className="text-base mb-10" style={{ color: 'rgba(37,36,80,0.5)', maxWidth: 300 }}>
+            <p className="text-base mb-10" style={{ color: 'rgba(10,10,10,0.5)', maxWidth: 300 }}>
               {cityObj ? `Your ${cityObj.name} home is ready.` : 'Pick up where you left off.'}
             </p>
 
@@ -65,7 +65,7 @@ export default function HomePage() {
                   </Link>
                   <Link href={`/${cityObj.id}/ask`}
                     className="inline-flex items-center justify-center px-8 py-4 font-bold text-sm hover:opacity-80 transition-opacity"
-                    style={{ border: '2px solid rgba(37,36,80,0.15)', color: '#252450' }}>
+                    style={{ border: '2px solid rgba(10,10,10,0.15)', color: '#0A0A0A' }}>
                     Ask anything
                   </Link>
                 </>
@@ -78,14 +78,14 @@ export default function HomePage() {
               )}
               <Link href="/profile"
                 className="inline-flex items-center justify-center px-8 py-4 font-medium text-sm hover:opacity-70 transition-opacity"
-                style={{ color: 'rgba(37,36,80,0.4)' }}>
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
                 Profile
               </Link>
             </div>
 
             <button onClick={signOut}
               className="mt-10 text-xs hover:opacity-60 transition-opacity"
-              style={{ color: 'rgba(37,36,80,0.25)' }}>
+              style={{ color: 'rgba(10,10,10,0.25)' }}>
               Sign out
             </button>
           </div>

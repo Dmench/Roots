@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="bg-cream text-espresso antialiased">
+      <body className="bg-white text-neutral-950 antialiased">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
