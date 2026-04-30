@@ -6,8 +6,9 @@
 
 alter table public.profiles
   add column if not exists neighborhood      text,
-  add column if not exists languages         text[]  default '{}',
-  add column if not exists show_in_directory boolean default true;
+  add column if not exists languages         text[]   default '{}',
+  add column if not exists show_in_directory boolean  default true,
+  add column if not exists spots             jsonb    default '[]'::jsonb;
 
 -- Allow settlers to see each other in the directory
 -- (existing policy only allows selecting your own row — breaks /people page)

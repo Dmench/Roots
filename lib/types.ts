@@ -96,6 +96,26 @@ export interface Post {
   authorStage?: Stage
 }
 
+// Spots — user's favourite places
+export type SpotCategory = 'cafe' | 'bar' | 'restaurant' | 'bookstore' | 'record' | 'shop' | 'market'
+
+export interface Spot {
+  id: string
+  name: string
+  category: SpotCategory
+  note?: string
+}
+
+export const SPOT_CATEGORIES: { id: SpotCategory; label: string; color: string }[] = [
+  { id: 'cafe',       label: 'Cafe',        color: '#B08800' },
+  { id: 'bar',        label: 'Bar',         color: '#4744C8' },
+  { id: 'restaurant', label: 'Restaurant',  color: '#E8612A' },
+  { id: 'bookstore',  label: 'Bookstore',   color: '#10B981' },
+  { id: 'record',     label: 'Record shop', color: '#FF3EBA' },
+  { id: 'shop',       label: 'Shop',        color: '#38C0F0' },
+  { id: 'market',     label: 'Market',      color: '#FAB400' },
+]
+
 // User profile (Supabase)
 export interface UserProfile {
   id: string
@@ -109,4 +129,5 @@ export interface UserProfile {
   completedTaskIds: string[]
   savedTaskIds: string[]
   showInDirectory?: boolean
+  spots: Spot[]
 }

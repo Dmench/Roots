@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/hooks/use-auth'
-import type { CityId, Stage, SituationTag, UserProfile } from '@/lib/types'
+import type { CityId, Stage, SituationTag, UserProfile, Spot, SpotCategory } from '@/lib/types'
 
 const STORAGE_KEY = 'roots-profile'
 
@@ -31,6 +31,7 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
     completedTaskIds: (data.completed_task_ids as string[]) ?? [],
     savedTaskIds:     (data.saved_task_ids as string[]) ?? [],
     showInDirectory:  (data.show_in_directory as boolean | null) ?? true,
+    spots:            (data.spots as Spot[]) ?? [],
   }
 }
 
@@ -90,6 +91,7 @@ export function useProfile() {
               ...(db.languages?.length        && { languages:        db.languages }),
               ...(db.situations?.length       && { situations:       db.situations }),
               ...(db.completedTaskIds?.length && { completedTaskIds: db.completedTaskIds }),
+              ...(db.spots?.length            && { spots:            db.spots }),
               showInDirectory: db.showInDirectory ?? prev.showInDirectory ?? true,
             }
             saveProfile(merged)
@@ -125,6 +127,7 @@ export function useProfile() {
           completed_task_ids: next.completedTaskIds ?? [],
           saved_task_ids:     next.savedTaskIds     ?? [],
           show_in_directory:  next.showInDirectory  ?? true,
+          spots:              next.spots            ?? [],
           updated_at:         new Date().toISOString(),
         }).then(({ error }) => {
           if (error) console.error('[profile] upsert failed:', error.message)
@@ -137,6 +140,15 @@ export function useProfile() {
 
   const setCity            = (cityId: CityId)           => updateProfile({ cityId })
   const setStage           = (stage: Stage | undefined) => updateProfile({ stage })
+
+  const addSpot = (name: string, category: SpotCategory, note?: string) => {
+    const spot: Spot = { id: crypto.randomUUID(), name, category, note }
+    updateProfile({ spots: [...(profile.spots ?? []), spot] })
+  }
+
+  const removeSpot = (spotId: string) => {
+    updateProfile({ spots: (profile.spots ?? []).filter(s => s.id !== spotId) })
+  }
   const setArrivalDate     = (date: string)             => updateProfile({ arrivalDate: date })
   const setDisplayName     = (name: string)             => updateProfile({ displayName: name })
   const setNeighborhood    = (n: string | undefined)    => updateProfile({ neighborhood: n })
@@ -185,5 +197,7 @@ export function useProfile() {
     toggleTaskDone,
     isOnboarded,
     updateProfile,
+    addSpot,
+    removeSpot,
   }
 }

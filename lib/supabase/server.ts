@@ -16,6 +16,16 @@ export function createUserClient(accessToken: string) {
 }
 
 /**
+ * Public anon client for server-side reads that respect RLS.
+ * Use for directory pages, public data, etc.
+ */
+export function createAnonClient() {
+  return createClient(url, anon, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}
+
+/**
  * Admin client using service role key — bypasses RLS.
  * Only for server-side cron jobs and admin operations. Never expose to the browser.
  */

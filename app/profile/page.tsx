@@ -8,7 +8,8 @@ import { AuthModal } from '@/components/auth/AuthModal'
 import { getCity, STAGES, NEIGHBORHOODS } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { Nav } from '@/components/layout/Nav'
-import type { Stage } from '@/lib/types'
+import type { Stage, SpotCategory } from '@/lib/types'
+import { SPOT_CATEGORIES } from '@/lib/types'
 
 function daysInCity(arrivalDate?: string): number | null {
   if (!arrivalDate) return null
@@ -135,6 +136,7 @@ export default function ProfilePage() {
     profile, hydrated,
     setStage, setArrivalDate, setDisplayName,
     setNeighborhood, setShowInDirectory,
+    addSpot, removeSpot,
   } = useProfile()
 
   const [authOpen,    setAuthOpen]    = useState(false)
@@ -143,6 +145,9 @@ export default function ProfilePage() {
   const [saved,       setSaved]       = useState(false)
   const [stageOpen,   setStageOpen]   = useState(false)
   const [neighborhoodOpen, setNeighborhoodOpen] = useState(false)
+  const [addingSpot,  setAddingSpot]  = useState(false)
+  const [spotName,    setSpotName]    = useState('')
+  const [spotCat,     setSpotCat]     = useState<SpotCategory>('cafe')
   const dateRef = useRef<HTMLInputElement>(null)
 
   function flash() { setSaved(true); setTimeout(() => setSaved(false), 2000) }
@@ -414,6 +419,113 @@ export default function ProfilePage() {
             />
           )}
         </FieldGroup>
+
+        {/* ── My Spots ──────────────────────────────────────────────────────── */}
+        <div className="flex items-center justify-between px-1 pb-2">
+          <p className="text-[9px] font-black tracking-[0.22em] uppercase"
+            style={{ color: 'rgba(37,36,80,0.35)' }}>
+            My Spots
+          </p>
+          <button
+            onClick={() => { setAddingSpot(true); setSpotName(''); setSpotCat('cafe') }}
+            className="text-[9px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
+            style={{ color: '#4744C8' }}>
+            + Add
+          </button>
+        </div>
+
+        <div className="mb-6"
+          style={{ borderTop: '1px solid rgba(37,36,80,0.1)', borderBottom: '1px solid rgba(37,36,80,0.1)', background: '#fff' }}>
+          {(profile.spots ?? []).length === 0 && !addingSpot && (
+            <button
+              onClick={() => { setAddingSpot(true); setSpotName(''); setSpotCat('cafe') }}
+              className="w-full px-4 py-4 text-left text-sm hover:bg-black/[0.02] transition-colors"
+              style={{ color: 'rgba(37,36,80,0.3)' }}>
+              Add your favourite cafes, bars, bookshops…
+            </button>
+          )}
+
+          {(profile.spots ?? []).map((spot, idx) => {
+            const cat = SPOT_CATEGORIES.find(c => c.id === spot.category)
+            return (
+              <div key={spot.id}>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: cat?.color ?? '#888' }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate" style={{ color: '#0F0E1E' }}>{spot.name}</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(37,36,80,0.35)' }}>{cat?.label}</p>
+                  </div>
+                  <button
+                    onClick={() => removeSpot(spot.id)}
+                    className="shrink-0 text-[11px] hover:opacity-60 transition-opacity px-1"
+                    style={{ color: 'rgba(37,36,80,0.25)' }}>
+                    ✕
+                  </button>
+                </div>
+                {idx < (profile.spots ?? []).length - 1 && <RowDivider />}
+              </div>
+            )
+          })}
+
+          {addingSpot && (
+            <div>
+              {(profile.spots ?? []).length > 0 && <RowDivider />}
+              <div className="px-4 py-3 space-y-2.5">
+                <input
+                  autoFocus
+                  value={spotName}
+                  onChange={e => setSpotName(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && spotName.trim()) {
+                      addSpot(spotName.trim(), spotCat)
+                      setAddingSpot(false)
+                      flash()
+                    }
+                    if (e.key === 'Escape') setAddingSpot(false)
+                  }}
+                  placeholder="Place name…"
+                  className="w-full px-3 py-2 text-sm focus:outline-none"
+                  style={{ border: '1px solid rgba(37,36,80,0.15)', color: '#0F0E1E' }}
+                />
+                <div className="flex flex-wrap gap-1.5">
+                  {SPOT_CATEGORIES.map(c => (
+                    <button
+                      key={c.id}
+                      onClick={() => setSpotCat(c.id)}
+                      className="text-[9px] font-black tracking-[0.12em] uppercase px-2 py-1 transition-all"
+                      style={{
+                        color: spotCat === c.id ? '#fff' : c.color,
+                        background: spotCat === c.id ? c.color : 'transparent',
+                        border: `1px solid ${c.color}`,
+                      }}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      if (spotName.trim()) {
+                        addSpot(spotName.trim(), spotCat)
+                        flash()
+                      }
+                      setAddingSpot(false)
+                    }}
+                    className="px-4 py-1.5 text-xs font-bold text-white"
+                    style={{ background: '#4744C8' }}>
+                    Add spot
+                  </button>
+                  <button
+                    onClick={() => setAddingSpot(false)}
+                    className="px-4 py-1.5 text-xs"
+                    style={{ color: 'rgba(37,36,80,0.4)' }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ── Account ───────────────────────────────────────────────────────── */}
         <SectionLabel>Account</SectionLabel>

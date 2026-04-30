@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import { getCity, STAGES, LANGUAGES } from '@/lib/data/cities'
 import { cn } from '@/lib/utils'
-import type { Stage, SituationTag } from '@/lib/types'
+import type { Stage, SituationTag, Spot } from '@/lib/types'
+import { SPOT_CATEGORIES } from '@/lib/types'
 
 interface Member {
   id: string
@@ -14,6 +15,7 @@ interface Member {
   situations: SituationTag[]
   languages: string[]
   arrivalDate: string | null
+  spots: Spot[]
 }
 
 function daysInCity(d?: string | null): number | null {
@@ -45,7 +47,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
     supabase
       .from('profiles')
-      .select('id, display_name, neighborhood, stage, situations, languages, arrival_date')
+      .select('id, display_name, neighborhood, stage, situations, languages, arrival_date, spots')
       .eq('city_id', cityId)
       .eq('show_in_directory', true)
       .order('arrival_date', { ascending: false })
@@ -59,6 +61,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
           situations:  (row.situations as SituationTag[]) ?? [],
           languages:   (row.languages as string[]) ?? [],
           arrivalDate: row.arrival_date as string | null,
+          spots:       (row.spots as Spot[]) ?? [],
         }))
         setMembers(mapped)
         setLoading(false)
@@ -77,29 +80,31 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
   const filtered = filter === 'all' ? members : members.filter(m => m.stage === filter)
 
   return (
-    <div className="min-h-screen bg-cream">
-
-      <div className="max-w-3xl mx-auto px-4 md:px-8 py-10 md:py-14">
+    <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
+      <div className="max-w-3xl mx-auto px-6 md:px-8 py-10 md:py-14">
 
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8" style={{ borderBottom: '2px solid #0A0A0A', paddingBottom: 16 }}>
           <Link href={`/${cityId}`}
-            className="inline-flex items-center gap-1.5 text-xs text-stone hover:text-espresso transition-colors mb-4">
+            className="inline-flex items-center gap-1.5 text-xs hover:opacity-60 transition-opacity mb-4"
+            style={{ color: 'rgba(10,10,10,0.4)' }}>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M8 2L4 6l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             {city.name}
           </Link>
-          <h1 className="font-display font-bold text-espresso text-3xl mb-1">
-            Settlers in {city.name}
-          </h1>
-          <p className="text-sm text-walnut/60">
-            {loading ? 'Loading…' : `${members.length} member${members.length !== 1 ? 's' : ''} in the directory`}
-          </p>
+          <div className="flex items-baseline justify-between gap-4">
+            <h1 className="font-display font-black text-3xl leading-tight" style={{ color: '#0A0A0A' }}>
+              Settlers in {city.name}
+            </h1>
+            <span className="text-sm shrink-0" style={{ color: 'rgba(10,10,10,0.3)' }}>
+              {loading ? '…' : `${members.length} members`}
+            </span>
+          </div>
         </div>
 
-        {/* Stage filter */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        {/* Stage filter — underline tabs */}
+        <div className="flex flex-wrap gap-x-5 gap-y-2 mb-8">
           {stages.map(s => {
             const active = filter === s
             const colors = s !== 'all' ? STAGE_COLORS[s as Stage] : null
@@ -108,18 +113,14 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
                 key={s}
                 onClick={() => setFilter(s)}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border',
-                  active
-                    ? 'border-transparent text-white'
-                    : 'bg-white border-sand text-stone hover:border-walnut/30 hover:text-espresso'
+                  'text-[10px] font-black tracking-[0.15em] uppercase pb-0.5 transition-all',
+                  active ? '' : 'opacity-30 hover:opacity-60'
                 )}
                 style={active
-                  ? colors
-                    ? { background: colors.text, borderColor: colors.text }
-                    : { background: '#252450' }
-                  : {}}
+                  ? { color: colors?.text ?? '#0A0A0A', borderBottom: `1px solid ${colors?.text ?? '#0A0A0A'}` }
+                  : { color: '#0A0A0A' }}
               >
-                {s === 'all' ? 'All stages' : stageLabel(s as Stage)}
+                {s === 'all' ? 'All' : stageLabel(s as Stage)}
               </button>
             )
           })}
@@ -127,15 +128,15 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
         {/* Loading skeleton */}
         {loading && (
-          <div className="divide-y divide-sand/40">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="py-4 flex items-center gap-4 animate-pulse">
-                <div className="w-8 h-8 rounded-full bg-sand/60 shrink-0" />
-                <div className="flex-1">
-                  <div className="h-3.5 bg-sand/60 rounded w-32 mb-1.5" />
-                  <div className="h-2.5 bg-sand/40 rounded w-20" />
+          <div>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="py-5 animate-pulse" style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-7 h-7 bg-neutral-200 shrink-0" />
+                  <div className="h-3.5 bg-neutral-200 rounded w-28" />
+                  <div className="h-3 bg-neutral-100 rounded w-16 ml-auto hidden sm:block" />
                 </div>
-                <div className="h-2.5 bg-sand/40 rounded w-24 hidden sm:block" />
+                <div className="h-2.5 bg-neutral-100 rounded w-48 ml-10" />
               </div>
             ))}
           </div>
@@ -143,15 +144,16 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
         {/* Empty state */}
         {!loading && filtered.length === 0 && (
-          <div className="py-20 border-t border-sand/40">
-            <p className="text-sm font-medium text-espresso mb-1.5">
-              {filter === 'all' ? 'No members yet' : `No ${stageLabel(filter as Stage).toLowerCase()} members yet`}
+          <div className="py-20" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
+            <p className="text-sm font-medium mb-1.5" style={{ color: '#0A0A0A' }}>
+              {filter === 'all' ? 'No members yet' : `No ${stageLabel(filter as Stage).toLowerCase()} members`}
             </p>
-            <p className="text-xs text-walnut/50 mb-6">
+            <p className="text-xs mb-6" style={{ color: 'rgba(10,10,10,0.4)' }}>
               Members who opt in to the directory will appear here.
             </p>
             <Link href="/profile"
-              className="text-xs font-semibold text-espresso underline underline-offset-4 hover:opacity-60 transition-opacity">
+              className="text-xs font-semibold underline underline-offset-4 hover:opacity-60 transition-opacity"
+              style={{ color: '#0A0A0A' }}>
               Update your visibility settings →
             </Link>
           </div>
@@ -159,54 +161,67 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
         {/* Member list */}
         {!loading && filtered.length > 0 && (
-          <div className="divide-y divide-sand/30">
+          <div>
             {filtered.map(m => {
-              const days   = daysInCity(m.arrivalDate)
-              const stage  = m.stage
-              const colors = stage ? STAGE_COLORS[stage] : null
-              const hasName = !!m.displayName
+              const days    = daysInCity(m.arrivalDate)
+              const stage   = m.stage
+              const colors  = stage ? STAGE_COLORS[stage] : null
+              const initial = m.displayName?.[0]?.toUpperCase() ?? '?'
 
               return (
                 <div key={m.id}
-                  className="py-4 flex items-center gap-4 group hover:bg-white/60 -mx-2 px-2 rounded-lg transition-colors">
+                  className="py-5 hover:bg-neutral-50 transition-colors -mx-2 px-2"
+                  style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
 
-                  {/* Avatar dot */}
-                  <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold"
-                    style={{ background: 'linear-gradient(135deg, #E8E7F8 0%, #F0DCF5 100%)', color: '#3D3CAC' }}>
-                    {hasName
-                      ? m.displayName![0].toUpperCase()
-                      : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="8" r="4" stroke="#3D3CAC" strokeWidth="1.8" />
-                          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#3D3CAC" strokeWidth="1.8" strokeLinecap="round" />
-                        </svg>
-                      )
-                    }
-                  </div>
+                  <div className="flex items-start gap-3">
+                    {/* Avatar */}
+                    <div className="w-7 h-7 shrink-0 flex items-center justify-center text-xs font-black"
+                      style={{ background: '#0A0A0A', color: '#FFFFFF' }}>
+                      {initial}
+                    </div>
 
-                  {/* Name + location */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-espresso leading-tight truncate">
-                      {m.displayName ?? 'Anonymous settler'}
-                    </p>
-                    {m.neighborhood && (
-                      <p className="text-xs text-walnut/45 mt-0.5">{m.neighborhood}</p>
-                    )}
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      {/* Name + stage */}
+                      <div className="flex items-baseline justify-between gap-3">
+                        <p className="text-sm font-semibold leading-tight" style={{ color: '#0A0A0A' }}>
+                          {m.displayName ?? 'Settler'}
+                          {m.neighborhood && (
+                            <span className="ml-2 text-xs font-normal" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                              · {m.neighborhood}
+                            </span>
+                          )}
+                        </p>
+                        <div className="flex items-center gap-3 shrink-0">
+                          {days !== null && (
+                            <span className="text-[10px] hidden sm:block" style={{ color: 'rgba(10,10,10,0.25)' }}>
+                              Day {days}
+                            </span>
+                          )}
+                          {stage && colors && (
+                            <span className="text-[10px] font-semibold" style={{ color: colors.text }}>
+                              {stageLabel(stage)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                  {/* Right: stage + days */}
-                  <div className="flex items-center gap-3 shrink-0">
-                    {days !== null && (
-                      <span className="text-xs text-walnut/35 hidden sm:block">
-                        Day {days}
-                      </span>
-                    )}
-                    {stage && colors && (
-                      <span className="text-[11px] font-medium"
-                        style={{ color: colors.text }}>
-                        {stageLabel(stage)}
-                      </span>
-                    )}
+                      {/* Spots */}
+                      {m.spots.length > 0 && (
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+                          {m.spots.map(spot => {
+                            const cat = SPOT_CATEGORIES.find(c => c.id === spot.category)
+                            return (
+                              <span key={spot.id} className="flex items-center gap-1">
+                                <span className="w-1 h-1 rounded-full shrink-0" style={{ background: cat?.color ?? '#888' }} />
+                                <span className="text-[11px]" style={{ color: 'rgba(10,10,10,0.55)' }}>
+                                  {spot.name}
+                                </span>
+                              </span>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
@@ -214,11 +229,11 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
           </div>
         )}
 
-        {/* Opt-in nudge at bottom */}
+        {/* Opt-in nudge */}
         {!loading && members.length > 0 && (
-          <p className="text-center text-xs text-walnut/35 mt-10">
+          <p className="text-center text-xs mt-10" style={{ color: 'rgba(10,10,10,0.3)' }}>
             Not seeing yourself?{' '}
-            <Link href="/profile" className="underline underline-offset-2 hover:text-espresso transition-colors">
+            <Link href="/profile" className="underline underline-offset-2 hover:opacity-60 transition-opacity">
               Check your profile visibility settings.
             </Link>
           </p>
