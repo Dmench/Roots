@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { Nav } from '@/components/layout/Nav'
+import { Footer } from '@/components/layout/Footer'
 import { getCity, ACTIVE_CITIES } from '@/lib/data/cities'
 
 export function generateStaticParams() {
@@ -21,6 +22,7 @@ export default async function CityLayout({
     <>
       <Nav />
       <main>{children}</main>
+      <Footer />
     </>
   )
 }

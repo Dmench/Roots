@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import { AuthProvider } from '@/components/auth/AuthProvider'
-import { Footer } from '@/components/layout/Footer'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -50,7 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body className="bg-white text-neutral-950 antialiased">
         <AuthProvider>{children}</AuthProvider>
-        <Footer />
       </body>
     </html>
   )

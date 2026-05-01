@@ -8,6 +8,7 @@ import { AuthModal } from '@/components/auth/AuthModal'
 import { getCity, STAGES, NEIGHBORHOODS } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { Nav } from '@/components/layout/Nav'
+import { Footer } from '@/components/layout/Footer'
 import type { Stage, SituationTag } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { SpotSearch } from '@/components/city/SpotSearch'
@@ -204,6 +205,7 @@ export default function ProfilePage() {
 
   /* ── Signed in ── */
   return (
+    <>
     <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
       <Nav />
 
@@ -677,5 +679,7 @@ export default function ProfilePage() {
         </div>
       )}
     </div>
+    <Footer />
+    </>
   )
 }

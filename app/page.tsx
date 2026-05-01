@@ -129,26 +129,26 @@ export default function HomePage() {
 
           <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-6"
             style={{ color: 'rgba(245,236,215,0.35)' }}>
-            City intelligence · Starting with Brussels
+            City onboarding · Starting with Brussels
           </p>
 
           <h1 className="font-display font-black leading-[0.82] mb-8"
             style={{ fontSize: 'clamp(4.5rem, 14vw, 12rem)', color: '#F5ECD7' }}>
-            Know your<br />
-            <em className="not-italic" style={{ color: '#FF3EBA' }}>city.</em>
+            Put down<br />
+            <em className="not-italic" style={{ color: '#FF3EBA' }}>roots.</em>
           </h1>
 
           <p className="text-lg md:text-xl mb-10 leading-relaxed max-w-sm"
             style={{ color: 'rgba(245,236,215,0.6)' }}>
-            Every event, venue, headline, and community signal — structured, curated, and useful. City by city.
+            Get set up, find your people, and actually feel at home — wherever you just moved.
           </p>
 
           {/* Three pillars */}
           <div className="flex flex-wrap gap-x-6 gap-y-2 mb-12"
             style={{ borderTop: '1px solid rgba(245,236,215,0.12)', paddingTop: 16 }}>
             {[
-              { label: 'Events from every venue', color: '#FF3EBA' },
-              { label: 'Local news & Reddit signal', color: '#38C0F0' },
+              { label: 'Guided settle-in checklist', color: '#FF3EBA' },
+              { label: 'Community of settlers', color: '#38C0F0' },
               { label: 'AI that knows the city', color: '#FAB400' },
             ].map(p => (
               <span key={p.label}

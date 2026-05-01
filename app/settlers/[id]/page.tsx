@@ -6,6 +6,7 @@ import { getCity, STAGES } from '@/lib/data/cities'
 import type { Stage, SituationTag, Spot } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { CopyButton } from './CopyButton'
+import { Footer } from '@/components/layout/Footer'
 
 const APP_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://roots-mu.vercel.app'
 
@@ -244,6 +245,10 @@ export default async function SettlerCardPage(
           style={{ background: '#0A0A0A' }}>
           Join Roots →
         </Link>
+      </div>
+
+      <div className="w-full max-w-5xl mt-16">
+        <Footer />
       </div>
     </div>
   )

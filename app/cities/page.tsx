@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { CITIES } from '@/lib/data/cities'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { Nav } from '@/components/layout/Nav'
+import { Footer } from '@/components/layout/Footer'
 import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import type { CityId } from '@/lib/types'
 
@@ -189,20 +190,7 @@ function CitiesInner() {
         </div>
       </div>
 
-      {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <footer className="px-6 md:px-10 py-12 border-t border-sand/40">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <p className="font-display font-black text-xl mb-1" style={{ color: '#252450' }}>Roots</p>
-            <p className="text-sm text-stone">Put down roots, anywhere.</p>
-          </div>
-          <div className="flex flex-wrap gap-8 text-sm text-stone">
-            <Link href="/" className="hover:text-espresso transition-colors">Home</Link>
-            <Link href="/brussels" className="hover:text-espresso transition-colors">Brussels</Link>
-            <a href="mailto:hello@roots.so" className="hover:text-espresso transition-colors">Contact</a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
