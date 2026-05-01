@@ -12,12 +12,13 @@ export function useFollow(targetUserId: string) {
 
   useEffect(() => {
     if (!supabase || !targetUserId) { setLoading(false); return }
+    const sb = supabase
 
     // Fetch follower count for target
     const fetchCounts = async () => {
       const [{ count: fc }, { count: fgc }] = await Promise.all([
-        supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', targetUserId),
-        supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id',  targetUserId),
+        sb.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', targetUserId),
+        sb.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id',  targetUserId),
       ])
       setFollowerCount(fc ?? 0)
       setFollowingCount(fgc ?? 0)
@@ -25,7 +26,7 @@ export function useFollow(targetUserId: string) {
 
     const checkFollowing = async () => {
       if (!user) { setFollowing(false); return }
-      const { data } = await supabase
+      const { data } = await sb
         .from('follows')
         .select('follower_id')
         .eq('follower_id',  user.id)
