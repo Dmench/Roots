@@ -53,7 +53,7 @@ function PartnerCard({ venue }: { venue: Venue }) {
           style={{ fontSize: '11rem', color: 'rgba(255,255,255,0.03)', lineHeight: 1, transform: 'translate(8%, -10%)' }}>
           {venue.name.charAt(0)}
         </span>
-        <span className="text-[9px] font-black tracking-[0.28em] uppercase"
+        <span className="text-[10px] font-black tracking-[0.28em] uppercase"
           style={{ color: pal.accent }}>
           {venue.dealTag ?? 'Partner Venue'} · Exclusive deal
         </span>
@@ -97,7 +97,7 @@ function PartnerCard({ venue }: { venue: Venue }) {
             </a>
           )}
           {venue.openingHours && (
-            <span className="text-[9px]" style={{ color: 'rgba(245,244,240,0.22)' }}>
+            <span className="text-[10px]" style={{ color: 'rgba(245,244,240,0.22)' }}>
               {venue.openingHours.split(';')[0]}
             </span>
           )}
@@ -130,7 +130,7 @@ function VenueCard({ venue }: { venue: Venue }) {
         </span>
         {/* Neighbourhood + price */}
         <div className="relative flex items-end justify-between gap-2">
-          <span className="text-[9px] font-black tracking-widest uppercase"
+          <span className="text-[10px] font-black tracking-widest uppercase"
             style={{ color: pal.accent }}>
             {venue.neighborhood}
           </span>
@@ -236,7 +236,7 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
         <section>
           <div className="flex items-center gap-4 mb-8">
             <div className="flex-1 h-px" style={{ background: 'rgba(15,14,30,0.1)' }} />
-            <span className="text-[9px] font-black tracking-[0.28em] uppercase shrink-0"
+            <span className="text-[10px] font-black tracking-[0.28em] uppercase shrink-0"
               style={{ color: 'rgba(15,14,30,0.35)' }}>
               What the community says
             </span>
@@ -261,7 +261,7 @@ export default function EatSection({ venues, reddit, cityId }: Props) {
                     <p className="text-xs font-semibold leading-snug line-clamp-2" style={{ color: '#0F0E1E' }}>
                       {post.title}
                     </p>
-                    <p className="text-[9px] mt-1" style={{ color: 'rgba(15,14,30,0.3)' }}>
+                    <p className="text-[10px] mt-1" style={{ color: 'rgba(15,14,30,0.3)' }}>
                       {post.comments} comments · {ago} · r/{cityId}
                     </p>
                   </div>

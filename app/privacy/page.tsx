@@ -26,7 +26,7 @@ export default function PrivacyPage() {
       {/* Content */}
       <main className="flex-1 max-w-2xl mx-auto px-6 md:px-12 py-16 md:py-24">
 
-        <p className="text-[9px] font-black tracking-[0.25em] uppercase mb-6"
+        <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-6"
           style={{ color: 'rgba(10,10,10,0.3)' }}>
           Privacy
         </p>

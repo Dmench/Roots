@@ -82,7 +82,7 @@ export function CityHubClient({ cityName, cityId }: Props) {
                       strokeDashoffset={`${2 * Math.PI * 16 * (1 - pct / 100)}`}
                       strokeLinecap="round" />
                   </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black"
+                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black"
                     style={{ color: hero.color }}>
                     {pct}%
                   </span>

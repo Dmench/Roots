@@ -80,7 +80,7 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                     className="w-full text-left px-4 py-2.5 flex items-center justify-between hover:bg-neutral-50 transition-colors"
                     style={{ borderBottom: '1px solid rgba(10,10,10,0.04)' }}>
                     <span className="text-[10px] font-black tracking-wide uppercase" style={{ color }}>{src}</span>
-                    <span className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{count}</span>
+                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{count}</span>
                   </button>
                 )
               })}
@@ -196,7 +196,7 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                             <img src={ev.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
                             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.88) 0%, rgba(5,5,5,0.3) 45%, transparent 70%)' }} />
                             {/* Venue chip */}
-                            <span className="absolute top-4 left-4 text-[9px] font-black px-2 py-0.5 uppercase tracking-wider"
+                            <span className="absolute top-4 left-4 text-[10px] font-black px-2 py-0.5 uppercase tracking-wider"
                               style={{ background: venueColor, color: '#fff' }}>
                               {ev.source}
                             </span>
@@ -222,7 +222,7 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                           /* No image: clean text-only hero — no fake placeholder */
                           <div className="px-6 py-8 pr-14"
                             style={{ borderLeft: `4px solid ${venueColor}` }}>
-                            <span className="text-[9px] font-black px-2 py-0.5 uppercase tracking-wider inline-block mb-3"
+                            <span className="text-[10px] font-black px-2 py-0.5 uppercase tracking-wider inline-block mb-3"
                               style={{ background: venueColor, color: '#fff' }}>
                               {ev.source}
                             </span>
@@ -278,7 +278,7 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                                   {ev.source}
                                 </span>
                               )}
-                              <p className="text-[9px] font-black tracking-wide uppercase mb-1.5"
+                              <p className="text-[10px] font-black tracking-wide uppercase mb-1.5"
                                 style={{ color: bucket.accent === 'rgba(10,10,10,0.12)' ? '#4744C8' : bucket.accent }}>
                                 {dates[0].date.split(' ').slice(0, 3).join(' ')}
                                 {dates[0].time && <span className="ml-1 opacity-60">{dates[0].time}</span>}

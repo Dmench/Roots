@@ -104,7 +104,7 @@ export default function RedditFeed({ cityId }: { cityId: string }) {
                 style={{ background: '#10B981' }} />
             </span>
             <a href={`https://reddit.com/r/${sub}`} target="_blank" rel="noopener noreferrer"
-              className="text-[9px] font-bold hover:opacity-50 transition-opacity"
+              className="text-[10px] font-bold hover:opacity-50 transition-opacity"
               style={{ color: 'rgba(37,36,80,0.35)' }}>
               r/{sub} ↗
             </a>
@@ -135,7 +135,7 @@ export default function RedditFeed({ cityId }: { cityId: string }) {
               <p className="text-xs font-semibold leading-snug line-clamp-2" style={{ color: '#0F0E1E' }}>
                 {post.title}
               </p>
-              <p className="text-[9px] mt-1" style={{ color: 'rgba(37,36,80,0.3)' }}>
+              <p className="text-[10px] mt-1" style={{ color: 'rgba(37,36,80,0.3)' }}>
                 {post.comments} comments · {ago}
               </p>
             </div>
@@ -144,7 +144,7 @@ export default function RedditFeed({ cityId }: { cityId: string }) {
       })}
 
       <Link href={`/${cityId}/connect`}
-        className="block mt-4 pt-4 text-[9px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
+        className="block mt-4 pt-4 text-[10px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
         style={{ borderTop: '1px solid rgba(37,36,80,0.07)', color: '#FF3EBA' }}>
         Join the community →
       </Link>

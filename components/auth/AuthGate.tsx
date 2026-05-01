@@ -54,7 +54,7 @@ export default function AuthGate({ children, cityName = 'Brussels', cityId = 'br
           <div className="max-w-2xl">
 
             {/* Eyebrow */}
-            <p className="text-[9px] font-black tracking-[0.32em] uppercase mb-6"
+            <p className="text-[10px] font-black tracking-[0.32em] uppercase mb-6"
               style={{ color: 'rgba(245,244,240,0.3)' }}>
               Members only · {cityName}
             </p>

@@ -305,7 +305,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 {/* Composer */}
                 <div className="mb-7" style={{ border: `1.5px solid ${channel.color}25` }}>
                   <div className="px-4 pt-3 pb-1">
-                    <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-2.5"
+                    <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2.5"
                       style={{ color: channel.color }}>
                       {channel.id === 'tips'      ? 'Share a tip' :
                        channel.id === 'questions' ? 'Ask the community' :
@@ -354,7 +354,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       {/* Pinned curated content */}
                       {showPins && pins.length > 0 && (
                         <>
-                          <p className="text-[9px] font-black uppercase tracking-[0.22em] mb-4"
+                          <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-4"
                             style={{ color: 'rgba(10,10,10,0.25)' }}>
                             From Roots
                           </p>
@@ -364,7 +364,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                               style={{ borderTop: i > 0 ? '1px solid rgba(10,10,10,0.07)' : 'none' }}>
                               <div className="w-0.5 shrink-0 self-stretch" style={{ background: '#4744C8' }} />
                               <div className="flex-1 min-w-0">
-                                <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-1.5"
+                                <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-1.5"
                                   style={{ color: '#4744C8' }}>
                                   {pin.label}
                                 </p>
@@ -375,7 +375,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                             </div>
                           ))}
                           <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
-                            <p className="text-[9px] font-black uppercase tracking-[0.22em] mb-4"
+                            <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-4"
                               style={{ color: 'rgba(10,10,10,0.25)' }}>
                               Community posts
                             </p>
@@ -399,12 +399,12 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1.5">
                                 {post.authorStage && (
-                                  <span className="text-[9px] font-black tracking-[0.15em] uppercase"
+                                  <span className="text-[10px] font-black tracking-[0.15em] uppercase"
                                     style={{ color: 'rgba(10,10,10,0.3)' }}>
                                     {STAGE_LABELS[post.authorStage]}
                                   </span>
                                 )}
-                                <span className="text-[9px] ml-auto" style={{ color: 'rgba(10,10,10,0.2)' }}>
+                                <span className="text-[10px] ml-auto" style={{ color: 'rgba(10,10,10,0.2)' }}>
                                   {post.time}
                                 </span>
                               </div>
@@ -475,12 +475,12 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                           )}
                           <div className="px-5 pt-3 pb-5">
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="text-[9px] font-black tracking-[0.22em] uppercase"
+                              <span className="text-[10px] font-black tracking-[0.22em] uppercase"
                                 style={{ color: dotColor }}>
                                 {fi.sourceLabel}
                               </span>
-                              <span className="text-[9px]" style={{ color: 'rgba(245,244,240,0.3)' }}>·</span>
-                              <span className="text-[9px] font-semibold" style={{ color: 'rgba(245,244,240,0.4)' }}>{when}</span>
+                              <span className="text-[10px]" style={{ color: 'rgba(245,244,240,0.3)' }}>·</span>
+                              <span className="text-[10px] font-semibold" style={{ color: 'rgba(245,244,240,0.4)' }}>{when}</span>
                             </div>
                             <p className="text-base font-bold leading-snug group-hover:opacity-70 transition-opacity"
                               style={{ color: '#F5F4F0' }}>
@@ -509,11 +509,11 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                           )}
                           <div className="flex-1 min-w-0 pt-0.5">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[9px] font-black tracking-[0.18em] uppercase"
+                              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
                                 style={{ color: dotColor }}>
                                 {fi.sourceLabel}
                               </span>
-                              <span className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{when}</span>
+                              <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{when}</span>
                             </div>
                             <p className="text-sm font-semibold leading-snug truncate"
                               style={{ color: '#0A0A0A' }}>
@@ -580,7 +580,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                               style={{ fontSize: 'clamp(1.3rem,3vw,1.6rem)', color: '#0F0E1E', letterSpacing: '-0.01em' }}>
                               {lead.title}
                             </h3>
-                            <p className="text-[9px] font-medium" style={{ color: 'rgba(10,10,10,0.3)' }}>
+                            <p className="text-[10px] font-medium" style={{ color: 'rgba(10,10,10,0.3)' }}>
                               {ago(lead.published)}
                             </p>
                           </a>
@@ -607,7 +607,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                 <p className="text-sm font-bold leading-snug mb-2" style={{ color: '#0F0E1E' }}>
                                   {fi.title}
                                 </p>
-                                <p className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{ago(fi.published)}</p>
+                                <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{ago(fi.published)}</p>
                               </a>
                             )
                           })}
@@ -629,7 +629,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                 <span className="flex-1 text-xs font-semibold leading-snug" style={{ color: '#0A0A0A' }}>
                                   {fi.title}
                                 </span>
-                                <span className="shrink-0 text-[9px]" style={{ color: 'rgba(10,10,10,0.2)' }}>{ago(fi.published)}</span>
+                                <span className="shrink-0 text-[10px]" style={{ color: 'rgba(10,10,10,0.2)' }}>{ago(fi.published)}</span>
                               </a>
                             )
                           })}
@@ -678,7 +678,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         </span>
                       </div>
                       <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-                        className="text-[9px] font-black tracking-wider hover:opacity-60 transition-opacity"
+                        className="text-[10px] font-black tracking-wider hover:opacity-60 transition-opacity"
                         style={{ color: 'rgba(245,236,215,0.25)', letterSpacing: '0.1em' }}>
                         OPEN ↗
                       </a>
@@ -702,7 +702,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                             </div>
                             <div className="flex-1 min-w-0">
                               {top.flair && (
-                                <span className="inline-block text-[9px] font-black px-2 py-0.5 mb-2"
+                                <span className="inline-block text-[10px] font-black px-2 py-0.5 mb-2"
                                   style={{ background: 'rgba(255,69,0,0.2)', color: '#FF4500', letterSpacing: '0.06em' }}>
                                   {top.flair.toUpperCase()}
                                 </span>
@@ -740,7 +740,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                             style={{ color: 'rgba(245,236,215,0.7)' }}>
                             {fi.title}
                           </p>
-                          <span className="shrink-0 text-[9px]" style={{ color: 'rgba(245,236,215,0.2)' }}>{ago}</span>
+                          <span className="shrink-0 text-[10px]" style={{ color: 'rgba(245,236,215,0.2)' }}>{ago}</span>
                         </a>
                       )
                     })}
@@ -752,7 +752,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         style={{ color: 'rgba(245,236,215,0.3)', letterSpacing: '0.1em' }}>
                         OPEN r/{cityId} ↗
                       </a>
-                      <span className="text-[9px]" style={{ color: 'rgba(245,236,215,0.15)' }}>via Reddit API</span>
+                      <span className="text-[10px]" style={{ color: 'rgba(245,236,215,0.15)' }}>via Reddit API</span>
                     </div>
                   </div>
                 )}
@@ -766,7 +766,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
             {/* Settlers */}
             <div>
-              <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
                 style={{ color: 'rgba(10,10,10,0.3)', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 8 }}>
                 Settlers
               </p>
@@ -785,7 +785,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* Community groups */}
             {resources.length > 0 && (
               <div>
-                <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
+                <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
                   style={{ color: 'rgba(10,10,10,0.3)', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 8 }}>
                   Community groups
                 </p>
@@ -794,7 +794,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     <div key={r.id}
                       className="flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
                       style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
-                      <span className="text-[9px] font-black shrink-0 w-4"
+                      <span className="text-[10px] font-black shrink-0 w-4"
                         style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
                         {r.type === 'facebook' ? 'fb' : 'r/'}
                       </span>

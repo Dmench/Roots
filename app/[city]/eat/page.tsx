@@ -64,7 +64,7 @@ function PartnerTeaser() {
         <span style={{ fontSize: '1.4rem', opacity: 0.18 }}>★</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[9px] font-black tracking-[0.25em] uppercase mb-0.5"
+        <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-0.5"
           style={{ color: 'rgba(10,10,10,0.28)' }}>
           Venue of the Month · Coming soon
         </p>
@@ -104,7 +104,7 @@ function VenueCard({ venue, onSave, saved, photoRef, lead = false }: {
           </span>
         )}
         {/* Price badge */}
-        <span className="absolute top-2 right-2 text-[9px] font-black px-1.5 py-0.5"
+        <span className="absolute top-2 right-2 text-[10px] font-black px-1.5 py-0.5"
           style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
           {venue.price}
         </span>
@@ -185,10 +185,10 @@ function RedditFoodPanel({ cityId }: { cityId: string }) {
       <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
         <div className="flex items-center gap-2">
           <span className="text-sm font-black" style={{ color: '#FF4500' }}>r/{cityId}</span>
-          <span className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>· food & drink</span>
+          <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>· food & drink</span>
         </div>
         <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-          className="text-[9px] font-black tracking-wider hover:opacity-60 transition-opacity"
+          className="text-[10px] font-black tracking-wider hover:opacity-60 transition-opacity"
           style={{ color: 'rgba(10,10,10,0.25)' }}>OPEN ↗</a>
       </div>
       {posts.map((post, i) => {
@@ -203,7 +203,7 @@ function RedditFoodPanel({ cityId }: { cityId: string }) {
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium leading-snug line-clamp-2" style={{ color: '#0A0A0A' }}>{post.title}</p>
-              <p className="text-[9px] mt-1" style={{ color: 'rgba(10,10,10,0.3)' }}>{post.comments} comments · {ago}</p>
+              <p className="text-[10px] mt-1" style={{ color: 'rgba(10,10,10,0.3)' }}>{post.comments} comments · {ago}</p>
             </div>
           </a>
         )
@@ -336,7 +336,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
             <div className="flex items-center shrink-0" style={{ border: '1px solid rgba(10,10,10,0.12)' }}>
               {(['grid','map'] as const).map(v => (
                 <button key={v} onClick={() => setView(v)}
-                  className="px-3 py-1.5 text-[9px] font-black tracking-widest uppercase transition-all"
+                  className="px-3 py-1.5 text-[10px] font-black tracking-widest uppercase transition-all"
                   style={{
                     background: view === v ? '#0A0A0A' : 'transparent',
                     color:      view === v ? '#fff'    : 'rgba(10,10,10,0.35)',
@@ -403,7 +403,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
           <div className="mb-14">
             <div className="flex items-center gap-4 mb-6">
               <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
-              <p className="text-[9px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
+              <p className="text-[10px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
                 Neighbourhood guide
               </p>
               <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
@@ -415,7 +415,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                   <div className="min-w-0">
                     <div className="flex items-baseline gap-2 mb-1.5 flex-wrap">
                       <p className="text-sm font-black" style={{ color: '#0A0A0A' }}>{h.name}</p>
-                      <p className="text-[9px] font-medium" style={{ color: 'rgba(10,10,10,0.35)' }}>{h.sub}</p>
+                      <p className="text-[10px] font-medium" style={{ color: 'rgba(10,10,10,0.35)' }}>{h.sub}</p>
                     </div>
                     <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.6)' }}>{h.desc}</p>
                   </div>
@@ -429,7 +429,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         <div className="mb-6">
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
-            <p className="text-[9px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
+            <p className="text-[10px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
               What the city is eating
             </p>
             <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />

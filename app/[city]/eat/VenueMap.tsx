@@ -139,7 +139,7 @@ export default function VenueMap({ venues, venuePhotos, selected, onSelect }: Pr
           {/* Info */}
           <div className="px-4 pt-3 pb-4">
             <div className="flex items-baseline justify-between gap-2 mb-0.5">
-              <span className="text-[9px] font-black tracking-widest uppercase"
+              <span className="text-[10px] font-black tracking-widest uppercase"
                 style={{ color: TYPE_COLOR[selectedVenue.broadType] ?? '#0A0A0A' }}>
                 {selectedVenue.neighborhood}
               </span>

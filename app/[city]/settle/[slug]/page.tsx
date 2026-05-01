@@ -77,15 +77,15 @@ export default async function TaskPage(
 
         {/* Meta badges */}
         <div className="flex flex-wrap items-center gap-2 mb-5">
-          <span className="text-[9px] font-black tracking-[0.18em] uppercase px-2.5 py-1"
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase px-2.5 py-1"
             style={{ background: catColor + '12', color: catColor }}>
             {task.category}
           </span>
-          <span className="text-[9px] font-black tracking-[0.18em] uppercase px-2.5 py-1"
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase px-2.5 py-1"
             style={{ background: diffColor + '12', color: diffColor }}>
             {task.difficulty}
           </span>
-          <span className="text-[9px] font-medium px-2.5 py-1"
+          <span className="text-[10px] font-medium px-2.5 py-1"
             style={{ background: 'rgba(10,10,10,0.05)', color: 'rgba(10,10,10,0.4)' }}>
             ⏱ {task.estimatedTime}
           </span>
@@ -143,7 +143,7 @@ export default async function TaskPage(
         {task.tip && (
           <div className="px-4 py-4 mb-10"
             style={{ background: catColor + '08', borderLeft: `3px solid ${catColor}` }}>
-            <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-1.5"
+            <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-1.5"
               style={{ color: catColor }}>
               Pro tip
             </p>
@@ -200,7 +200,7 @@ export default async function TaskPage(
         {/* Ask CTA */}
         <div className="mt-12 px-5 py-5"
           style={{ background: 'rgba(56,192,240,0.06)', border: '1px solid rgba(56,192,240,0.2)' }}>
-          <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-1.5"
+          <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-1.5"
             style={{ color: '#38C0F0' }}>
             Still have questions?
           </p>

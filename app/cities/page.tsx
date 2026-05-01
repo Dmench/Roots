@@ -9,13 +9,13 @@ import { Footer } from '@/components/layout/Footer'
 import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import type { CityId } from '@/lib/types'
 
-const CITY_CONFIG: Record<string, { bg: string; shape1: string; shape2: string }> = {
-  brussels:  { bg: '#4744C8', shape1: '#38C0F0', shape2: '#FAB400' },
-  lisbon:    { bg: '#252450', shape1: '#FF3EBA', shape2: '#38C0F0' },
-  berlin:    { bg: '#38C0F0', shape1: '#4744C8', shape2: '#FAB400' },
-  barcelona: { bg: '#FF3EBA', shape1: '#FAB400', shape2: '#4744C8' },
-  amsterdam: { bg: '#252450', shape1: '#38C0F0', shape2: '#FF3EBA' },
-  prague:    { bg: '#4744C8', shape1: '#FF3EBA', shape2: '#38C0F0' },
+const CITY_CONFIG: Record<string, { color: string }> = {
+  brussels:  { color: '#4744C8' },
+  lisbon:    { color: '#FF3EBA' },
+  berlin:    { color: '#38C0F0' },
+  barcelona: { color: '#E8612A' },
+  amsterdam: { color: '#10B981' },
+  prague:    { color: '#FAB400' },
 }
 
 /* ── Inner component that reads useSearchParams ──────────────────────────── */
@@ -62,18 +62,8 @@ function CitiesInner() {
       <Nav />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden px-6 md:px-10 pt-16 md:pt-24 pb-20 md:pb-28" style={{ background: '#F5F4F0' }}>
-        <div className="absolute rounded-full pointer-events-none"
-          style={{ background: '#4744C8', width: '36vw', height: '36vw', maxWidth: 480, maxHeight: 480, top: '-22%', right: '-10%' }} />
-        <div className="absolute rounded-full pointer-events-none"
-          style={{ background: '#38C0F0', width: '18vw', height: '18vw', maxWidth: 240, maxHeight: 240, bottom: '5%', right: '18%' }} />
-        <div className="absolute rounded-full pointer-events-none"
-          style={{ background: '#FAB400', width: '10vw', height: '10vw', maxWidth: 140, maxHeight: 140, bottom: '-5%', left: '5%' }} />
-        <div className="absolute pointer-events-none overflow-hidden" style={{ width: 100, height: 50, bottom: 0, right: '42%' }}>
-          <div className="w-full rounded-full" style={{ background: '#FF3EBA', height: 100, marginTop: -50 }} />
-        </div>
-
-        <div className="max-w-6xl mx-auto relative">
+      <section className="px-6 md:px-10 pt-16 md:pt-24 pb-20 md:pb-28 border-b border-neutral-200" style={{ background: '#F5F4F0' }}>
+        <div className="max-w-6xl mx-auto">
           <p className="text-xs uppercase tracking-[0.3em] mb-6 font-semibold" style={{ color: '#252450', opacity: 0.45 }}>
             {fromProfile ? '← Profile · Choose your city' : 'Cities'}
           </p>
@@ -98,35 +88,29 @@ function CitiesInner() {
               <button
                 key={city.id}
                 onClick={() => handleCitySelect(city.id)}
-                className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-espresso/15 text-left w-full"
-                style={{ background: cfg.bg, minHeight: 240 }}
+                className="group bg-white hover:bg-neutral-50 transition-colors text-left w-full border border-neutral-200 hover:border-neutral-300"
+                style={{ borderTop: `4px solid ${cfg.color}`, minHeight: 200 }}
               >
-                <div className="absolute rounded-full pointer-events-none"
-                  style={{ background: cfg.shape1, opacity: 0.3, width: 200, height: 200, bottom: -60, right: -40 }} />
-                <div className="absolute rounded-full pointer-events-none"
-                  style={{ background: cfg.shape2, opacity: 0.35, width: 80, height: 80, top: 20, right: 24 }} />
-                <div className="absolute pointer-events-none"
-                  style={{ background: 'rgba(255,255,255,0.12)', width: 60, height: 60, top: '50%', left: 24, clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
-
-                <div className="relative p-8 flex flex-col justify-between h-full" style={{ minHeight: 240 }}>
+                <div className="p-8 flex flex-col justify-between h-full" style={{ minHeight: 200 }}>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] font-semibold mb-3" style={{ color: 'rgba(245,236,215,0.5)' }}>
+                    <p className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3" style={{ color: 'rgba(37,36,80,0.35)' }}>
                       {city.country}
                     </p>
-                    <h2 className="font-display font-black text-white leading-[0.88] mb-3"
-                      style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
+                    <h2 className="font-display font-black leading-[0.88] mb-3"
+                      style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', color: '#252450' }}>
                       {city.name}
                     </h2>
-                    <p className="text-sm leading-relaxed line-clamp-2 max-w-xs" style={{ color: 'rgba(245,236,215,0.65)' }}>
+                    <p className="text-sm leading-relaxed line-clamp-2 max-w-xs" style={{ color: 'rgba(37,36,80,0.5)' }}>
                       {city.description}
                     </p>
                   </div>
                   <div className="flex items-center justify-between mt-8">
-                    <span className="flex items-center gap-2 text-xs font-medium" style={{ color: 'rgba(245,236,215,0.5)' }}>
-                      <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: '#38C0F0' }} />
+                    <span className="flex items-center gap-2 text-xs font-medium" style={{ color: 'rgba(37,36,80,0.35)' }}>
+                      <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: cfg.color }} />
                       <LiveSettlerCount cityId={city.id} fallback={city.settlerCount} /> settling now
                     </span>
-                    <span className="text-sm font-bold text-white opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                    <span className="text-sm font-bold opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0"
+                      style={{ color: cfg.color }}>
                       {fromProfile ? 'Select →' : 'Enter →'}
                     </span>
                   </div>
@@ -134,11 +118,9 @@ function CitiesInner() {
               </button>
             ) : (
               <div key={city.id}
-                className="relative overflow-hidden border border-sand/30 opacity-55"
-                style={{ background: '#F5F4F0', minHeight: 240 }}>
-                <div className="absolute rounded-full pointer-events-none"
-                  style={{ background: '#D8CABB', opacity: 0.35, width: 120, height: 120, bottom: -30, right: -20 }} />
-                <div className="relative p-8 flex flex-col justify-between h-full" style={{ minHeight: 240 }}>
+                className="border border-neutral-200 opacity-50"
+                style={{ background: '#FAFAF8', minHeight: 200, borderTop: '4px solid rgba(37,36,80,0.15)' }}>
+                <div className="p-8 flex flex-col justify-between h-full" style={{ minHeight: 200 }}>
                   <div>
                     <p className="text-xs uppercase tracking-[0.2em] text-stone mb-3 font-medium">{city.country}</p>
                     <h2 className="font-display font-black leading-[0.88] mb-6"

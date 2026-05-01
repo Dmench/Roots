@@ -50,7 +50,7 @@ export function OnboardingModal({ cityName, onDone }: Props) {
 
         {/* Header */}
         <div className="px-6 pt-7 pb-5" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-          <p className="text-[9px] font-black tracking-[0.25em] uppercase mb-1.5"
+          <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-1.5"
             style={{ color: 'rgba(10,10,10,0.3)' }}>
             Welcome to {cityName}
           </p>

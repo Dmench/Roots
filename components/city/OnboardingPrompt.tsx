@@ -44,7 +44,7 @@ export default function OnboardingPrompt({ cityId, cityName }: Props) {
           <div className="flex items-start justify-between px-5 pt-4 pb-3"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div>
-              <p className="text-[9px] font-black tracking-[0.28em] uppercase" style={{ color: '#FAB400' }}>
+              <p className="text-[10px] font-black tracking-[0.28em] uppercase" style={{ color: '#FAB400' }}>
                 Welcome to {cityName}
               </p>
               <p className="text-xs font-semibold mt-0.5" style={{ color: 'rgba(245,244,240,0.6)' }}>
@@ -69,7 +69,7 @@ export default function OnboardingPrompt({ cityId, cityName }: Props) {
                 }}
                 className="text-left px-4 py-3 rounded-xl transition-all hover:opacity-80"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <p className="text-[9px] font-black tracking-widest uppercase mb-0.5" style={{ color: 'rgba(245,244,240,0.35)' }}>
+                <p className="text-[10px] font-black tracking-widest uppercase mb-0.5" style={{ color: 'rgba(245,244,240,0.35)' }}>
                   {s.months}
                 </p>
                 <p className="text-xs font-bold" style={{ color: '#F5F4F0' }}>

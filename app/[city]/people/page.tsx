@@ -310,25 +310,25 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {m.neighborhood && (
-                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                      <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2 py-1"
                         style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                         {m.neighborhood}
                       </span>
                     )}
                     {m.arrivalDate && (
-                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                      <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2 py-1"
                         style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                         Since {fmtMonth(m.arrivalDate)}
                       </span>
                     )}
                     {days !== null && (
-                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                      <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2 py-1"
                         style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                         Day {days}
                       </span>
                     )}
                     {stage && colors && (
-                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                      <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2 py-1"
                         style={{ background: (STAGE_COLOR_MAP[stage] ?? '#4744C8') + '18', color: STAGE_COLOR_MAP[stage] ?? '#4744C8' }}>
                         {stageLabel(stage)}
                       </span>
@@ -341,7 +341,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
             {/* Spots */}
             {m.spots.length > 0 && (
               <div style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-                <p className="px-5 py-3 text-[9px] font-black tracking-[0.22em] uppercase"
+                <p className="px-5 py-3 text-[10px] font-black tracking-[0.22em] uppercase"
                   style={{ color: 'rgba(10,10,10,0.3)' }}>My Spots</p>
                 <div className="px-5 pb-5 flex gap-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {m.spots.map(spot => {

@@ -323,7 +323,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                       style={{ color: '#252450' }}>
                       {q}
                     </p>
-                    <p className="text-[9px] mt-2 font-bold tracking-wide"
+                    <p className="text-[10px] mt-2 font-bold tracking-wide"
                       style={{ color: starterGroups[activeTab].color }}>
                       ASK →
                     </p>
@@ -353,7 +353,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                   {/* Sources — visible by default */}
                   {msg.sources && msg.sources.length > 0 && (
                     <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
-                      <p className="text-[9px] font-black uppercase tracking-widest mb-2"
+                      <p className="text-[10px] font-black uppercase tracking-widest mb-2"
                         style={{ color: 'rgba(37,36,80,0.3)' }}>
                         Sources
                       </p>
@@ -377,7 +377,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                   {msg.relatedTasks && msg.relatedTasks.length > 0 && (
                     <div className="mt-4 pt-4 flex flex-wrap gap-2"
                       style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
-                      <span className="text-[9px] font-black uppercase tracking-widest self-center"
+                      <span className="text-[10px] font-black uppercase tracking-widest self-center"
                         style={{ color: 'rgba(37,36,80,0.3)' }}>
                         Related tasks
                       </span>

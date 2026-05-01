@@ -50,43 +50,43 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
   /* ── Stage picker ──────────────────────────────────────────────────────── */
   if (!profile.stage) {
     return (
-      <div className="min-h-screen" style={{ background: '#252450' }}>
-        <div className="fixed rounded-full pointer-events-none"
-          style={{ background: '#4744C8', width: 400, height: 400, top: -160, right: -100, opacity: 0.5 }} />
-        <div className="fixed rounded-full pointer-events-none"
-          style={{ background: '#FF3EBA', width: 160, height: 160, bottom: 60, left: -40, opacity: 0.35 }} />
+      <div className="min-h-screen bg-white">
+        <div style={{ height: 4, background: '#252450' }} />
 
-        <div className="relative max-w-2xl mx-auto px-6 md:px-10 pt-14 pb-20">
+        <div className="max-w-2xl mx-auto px-6 md:px-10 pt-14 pb-20">
           <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-8"
-            style={{ color: 'rgba(245,236,215,0.3)' }}>
+            style={{ color: 'rgba(37,36,80,0.3)' }}>
             Settle · {city.name}
           </p>
           <h1 className="font-display font-black leading-[0.85] mb-4"
-            style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)', color: '#F5ECD7' }}>
+            style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)', color: '#252450' }}>
             Where are you<br />right now?
           </h1>
-          <p className="text-base mb-12" style={{ color: 'rgba(245,236,215,0.5)', maxWidth: 340 }}>
+          <p className="text-base mb-12" style={{ color: 'rgba(37,36,80,0.5)', maxWidth: 340 }}>
             Your checklist filters to your stage — only what you actually need next.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px"
+            style={{ background: 'rgba(10,10,10,0.1)', border: '1px solid rgba(10,10,10,0.1)' }}>
             {STAGES.map((stage, i) => (
               <button
                 key={stage.id}
                 onClick={() => setStage(stage.id as Stage)}
-                className="group text-left p-7 transition-all duration-200 hover:opacity-80"
-                style={{ borderTop: `2px solid ${STAGE_COLORS[i]}` }}
+                className="group text-left px-7 py-8 bg-white hover:bg-neutral-50 transition-colors"
+                style={{ borderTop: `4px solid ${STAGE_COLORS[i]}` }}
               >
                 <p className="text-[10px] font-black tracking-widest uppercase mb-3"
                   style={{ color: STAGE_COLORS[i] }}>
                   {stage.months}
                 </p>
-                <h3 className="font-display font-bold text-xl mb-1" style={{ color: '#F5ECD7' }}>
+                <h3 className="font-display font-bold text-xl mb-1" style={{ color: '#252450' }}>
                   {stage.label}
                 </h3>
-                <p className="text-sm" style={{ color: 'rgba(245,236,215,0.45)' }}>
+                <p className="text-sm" style={{ color: 'rgba(37,36,80,0.45)' }}>
                   {stage.sublabel}
                 </p>
+                <span className="text-sm font-black mt-5 inline-block group-hover:translate-x-1 transition-transform"
+                  style={{ color: STAGE_COLORS[i] }}>→</span>
               </button>
             ))}
           </div>
@@ -107,7 +107,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
         <div className="max-w-3xl mx-auto px-6 md:px-12 pt-8 pb-6">
           <div className="flex items-end justify-between gap-6 mb-5">
             <div>
-              <p className="text-[9px] font-black tracking-[0.28em] uppercase mb-2"
+              <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-2"
                 style={{ color: 'rgba(37,36,80,0.3)' }}>
                 Settle · {city.name}
               </p>
@@ -273,7 +273,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
                           style={{ color: '#252450' }}>
                           {task.title}
                         </span>
-                        <span className="text-[9px] font-black tracking-widest uppercase"
+                        <span className="text-[10px] font-black tracking-widest uppercase"
                           style={{ color: m.color }}>
                           {m.label}
                         </span>
@@ -282,10 +282,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
                         <span className="text-xs" style={{ color: 'rgba(37,36,80,0.35)' }}>
                           {task.estimatedTime}
                         </span>
-                        <span className="text-[9px]" style={{ color: DIFFICULTY[task.difficulty] }}>
-                          {'●'}
-                        </span>
-                        <span className="text-[9px]" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                        <span className="text-[10px] font-semibold" style={{ color: DIFFICULTY[task.difficulty] }}>
                           {task.difficulty}
                         </span>
                       </div>
@@ -314,7 +311,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
 
                         {task.steps.length > 0 && (
                           <div className="mb-5">
-                            <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
+                            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
                               style={{ color: 'rgba(37,36,80,0.3)' }}>
                               Steps
                             </p>
@@ -343,7 +340,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
                         {task.tip && (
                           <div className="mb-5 pl-3"
                             style={{ borderLeft: '2px solid #FAB400' }}>
-                            <p className="text-[9px] font-black tracking-widest uppercase mb-1"
+                            <p className="text-[10px] font-black tracking-widest uppercase mb-1"
                               style={{ color: '#FAB400' }}>
                               Pro tip
                             </p>
@@ -405,7 +402,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
                   <div key={c} className="w-2 h-2 rounded-full" style={{ background: c }} />
                 ))}
               </div>
-              <span className="text-[9px] font-black tracking-[0.25em] uppercase"
+              <span className="text-[10px] font-black tracking-[0.25em] uppercase"
                 style={{ color: 'rgba(10,10,10,0.3)' }}>
                 Stage complete
               </span>
@@ -419,7 +416,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
 
             {/* Give-back CTA */}
             <div className="mb-8 p-5" style={{ border: '1.5px solid rgba(10,10,10,0.12)' }}>
-              <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-1.5"
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1.5"
                 style={{ color: '#10B981' }}>
                 Give back
               </p>

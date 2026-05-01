@@ -28,7 +28,7 @@ function Stars({ rating }: { rating: number }) {
           {i <= full ? '★' : (i === full + 1 && half) ? '½' : '★'}
         </span>
       ))}
-      <span className="ml-0.5 text-[9px]" style={{ color: 'rgba(10,10,10,0.4)' }}>{rating.toFixed(1)}</span>
+      <span className="ml-0.5 text-[10px]" style={{ color: 'rgba(10,10,10,0.4)' }}>{rating.toFixed(1)}</span>
     </span>
   )
 }
@@ -113,7 +113,7 @@ export function SpotSearch({ cityId, onAdd, onCancel }: Props) {
         <div className="flex flex-wrap gap-1.5">
           {SPOT_CATEGORIES.map(c => (
             <button key={c.id} onClick={() => setManualCat(c.id)}
-              className="text-[9px] font-black tracking-[0.12em] uppercase px-2.5 py-1 transition-all"
+              className="text-[10px] font-black tracking-[0.12em] uppercase px-2.5 py-1 transition-all"
               style={{ color: manualCat === c.id ? '#fff' : c.color, background: manualCat === c.id ? c.color : 'transparent', border: `1px solid ${c.color}` }}>
               {c.label}
             </button>
@@ -194,7 +194,7 @@ export function SpotSearch({ cityId, onAdd, onCancel }: Props) {
               </div>
 
               {/* Category dot */}
-              <span className="text-[9px] font-black tracking-wide uppercase shrink-0"
+              <span className="text-[10px] font-black tracking-wide uppercase shrink-0"
                 style={{ color: SPOT_CATEGORIES.find(c => c.id === place.category)?.color ?? '#888' }}>
                 {SPOT_CATEGORIES.find(c => c.id === place.category)?.label}
               </span>
@@ -250,14 +250,14 @@ export function SpotSearch({ cityId, onAdd, onCancel }: Props) {
           {/* Category picker */}
           <div className="px-3 pb-3 flex flex-wrap gap-1.5"
             style={{ borderTop: '1px solid rgba(10,10,10,0.06)', paddingTop: 10 }}>
-            <span className="text-[9px] font-black tracking-wide uppercase self-center mr-1"
+            <span className="text-[10px] font-black tracking-wide uppercase self-center mr-1"
               style={{ color: 'rgba(10,10,10,0.3)' }}>Category</span>
             {SPOT_CATEGORIES.map(c => {
               const active = currentCat === c.id
               return (
                 <button key={c.id}
                   onClick={() => setCatOverride(c.id)}
-                  className="text-[9px] font-black tracking-[0.12em] uppercase px-2 py-0.5 transition-all"
+                  className="text-[10px] font-black tracking-[0.12em] uppercase px-2 py-0.5 transition-all"
                   style={{ color: active ? '#fff' : c.color, background: active ? c.color : 'transparent', border: `1px solid ${c.color}` }}>
                   {c.label}
                 </button>

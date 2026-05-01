@@ -39,7 +39,7 @@ function RowDivider() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-1 pb-2 text-[9px] font-black tracking-[0.22em] uppercase"
+    <p className="px-1 pb-2 text-[10px] font-black tracking-[0.22em] uppercase"
       style={{ color: 'rgba(37,36,80,0.35)' }}>
       {children}
     </p>
@@ -301,13 +301,13 @@ export default function ProfilePage() {
                   {/* Neighborhood chip */}
                   {profile.neighborhood ? (
                     <button onClick={() => setNeighborhoodOpen(true)}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                       {profile.neighborhood}
                     </button>
                   ) : (
                     <button onClick={() => setNeighborhoodOpen(true)}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
                       + Neighborhood
                     </button>
@@ -316,13 +316,13 @@ export default function ProfilePage() {
                   {/* Arrival chip */}
                   {profile.arrivalDate ? (
                     <button onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                       Since {fmtMonth(profile.arrivalDate)}
                     </button>
                   ) : (
                     <button onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
                       + Arrival
                     </button>
@@ -331,13 +331,13 @@ export default function ProfilePage() {
                   {/* Stage chip */}
                   {currentStage ? (
                     <button onClick={() => setStageOpen(true)}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ background: (STAGE_COLOR[currentStage.id] ?? '#4744C8') + '18', color: STAGE_COLOR[currentStage.id] ?? '#4744C8' }}>
                       {currentStage.label}
                     </button>
                   ) : (
                     <button onClick={() => setStageOpen(true)}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
                       + Stage
                     </button>
@@ -346,13 +346,13 @@ export default function ProfilePage() {
                   {/* Situation / profession chip */}
                   {primarySitLabel ? (
                     <button onClick={() => setSituationOpen(true)}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                       {primarySitLabel}
                     </button>
                   ) : (
                     <button onClick={() => setSituationOpen(true)}
-                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
                       + Profession
                     </button>
@@ -366,13 +366,13 @@ export default function ProfilePage() {
           {/* ── My Spots ─────────────────────────────────────────────────── */}
           <div style={{ borderTop: '1px solid rgba(10,10,10,0.09)' }}>
             <div className="flex items-center justify-between px-5 py-3">
-              <span className="text-[9px] font-black tracking-[0.22em] uppercase"
+              <span className="text-[10px] font-black tracking-[0.22em] uppercase"
                 style={{ color: 'rgba(10,10,10,0.3)' }}>
                 My Spots
               </span>
               {!addingSpot && (
                 <button onClick={() => setAddingSpot(true)}
-                  className="text-[9px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
+                  className="text-[10px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
                   style={{ color: '#4744C8' }}>
                   + Add
                 </button>
@@ -479,7 +479,7 @@ export default function ProfilePage() {
         {/* ─ end card ─ */}
 
         {saved && (
-          <p className="text-[9px] font-black tracking-[0.2em] uppercase mt-3 text-center"
+          <p className="text-[10px] font-black tracking-[0.2em] uppercase mt-3 text-center"
             style={{ color: '#10B981' }}>
             Saved ✓
           </p>
@@ -490,12 +490,12 @@ export default function ProfilePage() {
           <div className="mt-8 py-4"
             style={{ borderTop: '1px solid rgba(10,10,10,0.07)', borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
             <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[9px] font-black tracking-[0.2em] uppercase"
+              <p className="text-[10px] font-black tracking-[0.2em] uppercase"
                 style={{ color: 'rgba(10,10,10,0.3)' }}>
                 Settle checklist
               </p>
               <Link href={`/${city.id}/settle`}
-                className="text-[9px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
+                className="text-[10px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
                 style={{ color: '#4744C8' }}>
                 View →
               </Link>

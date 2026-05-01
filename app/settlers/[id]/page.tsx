@@ -145,31 +145,31 @@ export default async function SettlerCardPage(
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {neighborhood && (
-                  <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
+                  <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
                     style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                     {neighborhood}
                   </span>
                 )}
                 {arrivalDate && (
-                  <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
+                  <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
                     style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                     Since {fmtMonth(arrivalDate)}
                   </span>
                 )}
                 {days !== null && (
-                  <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
+                  <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
                     style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                     Day {days}
                   </span>
                 )}
                 {stageConfig && (
-                  <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
+                  <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
                     style={{ background: stageColor + '18', color: stageColor }}>
                     {stageConfig.label}
                   </span>
                 )}
                 {sitLabel && (
-                  <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
+                  <span className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1"
                     style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                     {sitLabel}
                   </span>
@@ -182,7 +182,7 @@ export default async function SettlerCardPage(
         {/* Spots */}
         {spots.length > 0 && (
           <div style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-            <p className="px-5 py-3 text-[9px] font-black tracking-[0.22em] uppercase"
+            <p className="px-5 py-3 text-[10px] font-black tracking-[0.22em] uppercase"
               style={{ color: 'rgba(10,10,10,0.3)' }}>
               My Spots
             </p>

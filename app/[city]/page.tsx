@@ -117,7 +117,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                Heading tells users what this is. Cards are large enough to read
                and tap. gap-px + bg = 1px gridlines. */}
           <div className="mb-2">
-            <p className="text-[9px] font-black tracking-[0.3em] uppercase mb-3"
+            <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-3"
               style={{ color: 'rgba(10,10,10,0.3)' }}>
               Explore {city.name}
             </p>
@@ -236,7 +236,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               <section className="mb-10">
                 <SectionLabel right={
                   <Link href={`/${cityId}/eat`}
-                    className="text-[9px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
+                    className="text-[10px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
                     style={{ color: '#E8612A' }}>
                     See all →
                   </Link>
@@ -262,7 +262,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                         </p>
                         <p className="text-xs font-black truncate" style={{ color: '#0A0A0A' }}>{p.name}</p>
                         {p.deal && (
-                          <p className="text-[9px] mt-0.5 line-clamp-1" style={{ color: 'rgba(10,10,10,0.45)' }}>
+                          <p className="text-[10px] mt-0.5 line-clamp-1" style={{ color: 'rgba(10,10,10,0.45)' }}>
                             {p.deal}
                           </p>
                         )}
@@ -282,12 +282,12 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                           <div className="flex items-baseline justify-between gap-1">
                             <p className="text-xs font-bold truncate" style={{ color: '#0A0A0A' }}>{v.name}</p>
                             {'price' in v && (
-                              <span className="text-[9px] font-bold shrink-0" style={{ color: tc }}>
+                              <span className="text-[10px] font-bold shrink-0" style={{ color: tc }}>
                                 {(v as { price?: string }).price}
                               </span>
                             )}
                           </div>
-                          <p className="text-[9px]" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                          <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.35)' }}>
                             {v.neighborhood} · {(v as { vibe?: string }).vibe?.split(',')[0] ?? v.category}
                           </p>
                         </div>
