@@ -12,6 +12,7 @@ import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
 import RedditFeed from '@/components/city/RedditFeed'
 import { CityHubClient } from '@/components/city/CityHubClient'
+import { SpinWheel } from '@/components/city/SpinWheel'
 
 export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
@@ -153,6 +154,39 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <SettlersStrip cityId={cityId} />
         </div>
       </div>
+
+      {/* ── Spin wheel ───────────────────────────────────────────────────── */}
+      {(venues.length > 0 || allEvents.length > 0) && (
+        <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
+          <div className="px-6 sm:px-10 md:px-14 py-14 md:py-20 flex flex-col items-center text-center">
+            <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-3"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
+              Feeling lucky?
+            </p>
+            <h2 className="font-display font-black mb-2"
+              style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
+              What's the plan tonight?
+            </h2>
+            <p className="text-sm mb-10 max-w-xs" style={{ color: 'rgba(10,10,10,0.4)', lineHeight: 1.6 }}>
+              Spin to find a spot or event — no more endless scrolling.
+            </p>
+            <SpinWheel
+              venues={venues.map(v => ({
+                id: v.id, name: v.name, category: v.category,
+                broadType: v.broadType, neighborhood: v.neighborhood,
+                vibe: v.vibe, website: v.website,
+              }))}
+              events={allEvents.slice(0, 30).map(ge => ({
+                title: ge.ev.title,
+                date:  ge.ev.date,
+                venue: ge.ev.venue,
+                url:   ge.ev.url,
+              }))}
+              cityId={cityId}
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── Ask featured block — light sky tint, NOT dark ─────────────────── */}
       <div style={{
