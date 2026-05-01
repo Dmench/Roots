@@ -397,23 +397,56 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
 
         {/* ── All done ──────────────────────────────────────────────────── */}
         {filteredTasks.length > 0 && doneCount === filteredTasks.length && (
-          <div className="mt-12 pt-8" style={{ borderTop: '2px solid #252450' }}>
-            <p className="font-display font-black text-2xl mb-2" style={{ color: '#252450' }}>
-              Stage complete.
+          <div className="mt-12 pt-8" style={{ borderTop: '2px solid #0A0A0A' }}>
+            {/* Celebration */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex gap-1">
+                {['#FF3EBA','#38C0F0','#FAB400','#4744C8'].map(c => (
+                  <div key={c} className="w-2 h-2 rounded-full" style={{ background: c }} />
+                ))}
+              </div>
+              <span className="text-[9px] font-black tracking-[0.25em] uppercase"
+                style={{ color: 'rgba(10,10,10,0.3)' }}>
+                Stage complete
+              </span>
+            </div>
+            <p className="font-display font-black text-2xl mb-2" style={{ color: '#0A0A0A' }}>
+              The city is yours.
             </p>
-            <p className="text-sm mb-6" style={{ color: 'rgba(37,36,80,0.5)', maxWidth: 380 }}>
-              Everything done for this stage. The city is yours.
+            <p className="text-sm mb-8" style={{ color: 'rgba(10,10,10,0.45)', maxWidth: 380 }}>
+              You made it through. Now help the next person — post a tip that would have saved you time when you first arrived.
             </p>
-            <div className="flex items-center gap-4 flex-wrap">
-              <Link href={`/${city.id}`}
-                className="text-sm font-bold hover:opacity-60 transition-opacity"
-                style={{ color: '#252450' }}>
-                Back to {city.name} →
+
+            {/* Give-back CTA */}
+            <div className="mb-8 p-5" style={{ border: '1.5px solid rgba(10,10,10,0.12)' }}>
+              <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-1.5"
+                style={{ color: '#10B981' }}>
+                Give back
+              </p>
+              <p className="text-sm font-semibold mb-3" style={{ color: '#0A0A0A' }}>
+                Share what you wish you'd known
+              </p>
+              <p className="text-xs mb-4" style={{ color: 'rgba(10,10,10,0.45)' }}>
+                One tip in the community is worth more to a new settler than anything we can write. What surprised you? What took longer than it should? What would have saved you a week?
+              </p>
+              <Link
+                href={`/${city.id}/connect`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-[10px] font-black tracking-[0.15em] uppercase text-white hover:opacity-85 transition-opacity"
+                style={{ background: '#10B981' }}>
+                Post a tip →
               </Link>
-              <Link href={`/${city.id}/connect`}
-                className="text-sm font-bold hover:opacity-60 transition-opacity"
+            </div>
+
+            <div className="flex items-center gap-5 flex-wrap">
+              <Link href={`/${city.id}`}
+                className="text-xs font-bold hover:opacity-60 transition-opacity"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                Back to {city.name}
+              </Link>
+              <Link href={`/${city.id}/people`}
+                className="text-xs font-bold hover:opacity-60 transition-opacity"
                 style={{ color: '#4744C8' }}>
-                Community →
+                See who else settled →
               </Link>
             </div>
           </div>

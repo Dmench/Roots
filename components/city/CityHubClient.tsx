@@ -52,6 +52,19 @@ export function CityHubClient({ cityName, cityId }: Props) {
     : 0
   const pct = allTasks.length > 0 ? Math.round((doneCount / allTasks.length) * 100) : 0
 
+  // Card completion nudge — shown for settled users or when hero is hidden
+  const showCardNudge = hydrated && user && stage && !hero
+  const cardFields = [
+    profile.displayName,
+    profile.neighborhood,
+    profile.arrivalDate,
+    (profile.spots ?? []).length > 0 ? 'has-spots' : null,
+  ]
+  const cardComplete = cardFields.filter(Boolean).length
+  const cardTotal    = cardFields.length
+  const cardPct      = Math.round((cardComplete / cardTotal) * 100)
+  const cardDone     = cardPct === 100
+
   return (
     <>
       {/* Stage-aware hero strip */}
@@ -59,7 +72,7 @@ export function CityHubClient({ cityName, cityId }: Props) {
         <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
           <div className="max-w-5xl mx-auto px-6 md:px-12 py-4">
             <div className="flex items-center gap-5">
-              {/* Progress ring / bar */}
+              {/* Progress ring */}
               <div className="shrink-0 flex flex-col items-center gap-1">
                 <div className="relative w-10 h-10">
                   <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
@@ -91,6 +104,37 @@ export function CityHubClient({ cityName, cityId }: Props) {
                 {hero.cta}
               </Link>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settler card nudge — shown for settled users whose card is incomplete */}
+      {showCardNudge && !cardDone && (
+        <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
+          <div className="max-w-5xl mx-auto px-6 md:px-12 py-3 flex items-center gap-5">
+            {/* Mini progress bar */}
+            <div className="shrink-0 flex flex-col gap-1">
+              <div className="w-16 h-1" style={{ background: 'rgba(10,10,10,0.08)' }}>
+                <div className="h-full transition-all duration-500"
+                  style={{ width: `${cardPct}%`, background: '#FAB400' }} />
+              </div>
+              <span className="text-[8px] font-black" style={{ color: 'rgba(10,10,10,0.3)' }}>
+                {cardPct}%
+              </span>
+            </div>
+            <p className="flex-1 text-xs" style={{ color: 'rgba(10,10,10,0.45)' }}>
+              Your settler card is{' '}
+              <span className="font-black" style={{ color: '#0A0A0A' }}>{cardPct}% complete</span>
+              {' '}— add {!profile.neighborhood && 'a neighborhood, '}
+              {!profile.arrivalDate && 'arrival date, '}
+              {(profile.spots ?? []).length === 0 && 'your favourite spots'}
+              {' '}to share it.
+            </p>
+            <Link href="/profile"
+              className="shrink-0 text-[10px] font-black tracking-[0.12em] uppercase hover:opacity-60 transition-opacity"
+              style={{ color: '#FAB400' }}>
+              Complete card →
+            </Link>
           </div>
         </div>
       )}

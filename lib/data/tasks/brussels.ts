@@ -239,4 +239,328 @@ New arrivals who only lived in Belgium for part of the year declare worldwide in
       { label: 'SPF Finances — income tax guide', url: 'https://finance.belgium.be/en/private_individuals/taxation/tax_return', type: 'official' },
     ],
   },
+
+  // ── Non-EU specific ──────────────────────────────────────────────────────
+
+  {
+    id: 'bru-non-eu-visa',
+    cityId: 'brussels',
+    title: 'Get your long-stay visa before you arrive',
+    slug: 'non-eu-visa',
+    category: 'admin',
+    stageRelevance: ['planning'],
+    situationRelevance: ['non_eu'],
+    summary: 'Non-EU nationals need a Type D (long-stay) visa before entering Belgium to live. Apply at the Belgian embassy in your home country — processing takes 4–12 weeks.',
+    guide: `If you are not an EU/EEA/Swiss citizen, you cannot simply arrive in Belgium and start the residency process. You must obtain a Type D visa (visa de long séjour / visum voor lang verblijf) before departure from the Belgian embassy or consulate in your home country.
+
+The Type D visa is the gateway to all Belgian residency rights — without it, your commune registration will be refused. The visa is typically issued for the duration of your reason for stay: employment contract, family reunification, student enrollment, etc.
+
+Processing times vary significantly by country and by the embassy's current workload. Allow at minimum 4 weeks; in practice 8–12 weeks is common. Apply as early as possible.
+
+Once you arrive in Belgium on a Type D visa, you register at your commune and receive a temporary Annex 15 certificate while your file is processed. You will then receive an A-card (Aliens Card / Carte d'étranger) — the non-EU equivalent of the eID, valid for 1–5 years depending on your situation.`,
+    steps: [
+      { step: 'Identify your visa category', detail: 'Employment, family reunification, student, or other. Your employer or sponsor in Belgium will usually tell you which applies.' },
+      { step: 'Gather documents for your visa application', detail: 'Typically: valid passport, proof of your reason for stay (employment contract, invitation letter, proof of enrollment), proof of accommodation, health insurance coverage, and proof of financial means.' },
+      { step: 'Book an appointment at the Belgian embassy', detail: 'Find the Belgian embassy website for your country. Appointments fill up quickly — book as soon as you know your move date.' },
+      { step: 'Submit your application and biometrics', detail: 'You will attend the appointment in person to submit documents and have your fingerprints taken.' },
+      { step: 'Wait for visa processing', detail: 'Belgium\'s Immigration Office (CGVS/OE) makes the decision. The embassy cannot speed this up. Track your application via the provided reference number.' },
+      { step: 'Collect your visa and book your travel', detail: 'Once issued, the Type D visa is usually valid for 90 days from issue — plan your arrival within this window.' },
+    ],
+    tip: 'Your employer in Belgium may have an immigration lawyer or HR service that handles visa applications for new hires. Ask before starting the process yourself — this can save weeks of back-and-forth.',
+    estimatedTime: '4–12 weeks (depends on embassy)',
+    difficulty: 'hard',
+    links: [
+      { label: 'Belgium Immigration — long-stay visas', url: 'https://dofi.ibz.be/en/themes/residence/coming-to-work-in-belgium', type: 'official' },
+      { label: 'Belgian embassies worldwide', url: 'https://diplomatie.belgium.be/en/embassies-and-consulates', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-non-eu-acard',
+    cityId: 'brussels',
+    title: 'Get your A-card (non-EU residence card)',
+    slug: 'non-eu-residence-card',
+    category: 'admin',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: ['non_eu'],
+    summary: 'Non-EU residents receive an A-card (Aliens Card) instead of an eID. It serves the same purpose for daily life in Belgium, but the process and documents required are different.',
+    guide: `After arriving in Belgium on a Type D visa and registering at your commune, you receive a temporary document (Annexe 15 or orange card) while your file is processed by the Immigration Office (Office des Étrangers / Dienst Vreemdelingenzaken).
+
+Once approved, your commune calls you in to collect your A-card (Carte d'étranger Type A / Verblijfskaart van het Type A). This card:
+- Proves your legal residence status in Belgium
+- Contains your NISS (national number) — same as Belgian citizens
+- Is required for bank accounts, mutuelle, tax filings, and travel within the Schengen zone
+- Is typically valid for 1 year initially, then renewable
+
+The A-card does NOT allow travel outside Schengen without your national passport. It is not a travel document — it is a residence document. For travel back home or outside Schengen, you always need your original passport.`,
+    steps: [
+      { step: 'Register at your commune within 8 days of arrival', detail: 'Bring your Type D visa, passport, proof of address (lease), and any supporting documents for your reason for stay.' },
+      { step: 'Receive your Annexe 15', detail: 'This is a temporary certificate proving you have registered. It is valid for 45 days and should be carried with you.' },
+      { step: 'Police home visit', detail: 'A local police officer visits to confirm you live at the registered address. Do not miss this — a missed visit delays your A-card significantly.' },
+      { step: 'Wait for Immigration Office approval', detail: 'The commune sends your file to the Immigration Office, which decides on your residency. This takes 3–8 weeks on top of the commune processing time.' },
+      { step: 'Collect your A-card', detail: 'The commune notifies you when your A-card is ready. Bring your passport and Annexe 15. You will set a PIN code.' },
+      { step: 'Renew before expiry', detail: 'Start renewal 3 months before your card expires — the renewal process can be slow, and an expired card creates problems with employers and services.' },
+    ],
+    tip: 'Keep a photocopy of your passport, Type D visa, and Annexe 15 at all times during the waiting period. Police can ask for proof of legal residence and your Annexe 15 is the only document you have.',
+    estimatedTime: '6–12 weeks (full process)',
+    difficulty: 'hard',
+    links: [
+      { label: 'Immigration Office Belgium', url: 'https://dofi.ibz.be/en', type: 'official' },
+      { label: 'Your commune — population office', url: 'https://www.bruxelles.be/19-communes', type: 'official' },
+    ],
+  },
+
+  // ── Daily life ───────────────────────────────────────────────────────────
+
+  {
+    id: 'bru-phone-sim',
+    cityId: 'brussels',
+    title: 'Get a Belgian SIM or phone plan',
+    slug: 'phone-sim',
+    category: 'daily',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: [],
+    summary: 'You need a Belgian number for bank verification, government portals (itsme), and daily life. Proximus, Base, and Orange are the main operators — Base is cheapest.',
+    guide: `A Belgian phone number is needed for:
+- itsme digital identity app (requires Belgian number to register)
+- Bank two-factor authentication (most Belgian banks SMS you)
+- Government portals and service callbacks
+- Local contacts, landlords, and employers
+
+Belgium has three main mobile operators: Proximus (best network coverage), Orange Belgium, and Base (budget). All operate on the same national infrastructure — the difference is mainly price and customer service. Virtual operators (MVNOs) like Mobile Vikings, Scarlet, and Voo Mobile run on Proximus or Orange networks at lower prices.
+
+For EU citizens: your home SIM may work for the first few months under EU roaming rules (no roaming charges within the EU), but calls may be expensive and itsme requires a Belgian number for registration.
+
+For non-EU citizens: EU roaming does not apply. Get a Belgian SIM as soon as possible — Base prepaid SIMs are available in any Carrefour or phone shop from day one, no ID required for prepaid.`,
+    steps: [
+      { step: 'Decide: prepaid or contract', detail: 'Prepaid SIMs (Base, Orange) require no Belgian ID and are available day one. Monthly contracts need your eID or passport and are cheaper long-term.' },
+      { step: 'Compare plans', detail: 'Mobile Vikings (on Proximus) offers unlimited calls + 20–30GB data for €15–20/month. Base has comparable plans. Proximus and Orange own-brand plans are pricier but have better customer service.' },
+      { step: 'Buy a SIM', detail: 'Base and Orange SIMs are sold in supermarkets (Carrefour, Delhaize), phone shops, and operator stores. Mobile Vikings is online-only.' },
+      { step: 'Port your old number if needed', detail: 'Porting a foreign number to Belgian is complex and often not worth it. It\'s easier to give contacts your new Belgian number.' },
+      { step: 'Register for itsme', detail: 'Once you have your eID or A-card, download the itsme app and register using your Belgian phone number and card PIN. This unlocks digital access to most Belgian government services.' },
+    ],
+    tip: 'Mobile Vikings is the sweet spot for most settlers: Proximus network quality, budget price, no contract. Their app is also one of the best for managing usage.',
+    estimatedTime: '30 minutes',
+    difficulty: 'easy',
+    links: [
+      { label: 'Mobile Vikings', url: 'https://www.mobilevikings.be/en', type: 'affiliate' },
+      { label: 'Base Mobile', url: 'https://www.base.be/en', type: 'official' },
+      { label: 'itsme app', url: 'https://www.itsme-id.com/en', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-home-insurance',
+    cityId: 'brussels',
+    title: 'Get home insurance (assurance habitation)',
+    slug: 'home-insurance',
+    category: 'housing',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: ['renting', 'buying'],
+    summary: 'Belgian lease law requires tenants to have home insurance before moving in. Most landlords will ask for proof. It costs €100–200/year and covers fire, water damage, and theft.',
+    guide: `In Belgium, tenant home insurance (assurance habitation locataire / huurdersverzekering) is legally required when renting. Your lease will almost certainly include a clause requiring it, and your landlord can ask for proof of coverage before handing over the keys.
+
+Home insurance for tenants in Belgium typically covers:
+- Fire, explosion, and smoke damage
+- Water damage (burst pipes, flooding)
+- Theft and break-in
+- Civil liability (if you accidentally damage a neighbour's property — e.g., a burst pipe that floods the apartment below you)
+
+Prices are generally €100–200/year for a typical Brussels apartment. The price depends on the surface area, the declared value of your contents, and whether you add extras like bicycle theft.
+
+The easiest options for English-speaking settlers: AG Insurance (through brokers), Ethias, and online comparison tools like TopCompare or Assuralia.`,
+    steps: [
+      { step: 'Check your lease requirement', detail: 'Your lease will specify the coverage type required — usually RC Locataire (tenant civil liability) plus fire and water.' },
+      { step: 'Compare quotes online', detail: 'Use TopCompare.be or Assuralia.be to compare Belgian home insurance offers. Enter the surface area and address of your apartment.' },
+      { step: 'Choose a policy and pay', detail: 'Most insurers allow online purchase and immediate coverage. You receive a certificate (attestation) within minutes.' },
+      { step: 'Send the certificate to your landlord', detail: 'Email the attestation before or on moving day. Some landlords require an annual renewal proof — set a calendar reminder.' },
+      { step: 'Declare high-value items separately', detail: 'Laptops, bicycles, musical instruments, and jewellery above a certain value need to be declared separately in most policies.' },
+    ],
+    tip: 'If you have a good-quality bicycle, add bicycle theft to your policy. Brussels has a high bicycle theft rate and a stolen bike is not automatically covered by standard home insurance.',
+    estimatedTime: '1 hour',
+    difficulty: 'easy',
+    links: [
+      { label: 'TopCompare — home insurance', url: 'https://www.topcompare.be/en/home-insurance', type: 'community' },
+      { label: 'Assuralia — insurance guide', url: 'https://www.assuralia.be/en', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-utilities',
+    cityId: 'brussels',
+    title: 'Set up electricity, gas, and internet',
+    slug: 'utilities',
+    category: 'housing',
+    stageRelevance: ['just_arrived'],
+    situationRelevance: ['renting'],
+    summary: 'Brussels utility contracts must be in the tenant\'s name. Electricity and gas go through regional providers; internet through Proximus, Telenet, or VOO. Budget €100–180/month combined.',
+    guide: `In Belgium, utility contracts (electricity, gas, internet) must typically be set up by the tenant in their own name. Some furnished apartments or short-term rentals include utilities — check your lease carefully.
+
+**Electricity and gas (Brussels Region):**
+Brussels uses a "social tariff" market. Most residents choose a regulated supplier. Sibelga is the network operator (not your supplier — you don't choose them). For the actual supply, compare via BRUGEL (the Brussels energy regulator) or Energyprice.be. Engie and EDF Luminus are the main operators. Budget: €60–120/month depending on apartment size and usage.
+
+**Internet:**
+Three main providers: Proximus (fiber/ADSL, national), Telenet (cable, available in most of Brussels), and VOO (cable, Brussels and Wallonia). Speeds are generally good — 500Mbps fiber plans are standard. Budget: €35–55/month for broadband. Proximus and VOO both have English-language customer service.
+
+**When to set up:**
+Ideally before you move in. Internet installation can take 1–2 weeks for a physical technician visit. Electricity transfer is usually same-day online. Take meter readings on your first day — photograph the meters and send them to your new supplier to avoid paying for the previous tenant's usage.`,
+    steps: [
+      { step: 'Check what is included in your rent', detail: 'Verify whether water, gas, electricity, or internet are included (charges comprises) or your responsibility.' },
+      { step: 'Photograph meters on move-in day', detail: 'Take photos of the electricity meter (kWh reading) and gas meter (m³ reading) with the date visible. Send to your new supplier and keep a copy.' },
+      { step: 'Choose an energy supplier', detail: 'Compare on Energyprice.be or BRUGEL\'s comparison tool. Standard contract or "index" contract (variable tariff) — most settlers take fixed-rate for predictability.' },
+      { step: 'Set up internet', detail: 'Order online — allow 1–2 weeks for technician installation if needed. Proximus and VOO both offer English support. If the previous tenant had a contract at the address, transfer may be faster.' },
+      { step: 'Set up direct debit', detail: 'All Belgian utility providers prefer SEPA direct debit from your Belgian bank account. Set this up to avoid late payment fees.' },
+    ],
+    tip: 'If your lease says "charges non comprises" (charges not included), utilities are 100% your responsibility. If it says "charges comprises" or lists a fixed monthly charge, clarify exactly what\'s covered before signing.',
+    estimatedTime: '2–3 hours (setup) + 1–2 weeks (internet installation)',
+    difficulty: 'medium',
+    links: [
+      { label: 'BRUGEL — energy comparison Brussels', url: 'https://www.brugel.brussels/en', type: 'official' },
+      { label: 'Proximus internet', url: 'https://www.proximus.be/en', type: 'official' },
+      { label: 'VOO internet', url: 'https://www.voo.be/en', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-language-classes',
+    cityId: 'brussels',
+    title: 'Start French or Dutch language classes',
+    slug: 'language-classes',
+    category: 'community',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: [],
+    summary: 'Brussels is officially bilingual (French and Dutch), but French dominates daily life. Even basic French transforms your experience — and many classes are free or subsidised for Brussels residents.',
+    guide: `Brussels is officially bilingual — French and Dutch — but in practice, French is the dominant language of daily life, administration, and social interaction in most of the city. Dutch is strong in the northern municipalities (Laeken, Evere, Schaerbeek). English gets you very far, but French opens a different level of belonging.
+
+**Free and subsidised options:**
+- **Bon** (Bureau Ondersteuning Brusselse Onderwijs): subsidised French courses for Brussels residents, €50–150 for a full semester course
+- **CPAS / OCMW language programmes**: free French classes for residents, prioritised for non-EU citizens with residency
+- **Inburgering (for Flemish Brussels)**: mandatory integration programme for non-EU citizens registering in the Flemish region — includes free Dutch classes
+- **Alliance Française**: higher-quality private courses, €200–500 per level, intensive and evening options
+
+**Online learning alongside classes:**
+Duolingo, Babbel, and Pimsleur are useful for vocabulary, but Brussels French is fast and colloquial — classroom practice with a teacher dramatically accelerates progress.`,
+    steps: [
+      { step: 'Decide: French or Dutch (or both)', detail: 'French first if you live in Ixelles, Saint-Gilles, Etterbeek, or the EU Quarter. Dutch if you work in a Flemish company or live in northern Brussels.' },
+      { step: 'Check Bon for subsidised classes', detail: 'BON.brussels offers affordable community-based French courses across all Brussels communes. Register online in August/September (courses fill up fast).' },
+      { step: 'Take a placement test', detail: 'Most language centres place you in the right level. Don\'t start at the beginning if you already have some French — it wastes time and demotivates.' },
+      { step: 'Commit to a schedule', detail: 'Language learning needs consistency. Even 2 hours/week of formal class plus 20 minutes daily practice makes measurable progress in 3 months.' },
+      { step: 'Practice outside class', detail: 'Order your coffee in French. Ask for things at the commune in French. The friction is the learning.' },
+    ],
+    tip: 'If you are non-EU, check with your commune whether you are required to complete an inburgering (integration) programme. Failing to complete it when required can affect your residency renewal.',
+    estimatedTime: 'Ongoing — first class in 2–4 weeks',
+    difficulty: 'medium',
+    links: [
+      { label: 'BON Brussels — French courses', url: 'https://www.bon.brussels/en', type: 'official' },
+      { label: 'Alliance Française de Bruxelles', url: 'https://www.alliancefrancaise.be/en', type: 'official' },
+      { label: 'Bon — inburgering information', url: 'https://www.bon.brussels/en/integration', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-self-employed',
+    cityId: 'brussels',
+    title: 'Register as self-employed (indépendant)',
+    slug: 'self-employed-registration',
+    category: 'work',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: ['self_employed', 'digital_nomad'],
+    summary: 'Working freelance or running a business in Belgium requires registration with a social security fund (caisse sociale) and optionally the CBE business register. You must do this before issuing your first invoice.',
+    guide: `In Belgium, working as a self-employed person (travailleur indépendant / zelfstandige) requires formal registration before you start invoicing clients. Working without registering is illegal and can result in fines and back-payment of social contributions.
+
+**Two legal structures for most freelancers:**
+1. **Sole trader (indépendant en personne physique)**: Simplest. You register with a social security fund (caisse sociale / sociaal verzekeringsfonds) and optionally with the Crossroads Bank of Enterprises (CBE/BCE). No company, no separate legal entity — you and the business are the same.
+2. **Company (SRL/SPRL or SA/NV)**: More complex, requires a notary and minimum capital. Best if you plan to have employees or significant revenue.
+
+Most digital nomads and freelancers start as sole traders. It can be converted to a company later.
+
+**Social security contributions:**
+Self-employed people pay quarterly social contributions (cotisations sociales) — approximately 20.5% of net income, with a minimum of ~€900/quarter. These fund your health insurance (through your mutuality) and pension.
+
+**VAT:**
+If your annual turnover exceeds €25,000, VAT registration (TVA/BTW) is mandatory. Below that, you can opt for the "small business exemption" (franchise TVA) and not charge VAT.`,
+    steps: [
+      { step: 'Choose your social security fund', detail: 'You must affiliate with an approved caisse sociale within 90 days of starting activity. Options: Xerius, Acerta, Securex, UCM, or Partena Professional. All offer English-language service.' },
+      { step: 'Register with the CBE (business register)', detail: 'If you plan to have a business name or formal invoicing entity, register with the Crossroads Bank of Enterprises via a "guichet d\'entreprise" (enterprise office). This gives you a company number (BCE number). Xerius and Acerta run enterprise offices.' },
+      { step: 'Open a professional bank account', detail: 'Not legally required for sole traders, but strongly recommended for clean bookkeeping. Wise Business and Revolut Business are simple options.' },
+      { step: 'Set up accounting', detail: 'Belgian bookkeeping requirements are real — even for sole traders. Use accounting software (Exact Online, Billit, or Dext) or hire an accountant from day one. An accountant costs €600–1,200/year and is tax-deductible.' },
+      { step: 'Understand your tax obligations', detail: 'Self-employed income is taxed at personal income tax rates (up to 50% above €42k). Your accountant files your annual return. You also make quarterly provisional tax advance payments.' },
+    ],
+    tip: 'If you are non-EU, check that your visa category permits self-employed activity. Some visas (e.g., employee-sponsored work permits) do not permit freelance work on the side.',
+    estimatedTime: '1–2 weeks (registration) + ongoing',
+    difficulty: 'hard',
+    links: [
+      { label: 'Partena Professional (English)', url: 'https://www.partena-professional.be/en', type: 'official' },
+      { label: 'Acerta (English)', url: 'https://www.acerta.be/en', type: 'official' },
+      { label: 'FPS Economy — self-employment guide', url: 'https://economie.fgov.be/en/themes/enterprises/start-business', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-driving-licence',
+    cityId: 'brussels',
+    title: 'Exchange your foreign driving licence',
+    slug: 'driving-licence',
+    category: 'admin',
+    stageRelevance: ['settling', 'settled'],
+    situationRelevance: [],
+    summary: 'EU licences are valid in Belgium indefinitely. Non-EU licences must be exchanged within one year of residency. Some countries have bilateral agreements; others require a full Belgian driving test.',
+    guide: `**EU/EEA licences:**
+If your driving licence was issued by an EU or EEA country, it is valid in Belgium for as long as it is valid in the issuing country. No exchange is required. When your licence expires, you renew it at your Belgian commune using a standard renewal process.
+
+**Non-EU licences:**
+Belgium has bilateral exchange agreements with many countries including the USA, Canada, Australia, Japan, Switzerland, and South Korea. If your country is on the list, you can exchange your licence at your commune without taking a new test — bring your foreign licence, your eID or A-card, a certified translation if the licence is not in French, Dutch, or German, and passport photos.
+
+**Countries without an exchange agreement:**
+You must pass the Belgian theory test and practical driving test, even if you have been driving for 20 years. Theory test (theorie-examen / examen théorique) can be taken in English at approved centres. Budget 3–6 months for the full process.
+
+**Practical note:**
+Even if exchange is possible, some Belgian communes are slow on this. The Ixelles commune is known to have a backlog. Some people prefer to use their foreign licence until they are settled and then do the exchange all at once.`,
+    steps: [
+      { step: 'Check if your country has an exchange agreement', detail: 'Look up Belgium\'s list of bilateral driving licence agreements on the SPF Mobilité website. If listed, you can exchange without a test.' },
+      { step: 'Get a certified translation if needed', detail: 'Non-Latin script licences (Arabic, Chinese, Thai, etc.) require a certified translation into French or Dutch. A sworn translator (traducteur juré) in Brussels charges €40–80.' },
+      { step: 'Go to your commune with documents', detail: 'Belgian eID or A-card, your foreign licence, the translation (if required), passport photos, and the exchange fee (usually €25–35).' },
+      { step: 'Surrender your foreign licence', detail: 'Belgium keeps your original foreign licence. Keep a photocopy before handing it in. Some communes send it back to the issuing country.' },
+      { step: 'If no agreement: book theory test', detail: 'Theory tests in English are available at GOCA exam centres across Brussels. Study using the official GOCA practice app or website. Most people pass after 1–2 weeks of study.' },
+    ],
+    tip: 'Do not wait more than 12 months after registering as a Belgian resident if your country does not have an exchange agreement — using a non-EU licence after 12 months of Belgian residency is illegal, even if you never exchanged it.',
+    estimatedTime: '1 day (exchange) or 2–4 months (full test)',
+    difficulty: 'medium',
+    links: [
+      { label: 'SPF Mobilité — licence exchange', url: 'https://mobilit.belgium.be/en/road/driving-licences/foreign-driving-licences', type: 'official' },
+      { label: 'GOCA — theory test (English)', url: 'https://www.goca.be/en', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-school-children',
+    cityId: 'brussels',
+    title: 'Enrol children in school',
+    slug: 'school-children',
+    category: 'daily',
+    stageRelevance: ['planning', 'just_arrived'],
+    situationRelevance: ['family'],
+    summary: 'Brussels has parallel French and Dutch school systems, plus international schools. The French-speaking system is large but popular schools fill fast. Apply early — waiting lists are common for sought-after schools.',
+    guide: `Brussels has three distinct school systems operating in parallel:
+
+**1. French-speaking (Fédération Wallonie-Bruxelles):**
+The largest system. Schools are categorised as communal (municipal), provincial, or libre (Catholic-affiliated). Quality varies significantly by school. Registration for primary school happens through a centralised enrolment system (EUDONET / Inscriptions.be) in spring for September entry. Secondary school places are also highly competitive in desirable neighbourhoods.
+
+**2. Dutch-speaking (Gemeenschapsonderwijs / GO!):**
+Smaller but often praised for quality and integration of expat children. Most lessons are in Dutch — intensive Dutch classes (OKAN programme) for non-Dutch speaking children. Schools in Ixelles, Etterbeek, and the EU Quarter often have waiting lists.
+
+**3. International schools:**
+Brussels has more international schools per capita than almost any city in Europe, reflecting the EU/NATO expat population. ISB (International School of Brussels), St John's, BSB, and the European Schools are the main ones. The European Schools are free for EU institution employees. Private international schools cost €15,000–30,000/year.
+
+**Key timing:**
+Applications for the following September typically open in January–February. For international schools, apply 6–12 months in advance. Some popular communal schools have multi-year waiting lists.`,
+    steps: [
+      { step: 'Decide on school system', detail: 'French, Dutch, or international. Consider your family\'s languages, budget, and how long you plan to stay in Brussels.' },
+      { step: 'Research schools in your neighbourhood', detail: 'Visit school websites and read reviews on expat forums. Ask in Brussels expat Facebook groups and Roots community for recommendations.' },
+      { step: 'Apply through the correct channel', detail: 'French system: through Inscriptions.be (opens January). Dutch system: directly to the school. International schools: directly with admissions. European Schools: through your EU institution HR.' },
+      { step: 'Join waiting lists as backup', detail: 'Apply to multiple schools simultaneously. Brussels popular schools fill up fast and waiting lists move slowly.' },
+      { step: 'Register at school once a place is confirmed', detail: 'Bring your child\'s birth certificate (with sworn translation if not in French/Dutch), immunisation records, and your Belgian address proof.' },
+    ],
+    tip: 'The OKAN programme (Dutch system) places non-Dutch-speaking children in an intensive Dutch integration class before mainstream schooling. Children typically integrate into regular classes within 1 year. It is genuinely impressive and free.',
+    estimatedTime: '1–6 months (application to start)',
+    difficulty: 'hard',
+    links: [
+      { label: 'Inscriptions.be — French school registration', url: 'https://www.inscriptions.cfwb.be', type: 'official' },
+      { label: 'GO! Brussels — Dutch schools', url: 'https://www.g-o.be/en', type: 'official' },
+      { label: 'European Schools Brussels', url: 'https://www.eursc.eu/en', type: 'official' },
+    ],
+  },
 ]
