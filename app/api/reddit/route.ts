@@ -22,15 +22,17 @@ export interface RedditPost {
   flair:     string | null
 }
 
-const UAS = [
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
-]
+// Honest User-Agent per Reddit API guidelines.
+// For higher rate limits, register a Reddit app at reddit.com/prefs/apps and add
+// REDDIT_CLIENT_ID + REDDIT_CLIENT_SECRET env vars with OAuth client_credentials flow.
+const USER_AGENT = 'roots-city-guide/1.0 (https://roots.so; contact@roots.so)'
 
 async function fetchSub(sub: string): Promise<RedditPost[]> {
-  const ua = UAS[Math.floor(Math.random() * UAS.length)]
-  const headers = { 'User-Agent': ua, 'Accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.9' }
+  const headers = {
+    'User-Agent':      USER_AGENT,
+    'Accept':          'application/json',
+    'Accept-Language': 'en-US,en;q=0.9',
+  }
 
   for (const base of ['https://www.reddit.com', 'https://old.reddit.com']) {
     try {

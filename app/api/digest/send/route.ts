@@ -19,10 +19,19 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://roots.so'
  *   curl -H "Authorization: Bearer <CRON_SECRET>" https://yourapp.vercel.app/api/digest/send
  */
 export async function GET(req: NextRequest) {
-  // ── Auth ────────────────────────────────────────────────────────────────────
-  const authHeader = req.headers.get('authorization')
+  // ── Auth — timing-safe comparison prevents timing attacks on the secret ─────
+  const { timingSafeEqual, createHmac } = await import('crypto')
+
+  const authHeader = req.headers.get('authorization') ?? ''
   const secret     = process.env.CRON_SECRET
-  if (!secret || authHeader !== `Bearer ${secret}`) {
+  if (!secret) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Hash both sides with the same HMAC key so the buffers are always equal length,
+  // then compare with timingSafeEqual — prevents timing side-channel attacks.
+  const key = 'roots-cron-compare'
+  const ha  = createHmac('sha256', key).update(authHeader).digest()
+  const hb  = createHmac('sha256', key).update(`Bearer ${secret}`).digest()
+  if (!timingSafeEqual(ha, hb)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

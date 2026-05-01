@@ -31,15 +31,8 @@ export default function HomePage() {
   if (user) {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
-        {/* Shapes */}
-        <div className="fixed rounded-full pointer-events-none"
-          style={{ background: '#4744C8', width: 400, height: 400, top: -160, right: -100, opacity: 0.85 }} />
-        <div className="fixed rounded-full pointer-events-none"
-          style={{ background: '#38C0F0', width: 120, height: 120, bottom: 60, right: '18%', opacity: 0.5 }} />
-        <div className="fixed pointer-events-none overflow-hidden"
-          style={{ width: 90, height: 45, bottom: 0, left: '38%' }}>
-          <div className="w-full rounded-full" style={{ background: '#FF3EBA', height: 90, marginTop: -45, opacity: 0.65 }} />
-        </div>
+        {/* 4px brand rule — consistent with city hub */}
+        <div style={{ height: 4, background: '#252450' }} />
 
         <div className="flex-1 flex flex-col justify-center px-8 md:px-16 relative">
           <div className="max-w-lg">
@@ -180,10 +173,10 @@ export default function HomePage() {
         <p className="text-xs" style={{ color: 'rgba(245,236,215,0.2)' }}>
           {memberCount !== null ? memberCount : 312} people settling in Brussels
         </p>
-        <Link href="/brussels"
+        <Link href="/cities"
           className="text-xs font-medium hover:opacity-70 transition-opacity"
           style={{ color: 'rgba(245,236,215,0.3)' }}>
-          Explore Brussels →
+          Explore cities →
         </Link>
       </div>
 

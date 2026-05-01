@@ -7,6 +7,7 @@ import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
 import type { Venue } from '@/lib/data/venues'
+import { supabase } from '@/lib/supabase/client'
 
 const VenueMap = dynamic(() => import('./VenueMap'), { ssr: false })
 
@@ -241,7 +242,10 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         if (cached !== null) return [v.id, cached === '' ? null : cached] as const
         try {
           const q   = encodeURIComponent(`${v.name}${v.address ? ' ' + v.address : ''}`)
-          const res = await fetch(`/api/places/search?q=${q}&cityId=${cid}`)
+          const { data: { session } } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }))
+          const headers: Record<string, string> = {}
+          if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+          const res = await fetch(`/api/places/search?q=${q}&cityId=${cid}`, { headers })
           const json = await res.json() as { results: Array<{ photoRef: string | null }> }
           const ref  = json.results?.[0]?.photoRef ?? null
           sessionStorage.setItem(sKey, ref ?? '')

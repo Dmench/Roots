@@ -105,9 +105,9 @@ export function Nav() {
             {!pathCity && (
               <Link
                 href={profileCity ? `/${profileCity.id}` : '/cities'}
-                className="hidden sm:flex px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
+                className="flex px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
               >
-                {profileCity ? profileCity.name : 'Cities'}
+                {profileCity ? profileCity.name : 'Explore cities'}
               </Link>
             )}
 

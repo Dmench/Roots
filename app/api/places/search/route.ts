@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createUserClient } from '@/lib/supabase/server'
 import type { SpotCategory } from '@/lib/types'
 
 const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
@@ -23,6 +24,13 @@ function inferCategory(types: string[]): SpotCategory {
 const COUNTRY_SUFFIX = /, (Belgium|Portugal|Germany|Spain|Netherlands|Czech Republic)$/
 
 export async function GET(req: NextRequest) {
+  // Auth guard — only signed-in users may query Places (protects Google API quota)
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const token      = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (!token) return NextResponse.json({ results: [] }, { status: 401 })
+  const { data: { user } } = await createUserClient(token).auth.getUser()
+  if (!user) return NextResponse.json({ results: [] }, { status: 401 })
+
   const q      = req.nextUrl.searchParams.get('q')?.trim()
   const cityId = req.nextUrl.searchParams.get('cityId') ?? 'brussels'
 
@@ -40,8 +48,6 @@ export async function GET(req: NextRequest) {
   url.searchParams.set('key', key)
 
   try {
-    // Cache identical queries for 10 minutes — a user typing "malo" gets the
-    // same result for 10 min without another API call
     const res  = await fetch(url.toString(), { next: { revalidate: 600 } })
     const json = await res.json() as {
       results: Array<{

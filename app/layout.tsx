@@ -32,11 +32,20 @@ export const metadata: Metadata = {
     title: 'Roots — Put down roots, anywhere',
     description: 'City onboarding and belonging. Settle in, get set up, and find your people.',
     locale: 'en_US',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Roots — Put down roots, anywhere',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Roots — Put down roots, anywhere',
     description: 'City onboarding and belonging. Settle in, get set up, and find your people.',
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,

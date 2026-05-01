@@ -102,8 +102,16 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
     setLoading(true); setError('')
     const { error: err } = await signUp(email.trim(), password, name.trim() || undefined)
     setLoading(false)
-    if (err) setError(err.message.includes('already registered') ? 'Account already exists — sign in instead.' : err.message)
-    else setView('confirm-email')
+    if (err) {
+      setError(err.message.includes('already registered') ? 'Account already exists — sign in instead.' : err.message)
+    } else {
+      // New users should pick a city after confirming email, not land on /profile
+      const current = sessionStorage.getItem('roots:returnTo')
+      if (!current || current === '/profile' || current === '/') {
+        sessionStorage.setItem('roots:returnTo', '/cities')
+      }
+      setView('confirm-email')
+    }
   }
 
   const handleForgotPassword = async () => {
