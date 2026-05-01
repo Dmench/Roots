@@ -38,6 +38,22 @@
 
   --color-amber:       #FAB400;
   --color-amber-light: #FFF5D0;
+
+  /* ── Brand accent palette — single source of truth ────────────────────────
+     Change here → changes everywhere. Do not hardcode these hex values
+     elsewhere; reference the CSS variable instead via style={{ color: 'var(--accent-community)' }}
+     or via Tailwind's arbitrary value: text-[var(--accent-community)] */
+  --accent-brand:      #252450;   /* deep navy — brand rule, headings */
+  --accent-primary:    #4744C8;   /* indigo — primary actions, people */
+  --accent-community:  #FF3EBA;   /* pink — community, discovery, joy */
+  --accent-settle:     #FAB400;   /* amber — settle tasks, warnings */
+  --accent-eat:        #E8612A;   /* terracotta — eat & drink */
+  --accent-ask:        #38C0F0;   /* sky — AI, questions */
+  --accent-people:     #4744C8;   /* indigo (same as primary) — people */
+  --accent-green:      #10B981;   /* green — live status, success */
+
+  /* Spin wheel duration — referenced in SpinWheel component via JS */
+  --spin-duration-ms:  3200;
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */

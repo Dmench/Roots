@@ -41,6 +41,7 @@ interface Props {
   venues: SpinVenue[]
   events: SpinEvent[]
   cityId: string
+  dark?:  boolean
 }
 
 type PickType = 'eat' | 'drink' | 'event'
@@ -87,6 +88,8 @@ function pt(deg: number, r = R) {
 
 /* ── SVG pie ──────────────────────────────────────────────────────────────── */
 
+const SPIN_DURATION_MS = 3200 // keep in sync with CSS transition below
+
 function Wheel({ rotation, spinning, selected }: {
   rotation: number
   spinning:  boolean
@@ -97,7 +100,7 @@ function Wheel({ rotation, spinning, selected }: {
   return (
     <div style={{
       transform:  `rotate(${rotation}deg)`,
-      transition: spinning ? 'transform 3.2s cubic-bezier(0.22, 0.61, 0.14, 1)' : 'none',
+      transition: spinning ? `transform ${SPIN_DURATION_MS}ms cubic-bezier(0.22, 0.61, 0.14, 1)` : 'none',
       willChange: 'transform',
     }}>
       <svg width="240" height="240" viewBox="0 0 240 240" style={{ display: 'block' }}>
@@ -169,7 +172,7 @@ function Wheel({ rotation, spinning, selected }: {
 
 /* ── Main component ───────────────────────────────────────────────────────── */
 
-export function SpinWheel({ venues, events, cityId }: Props) {
+export function SpinWheel({ venues, events, cityId, dark = false }: Props) {
   const [selected, setSelected] = useState<PickType | null>(null)
   const [spinning, setSpinning] = useState(false)
   const [result,   setResult]   = useState<Result | null>(null)
@@ -237,7 +240,7 @@ export function SpinWheel({ venues, events, cityId }: Props) {
     setTimeout(() => {
       setSpinning(false)
       setResult(item)
-    }, 3400)
+    }, SPIN_DURATION_MS + 200) // +200ms buffer so wheel finishes before reveal
   }
 
   const cat = selected ? CATS.find(c => c.type === selected)! : null
@@ -259,10 +262,10 @@ export function SpinWheel({ venues, events, cityId }: Props) {
               disabled={spinning}
               className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold transition-all duration-200 disabled:opacity-40"
               style={{
-                background:  active ? c.color : 'transparent',
-                color:       active ? '#fff'   : c.color,
-                border:      `2px solid ${c.color}`,
-                transform:   active ? 'scale(1.04)' : 'scale(1)',
+                background: active ? c.color : dark ? 'rgba(255,255,255,0.08)' : 'transparent',
+                color:      active ? '#fff'  : dark ? 'rgba(245,244,240,0.7)' : c.color,
+                border:     active ? `2px solid ${c.color}` : dark ? '2px solid rgba(255,255,255,0.15)' : `2px solid ${c.color}`,
+                transform:  active ? 'scale(1.04)' : 'scale(1)',
               }}
             >
               <span style={{ fontSize: 15 }}>{c.icon}</span>
@@ -293,7 +296,7 @@ export function SpinWheel({ venues, events, cityId }: Props) {
         onClick={spin}
         disabled={spinning || !selected}
         className="px-12 py-3.5 font-display font-black text-base text-white hover:opacity-90 active:scale-95 transition-all disabled:opacity-30"
-        style={{ background: cat ? cat.color : '#0A0A0A', letterSpacing: '-0.01em', transition: 'background 0.25s, opacity 0.2s' }}
+        style={{ background: cat ? cat.color : dark ? 'rgba(255,255,255,0.15)' : '#0A0A0A', letterSpacing: '-0.01em', transition: 'background 0.25s, opacity 0.2s' }}
       >
         {spinning
           ? 'Spinning…'

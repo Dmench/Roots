@@ -65,7 +65,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       <CityHubClient cityName={city.name} cityId={cityId} />
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '2px solid #0A0A0A' }}>
+      <div style={{ background: '#F9F8F6', borderBottom: '2px solid #0A0A0A' }}>
 
         {/* Brand rule */}
         <div style={{ height: 4, background: '#252450' }} />
@@ -114,6 +114,36 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
           </div>
 
+          {/* ── Spin wheel — hero action above portal cards ───────────────── */}
+          {(venues.length > 0 || allEvents.length > 0) && (
+            <div className="mb-10 -mx-6 sm:-mx-10 md:-mx-14 px-6 sm:px-10 md:px-14 py-10 md:py-14 flex flex-col items-center text-center"
+              style={{ background: '#252450', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <p className="text-[10px] font-black tracking-[0.32em] uppercase mb-3"
+                style={{ color: 'rgba(245,244,240,0.4)' }}>
+                What's the plan tonight?
+              </p>
+              <h2 className="font-display font-black mb-8"
+                style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#F5F4F0', letterSpacing: '-0.02em' }}>
+                Pick a vibe. Spin. Go.
+              </h2>
+              <SpinWheel
+                venues={venues.map(v => ({
+                  id: v.id, name: v.name, category: v.category,
+                  broadType: v.broadType, neighborhood: v.neighborhood,
+                  vibe: v.vibe, website: v.website,
+                }))}
+                events={allEvents.slice(0, 30).map(ge => ({
+                  title: ge.ev.title,
+                  date:  ge.ev.date,
+                  venue: ge.ev.venue,
+                  url:   ge.ev.url,
+                }))}
+                cityId={cityId}
+                dark
+              />
+            </div>
+          )}
+
           {/* ── Section portal cards ─────────────────────────────────────────
                Heading tells users what this is. Cards are large enough to read
                and tap. gap-px + bg = 1px gridlines. */}
@@ -154,39 +184,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <SettlersStrip cityId={cityId} />
         </div>
       </div>
-
-      {/* ── Spin wheel ───────────────────────────────────────────────────── */}
-      {(venues.length > 0 || allEvents.length > 0) && (
-        <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-          <div className="px-6 sm:px-10 md:px-14 py-14 md:py-20 flex flex-col items-center text-center">
-            <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-3"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
-              Feeling lucky?
-            </p>
-            <h2 className="font-display font-black mb-2"
-              style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
-              What's the plan tonight?
-            </h2>
-            <p className="text-sm mb-10 max-w-xs" style={{ color: 'rgba(10,10,10,0.4)', lineHeight: 1.6 }}>
-              Spin to find a spot or event — no more endless scrolling.
-            </p>
-            <SpinWheel
-              venues={venues.map(v => ({
-                id: v.id, name: v.name, category: v.category,
-                broadType: v.broadType, neighborhood: v.neighborhood,
-                vibe: v.vibe, website: v.website,
-              }))}
-              events={allEvents.slice(0, 30).map(ge => ({
-                title: ge.ev.title,
-                date:  ge.ev.date,
-                venue: ge.ev.venue,
-                url:   ge.ev.url,
-              }))}
-              cityId={cityId}
-            />
-          </div>
-        </div>
-      )}
 
       {/* ── Ask featured block — light sky tint, NOT dark ─────────────────── */}
       <div style={{

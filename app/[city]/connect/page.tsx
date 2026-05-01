@@ -626,7 +626,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                 <span className="shrink-0 text-[8px] font-black tracking-wider uppercase w-16 leading-relaxed" style={{ color: ss.color }}>
                                   {ss.label}
                                 </span>
-                                <span className="flex-1 text-xs font-semibold leading-snug" style={{ color: '#0A0A0A' }}>
+                                <span className="flex-1 text-sm font-semibold leading-snug" style={{ color: '#0A0A0A' }}>
                                   {fi.title}
                                 </span>
                                 <span className="shrink-0 text-[10px]" style={{ color: 'rgba(10,10,10,0.2)' }}>{ago(fi.published)}</span>
@@ -736,7 +736,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                               <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: '#FF4500' }} />
                             </div>
                           </div>
-                          <p className="flex-1 min-w-0 text-xs font-semibold leading-snug line-clamp-2"
+                          <p className="flex-1 min-w-0 text-sm font-semibold leading-snug line-clamp-2"
                             style={{ color: 'rgba(245,236,215,0.7)' }}>
                             {fi.title}
                           </p>

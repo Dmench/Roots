@@ -319,7 +319,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                     className="text-left bg-white rounded-xl px-4 py-4 hover:shadow-md transition-all group"
                     style={{ border: '1px solid rgba(37,36,80,0.08)' }}
                   >
-                    <p className="text-xs font-medium leading-snug group-hover:opacity-70 transition-opacity"
+                    <p className="text-sm font-medium leading-snug group-hover:opacity-70 transition-opacity"
                       style={{ color: '#252450' }}>
                       {q}
                     </p>

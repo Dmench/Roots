@@ -53,7 +53,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
       <div className="min-h-screen bg-white">
         <div style={{ height: 4, background: '#252450' }} />
 
-        <div className="max-w-2xl mx-auto px-6 md:px-10 pt-14 pb-20">
+        <div className="max-w-6xl mx-auto px-6 sm:px-10 md:px-14 pt-14 pb-20">
           <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-8"
             style={{ color: 'rgba(37,36,80,0.3)' }}>
             Settle · {city.name}
@@ -104,7 +104,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div style={{ borderBottom: '2px solid #252450' }}>
-        <div className="max-w-3xl mx-auto px-6 md:px-12 pt-8 pb-6">
+        <div className="max-w-6xl mx-auto px-6 sm:px-10 md:px-14 pt-8 pb-6">
           <div className="flex items-end justify-between gap-6 mb-5">
             <div>
               <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-2"
@@ -146,7 +146,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 md:px-12 py-8">
+      <div className="max-w-6xl mx-auto px-6 sm:px-10 md:px-14 py-8">
 
         {/* ── Situation filter ──────────────────────────────────────────── */}
         <div className="mb-6">
@@ -325,7 +325,7 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
                                   <div>
                                     <p className="text-sm font-semibold" style={{ color: '#252450' }}>{s.step}</p>
                                     {s.detail && (
-                                      <p className="text-xs mt-0.5 leading-relaxed"
+                                      <p className="text-sm mt-0.5 leading-relaxed"
                                         style={{ color: 'rgba(37,36,80,0.5)' }}>
                                         {s.detail}
                                       </p>
