@@ -23,7 +23,7 @@ export function SettlersStrip({ cityId }: { cityId: string }) {
   useEffect(() => {
     fetch(`/api/settlers/${cityId}`)
       .then(r => r.json())
-      .then(d => { setSettlers(d.settlers ?? []); setTotal(d.total ?? 0); setReady(true) })
+      .then(d => { setSettlers(d.settlers ?? []); setTotal(d.recentTotal ?? d.total ?? 0); setReady(true) })
       .catch(() => setReady(true))
   }, [cityId])
 
@@ -35,11 +35,11 @@ export function SettlersStrip({ cityId }: { cityId: string }) {
   return (
     <div
       className="mt-5 pt-4 flex items-center gap-4 flex-wrap"
-      style={{ borderTop: '1px solid rgba(245,236,215,0.07)' }}
+      style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}
     >
       <span
         className="text-[8px] font-black tracking-[0.22em] uppercase shrink-0"
-        style={{ color: 'rgba(245,236,215,0.18)' }}
+        style={{ color: 'rgba(10,10,10,0.2)' }}
       >
         New this month
       </span>
@@ -49,25 +49,19 @@ export function SettlersStrip({ cityId }: { cityId: string }) {
           const color   = STAGE_COLOR[s.stage ?? ''] ?? '#3D3CAC'
           const initial = s.display_name.charAt(0).toUpperCase()
           const first   = s.display_name.split(' ')[0]
-          // "Ixelles / Elsene" → "Ixelles"
           const hood    = s.neighborhood?.split(' /')[0]?.split('/')[0]?.trim()
 
           return (
             <div key={i} className="flex items-center gap-1.5">
               <span
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0"
-                style={{ background: `${color}22`, color, border: `1px solid ${color}38` }}
+                className="w-5 h-5 flex items-center justify-center text-[9px] font-black shrink-0"
+                style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}
               >
                 {initial}
               </span>
-              <span
-                className="text-[10px] font-medium leading-none"
-                style={{ color: 'rgba(245,236,215,0.5)' }}
-              >
+              <span className="text-[10px] font-medium leading-none" style={{ color: 'rgba(10,10,10,0.45)' }}>
                 {first}
-                {hood && (
-                  <span style={{ color: 'rgba(245,236,215,0.22)' }}> · {hood}</span>
-                )}
+                {hood && <span style={{ color: 'rgba(10,10,10,0.22)' }}> · {hood}</span>}
               </span>
             </div>
           )
@@ -77,7 +71,7 @@ export function SettlersStrip({ cityId }: { cityId: string }) {
           <Link
             href={`/${cityId}/people`}
             className="text-[9px] font-black hover:opacity-60 transition-opacity"
-            style={{ color: 'rgba(245,236,215,0.22)', letterSpacing: '0.05em' }}
+            style={{ color: 'rgba(10,10,10,0.25)', letterSpacing: '0.05em' }}
           >
             +{overflow} more →
           </Link>

@@ -8,6 +8,7 @@ import { getVenues } from '@/lib/data/venues'
 import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
+import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
 
 import RedditFeed from '@/components/city/RedditFeed'
@@ -101,7 +102,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
                 </span>
                 <span className="text-xs font-medium" style={{ color: 'rgba(10,10,10,0.45)' }}>
-                  {city.settlerCount} settling now
+                  <LiveSettlerCount cityId={cityId} fallback={city.settlerCount} /> settling now
                 </span>
               </div>
               {allEvents.length > 0 && (

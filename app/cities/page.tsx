@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { CITIES } from '@/lib/data/cities'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { Nav } from '@/components/layout/Nav'
+import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import type { CityId } from '@/lib/types'
 
 const CITY_CONFIG: Record<string, { bg: string; shape1: string; shape2: string }> = {
@@ -122,7 +123,7 @@ function CitiesInner() {
                   <div className="flex items-center justify-between mt-8">
                     <span className="flex items-center gap-2 text-xs font-medium" style={{ color: 'rgba(245,236,215,0.5)' }}>
                       <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: '#38C0F0' }} />
-                      {city.settlerCount} settling now
+                      <LiveSettlerCount cityId={city.id} fallback={city.settlerCount} /> settling now
                     </span>
                     <span className="text-sm font-bold text-white opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                       {fromProfile ? 'Select →' : 'Enter →'}
