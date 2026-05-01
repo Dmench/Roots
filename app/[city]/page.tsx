@@ -66,13 +66,13 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
       <div style={{ background: '#FFFFFF', borderBottom: '2px solid #0A0A0A' }}>
 
-        {/* Brand rule — single indigo line replaces rainbow stripe */}
+        {/* Brand rule */}
         <div style={{ height: 4, background: '#252450' }} />
 
-        <div className="max-w-5xl mx-auto px-6 md:px-12 py-6 md:py-8">
+        <div className="px-6 sm:px-10 md:px-14 py-7 md:py-10">
 
           {/* City nameplate */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 mb-10">
             <div className="hidden sm:block shrink-0">
               <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.3)' }}>
                 {dayName}
@@ -113,29 +113,36 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
           </div>
 
-          {/* ── Section portal cards ────────────────────────────────────────
-               gap-px + background = 1px gridline trick (no CSS hacks needed) */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-px mt-8"
+          {/* ── Section portal cards ─────────────────────────────────────────
+               Heading tells users what this is. Cards are large enough to read
+               and tap. gap-px + bg = 1px gridlines. */}
+          <div className="mb-2">
+            <p className="text-[9px] font-black tracking-[0.3em] uppercase mb-3"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
+              Explore {city.name}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-px"
             style={{ background: 'rgba(10,10,10,0.1)', border: '1px solid rgba(10,10,10,0.1)' }}>
             {[
-              { href: `/${cityId}/connect`, label: 'Community',   sub: 'Tips, questions & posts',        color: '#FF3EBA' },
+              { href: `/${cityId}/connect`, label: 'Community',   sub: 'Tips, questions & local posts',  color: '#FF3EBA' },
               { href: `/${cityId}/eat`,     label: 'Eat & Drink', sub: `${venues.length} curated spots`, color: '#E8612A' },
-              { href: `/${cityId}/settle`,  label: 'Settle in',   sub: 'Your guided checklist',          color: '#FAB400' },
-              { href: `/${cityId}/ask`,     label: 'Ask the AI',  sub: 'Brussels, answered',             color: '#38C0F0' },
-              { href: `/${cityId}/people`,  label: 'People',      sub: 'Meet other settlers',            color: '#4744C8' },
+              { href: `/${cityId}/settle`,  label: 'Settle in',   sub: 'Admin, housing & setup guide',   color: '#FAB400' },
+              { href: `/${cityId}/ask`,     label: 'Ask the AI',  sub: 'Any question, answered fast',    color: '#38C0F0' },
+              { href: `/${cityId}/people`,  label: 'People',      sub: 'Meet settlers like you',         color: '#4744C8' },
             ].map(p => (
               <Link key={p.href} href={p.href}
-                className="group flex flex-col px-4 py-4 bg-white hover:bg-neutral-50 transition-colors"
-                style={{ borderTop: `3px solid ${p.color}` }}>
-                <span className="text-[9px] font-black tracking-[0.22em] uppercase mb-1.5"
+                className="group flex flex-col px-5 py-6 md:py-8 bg-white hover:bg-neutral-50 transition-colors"
+                style={{ borderTop: `4px solid ${p.color}` }}>
+                <span className="text-xs font-black tracking-[0.12em] uppercase mb-2"
                   style={{ color: p.color }}>
                   {p.label}
                 </span>
-                <span className="text-[11px] leading-snug flex-1"
-                  style={{ color: 'rgba(10,10,10,0.5)' }}>
+                <span className="text-xs leading-snug flex-1"
+                  style={{ color: 'rgba(10,10,10,0.55)' }}>
                   {p.sub}
                 </span>
-                <span className="text-xs font-black mt-3 group-hover:translate-x-0.5 transition-transform inline-block"
+                <span className="text-sm font-black mt-5 group-hover:translate-x-1 transition-transform inline-block"
                   style={{ color: p.color }}>
                   →
                 </span>
@@ -153,7 +160,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         borderTop: '3px solid #38C0F0',
         borderBottom: '1px solid rgba(56,192,240,0.15)',
       }}>
-        <div className="max-w-5xl mx-auto px-6 md:px-12 py-9 md:py-12">
+        <div className="px-6 sm:px-10 md:px-14 py-9 md:py-12">
           <div className="flex flex-col md:flex-row md:items-center gap-7 md:gap-14">
 
             <div className="flex-1 min-w-0">
@@ -201,20 +208,20 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       </div>
 
       {/* ── Editorial body ───────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 md:px-12">
+      <div className="px-6 sm:px-10 md:px-14">
 
         {/* Column rule */}
-        <div className="hidden lg:grid lg:grid-cols-[1fr_1px_320px]">
-          <div className="lg:pr-9 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
+        <div className="hidden lg:grid lg:grid-cols-[1fr_1px_400px]">
+          <div className="lg:pr-10 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
           <div />
-          <div className="lg:pl-9 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
+          <div className="lg:pl-10 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
         </div>
         <div className="lg:hidden pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_320px] gap-0 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_400px] gap-0 pb-16">
 
           {/* ── LEFT: Events ────────────────────────────────────────────── */}
-          <div className="lg:pr-9 pt-7">
+          <div className="lg:pr-10 pt-7">
             <EventsSection allEvents={allEvents} cityId={cityId} />
           </div>
 
@@ -222,7 +229,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <div className="hidden lg:block" style={{ background: 'rgba(10,10,10,0.08)' }} />
 
           {/* ── RIGHT: Sidebar ──────────────────────────────────────────── */}
-          <div className="lg:pl-9 pt-7">
+          <div className="lg:pl-10 pt-7">
 
             {/* Eat & Drink strip */}
             {venues.length > 0 && (
