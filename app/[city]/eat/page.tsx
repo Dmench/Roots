@@ -51,58 +51,25 @@ const FOOD_KW = ['restaurant','food','eat','bar','drink','coffee','brunch','lunc
   'café','cafe','recommend','pizza','vegan','beer','frites','belgian','hidden gem','best place',
   'where to','wine','brasserie','bistro','ramen','sushi','pasta','burger','thai','italian']
 
-/* ── Partner card ────────────────────────────────────────────────────────── */
+/* ── Partner teaser (coming soon slot) ───────────────────────────────────── */
 
-function PartnerCard({ venue }: { venue: Venue }) {
-  const color = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
+function PartnerTeaser() {
   return (
-    <div className="mb-12" style={{ background: '#0F0E1E' }}>
-      <div className="relative px-7 pt-6 pb-5 overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <span className="absolute right-0 top-0 font-display font-black select-none pointer-events-none"
-          style={{ fontSize: '10rem', color: 'rgba(255,255,255,0.03)', lineHeight: 1, transform: 'translate(8%,-10%)' }}>
-          {venue.name.charAt(0)}
-        </span>
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-[9px] font-black tracking-[0.28em] uppercase" style={{ color }}>
-            {venue.dealTag ?? 'Roots Pick'} · Exclusive deal
-          </span>
-          <span className="text-[9px] font-black tracking-wider px-2 py-1"
-            style={{ background: `${color}20`, color }}>
-            Members only
-          </span>
-        </div>
+    <div className="flex items-center gap-5 px-5 py-4 mb-3"
+      style={{ border: '1.5px dashed rgba(10,10,10,0.13)' }}>
+      {/* Placeholder square */}
+      <div className="shrink-0 flex flex-col items-center justify-center"
+        style={{ width: 56, height: 56, border: '1.5px dashed rgba(10,10,10,0.12)', background: 'rgba(10,10,10,0.02)' }}>
+        <span style={{ fontSize: '1.4rem', opacity: 0.18 }}>★</span>
       </div>
-      <div className="px-7 pt-5 pb-7">
-        <div className="flex items-start justify-between gap-4 mb-1">
-          <h2 className="font-display font-black leading-tight"
-            style={{ fontSize: 'clamp(1.6rem,4vw,2.4rem)', color: '#F5F4F0', letterSpacing: '-0.02em' }}>
-            {venue.name}
-          </h2>
-          <span className="shrink-0 font-bold text-base mt-1" style={{ color }}>{venue.price}</span>
-        </div>
-        <p className="text-xs mb-1" style={{ color: 'rgba(245,244,240,0.3)' }}>{venue.category} · {venue.neighborhood}</p>
-        <p className="text-sm leading-relaxed italic max-w-lg mb-5" style={{ color: 'rgba(245,244,240,0.6)' }}>
-          &ldquo;{venue.why}&rdquo;
+      <div className="flex-1 min-w-0">
+        <p className="text-[9px] font-black tracking-[0.25em] uppercase mb-0.5"
+          style={{ color: 'rgba(10,10,10,0.28)' }}>
+          Venue of the Month · Coming soon
         </p>
-        {venue.deal && (
-          <div className="inline-block px-4 py-3 mb-5" style={{ borderLeft: `3px solid ${color}`, background: `${color}10` }}>
-            <p className="text-xs font-semibold" style={{ color }}>🎟 {venue.deal}</p>
-          </div>
-        )}
-        <div className="flex items-center gap-4 flex-wrap">
-          {venue.website && (
-            <a href={venue.website} target="_blank" rel="noopener noreferrer"
-              className="text-[10px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
-              style={{ color }}>
-              Visit ↗
-            </a>
-          )}
-          {venue.openingHours && (
-            <span className="text-[9px]" style={{ color: 'rgba(245,244,240,0.2)' }}>
-              {venue.openingHours.split(';')[0]}
-            </span>
-          )}
-        </div>
+        <p className="text-xs" style={{ color: 'rgba(10,10,10,0.38)' }}>
+          We'll feature an exclusive deal with a Brussels venue here.
+        </p>
       </div>
     </div>
   )
@@ -307,64 +274,30 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   return (
     <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
 
-      {/* Header */}
-      <div className="relative overflow-hidden" style={{ background: '#0F0E1E' }}>
-        <div className="absolute rounded-full pointer-events-none"
-          style={{ width: 500, height: 500, top: -200, right: -120, background: '#E8612A', opacity: 0.10, filter: 'blur(90px)' }} />
-        <div className="absolute rounded-full pointer-events-none"
-          style={{ width: 280, height: 280, bottom: -100, left: -60, background: '#4744C8', opacity: 0.12, filter: 'blur(70px)' }} />
-        <div className="relative max-w-5xl mx-auto px-6 md:px-12 py-12">
-          <p className="text-[9px] font-black tracking-[0.3em] uppercase mb-5" style={{ color: 'rgba(245,245,245,0.25)' }}>
-            Eat & Drink · {city.name}
-          </p>
-          <h1 className="font-display font-black leading-[0.85] mb-4"
-            style={{ fontSize: 'clamp(2.8rem,7vw,5rem)', color: '#F5F5F5', letterSpacing: '-0.02em' }}>
-            Where to eat<br />
-            <em className="not-italic" style={{ color: '#E8612A' }}>in {city.name}.</em>
-          </h1>
-          <p className="text-sm max-w-md" style={{ color: 'rgba(245,245,245,0.4)' }}>
-            Curated by people who actually live here. No tourist traps, no paid rankings — just the places worth your time.
+      {/* ── Section masthead — newspaper section front ─────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 md:px-12" style={{ borderBottom: '2px solid #0A0A0A' }}>
+        <div className="flex items-end justify-between gap-4 py-5">
+          <div>
+            <p className="text-[8px] font-black tracking-[0.32em] uppercase mb-1"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
+              {city.name}
+            </p>
+            <h1 className="font-display font-black leading-none"
+              style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
+              Eat &amp; Drink
+            </h1>
+          </div>
+          <p className="text-xs max-w-xs text-right hidden sm:block pb-1" style={{ color: 'rgba(10,10,10,0.38)' }}>
+            Curated by people who live here. No tourist traps, no paid rankings.
           </p>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
 
-        {/* Featured deal */}
-        {featured && <div className="pt-10"><PartnerCard venue={featured} /></div>}
-
-        {/* Curated collections */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-5">
-            <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.4)' }}>
-              Curated lists
-            </p>
-            {activeCol && (
-              <button onClick={() => setActiveCol(null)} className="text-xs text-stone hover:text-espresso transition-colors">
-                Clear ×
-              </button>
-            )}
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {COLLECTIONS.map(col => {
-              const count  = regular.filter(v => v.tags?.includes(col.matchTag)).length
-              const active = activeCol === col.id
-              return (
-                <button key={col.id} onClick={() => setActiveCol(active ? null : col.id)}
-                  className="text-left py-3 transition-all"
-                  style={{
-                    borderTop: `2px solid ${active ? col.color : 'rgba(10,10,10,0.12)'}`,
-                  }}>
-                  <p className="text-xs font-black leading-tight mb-0.5" style={{ color: active ? '#fff' : '#0A0A0A', background: active ? col.color : 'transparent' }}>
-                    {col.label}
-                  </p>
-                  <p className="text-[9px] leading-snug" style={{ color: active ? 'rgba(255,255,255,0.6)' : 'rgba(10,10,10,0.4)' }}>
-                    {count} place{count !== 1 ? 's' : ''}
-                  </p>
-                </button>
-              )
-            })}
-          </div>
+        {/* Coming-soon partner slot */}
+        <div className="pt-4">
+          <PartnerTeaser />
         </div>
 
         {/* Browse */}
