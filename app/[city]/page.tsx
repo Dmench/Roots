@@ -137,6 +137,21 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         </div>
       </div>
 
+      {/* ── Ask CTA strip ────────────────────────────────────────────────── */}
+      <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
+        <div className="max-w-5xl mx-auto px-6 md:px-12 py-3 flex items-center justify-between gap-4">
+          <p className="text-xs" style={{ color: 'rgba(10,10,10,0.4)' }}>
+            <span className="font-black" style={{ color: '#38C0F0' }}>Ask</span>
+            {' '}— AI trained on Brussels admin, housing law, healthcare, and expat life.
+          </p>
+          <Link href={`/${cityId}/ask`}
+            className="shrink-0 text-[10px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
+            style={{ color: '#38C0F0' }}>
+            Ask anything →
+          </Link>
+        </div>
+      </div>
+
       {/* ── Editorial body ───────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12">
 

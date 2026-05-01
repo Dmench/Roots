@@ -368,13 +368,18 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
                           </div>
                         )}
 
-                        <div className="flex items-center gap-4 mt-4">
+                        <div className="flex items-center gap-4 mt-4 flex-wrap">
                           <button
                             onClick={() => toggleTaskDone(task.id)}
                             className="text-xs font-bold hover:opacity-60 transition-opacity"
                             style={{ color: done ? 'rgba(37,36,80,0.4)' : m.color }}>
                             {done ? 'Mark incomplete' : 'Mark as done →'}
                           </button>
+                          <Link href={`/${city.id}/settle/${task.slug}`}
+                            className="text-xs font-bold hover:opacity-60 transition-opacity"
+                            style={{ color: '#4744C8' }}>
+                            Full guide ↗
+                          </Link>
                           <Link href={`/${city.id}/ask?task=${task.slug}`}
                             className="text-xs hover:opacity-60 transition-opacity"
                             style={{ color: 'rgba(37,36,80,0.35)' }}>

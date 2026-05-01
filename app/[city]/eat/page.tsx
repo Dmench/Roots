@@ -1,6 +1,7 @@
 'use client'
 import { use, useState, useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/use-auth'
+import { useProfile } from '@/lib/hooks/use-profile'
 import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
@@ -106,7 +107,7 @@ function PartnerCard({ venue }: { venue: Venue }) {
 
 /* ── Venue card ───────────────────────────────────────────────────────────── */
 
-function VenueCard({ venue }: { venue: Venue }) {
+function VenueCard({ venue, onSave, saved }: { venue: Venue; onSave: () => void; saved: boolean }) {
   const color   = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   const signals = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
   return (
@@ -128,20 +129,32 @@ function VenueCard({ venue }: { venue: Venue }) {
         )}
         <p className="text-[10px] mb-2.5" style={{ color: 'rgba(15,14,30,0.35)' }}>{venue.category}</p>
         <p className="text-[11px] leading-snug italic flex-1" style={{ color: 'rgba(15,14,30,0.6)' }}>{venue.vibe}</p>
-        {signals.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {signals.map(t => {
-              const s = SIGNALS[t]
-              if (!s) return null
-              return (
-                <span key={t} className="text-[8px] font-black tracking-wide uppercase px-1.5 py-0.5 rounded"
-                  style={{ background: s.bg, color: s.text }}>
-                  {s.label}
-                </span>
-              )
-            })}
-          </div>
-        )}
+        <div className="flex items-center justify-between mt-3">
+          {signals.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {signals.map(t => {
+                const s = SIGNALS[t]
+                if (!s) return null
+                return (
+                  <span key={t} className="text-[8px] font-black tracking-wide uppercase px-1.5 py-0.5 rounded"
+                    style={{ background: s.bg, color: s.text }}>
+                    {s.label}
+                  </span>
+                )
+              })}
+            </div>
+          )}
+          <button
+            onClick={onSave}
+            className="ml-auto shrink-0 text-[8px] font-black tracking-[0.15em] uppercase px-2 py-1 transition-all"
+            style={{
+              color:      saved ? '#0E9B6B' : 'rgba(10,10,10,0.3)',
+              background: saved ? 'rgba(16,185,129,0.08)' : 'transparent',
+              border:     saved ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(10,10,10,0.1)',
+            }}>
+            {saved ? '✓ Saved' : '+ My Spots'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -208,6 +221,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   const { city: cityId } = use(params)
   const city = getCity(cityId)
   const { user, loading: authLoading } = useAuth()
+  const { profile, addSpot } = useProfile()
 
   const [venues,     setVenues]     = useState<Venue[]>([])
   const [typeFilter, setTypeFilter] = useState<VenueType>('all')
@@ -328,7 +342,26 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
             </div>
           ) : (
             <div>
-              {filtered.map(v => <VenueCard key={v.id} venue={v} />)}
+              {filtered.map(v => {
+                const saved = (profile.spots ?? []).some(s => s.name === v.name)
+                return (
+                  <VenueCard
+                    key={v.id}
+                    venue={v}
+                    saved={saved}
+                    onSave={() => {
+                      if (!user) return
+                      if (!saved) {
+                        const cat = v.broadType === 'restaurant' ? 'restaurant'
+                          : v.broadType === 'bar' ? 'bar'
+                          : v.broadType === 'cafe' ? 'cafe'
+                          : 'shop'
+                        addSpot({ name: v.name, category: cat })
+                      }
+                    }}
+                  />
+                )
+              })}
             </div>
           )}
         </div>
