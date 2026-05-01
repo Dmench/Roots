@@ -11,6 +11,8 @@ export interface Venue {
   why:          string   // e.g. "The most Brussels restaurant in Brussels"
   tags:         string[] // e.g. ['craft-beer', 'natural-wine', 'no-reservations']
   address?:     string
+  lat?:         number
+  lng?:         number
   openingHours?: string
   website?:     string
   featured?:    boolean

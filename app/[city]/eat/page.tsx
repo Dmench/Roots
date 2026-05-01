@@ -1,11 +1,14 @@
 'use client'
 import { use, useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useProfile } from '@/lib/hooks/use-profile'
 import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
 import type { Venue } from '@/lib/data/venues'
+
+const VenueMap = dynamic(() => import('./VenueMap'), { ssr: false })
 
 /* ── Editorial collections ───────────────────────────────────────────────── */
 
@@ -105,73 +108,74 @@ function PartnerCard({ venue }: { venue: Venue }) {
   )
 }
 
-/* ── Venue card ───────────────────────────────────────────────────────────── */
+/* ── Venue card (editorial, vertical) ────────────────────────────────────── */
 
-function VenueCard({ venue, onSave, saved, photoRef }: {
-  venue: Venue; onSave: () => void; saved: boolean; photoRef?: string | null
+function VenueCard({ venue, onSave, saved, photoRef, lead = false }: {
+  venue: Venue; onSave: () => void; saved: boolean; photoRef?: string | null; lead?: boolean
 }) {
   const color   = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   const signals = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
+  const photoH  = lead ? 220 : 170
+
   return (
-    <div className="flex gap-4 py-4" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-      {/* Visual anchor: Places photo or branded color block */}
-      <div className="shrink-0 overflow-hidden" style={{ width: 72, height: 72, background: color }}>
+    <div className="flex flex-col overflow-hidden h-full" style={{ border: '1px solid rgba(10,10,10,0.08)' }}>
+      {/* Photo / color block — full card width */}
+      <div className="relative shrink-0 overflow-hidden" style={{ height: photoH, background: color }}>
         {photoRef ? (
           <img
             src={`/api/places/photo?ref=${encodeURIComponent(photoRef)}`}
             alt={venue.name}
-            width={72} height={72}
             className="w-full h-full object-cover"
-            style={{ opacity: 0, transition: 'opacity 0.35s ease' }}
+            style={{ opacity: 0, transition: 'opacity 0.4s ease' }}
             onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="font-display font-black select-none"
-              style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1 }}>
-              {venue.name.charAt(0)}
-            </span>
-          </div>
+          <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
+            style={{ fontSize: lead ? '5rem' : '4rem', color: 'rgba(255,255,255,0.18)', lineHeight: 1 }}>
+            {venue.name.charAt(0)}
+          </span>
         )}
+        {/* Price badge */}
+        <span className="absolute top-2 right-2 text-[9px] font-black px-1.5 py-0.5"
+          style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+          {venue.price}
+        </span>
+        {/* Type accent bar at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: color }} />
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-        <div>
-          <div className="flex items-baseline justify-between gap-2 mb-0.5">
-            <span className="text-[9px] font-black tracking-widest uppercase" style={{ color }}>{venue.neighborhood}</span>
-            <span className="text-xs font-bold shrink-0" style={{ color }}>{venue.price}</span>
-          </div>
-          {venue.website ? (
-            <a href={venue.website} target="_blank" rel="noopener noreferrer"
-              className="font-bold text-sm leading-snug hover:opacity-50 transition-opacity mb-0.5 block"
-              style={{ color: '#0F0E1E' }}>
-              {venue.name} ↗
-            </a>
-          ) : (
-            <p className="font-bold text-sm leading-snug mb-0.5" style={{ color: '#0F0E1E' }}>{venue.name}</p>
-          )}
-          <p className="text-[10px]" style={{ color: 'rgba(15,14,30,0.35)' }}>{venue.category}</p>
-        </div>
-        <div className="flex items-center justify-between gap-2 mt-1.5">
-          <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-col flex-1 p-3">
+        <span className="text-[8px] font-black tracking-[0.2em] uppercase mb-1" style={{ color }}>{venue.neighborhood}</span>
+        {venue.website ? (
+          <a href={venue.website} target="_blank" rel="noopener noreferrer"
+            className="font-bold text-sm leading-snug hover:opacity-50 transition-opacity mb-0.5 block"
+            style={{ color: '#0A0A0A' }}>
+            {venue.name} ↗
+          </a>
+        ) : (
+          <p className="font-bold text-sm leading-snug mb-0.5" style={{ color: '#0A0A0A' }}>{venue.name}</p>
+        )}
+        <p className="text-[10px] mb-2" style={{ color: 'rgba(10,10,10,0.38)' }}>{venue.category}</p>
+        <p className="text-[11px] italic leading-snug mb-3 flex-1" style={{ color: 'rgba(10,10,10,0.55)' }}>
+          {venue.vibe}
+        </p>
+        <div className="flex items-center justify-between gap-1.5 mt-auto">
+          <div className="flex flex-wrap gap-1">
             {signals.map(t => {
               const s = SIGNALS[t]
               if (!s) return null
               return (
-                <span key={t} className="text-[8px] font-black tracking-wide uppercase px-1.5 py-0.5 rounded"
+                <span key={t} className="text-[8px] font-black tracking-wide uppercase px-1.5 py-0.5"
                   style={{ background: s.bg, color: s.text }}>
                   {s.label}
                 </span>
               )
             })}
-            {signals.length === 0 && (
-              <span className="text-[10px] italic leading-snug" style={{ color: 'rgba(15,14,30,0.5)' }}>{venue.vibe}</span>
-            )}
           </div>
           <button
             onClick={onSave}
-            className="shrink-0 text-[8px] font-black tracking-[0.15em] uppercase px-2 py-1 transition-all"
+            className="shrink-0 text-[8px] font-black tracking-[0.12em] uppercase px-2 py-1 transition-all"
             style={{
               color:      saved ? '#0E9B6B' : 'rgba(10,10,10,0.3)',
               background: saved ? 'rgba(16,185,129,0.08)' : 'transparent',
@@ -248,10 +252,12 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   const { user, loading: authLoading } = useAuth()
   const { profile, addSpot } = useProfile()
 
-  const [venues,      setVenues]      = useState<Venue[]>([])
-  const [typeFilter,  setTypeFilter]  = useState<VenueType>('all')
-  const [activeCol,   setActiveCol]   = useState<string | null>(null)
-  const [venuePhotos, setVenuePhotos] = useState<Record<string, string | null>>({})
+  const [venues,        setVenues]        = useState<Venue[]>([])
+  const [typeFilter,    setTypeFilter]    = useState<VenueType>('all')
+  const [activeCol,     setActiveCol]     = useState<string | null>(null)
+  const [venuePhotos,   setVenuePhotos]   = useState<Record<string, string | null>>({})
+  const [view,          setView]          = useState<'grid' | 'map'>('grid')
+  const [selectedVenue, setSelectedVenue] = useState<string | null>(null)
 
   useEffect(() => {
     if (city) getVenues(city.id).then(setVenues)
@@ -363,58 +369,94 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
 
         {/* Browse */}
         <div className="mb-14">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.4)' }}>
+          {/* Header row: label + type tabs + view toggle */}
+          <div className="flex items-center gap-4 mb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)', paddingBottom: '0.75rem' }}>
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase flex-1" style={{ color: 'rgba(10,10,10,0.4)' }}>
               {activeCol ? COLLECTIONS.find(c => c.id === activeCol)?.label : 'Browse all'}
               <span className="ml-2 font-medium" style={{ opacity: 0.5 }}>{filtered.length}</span>
             </p>
-          </div>
-          {/* Type tabs are only relevant when browsing "all" — hide when a collection filter is active */}
-          {!activeCol && (
-            <div className="flex items-center gap-6 mb-7" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-              {(['all','restaurant','bar','cafe'] as VenueType[]).map(t => {
-                const count  = t === 'all' ? regular.length : regular.filter(v => v.broadType === t).length
-                const active = typeFilter === t
-                if (count === 0 && t !== 'all') return null
-                const label  = t === 'all' ? 'All' : t === 'restaurant' ? 'Restaurants' : t === 'bar' ? 'Bars' : 'Cafés'
-                return (
-                  <button key={t} onClick={() => setTypeFilter(t)}
-                    className="relative pb-3 text-[10px] font-black tracking-widest uppercase transition-colors"
-                    style={{ color: active ? '#0A0A0A' : 'rgba(10,10,10,0.3)' }}>
-                    {label}
-                    {active && <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: '#0A0A0A' }} />}
-                  </button>
-                )
-              })}
+
+            {/* Type tabs — only when no collection active */}
+            {!activeCol && (
+              <div className="flex items-center gap-4">
+                {(['all','restaurant','bar','cafe'] as VenueType[]).map(t => {
+                  const count  = t === 'all' ? regular.length : regular.filter(v => v.broadType === t).length
+                  const active = typeFilter === t
+                  if (count === 0 && t !== 'all') return null
+                  const label = t === 'all' ? 'All' : t === 'restaurant' ? 'Restaurants' : t === 'bar' ? 'Bars' : 'Cafés'
+                  return (
+                    <button key={t} onClick={() => setTypeFilter(t)}
+                      className="text-[10px] font-black tracking-widest uppercase transition-colors"
+                      style={{ color: active ? '#0A0A0A' : 'rgba(10,10,10,0.28)' }}>
+                      {label}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* View toggle */}
+            <div className="flex items-center shrink-0" style={{ border: '1px solid rgba(10,10,10,0.12)' }}>
+              {(['grid','map'] as const).map(v => (
+                <button key={v} onClick={() => setView(v)}
+                  className="px-3 py-1.5 text-[9px] font-black tracking-widest uppercase transition-all"
+                  style={{
+                    background: view === v ? '#0A0A0A' : 'transparent',
+                    color:      view === v ? '#fff'    : 'rgba(10,10,10,0.35)',
+                  }}>
+                  {v === 'grid' ? '▦' : '◎'} {v}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
+
           {filtered.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm" style={{ color: 'rgba(10,10,10,0.4)' }}>No venues match — try a different filter.</p>
             </div>
+          ) : view === 'map' ? (
+            /* ── Map view ──────────────────────────────────────────────── */
+            <div style={{ height: 560, border: '1px solid rgba(10,10,10,0.1)' }}>
+              <VenueMap
+                venues={filtered}
+                venuePhotos={venuePhotos}
+                selected={selectedVenue}
+                onSelect={setSelectedVenue}
+              />
+            </div>
           ) : (
+            /* ── FT-style editorial grid ───────────────────────────────── */
             <div>
-              {filtered.map(v => {
-                const saved = (profile.spots ?? []).some(s => s.name === v.name)
-                return (
-                  <VenueCard
-                    key={v.id}
-                    venue={v}
-                    saved={saved}
-                    photoRef={venuePhotos[v.id]}
-                    onSave={() => {
-                      if (!user) return
-                      if (!saved) {
-                        const cat = v.broadType === 'restaurant' ? 'restaurant'
-                          : v.broadType === 'bar' ? 'bar'
-                          : v.broadType === 'cafe' ? 'cafe'
-                          : 'shop'
+              {/* Lead row: first 2 venues large */}
+              {filtered.length >= 2 && (
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  {filtered.slice(0, 2).map(v => {
+                    const saved = (profile.spots ?? []).some(s => s.name === v.name)
+                    return (
+                      <VenueCard key={v.id} venue={v} saved={saved} photoRef={venuePhotos[v.id]} lead
+                        onSave={() => {
+                          if (!user || saved) return
+                          const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'
+                          addSpot({ name: v.name, category: cat })
+                        }} />
+                    )
+                  })}
+                </div>
+              )}
+              {/* Regular 3-col grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {filtered.slice(filtered.length >= 2 ? 2 : 0).map(v => {
+                  const saved = (profile.spots ?? []).some(s => s.name === v.name)
+                  return (
+                    <VenueCard key={v.id} venue={v} saved={saved} photoRef={venuePhotos[v.id]}
+                      onSave={() => {
+                        if (!user || saved) return
+                        const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'
                         addSpot({ name: v.name, category: cat })
-                      }
-                    }}
-                  />
-                )
-              })}
+                      }} />
+                  )
+                })}
+              </div>
             </div>
           )}
         </div>
