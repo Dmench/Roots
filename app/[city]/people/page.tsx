@@ -41,6 +41,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
   const [members,  setMembers]  = useState<Member[]>([])
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState<Stage | 'all'>('all')
+  const [selected, setSelected] = useState<Member | null>(null)
 
   useEffect(() => {
     if (!supabase || !city) { setLoading(false); return }
@@ -80,6 +81,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
   const filtered = filter === 'all' ? members : members.filter(m => m.stage === filter)
 
   return (
+    <>
     <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
       <div className="max-w-3xl mx-auto px-6 md:px-8 py-10 md:py-14">
 
@@ -169,8 +171,9 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
               const initial = m.displayName?.[0]?.toUpperCase() ?? '?'
 
               return (
-                <div key={m.id}
-                  className="py-5 hover:bg-neutral-50 transition-colors -mx-2 px-2"
+                <button key={m.id}
+                  onClick={() => setSelected(m)}
+                  className="w-full text-left py-5 hover:bg-neutral-50 transition-colors -mx-2 px-2"
                   style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
 
                   <div className="flex items-start gap-3">
@@ -235,7 +238,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
                       )}
                     </div>
                   </div>
-                </div>
+                </button>
               )
             })}
           </div>
@@ -253,5 +256,133 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
       </div>
     </div>
+
+    {/* ── Member profile modal ───────────────────────────────────────────── */}
+    {selected && (() => {
+      const m       = selected
+      const initial = m.displayName?.[0]?.toUpperCase() ?? '?'
+      const stage   = m.stage
+      const colors  = stage ? STAGE_COLORS[stage] : null
+      const days    = daysInCity(m.arrivalDate)
+      const STAGE_COLOR_MAP: Record<string, string> = {
+        planning: '#6865CC', just_arrived: '#B88A00', settling: '#1A8FAD', settled: '#0E9B6B',
+      }
+      const fmtMonth = (val: string) => {
+        const parts = val.split('-')
+        const year  = parts[0] ?? ''
+        const month = parseInt(parts[1] ?? '1') - 1
+        const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+        return `${MONTHS[month] ?? '?'} '${year.slice(2)}`
+      }
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}
+          onClick={() => setSelected(null)}>
+          <div className="w-full max-w-sm shadow-2xl" style={{ background: '#fff' }}
+            onClick={e => e.stopPropagation()}>
+
+            {/* Card header */}
+            <div className="flex items-center justify-between px-4 py-2.5"
+              style={{ background: '#0A0A0A' }}>
+              <span className="text-[8px] font-black tracking-[0.3em] uppercase"
+                style={{ color: 'rgba(255,255,255,0.35)' }}>Settler Card</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[8px] font-black tracking-[0.3em] uppercase"
+                  style={{ color: '#FAB400' }}>{city?.name.toUpperCase()}</span>
+                <button onClick={() => setSelected(null)}
+                  className="text-xs hover:opacity-60 transition-opacity"
+                  style={{ color: 'rgba(255,255,255,0.4)' }}>✕</button>
+              </div>
+            </div>
+
+            {/* Identity */}
+            <div className="px-5 py-5">
+              <div className="flex items-start gap-4">
+                <div className="shrink-0 w-14 h-14 flex items-center justify-center font-display font-black text-xl"
+                  style={{ background: '#0A0A0A', color: '#fff' }}>
+                  {initial}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-display font-black leading-tight mb-2.5"
+                    style={{ fontSize: 'clamp(1.2rem, 3vw, 1.6rem)', color: '#0A0A0A' }}>
+                    {m.displayName ?? 'Settler'}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {m.neighborhood && (
+                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                        style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
+                        {m.neighborhood}
+                      </span>
+                    )}
+                    {m.arrivalDate && (
+                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                        style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
+                        Since {fmtMonth(m.arrivalDate)}
+                      </span>
+                    )}
+                    {days !== null && (
+                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                        style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
+                        Day {days}
+                      </span>
+                    )}
+                    {stage && colors && (
+                      <span className="text-[9px] font-black tracking-[0.1em] uppercase px-2 py-1"
+                        style={{ background: (STAGE_COLOR_MAP[stage] ?? '#4744C8') + '18', color: STAGE_COLOR_MAP[stage] ?? '#4744C8' }}>
+                        {stageLabel(stage)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Spots */}
+            {m.spots.length > 0 && (
+              <div style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
+                <p className="px-5 py-3 text-[9px] font-black tracking-[0.22em] uppercase"
+                  style={{ color: 'rgba(10,10,10,0.3)' }}>My Spots</p>
+                <div className="px-5 pb-5 flex gap-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                  {m.spots.map(spot => {
+                    const cat = SPOT_CATEGORIES.find(c => c.id === spot.category)
+                    return (
+                      <div key={spot.id} className="shrink-0">
+                        <div className="w-[64px] h-[64px] overflow-hidden relative"
+                          style={{ background: (cat?.color ?? '#888') + '12' }}>
+                          {spot.photoRef ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`/api/places/photo?ref=${encodeURIComponent(spot.photoRef)}`}
+                              alt="" className="w-full h-full object-cover" loading="lazy"
+                            />
+                          ) : (
+                            <span className="absolute inset-0 flex items-end p-1.5">
+                              <span className="text-[7px] font-black uppercase tracking-wide leading-none"
+                                style={{ color: cat?.color ?? '#888' }}>{spot.name.split(' ')[0]}</span>
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[8px] font-semibold mt-1 leading-none"
+                          style={{ color: 'rgba(10,10,10,0.5)', width: 64, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {spot.name}
+                        </p>
+                        {cat && (
+                          <p className="text-[7px] font-black tracking-wide uppercase mt-0.5" style={{ color: cat.color }}>
+                            {cat.label}
+                          </p>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )
+    })()}
+    </>
   )
 }

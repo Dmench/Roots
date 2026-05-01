@@ -98,7 +98,7 @@ const STAGE_LABELS: Record<Stage, string> = {
 const SOURCE_STYLE: Record<string, { color: string; label: string }> = {
   bulletin:   { color: '#4744C8', label: 'The Bulletin' },
   politico:   { color: '#EF3340', label: 'Politico EU' },
-  euobserver: { color: '#252450', label: 'EUobserver' },
+  euobserver: { color: '#0A0A0A', label: 'EUobserver' },
   euronews:   { color: '#C8900A', label: 'Euronews' },
 }
 
@@ -128,7 +128,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [redditPosts,  setRedditPosts]  = useState<FeedItem[]>([])
   const [redditFetch,  setRedditFetch]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-  const [activeChannel, setActiveChannel] = useState<ChannelId>('events')
+  const [activeChannel, setActiveChannel] = useState<ChannelId>('tips')
 
   useEffect(() => {
     if (!city || !supabase) return
@@ -254,10 +254,10 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   }
 
   return (
-    <div style={{ background: '#F8F7F4', minHeight: '100vh' }}>
+    <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
 
       {/* ── Tab bar ──────────────────────────────────────────────────────── */}
-      <div style={{ background: '#F5F4F0', borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
         <div className="max-w-5xl mx-auto px-6 md:px-12">
           <div className="flex gap-0 overflow-x-auto scrollbar-none">
             {CHANNELS.map(ch => {
@@ -268,20 +268,20 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   onClick={() => setActiveChannel(ch.id)}
                   className="flex-none flex items-center gap-2 px-4 py-4 text-sm font-semibold transition-all border-b-2 whitespace-nowrap"
                   style={{
-                    color: active ? ch.color : 'rgba(37,36,80,0.4)',
+                    color: active ? ch.color : 'rgba(10,10,10,0.4)',
                     borderBottomColor: active ? ch.color : 'transparent',
                   }}
                 >
                   {ch.label}
                   {(postCounts[ch.id] ?? 0) > 0 && ch.id !== 'events' && (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: active ? `${ch.color}15` : 'rgba(37,36,80,0.06)', color: active ? ch.color : 'rgba(37,36,80,0.3)' }}>
+                      style={{ background: active ? `${ch.color}15` : 'rgba(10,10,10,0.06)', color: active ? ch.color : 'rgba(10,10,10,0.3)' }}>
                       {postCounts[ch.id]}
                     </span>
                   )}
                   {ch.id === 'events' && eventItems.length > 0 && (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: active ? `${ch.color}15` : 'rgba(37,36,80,0.06)', color: active ? ch.color : 'rgba(37,36,80,0.3)' }}>
+                      style={{ background: active ? `${ch.color}15` : 'rgba(10,10,10,0.06)', color: active ? ch.color : 'rgba(10,10,10,0.3)' }}>
                       {eventItems.length}
                     </span>
                   )}
@@ -303,46 +303,42 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {channel.cat && (
               <>
                 {/* Composer */}
-                <div className="mb-6 pb-6" style={{ borderBottom: '1px solid rgba(37,36,80,0.1)' }}>
-                  <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
-                    style={{ color: channel.color }}>
-                    Post a {channel.label.toLowerCase().replace(/s$/, '')}
-                  </p>
-                  <textarea
-                    ref={composerRef}
-                    value={newPost.text}
-                    onChange={e => setNewPost({ text: e.target.value.slice(0, 280) })}
-                    placeholder={
-                      channel.id === 'tips'      ? 'Share something that made life easier here…' :
-                      channel.id === 'questions' ? 'What are you trying to figure out?' :
-                      'Something others should know about…'
-                    }
-                    rows={3}
-                    className="w-full py-2 text-sm placeholder:text-stone/30 focus:outline-none resize-none bg-transparent"
-                    style={{
-                      borderBottom: `1px solid rgba(37,36,80,0.12)`,
-                      color: '#252450',
-                      fontSize: 14,
-                    }}
-                  />
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px]" style={{ color: 'rgba(37,36,80,0.25)' }}>{newPost.text.length}/280</span>
-                      {!user && (
-                        <button onClick={() => setAuthOpen(true)}
-                          className="text-[10px] font-bold hover:opacity-60 transition-opacity"
-                          style={{ color: '#4744C8' }}>
-                          Sign in to post
-                        </button>
-                      )}
-                    </div>
+                <div className="mb-7" style={{ border: `1.5px solid ${channel.color}25` }}>
+                  <div className="px-4 pt-3 pb-1">
+                    <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-2.5"
+                      style={{ color: channel.color }}>
+                      {channel.id === 'tips'      ? 'Share a tip' :
+                       channel.id === 'questions' ? 'Ask the community' :
+                       'Post a heads-up'}
+                    </p>
+                    <textarea
+                      ref={composerRef}
+                      value={newPost.text}
+                      onChange={e => setNewPost({ text: e.target.value.slice(0, 280) })}
+                      placeholder={
+                        channel.id === 'tips'      ? 'Share something that made settling easier…' :
+                        channel.id === 'questions' ? 'What are you trying to figure out?' :
+                        'Something other settlers should know…'
+                      }
+                      rows={3}
+                      className="w-full text-sm focus:outline-none resize-none bg-transparent leading-relaxed"
+                      style={{ color: '#0A0A0A', fontSize: 14 }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between px-4 py-2.5"
+                    style={{ borderTop: `1px solid ${channel.color}18`, background: `${channel.color}06` }}>
+                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.25)' }}>
+                      {newPost.text.length}/280
+                      {!user && <button onClick={() => setAuthOpen(true)}
+                        className="ml-3 font-bold hover:opacity-60 transition-opacity"
+                        style={{ color: '#4744C8' }}>· Sign in to post</button>}
+                    </span>
                     <button
                       onClick={submit}
                       disabled={!newPost.text.trim()}
-                      className="text-xs font-bold hover:opacity-60 transition-opacity disabled:opacity-25"
-                      style={{ color: channel.color }}
-                    >
-                      {submitted ? 'Posted ✓' : 'Post →'}
+                      className="px-4 py-1.5 text-[10px] font-black tracking-wide uppercase text-white transition-opacity disabled:opacity-25"
+                      style={{ background: channel.color }}>
+                      {submitted ? '✓ Posted' : 'Post'}
                     </button>
                   </div>
                 </div>
@@ -359,31 +355,31 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       {showPins && pins.length > 0 && (
                         <>
                           <p className="text-[9px] font-black uppercase tracking-[0.22em] mb-4"
-                            style={{ color: 'rgba(37,36,80,0.25)' }}>
+                            style={{ color: 'rgba(10,10,10,0.25)' }}>
                             From Roots
                           </p>
                           {pins.map((pin, i) => (
                             <div key={pin.id}
                               className="flex gap-4 py-4"
-                              style={{ borderTop: i > 0 ? '1px solid rgba(37,36,80,0.07)' : 'none' }}>
+                              style={{ borderTop: i > 0 ? '1px solid rgba(10,10,10,0.07)' : 'none' }}>
                               <div className="w-0.5 shrink-0 self-stretch" style={{ background: '#4744C8' }} />
                               <div className="flex-1 min-w-0">
                                 <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-1.5"
                                   style={{ color: '#4744C8' }}>
                                   {pin.label}
                                 </p>
-                                <p className="text-sm leading-relaxed" style={{ color: 'rgba(37,36,80,0.7)' }}>
+                                <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.7)' }}>
                                   {pin.text}
                                 </p>
                               </div>
                             </div>
                           ))}
-                          <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(37,36,80,0.1)' }}>
+                          <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
                             <p className="text-[9px] font-black uppercase tracking-[0.22em] mb-4"
-                              style={{ color: 'rgba(37,36,80,0.25)' }}>
+                              style={{ color: 'rgba(10,10,10,0.25)' }}>
                               Community posts
                             </p>
-                            <p className="text-xs py-6" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                            <p className="text-xs py-6" style={{ color: 'rgba(10,10,10,0.3)' }}>
                               {channel.id === 'tips'      ? 'Be the first to share a tip.' :
                                channel.id === 'questions' ? 'Be the first to ask a question.' :
                                'Be the first to post a heads-up.'}
@@ -398,21 +394,21 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         return (
                           <div key={post.id}
                             className="flex gap-4 py-4"
-                            style={{ borderTop: '1px solid rgba(37,36,80,0.07)' }}>
+                            style={{ borderTop: '1px solid rgba(10,10,10,0.07)' }}>
                             <div className="w-0.5 shrink-0 self-stretch" style={{ background: m.color }} />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1.5">
                                 {post.authorStage && (
                                   <span className="text-[9px] font-black tracking-[0.15em] uppercase"
-                                    style={{ color: 'rgba(37,36,80,0.3)' }}>
+                                    style={{ color: 'rgba(10,10,10,0.3)' }}>
                                     {STAGE_LABELS[post.authorStage]}
                                   </span>
                                 )}
-                                <span className="text-[9px] ml-auto" style={{ color: 'rgba(37,36,80,0.2)' }}>
+                                <span className="text-[9px] ml-auto" style={{ color: 'rgba(10,10,10,0.2)' }}>
                                   {post.time}
                                 </span>
                               </div>
-                              <p className="text-sm leading-relaxed" style={{ color: 'rgba(37,36,80,0.75)' }}>
+                              <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.75)' }}>
                                 {post.text}
                               </p>
                             </div>
@@ -422,7 +418,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
                       {/* No content */}
                       {showPins && pins.length === 0 && (
-                        <p className="text-xs py-8" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                        <p className="text-xs py-8" style={{ color: 'rgba(10,10,10,0.3)' }}>
                           Be the first to post.
                         </p>
                       )}
@@ -439,7 +435,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   <div>
                     {[1,2,3,4,5].map(i => (
                       <div key={i} className="flex gap-4 py-4 animate-pulse"
-                        style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                        style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
                         <div className="w-12 h-12 bg-sand/40 shrink-0" />
                         <div className="flex-1 pt-1">
                           <div className="h-2.5 bg-sand/40 rounded w-1/4 mb-2" />
@@ -452,7 +448,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 )}
                 {feedState !== 'loading' && eventItems.length === 0 && (
                   <div className="py-16">
-                    <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No events found right now</p>
+                    <p className="text-sm" style={{ color: 'rgba(10,10,10,0.35)' }}>No events found right now</p>
                   </div>
                 )}
                 {eventItems.length > 0 && (
@@ -501,7 +497,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         /* Secondary — editorial row with image thumb, divider */
                         <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
                           className="flex items-start gap-4 py-3.5 group hover:opacity-70 transition-opacity"
-                          style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+                          style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
                           {fi.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={fi.image} alt="" className="w-14 h-14 object-cover shrink-0" />
@@ -517,14 +513,14 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                 style={{ color: dotColor }}>
                                 {fi.sourceLabel}
                               </span>
-                              <span className="text-[9px]" style={{ color: 'rgba(37,36,80,0.3)' }}>{when}</span>
+                              <span className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{when}</span>
                             </div>
                             <p className="text-sm font-semibold leading-snug truncate"
-                              style={{ color: '#252450' }}>
+                              style={{ color: '#0A0A0A' }}>
                               {fi.title}
                             </p>
                             {fi.summary && (
-                              <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(37,36,80,0.4)' }}>
+                              <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(10,10,10,0.4)' }}>
                                 {fi.summary}
                               </p>
                             )}
@@ -544,7 +540,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   <div className="space-y-3">
                     {[1,2,3,4].map(i => (
                       <div key={i} className="flex gap-4 py-4 animate-pulse"
-                        style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                        style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
                         <div className="w-0.5 h-12 bg-sand/40 shrink-0" />
                         <div className="flex-1 pt-0.5">
                           <div className="h-2.5 bg-sand/40 rounded w-1/4 mb-2" />
@@ -557,7 +553,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 )}
                 {feedState !== 'loading' && newsItems.length === 0 && (
                   <div className="py-16">
-                    <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No headlines right now</p>
+                    <p className="text-sm" style={{ color: 'rgba(10,10,10,0.35)' }}>No headlines right now</p>
                   </div>
                 )}
                 {newsItems.length > 0 && (() => {
@@ -572,7 +568,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     <div>
                       {/* Lead — full width, headline-first */}
                       {(() => {
-                        const ss = SOURCE_STYLE[lead.source] ?? { color: '#252450', label: lead.sourceLabel }
+                        const ss = SOURCE_STYLE[lead.source] ?? { color: '#0A0A0A', label: lead.sourceLabel }
                         return (
                           <a href={lead.url} target="_blank" rel="noopener noreferrer"
                             className="group block pb-6 mb-0 hover:opacity-70 transition-opacity"
@@ -584,7 +580,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                               style={{ fontSize: 'clamp(1.3rem,3vw,1.6rem)', color: '#0F0E1E', letterSpacing: '-0.01em' }}>
                               {lead.title}
                             </h3>
-                            <p className="text-[9px] font-medium" style={{ color: 'rgba(37,36,80,0.3)' }}>
+                            <p className="text-[9px] font-medium" style={{ color: 'rgba(10,10,10,0.3)' }}>
                               {ago(lead.published)}
                             </p>
                           </a>
@@ -595,13 +591,13 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       {tier2.length > 0 && (
                         <div className={`grid gap-0 ${tier2.length === 2 ? 'grid-cols-2' : 'grid-cols-1'} mb-0`}>
                           {tier2.map((fi, i) => {
-                            const ss = SOURCE_STYLE[fi.source] ?? { color: '#252450', label: fi.sourceLabel }
+                            const ss = SOURCE_STYLE[fi.source] ?? { color: '#0A0A0A', label: fi.sourceLabel }
                             return (
                               <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
                                 className="group block py-5 hover:opacity-70 transition-opacity"
                                 style={{
-                                  borderBottom: '1px solid rgba(37,36,80,0.12)',
-                                  borderLeft: i === 1 ? '1px solid rgba(37,36,80,0.12)' : 'none',
+                                  borderBottom: '1px solid rgba(10,10,10,0.12)',
+                                  borderLeft: i === 1 ? '1px solid rgba(10,10,10,0.12)' : 'none',
                                   paddingLeft: i === 1 ? 16 : 0,
                                   paddingRight: i === 0 && tier2.length === 2 ? 16 : 0,
                                 }}>
@@ -611,7 +607,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                 <p className="text-sm font-bold leading-snug mb-2" style={{ color: '#0F0E1E' }}>
                                   {fi.title}
                                 </p>
-                                <p className="text-[9px]" style={{ color: 'rgba(37,36,80,0.3)' }}>{ago(fi.published)}</p>
+                                <p className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{ago(fi.published)}</p>
                               </a>
                             )
                           })}
@@ -622,18 +618,18 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       {rest.length > 0 && (
                         <div>
                           {rest.map((fi) => {
-                            const ss = SOURCE_STYLE[fi.source] ?? { color: '#252450', label: fi.sourceLabel }
+                            const ss = SOURCE_STYLE[fi.source] ?? { color: '#0A0A0A', label: fi.sourceLabel }
                             return (
                               <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
                                 className="group flex items-baseline gap-3 py-3 hover:opacity-60 transition-opacity"
-                                style={{ borderBottom: '1px solid rgba(37,36,80,0.07)' }}>
+                                style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
                                 <span className="shrink-0 text-[8px] font-black tracking-wider uppercase w-16 leading-relaxed" style={{ color: ss.color }}>
                                   {ss.label}
                                 </span>
-                                <span className="flex-1 text-xs font-semibold leading-snug" style={{ color: '#252450' }}>
+                                <span className="flex-1 text-xs font-semibold leading-snug" style={{ color: '#0A0A0A' }}>
                                   {fi.title}
                                 </span>
-                                <span className="shrink-0 text-[9px]" style={{ color: 'rgba(37,36,80,0.2)' }}>{ago(fi.published)}</span>
+                                <span className="shrink-0 text-[9px]" style={{ color: 'rgba(10,10,10,0.2)' }}>{ago(fi.published)}</span>
                               </a>
                             )
                           })}
@@ -664,7 +660,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 )}
                 {redditFetch !== 'loading' && redditItems.length === 0 && (
                   <div className="py-16">
-                    <p className="text-sm" style={{ color: 'rgba(37,36,80,0.35)' }}>No Reddit posts right now</p>
+                    <p className="text-sm" style={{ color: 'rgba(10,10,10,0.35)' }}>No Reddit posts right now</p>
                   </div>
                 )}
                 {redditItems.length > 0 && (
@@ -771,17 +767,17 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* Settlers */}
             <div>
               <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
-                style={{ color: 'rgba(37,36,80,0.3)', borderBottom: '1px solid rgba(37,36,80,0.1)', paddingBottom: 8 }}>
+                style={{ color: 'rgba(10,10,10,0.3)', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 8 }}>
                 Settlers
               </p>
               <a href={`/${cityId}/people`}
                 className="flex items-center justify-between py-2 group hover:opacity-60 transition-opacity">
-                <p className="text-sm font-semibold" style={{ color: '#252450' }}>
+                <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
                   Settler directory
                 </p>
-                <span className="text-xs" style={{ color: 'rgba(37,36,80,0.3)' }}>→</span>
+                <span className="text-xs" style={{ color: 'rgba(10,10,10,0.3)' }}>→</span>
               </a>
-              <p className="text-xs" style={{ color: 'rgba(37,36,80,0.4)' }}>
+              <p className="text-xs" style={{ color: 'rgba(10,10,10,0.4)' }}>
                 Who else is settling in {city.name}
               </p>
             </div>
@@ -790,19 +786,19 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {resources.length > 0 && (
               <div>
                 <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3"
-                  style={{ color: 'rgba(37,36,80,0.3)', borderBottom: '1px solid rgba(37,36,80,0.1)', paddingBottom: 8 }}>
+                  style={{ color: 'rgba(10,10,10,0.3)', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 8 }}>
                   Community groups
                 </p>
                 <div>
                   {resources.map((r, i) => (
                     <div key={r.id}
                       className="flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
-                      style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                      style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
                       <span className="text-[9px] font-black shrink-0 w-4"
                         style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
                         {r.type === 'facebook' ? 'fb' : 'r/'}
                       </span>
-                      <p className="text-xs truncate" style={{ color: '#252450' }}>{r.name}</p>
+                      <p className="text-xs truncate" style={{ color: '#0A0A0A' }}>{r.name}</p>
                     </div>
                   ))}
                 </div>

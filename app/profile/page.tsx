@@ -119,7 +119,7 @@ export default function ProfilePage() {
   const {
     profile, hydrated,
     setStage, setArrivalDate, setDisplayName,
-    setNeighborhood, setShowInDirectory, updateProfile,
+    setNeighborhood, setShowInDirectory, setDigestSubscribed, updateProfile,
     addSpot, removeSpot,
   } = useProfile()
 
@@ -519,6 +519,12 @@ export default function ProfilePage() {
               sub={city ? `Visible to other settlers in ${city.name}` : undefined}
               checked={profile.showInDirectory !== false}
               onChange={v => { setShowInDirectory(v); flash() }}
+            />
+            <ToggleRow
+              label="Weekly digest email"
+              sub="What's on, settler tips, and city news"
+              checked={profile.digestSubscribed !== false}
+              onChange={v => { setDigestSubscribed(v); flash() }}
               last={!city}
             />
             {city && (

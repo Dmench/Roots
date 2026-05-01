@@ -34,13 +34,13 @@ const SIGNALS: Record<string, { label: string; bg: string; text: string }> = {
   'remote-work':     { label: 'Laptop ok',   bg: 'rgba(56,192,240,0.12)', text: '#0F7FA0' },
   'expat-favorite':  { label: 'Expat fave',  bg: 'rgba(71,68,200,0.1)',   text: '#4744C8' },
   'late-night':      { label: 'Late night',  bg: 'rgba(255,62,186,0.1)',  text: '#B8007A' },
-  'institution':     { label: 'Institution', bg: 'rgba(37,36,80,0.07)',   text: 'rgba(37,36,80,0.55)' },
+  'institution':     { label: 'Institution', bg: 'rgba(10,10,10,0.07)',   text: 'rgba(10,10,10,0.55)' },
   'locals':          { label: 'Local fave',  bg: 'rgba(16,185,129,0.1)',  text: '#0E9B6B' },
   'terrace':         { label: 'Terrace',     bg: 'rgba(250,180,0,0.1)',   text: '#A07000' },
 }
 const SIG_PRIORITY = ['no-reservations','cash-only','remote-work','expat-favorite','late-night','locals','institution','terrace']
 
-const TYPE_COLOR: Record<string, string> = { restaurant: '#E8612A', bar: '#4744C8', cafe: '#B08800', other: '#252450' }
+const TYPE_COLOR: Record<string, string> = { restaurant: '#E8612A', bar: '#4744C8', cafe: '#B08800', other: '#0A0A0A' }
 type VenueType = 'all' | 'restaurant' | 'bar' | 'cafe'
 
 const FOOD_KW = ['restaurant','food','eat','bar','drink','coffee','brunch','lunch','dinner',
@@ -50,7 +50,7 @@ const FOOD_KW = ['restaurant','food','eat','bar','drink','coffee','brunch','lunc
 /* ── Partner card ────────────────────────────────────────────────────────── */
 
 function PartnerCard({ venue }: { venue: Venue }) {
-  const color = TYPE_COLOR[venue.broadType] ?? '#252450'
+  const color = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   return (
     <div className="mb-12" style={{ background: '#0F0E1E' }}>
       <div className="relative px-7 pt-6 pb-5 overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -107,10 +107,10 @@ function PartnerCard({ venue }: { venue: Venue }) {
 /* ── Venue card ───────────────────────────────────────────────────────────── */
 
 function VenueCard({ venue }: { venue: Venue }) {
-  const color   = TYPE_COLOR[venue.broadType] ?? '#252450'
+  const color   = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   const signals = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
   return (
-    <div className="flex gap-3 py-4" style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
+    <div className="flex gap-3 py-4" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
       <div className="w-0.5 shrink-0 self-stretch" style={{ background: color }} />
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2 mb-0.5">
@@ -171,29 +171,29 @@ function RedditFoodPanel({ cityId }: { cityId: string }) {
   }, [cityId])
   if (posts.length === 0) return null
   return (
-    <div style={{ background: '#1C1A2E' }}>
-      <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+    <div style={{ border: '1px solid rgba(10,10,10,0.08)' }}>
+      <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
         <div className="flex items-center gap-2">
           <span className="text-sm font-black" style={{ color: '#FF4500' }}>r/{cityId}</span>
-          <span className="text-[9px]" style={{ color: 'rgba(245,236,215,0.3)' }}>· food & drink</span>
+          <span className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>· food & drink</span>
         </div>
         <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
           className="text-[9px] font-black tracking-wider hover:opacity-60 transition-opacity"
-          style={{ color: 'rgba(245,236,215,0.25)' }}>OPEN ↗</a>
+          style={{ color: 'rgba(10,10,10,0.25)' }}>OPEN ↗</a>
       </div>
       {posts.map((post, i) => {
         const diff = Math.floor(Date.now() / 1000) - post.created
         const ago  = diff < 3600 ? `${Math.floor(diff/60)}m` : diff < 86400 ? `${Math.floor(diff/3600)}h` : `${Math.floor(diff/86400)}d`
         return (
           <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer"
-            className="flex items-start gap-4 px-5 py-4 hover:opacity-70 transition-opacity"
-            style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+            className="flex items-start gap-4 px-5 py-3.5 hover:bg-neutral-50 transition-colors"
+            style={{ borderTop: i > 0 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
             <span className="shrink-0 text-[10px] font-black w-7 text-right mt-0.5" style={{ color: '#FF4500' }}>
               {post.score >= 1000 ? `${(post.score/1000).toFixed(1)}k` : post.score}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium leading-snug line-clamp-2" style={{ color: '#F5ECD7' }}>{post.title}</p>
-              <p className="text-[9px] mt-1" style={{ color: 'rgba(245,236,215,0.25)' }}>{post.comments} comments · {ago}</p>
+              <p className="text-xs font-medium leading-snug line-clamp-2" style={{ color: '#0A0A0A' }}>{post.title}</p>
+              <p className="text-[9px] mt-1" style={{ color: 'rgba(10,10,10,0.3)' }}>{post.comments} comments · {ago}</p>
             </div>
           </a>
         )
@@ -234,7 +234,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F5F4F0' }}>
+    <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
 
       {/* Header */}
       <div className="relative overflow-hidden" style={{ background: '#0F0E1E' }}>
@@ -243,15 +243,15 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         <div className="absolute rounded-full pointer-events-none"
           style={{ width: 280, height: 280, bottom: -100, left: -60, background: '#4744C8', opacity: 0.12, filter: 'blur(70px)' }} />
         <div className="relative max-w-5xl mx-auto px-6 md:px-12 py-12">
-          <p className="text-[9px] font-black tracking-[0.3em] uppercase mb-5" style={{ color: 'rgba(245,236,215,0.25)' }}>
+          <p className="text-[9px] font-black tracking-[0.3em] uppercase mb-5" style={{ color: 'rgba(245,245,245,0.25)' }}>
             Eat & Drink · {city.name}
           </p>
           <h1 className="font-display font-black leading-[0.85] mb-4"
-            style={{ fontSize: 'clamp(2.8rem,7vw,5rem)', color: '#F5ECD7', letterSpacing: '-0.02em' }}>
+            style={{ fontSize: 'clamp(2.8rem,7vw,5rem)', color: '#F5F5F5', letterSpacing: '-0.02em' }}>
             Where to eat<br />
             <em className="not-italic" style={{ color: '#E8612A' }}>in {city.name}.</em>
           </h1>
-          <p className="text-sm max-w-md" style={{ color: 'rgba(245,236,215,0.4)' }}>
+          <p className="text-sm max-w-md" style={{ color: 'rgba(245,245,245,0.4)' }}>
             Curated by people who actually live here. No tourist traps, no paid rankings — just the places worth your time.
           </p>
         </div>
@@ -265,7 +265,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         {/* Curated collections */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-5">
-            <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(37,36,80,0.4)' }}>
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.4)' }}>
               Curated lists
             </p>
             {activeCol && (
@@ -282,12 +282,12 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                 <button key={col.id} onClick={() => setActiveCol(active ? null : col.id)}
                   className="text-left py-3 transition-all"
                   style={{
-                    borderTop: `2px solid ${active ? col.color : 'rgba(37,36,80,0.12)'}`,
+                    borderTop: `2px solid ${active ? col.color : 'rgba(10,10,10,0.12)'}`,
                   }}>
-                  <p className="text-xs font-black leading-tight mb-0.5" style={{ color: active ? '#fff' : '#252450' }}>
+                  <p className="text-xs font-black leading-tight mb-0.5" style={{ color: active ? '#fff' : '#0A0A0A', background: active ? col.color : 'transparent' }}>
                     {col.label}
                   </p>
-                  <p className="text-[9px] leading-snug" style={{ color: active ? 'rgba(255,255,255,0.6)' : 'rgba(37,36,80,0.4)' }}>
+                  <p className="text-[9px] leading-snug" style={{ color: active ? 'rgba(255,255,255,0.6)' : 'rgba(10,10,10,0.4)' }}>
                     {count} place{count !== 1 ? 's' : ''}
                   </p>
                 </button>
@@ -299,13 +299,13 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         {/* Browse */}
         <div className="mb-14">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(37,36,80,0.4)' }}>
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.4)' }}>
               {activeCol ? COLLECTIONS.find(c => c.id === activeCol)?.label : 'Browse all'}
               <span className="ml-2 font-medium" style={{ opacity: 0.5 }}>{filtered.length}</span>
             </p>
           </div>
           {!activeCol && (
-            <div className="flex items-center gap-6 mb-7" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+            <div className="flex items-center gap-6 mb-7" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
               {(['all','restaurant','bar','cafe'] as VenueType[]).map(t => {
                 const count  = t === 'all' ? regular.length : regular.filter(v => v.broadType === t).length
                 const active = typeFilter === t
@@ -314,9 +314,9 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                 return (
                   <button key={t} onClick={() => setTypeFilter(t)}
                     className="relative pb-3 text-[10px] font-black tracking-widest uppercase transition-colors"
-                    style={{ color: active ? '#252450' : 'rgba(37,36,80,0.3)' }}>
+                    style={{ color: active ? '#0A0A0A' : 'rgba(10,10,10,0.3)' }}>
                     {label}
-                    {active && <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: '#252450' }} />}
+                    {active && <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: '#0A0A0A' }} />}
                   </button>
                 )
               })}
@@ -324,7 +324,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
           )}
           {filtered.length === 0 ? (
             <div className="py-16 text-center">
-              <p className="text-sm" style={{ color: 'rgba(37,36,80,0.4)' }}>No venues match — try a different filter.</p>
+              <p className="text-sm" style={{ color: 'rgba(10,10,10,0.4)' }}>No venues match — try a different filter.</p>
             </div>
           ) : (
             <div>
@@ -337,22 +337,22 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         {hoods.length > 0 && (
           <div className="mb-14">
             <div className="flex items-center gap-4 mb-6">
-              <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.1)' }} />
-              <p className="text-[9px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(37,36,80,0.35)' }}>
+              <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
+              <p className="text-[9px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
                 Neighbourhood guide
               </p>
-              <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.1)' }} />
+              <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
             </div>
             <div>
               {hoods.map(h => (
-                <div key={h.name} className="flex gap-4 py-4" style={{ borderTop: '1px solid rgba(37,36,80,0.08)' }}>
+                <div key={h.name} className="flex gap-4 py-4" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
                   <div className="w-0.5 shrink-0 self-stretch" style={{ background: h.color }} />
                   <div className="min-w-0">
                     <div className="flex items-baseline gap-2 mb-1.5 flex-wrap">
-                      <p className="text-sm font-black" style={{ color: '#252450' }}>{h.name}</p>
-                      <p className="text-[9px] font-medium" style={{ color: 'rgba(37,36,80,0.35)' }}>{h.sub}</p>
+                      <p className="text-sm font-black" style={{ color: '#0A0A0A' }}>{h.name}</p>
+                      <p className="text-[9px] font-medium" style={{ color: 'rgba(10,10,10,0.35)' }}>{h.sub}</p>
                     </div>
-                    <p className="text-xs leading-relaxed" style={{ color: 'rgba(37,36,80,0.6)' }}>{h.desc}</p>
+                    <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.6)' }}>{h.desc}</p>
                   </div>
                 </div>
               ))}
@@ -363,11 +363,11 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         {/* Reddit food signal */}
         <div className="mb-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.1)' }} />
-            <p className="text-[9px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(37,36,80,0.35)' }}>
+            <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
+            <p className="text-[9px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
               What the city is eating
             </p>
-            <div className="flex-1 h-px" style={{ background: 'rgba(37,36,80,0.1)' }} />
+            <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
           </div>
           <RedditFoodPanel cityId={cityId} />
         </div>

@@ -12,6 +12,7 @@ import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
 
 import RedditFeed from '@/components/city/RedditFeed'
+import { CityHubClient } from '@/components/city/CityHubClient'
 
 
 export function generateStaticParams() {
@@ -64,6 +65,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   return (
     <AuthGate cityName={city.name} cityId={cityId}>
     <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
+      <CityHubClient cityName={city.name} cityId={cityId} />
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
       <div style={{ background: '#FFFFFF', borderBottom: '2px solid #0A0A0A' }}>
@@ -138,33 +140,13 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       {/* ── Editorial body ───────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12">
 
-        {/* Column headers */}
+        {/* Column divider — desktop */}
         <div className="hidden lg:grid lg:grid-cols-[1fr_1px_320px] gap-0">
-          <div className="lg:pr-9 pt-7 pb-4" style={{ borderBottom: '2px solid #0A0A0A' }}>
-            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#0A0A0A' }}>
-              What&rsquo;s On
-            </span>
-            <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(10,10,10,0.3)' }}>
-              {allEvents.length} upcoming events
-            </span>
-          </div>
+          <div className="lg:pr-9 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
           <div />
-          <div className="lg:pl-9 pt-7 pb-4" style={{ borderBottom: '2px solid #0A0A0A' }}>
-            <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#0A0A0A' }}>
-              Around the city
-            </span>
-          </div>
+          <div className="lg:pl-9 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
         </div>
-
-        {/* Mobile header */}
-        <div className="lg:hidden pt-7 pb-4" style={{ borderBottom: '2px solid #0A0A0A' }}>
-          <span className="text-xs font-black tracking-[0.2em] uppercase" style={{ color: '#0A0A0A' }}>
-            What&rsquo;s On
-          </span>
-          <span className="ml-3 text-xs font-medium" style={{ color: 'rgba(10,10,10,0.3)' }}>
-            {allEvents.length} upcoming
-          </span>
-        </div>
+        <div className="lg:hidden pt-5 pb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }} />
 
         {/* Two-column editorial grid */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_320px] gap-0 pb-16">

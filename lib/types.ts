@@ -134,5 +134,6 @@ export interface UserProfile {
   completedTaskIds: string[]
   savedTaskIds: string[]
   showInDirectory?: boolean
+  digestSubscribed?: boolean
   spots: Spot[]
 }

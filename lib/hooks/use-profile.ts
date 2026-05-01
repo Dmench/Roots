@@ -31,6 +31,7 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
     completedTaskIds: (data.completed_task_ids as string[]) ?? [],
     savedTaskIds:     (data.saved_task_ids as string[]) ?? [],
     showInDirectory:  (data.show_in_directory as boolean | null) ?? true,
+    digestSubscribed: (data.digest_subscribed as boolean | null) ?? true,
     spots:            (data.spots as Spot[]) ?? [],
   }
 }
@@ -127,6 +128,7 @@ export function useProfile() {
           completed_task_ids: next.completedTaskIds ?? [],
           saved_task_ids:     next.savedTaskIds     ?? [],
           show_in_directory:  next.showInDirectory  ?? true,
+          digest_subscribed:  next.digestSubscribed ?? true,
           spots:              next.spots            ?? [],
           updated_at:         new Date().toISOString(),
         }).then(({ error }) => {
@@ -152,7 +154,8 @@ export function useProfile() {
   const setArrivalDate     = (date: string)             => updateProfile({ arrivalDate: date })
   const setDisplayName     = (name: string)             => updateProfile({ displayName: name })
   const setNeighborhood    = (n: string | undefined)    => updateProfile({ neighborhood: n })
-  const setShowInDirectory = (val: boolean)             => updateProfile({ showInDirectory: val })
+  const setShowInDirectory  = (val: boolean) => updateProfile({ showInDirectory: val })
+  const setDigestSubscribed = (val: boolean) => updateProfile({ digestSubscribed: val })
 
   const toggleLanguage = (code: string) => {
     const current = profile.languages ?? []
@@ -192,6 +195,7 @@ export function useProfile() {
     setDisplayName,
     setNeighborhood,
     setShowInDirectory,
+    setDigestSubscribed,
     toggleLanguage,
     toggleSituation,
     toggleTaskDone,
