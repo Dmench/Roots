@@ -8,18 +8,27 @@ import { AuthModal } from '@/components/auth/AuthModal'
 import { getCity, STAGES, NEIGHBORHOODS } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { Nav } from '@/components/layout/Nav'
-import type { Stage } from '@/lib/types'
+import type { Stage, SituationTag } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { SpotSearch } from '@/components/city/SpotSearch'
 
-function daysInCity(arrivalDate?: string): number | null {
-  if (!arrivalDate) return null
-  return Math.max(0, Math.floor((Date.now() - new Date(arrivalDate).getTime()) / 86400000))
+// "2024-09" or "2024-09-14" → "Sep '24"
+function fmtMonth(val: string): string {
+  const parts  = val.split('-')
+  const year   = parts[0] ?? ''
+  const month  = parseInt(parts[1] ?? '1') - 1
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return `${MONTHS[month] ?? '?'} '${year.slice(2)}`
 }
 
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
+const SITUATION_OPTIONS: { id: SituationTag; label: string }[] = [
+  { id: 'student',       label: 'Student' },
+  { id: 'employed',      label: 'Employee' },
+  { id: 'self_employed', label: 'Freelancer' },
+  { id: 'digital_nomad', label: 'Digital nomad' },
+  { id: 'renting',       label: 'Renting' },
+  { id: 'family',        label: 'With family' },
+]
 
 /* ── Row primitives ──────────────────────────────────────────────────────── */
 
@@ -37,27 +46,14 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 function FieldRow({
-  label,
-  value,
-  placeholder,
-  onClick,
-  last = false,
-  danger = false,
-  right,
+  label, value, placeholder, onClick, last = false, danger = false, right,
 }: {
-  label: string
-  value?: string
-  placeholder?: string
-  onClick?: () => void
-  last?: boolean
-  danger?: boolean
-  right?: React.ReactNode
+  label: string; value?: string; placeholder?: string; onClick?: () => void
+  last?: boolean; danger?: boolean; right?: React.ReactNode
 }) {
-  const content = (
-    <div
-      className={onClick ? 'cursor-pointer hover:bg-black/[0.02] transition-colors' : ''}
-      onClick={onClick}
-    >
+  return (
+    <div className={onClick ? 'cursor-pointer hover:bg-black/[0.02] transition-colors' : ''}
+      onClick={onClick}>
       <div className="flex items-center justify-between gap-4 px-4 py-3.5">
         <span className="text-sm font-medium" style={{ color: danger ? '#C8152A' : '#0F0E1E' }}>
           {label}
@@ -79,21 +75,12 @@ function FieldRow({
       {!last && <RowDivider />}
     </div>
   )
-  return content
 }
 
 function ToggleRow({
-  label,
-  sub,
-  checked,
-  onChange,
-  last = false,
+  label, sub, checked, onChange, last = false,
 }: {
-  label: string
-  sub?: string
-  checked: boolean
-  onChange: (v: boolean) => void
-  last?: boolean
+  label: string; sub?: string; checked: boolean; onChange: (v: boolean) => void; last?: boolean
 }) {
   return (
     <div>
@@ -102,16 +89,12 @@ function ToggleRow({
           <p className="text-sm font-medium" style={{ color: '#0F0E1E' }}>{label}</p>
           {sub && <p className="text-xs mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>{sub}</p>}
         </div>
-        <button
-          onClick={() => onChange(!checked)}
+        <button onClick={() => onChange(!checked)}
           className="relative shrink-0 w-10 h-6 rounded-full transition-colors duration-200"
           style={{ background: checked ? '#3D3CAC' : 'rgba(37,36,80,0.15)' }}
-          aria-label={label}
-        >
-          <span
-            className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200"
-            style={{ transform: checked ? 'translateX(18px)' : 'translateX(2px)' }}
-          />
+          aria-label={label}>
+          <span className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200"
+            style={{ transform: checked ? 'translateX(18px)' : 'translateX(2px)' }} />
         </button>
       </div>
       {!last && <RowDivider />}
@@ -136,27 +119,25 @@ export default function ProfilePage() {
   const {
     profile, hydrated,
     setStage, setArrivalDate, setDisplayName,
-    setNeighborhood, setShowInDirectory,
+    setNeighborhood, setShowInDirectory, updateProfile,
     addSpot, removeSpot,
   } = useProfile()
 
-  const [authOpen,    setAuthOpen]    = useState(false)
-  const [editingName, setEditingName] = useState(false)
-  const [nameInput,   setNameInput]   = useState('')
-  const [saved,       setSaved]       = useState(false)
-  const [stageOpen,   setStageOpen]   = useState(false)
-  const [neighborhoodOpen, setNeighborhoodOpen] = useState(false)
-  const [addingSpot,  setAddingSpot]  = useState(false)
-  const dateRef = useRef<HTMLInputElement>(null)
+  const [authOpen,          setAuthOpen]          = useState(false)
+  const [editingName,       setEditingName]       = useState(false)
+  const [nameInput,         setNameInput]         = useState('')
+  const [saved,             setSaved]             = useState(false)
+  const [stageOpen,         setStageOpen]         = useState(false)
+  const [neighborhoodOpen,  setNeighborhoodOpen]  = useState(false)
+  const [situationOpen,     setSituationOpen]     = useState(false)
+  const [addingSpot,        setAddingSpot]        = useState(false)
+  const monthRef = useRef<HTMLInputElement>(null)
 
   function flash() { setSaved(true); setTimeout(() => setSaved(false), 2000) }
-
   function saveName() {
-    const trimmed = nameInput.trim()
-    if (!trimmed) return
-    setDisplayName(trimmed)
-    setEditingName(false)
-    flash()
+    const t = nameInput.trim()
+    if (!t) return
+    setDisplayName(t); setEditingName(false); flash()
   }
 
   const city         = profile.cityId ? getCity(profile.cityId) : undefined
@@ -164,9 +145,12 @@ export default function ProfilePage() {
   const allTasks     = city ? getTasksForCity(city.id) : []
   const doneCount    = (profile.completedTaskIds ?? []).filter(id => allTasks.some(t => t.id === id)).length
   const pct          = allTasks.length > 0 ? Math.round((doneCount / allTasks.length) * 100) : 0
-  const days         = daysInCity(profile.arrivalDate)
 
   const handleSignOut = async () => { await signOut(); router.push('/') }
+
+  const STAGE_COLOR: Record<string, string> = {
+    planning: '#6865CC', just_arrived: '#B88A00', settling: '#1A8FAD', settled: '#0E9B6B',
+  }
 
   /* ── Loading ── */
   if (authLoading || !hydrated) {
@@ -194,17 +178,15 @@ export default function ProfilePage() {
               <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="font-display font-bold text-espresso text-3xl mb-3 leading-tight">
+          <h1 className="font-display font-bold text-3xl mb-3 leading-tight" style={{ color: '#0A0A0A' }}>
             Your profile
           </h1>
-          <p className="text-walnut/55 text-sm mb-10 leading-relaxed">
+          <p className="text-sm mb-10 leading-relaxed" style={{ color: 'rgba(10,10,10,0.45)' }}>
             Sign in to save your progress, sync across devices, and appear in the settler directory.
           </p>
-          <button
-            onClick={() => setAuthOpen(true)}
+          <button onClick={() => setAuthOpen(true)}
             className="px-8 py-3.5 text-white font-semibold hover:opacity-90 transition-opacity text-sm"
-            style={{ background: '#3D3CAC' }}
-          >
+            style={{ background: '#3D3CAC' }}>
             Sign in or create account
           </button>
           <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
@@ -215,230 +197,317 @@ export default function ProfilePage() {
 
   const displayInitial = (profile.displayName ?? user.email ?? '?')[0].toUpperCase()
   const neighborhoods  = city ? (NEIGHBORHOODS[city.id] ?? []) : []
-
-  const STAGE_COLOR: Record<string, string> = {
-    planning:     '#6865CC',
-    just_arrived: '#B88A00',
-    settling:     '#1A8FAD',
-    settled:      '#0E9B6B',
-  }
+  const primarySit     = (profile.situations ?? []).find(s => SITUATION_OPTIONS.some(o => o.id === s))
+  const primarySitLabel = primarySit ? SITUATION_OPTIONS.find(o => o.id === primarySit)?.label : undefined
+  const spots          = profile.spots ?? []
 
   /* ── Signed in ── */
   return (
     <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
       <Nav />
 
-      {/* ── Identity ── open, no card, typography-first ───────────────────── */}
-      <div style={{ borderBottom: '2px solid #0A0A0A' }}>
-        <div className="max-w-xl mx-auto px-6 md:px-8 pt-8 pb-7">
-          <div className="flex items-start gap-5">
-            {/* Square avatar */}
-            <div className="w-16 h-16 flex items-center justify-center font-display font-black text-2xl shrink-0"
-              style={{ background: '#0A0A0A', color: '#FFFFFF' }}>
-              {displayInitial}
-            </div>
+      <div className="max-w-xl mx-auto px-4 md:px-8 pt-6 pb-20">
 
-            <div className="flex-1 min-w-0 pt-0.5">
-              {/* Name — click to edit */}
-              {editingName ? (
-                <div className="flex items-center gap-2 mb-1">
-                  <input
-                    autoFocus
-                    value={nameInput}
-                    onChange={e => setNameInput(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') saveName()
-                      if (e.key === 'Escape') setEditingName(false)
-                    }}
-                    placeholder="Your name"
-                    className="flex-1 min-w-0 px-3 py-2 focus:outline-none font-display font-bold text-lg"
-                    style={{ border: '2px solid #0A0A0A', color: '#0A0A0A' }}
-                  />
-                  <button onClick={saveName}
-                    className="shrink-0 text-xs font-bold px-4 py-2"
-                    style={{ background: '#0A0A0A', color: '#FFFFFF' }}>
-                    Save
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => { setNameInput(profile.displayName ?? ''); setEditingName(true) }}
-                  className="group flex items-center gap-2 text-left w-full min-w-0 mb-1.5">
-                  <span className="font-display font-black leading-none"
-                    style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', color: profile.displayName ? '#0A0A0A' : 'rgba(10,10,10,0.2)' }}>
-                    {profile.displayName ?? 'Add your name'}
-                  </span>
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-                    className="shrink-0 opacity-0 group-hover:opacity-30 transition-opacity mt-1">
-                    <path d="M8.5 1.5l2 2-7 7H1.5v-2l7-7z" stroke="#0A0A0A" strokeWidth="1.2" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              )}
+        {/* ════════════════════════════════════════════════════════════════
+            THE CARD — shareable identity block
+        ════════════════════════════════════════════════════════════════ */}
+        <div style={{ border: '2px solid #0A0A0A' }}>
 
-              {/* City · neighborhood · days · stage */}
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                {city && (
-                  <span className="text-sm font-medium" style={{ color: 'rgba(10,10,10,0.55)' }}>
-                    {city.name}
-                  </span>
-                )}
-                {profile.neighborhood && (
-                  <span className="text-sm" style={{ color: 'rgba(10,10,10,0.3)' }}>
-                    · {profile.neighborhood}
-                  </span>
-                )}
-                {days !== null && (
-                  <span className="text-sm" style={{ color: 'rgba(10,10,10,0.3)' }}>
-                    · {days} day{days !== 1 ? 's' : ''}
-                  </span>
-                )}
-                {currentStage ? (
-                  <button onClick={() => setStageOpen(true)}
-                    className="text-sm font-semibold ml-1 hover:opacity-60 transition-opacity"
-                    style={{ color: STAGE_COLOR[currentStage.id] ?? '#4744C8' }}>
-                    · {currentStage.label}
-                  </button>
-                ) : (
-                  <button onClick={() => setStageOpen(true)}
-                    className="text-xs underline underline-offset-2 ml-1 hover:opacity-60 transition-opacity"
-                    style={{ color: 'rgba(10,10,10,0.35)' }}>
-                    Set stage
-                  </button>
-                )}
+          {/* ── Header bar ──────────────────────────────────────────────── */}
+          <div className="flex items-center justify-between px-4 py-2.5"
+            style={{ background: '#0A0A0A' }}>
+            <span className="text-[8px] font-black tracking-[0.3em] uppercase"
+              style={{ color: 'rgba(255,255,255,0.35)' }}>
+              Settler Card
+            </span>
+            {city ? (
+              <span className="text-[8px] font-black tracking-[0.3em] uppercase"
+                style={{ color: '#FAB400' }}>
+                {city.name.toUpperCase()}
+              </span>
+            ) : (
+              <Link href="/cities?from=profile"
+                className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+                style={{ color: 'rgba(255,255,255,0.5)' }}>
+                Choose city →
+              </Link>
+            )}
+          </div>
+
+          {/* ── Identity ─────────────────────────────────────────────────── */}
+          <div className="px-5 py-6">
+            <div className="flex items-start gap-4">
+              {/* Square avatar */}
+              <div className="shrink-0 w-16 h-16 flex items-center justify-center font-display font-black text-2xl"
+                style={{ background: '#0A0A0A', color: '#fff' }}>
+                {displayInitial}
               </div>
 
-              {saved && (
-                <p className="text-[9px] font-black tracking-[0.2em] uppercase mt-2" style={{ color: '#10B981' }}>
-                  Saved ✓
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-xl mx-auto px-6 md:px-8">
-
-        {/* ── My Spots ── social hero, right after identity ─────────────────── */}
-        <div className="py-8" style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }}>
-          <div className="flex items-baseline justify-between mb-5">
-            <h2 className="font-display font-black text-2xl" style={{ color: '#0A0A0A', letterSpacing: '-0.02em' }}>
-              My Spots
-            </h2>
-            <button
-              onClick={() => setAddingSpot(true)}
-              className="text-[10px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
-              style={{ color: '#4744C8' }}>
-              + Add spot
-            </button>
-          </div>
-
-          {(profile.spots ?? []).length === 0 && !addingSpot && (
-            <button
-              onClick={() => setAddingSpot(true)}
-              className="w-full py-6 text-sm text-left leading-relaxed hover:bg-neutral-50 transition-colors px-1"
-              style={{ color: 'rgba(10,10,10,0.3)', borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-              Add the cafes, bars, bookshops, and record shops you love —
-              other settlers can discover them through your profile.
-            </button>
-          )}
-
-          {(profile.spots ?? []).length > 0 && (
-            <div>
-              {(profile.spots ?? []).map((spot, idx) => {
-                const cat = SPOT_CATEGORIES.find(c => c.id === spot.category)
-                return (
-                  <div key={spot.id}
-                    className="flex items-center gap-3 py-2.5"
-                    style={{ borderTop: idx === 0 ? '1px solid rgba(10,10,10,0.08)' : '1px solid rgba(10,10,10,0.05)' }}>
-                    {/* Photo thumbnail or colored dot */}
-                    {spot.photoRef ? (
-                      <div className="w-9 h-9 shrink-0 overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={`/api/places/photo?ref=${encodeURIComponent(spot.photoRef)}`}
-                          alt=""
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    ) : (
-                      <span className="shrink-0 w-2 h-2 rounded-full ml-1" style={{ background: cat?.color ?? '#888' }} />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate" style={{ color: '#0A0A0A' }}>{spot.name}</p>
-                      {spot.address && (
-                        <p className="text-[10px] truncate" style={{ color: 'rgba(10,10,10,0.35)' }}>{spot.address}</p>
-                      )}
-                    </div>
-                    {spot.rating && (
-                      <span className="text-[10px] font-semibold shrink-0" style={{ color: '#FAB400' }}>
-                        ★ {spot.rating.toFixed(1)}
-                      </span>
-                    )}
-                    <span className="text-[9px] font-black tracking-wide uppercase shrink-0" style={{ color: cat?.color ?? '#888' }}>
-                      {cat?.label}
-                    </span>
-                    <button
-                      onClick={() => removeSpot(spot.id)}
-                      className="shrink-0 w-5 h-5 flex items-center justify-center text-[11px] hover:opacity-60 transition-opacity"
-                      style={{ color: 'rgba(10,10,10,0.2)' }}>
-                      ✕
+              <div className="flex-1 min-w-0">
+                {/* Name — click to edit */}
+                {editingName ? (
+                  <div className="flex items-center gap-2 mb-3">
+                    <input
+                      autoFocus
+                      value={nameInput}
+                      onChange={e => setNameInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setEditingName(false) }}
+                      placeholder="Your name"
+                      className="flex-1 min-w-0 px-3 py-2 focus:outline-none font-display font-bold text-lg"
+                      style={{ border: '2px solid #0A0A0A', color: '#0A0A0A' }}
+                    />
+                    <button onClick={saveName}
+                      className="shrink-0 px-4 py-2 text-xs font-bold text-white"
+                      style={{ background: '#0A0A0A' }}>
+                      Save
                     </button>
                   </div>
-                )
-              })}
-            </div>
-          )}
+                ) : (
+                  <button
+                    onClick={() => { setNameInput(profile.displayName ?? ''); setEditingName(true) }}
+                    className="group flex items-center gap-2 text-left w-full mb-3">
+                    <span className="font-display font-black leading-none"
+                      style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', color: profile.displayName ? '#0A0A0A' : 'rgba(10,10,10,0.2)' }}>
+                      {profile.displayName ?? 'Add your name'}
+                    </span>
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none"
+                      className="shrink-0 opacity-0 group-hover:opacity-25 transition-opacity">
+                      <path d="M8.5 1.5l2 2-7 7H1.5v-2l7-7z" stroke="#0A0A0A" strokeWidth="1.2" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                )}
 
-          {addingSpot && (
-            <div className="pt-3" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-              <SpotSearch
-                cityId={profile.cityId ?? 'brussels'}
-                onAdd={spotData => {
-                  addSpot(spotData)
-                  setAddingSpot(false)
-                  flash()
-                }}
-                onCancel={() => setAddingSpot(false)}
-              />
+                {/* Identity chips */}
+                <div className="flex flex-wrap gap-1.5">
+
+                  {/* Neighborhood chip */}
+                  {profile.neighborhood ? (
+                    <button onClick={() => setNeighborhoodOpen(true)}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
+                      {profile.neighborhood}
+                    </button>
+                  ) : (
+                    <button onClick={() => setNeighborhoodOpen(true)}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
+                      + Neighborhood
+                    </button>
+                  )}
+
+                  {/* Arrival chip */}
+                  {profile.arrivalDate ? (
+                    <button onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
+                      Since {fmtMonth(profile.arrivalDate)}
+                    </button>
+                  ) : (
+                    <button onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
+                      + Arrival
+                    </button>
+                  )}
+
+                  {/* Stage chip */}
+                  {currentStage ? (
+                    <button onClick={() => setStageOpen(true)}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ background: (STAGE_COLOR[currentStage.id] ?? '#4744C8') + '18', color: STAGE_COLOR[currentStage.id] ?? '#4744C8' }}>
+                      {currentStage.label}
+                    </button>
+                  ) : (
+                    <button onClick={() => setStageOpen(true)}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
+                      + Stage
+                    </button>
+                  )}
+
+                  {/* Situation / profession chip */}
+                  {primarySitLabel ? (
+                    <button onClick={() => setSituationOpen(true)}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
+                      {primarySitLabel}
+                    </button>
+                  ) : (
+                    <button onClick={() => setSituationOpen(true)}
+                      className="text-[9px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
+                      + Profession
+                    </button>
+                  )}
+
+                </div>
+              </div>
             </div>
-          )}
+          </div>
+
+          {/* ── My Spots ─────────────────────────────────────────────────── */}
+          <div style={{ borderTop: '1px solid rgba(10,10,10,0.09)' }}>
+            <div className="flex items-center justify-between px-5 py-3">
+              <span className="text-[9px] font-black tracking-[0.22em] uppercase"
+                style={{ color: 'rgba(10,10,10,0.3)' }}>
+                My Spots
+              </span>
+              {!addingSpot && (
+                <button onClick={() => setAddingSpot(true)}
+                  className="text-[9px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
+                  style={{ color: '#4744C8' }}>
+                  + Add
+                </button>
+              )}
+            </div>
+
+            {/* Empty state — placeholder swatches */}
+            {spots.length === 0 && !addingSpot && (
+              <button onClick={() => setAddingSpot(true)}
+                className="w-full px-5 pb-5 hover:bg-neutral-50 transition-colors text-left">
+                <div className="flex gap-2">
+                  {(['cafe', 'bar', 'bookstore'] as const).map(catId => {
+                    const c = SPOT_CATEGORIES.find(x => x.id === catId)!
+                    return (
+                      <div key={catId} className="w-[72px] h-[72px] flex flex-col items-center justify-center"
+                        style={{ background: c.color + '10', border: `1px dashed ${c.color}35` }}>
+                        <span className="text-[7px] font-black uppercase tracking-wide text-center leading-tight"
+                          style={{ color: c.color }}>
+                          {c.label}
+                        </span>
+                      </div>
+                    )
+                  })}
+                  <div className="w-[72px] h-[72px] flex items-center justify-center"
+                    style={{ border: '1px dashed rgba(10,10,10,0.12)' }}>
+                    <span className="text-xl" style={{ color: 'rgba(10,10,10,0.15)' }}>+</span>
+                  </div>
+                </div>
+                <p className="mt-2.5 text-[10px] leading-relaxed" style={{ color: 'rgba(10,10,10,0.3)' }}>
+                  Add the cafes, bars, bookshops you love.
+                </p>
+              </button>
+            )}
+
+            {/* Spots photo strip */}
+            {spots.length > 0 && !addingSpot && (
+              <div className="px-5 pb-5">
+                <div className="flex gap-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                  {spots.map(spot => {
+                    const cat = SPOT_CATEGORIES.find(c => c.id === spot.category)
+                    return (
+                      <div key={spot.id} className="shrink-0 group">
+                        <div className="relative w-[72px] h-[72px] overflow-hidden"
+                          style={{ background: (cat?.color ?? '#888') + '12' }}>
+                          {spot.photoRef ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`/api/places/photo?ref=${encodeURIComponent(spot.photoRef)}`}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <span className="absolute inset-0 flex items-end p-1.5">
+                              <span className="text-[7px] font-black uppercase tracking-wide leading-none"
+                                style={{ color: cat?.color ?? '#888' }}>
+                                {spot.name.split(' ')[0]}
+                              </span>
+                            </span>
+                          )}
+                          <button
+                            onClick={() => removeSpot(spot.id)}
+                            className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ background: 'rgba(0,0,0,0.65)', color: '#fff' }}>
+                            ✕
+                          </button>
+                        </div>
+                        <p className="text-[8px] font-semibold mt-1.5 leading-none"
+                          style={{ color: 'rgba(10,10,10,0.55)', width: 72, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {spot.name}
+                        </p>
+                        {cat && (
+                          <p className="text-[7px] font-black tracking-wide uppercase mt-0.5"
+                            style={{ color: cat.color }}>
+                            {cat.label}
+                          </p>
+                        )}
+                      </div>
+                    )
+                  })}
+                  {/* Add more button */}
+                  <button onClick={() => setAddingSpot(true)}
+                    className="shrink-0 w-[72px] h-[72px] flex items-center justify-center hover:bg-neutral-50 transition-colors"
+                    style={{ border: '1px dashed rgba(10,10,10,0.15)' }}>
+                    <span className="text-xl" style={{ color: 'rgba(10,10,10,0.18)' }}>+</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* SpotSearch form */}
+            {addingSpot && (
+              <div className="px-5 pb-5">
+                <SpotSearch
+                  cityId={profile.cityId ?? 'brussels'}
+                  onAdd={spotData => { addSpot(spotData); setAddingSpot(false); flash() }}
+                  onCancel={() => setAddingSpot(false)}
+                />
+              </div>
+            )}
+          </div>
+
         </div>
+        {/* ─ end card ─ */}
 
-        {/* ── Settle progress ── compact ────────────────────────────────────── */}
+        {saved && (
+          <p className="text-[9px] font-black tracking-[0.2em] uppercase mt-3 text-center"
+            style={{ color: '#10B981' }}>
+            Saved ✓
+          </p>
+        )}
+
+        {/* ── Settle progress ──────────────────────────────────────────────── */}
         {city && allTasks.length > 0 && (
-          <div className="py-6" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
+          <div className="mt-8 py-4"
+            style={{ borderTop: '1px solid rgba(10,10,10,0.07)', borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
             <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[10px] font-black tracking-[0.2em] uppercase" style={{ color: 'rgba(10,10,10,0.35)' }}>
+              <p className="text-[9px] font-black tracking-[0.2em] uppercase"
+                style={{ color: 'rgba(10,10,10,0.3)' }}>
                 Settle checklist
               </p>
               <Link href={`/${city.id}/settle`}
-                className="text-[10px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
+                className="text-[9px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
                 style={{ color: '#4744C8' }}>
                 View →
               </Link>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-0.5 overflow-hidden" style={{ background: 'rgba(10,10,10,0.08)' }}>
+              <div className="flex-1 h-0.5" style={{ background: 'rgba(10,10,10,0.07)' }}>
                 <div className="h-full transition-all duration-700" style={{ width: `${pct}%`, background: '#4744C8' }} />
               </div>
-              <span className="text-xs font-semibold shrink-0" style={{ color: 'rgba(10,10,10,0.4)' }}>
-                {doneCount}/{allTasks.length} · {pct}%
+              <span className="text-xs font-semibold shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                {doneCount}/{allTasks.length}
               </span>
             </div>
           </div>
         )}
 
-        {/* ── Settings ── de-emphasized ─────────────────────────────────────── */}
-        <div className="py-8 space-y-0">
+        {/* ── Settings ─────────────────────────────────────────────────────── */}
+        <div className="mt-8 space-y-0">
 
           <SectionLabel>Location</SectionLabel>
           <FieldGroup>
-            <FieldRow label="City" value={city?.name} placeholder="Not set" onClick={() => router.push('/cities?from=profile')} />
-            {city && <FieldRow label="Neighborhood" value={profile.neighborhood} placeholder="Select…" onClick={() => setNeighborhoodOpen(true)} />}
-            <FieldRow label="Arrived" value={profile.arrivalDate ? fmtDate(profile.arrivalDate) : undefined} placeholder="Set date" last
-              onClick={() => dateRef.current?.showPicker?.() ?? dateRef.current?.click()} />
+            <FieldRow label="City" value={city?.name} placeholder="Not set"
+              onClick={() => router.push('/cities?from=profile')} />
+            {city && (
+              <FieldRow label="Neighborhood" value={profile.neighborhood} placeholder="Select…"
+                onClick={() => setNeighborhoodOpen(true)} />
+            )}
+            <FieldRow label="Arrived" last
+              value={profile.arrivalDate ? fmtMonth(profile.arrivalDate) : undefined}
+              placeholder="Set month"
+              onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()} />
           </FieldGroup>
 
           <div className="mb-6" />
@@ -452,7 +521,10 @@ export default function ProfilePage() {
               onChange={v => { setShowInDirectory(v); flash() }}
               last={!city}
             />
-            {city && <FieldRow label="View settler directory" last onClick={() => router.push(`/${city.id}/people`)} />}
+            {city && (
+              <FieldRow label="View settler directory" last
+                onClick={() => router.push(`/${city.id}/people`)} />
+            )}
           </FieldGroup>
 
           <div className="mb-6" />
@@ -466,32 +538,27 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Hidden date input */}
+      {/* ── Hidden month input ───────────────────────────────────────────────── */}
       <input
-        ref={dateRef}
-        type="date"
-        value={profile.arrivalDate ?? ''}
-        onChange={e => { setArrivalDate(e.target.value); flash() }}
+        ref={monthRef}
+        type="month"
+        value={profile.arrivalDate ? profile.arrivalDate.slice(0, 7) : ''}
+        onChange={e => { if (e.target.value) { setArrivalDate(e.target.value); flash() } }}
         className="sr-only"
         tabIndex={-1}
         aria-hidden
       />
 
-      {/* ── Stage picker bottom sheet ──────────────────────────────────────── */}
+      {/* ══ Stage picker ═══════════════════════════════════════════════════════ */}
       {stageOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setStageOpen(false)}>
-          <div
-            className="w-full sm:max-w-sm shadow-2xl"
-            style={{ background: '#fff' }}
+          <div className="w-full sm:max-w-sm shadow-2xl" style={{ background: '#fff' }}
             onClick={e => e.stopPropagation()}>
             <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
               <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-0.5"
-                style={{ color: 'rgba(37,36,80,0.4)' }}>
-                Your stage
-              </p>
+                style={{ color: 'rgba(37,36,80,0.4)' }}>Your stage</p>
               <p className="text-xs leading-relaxed" style={{ color: 'rgba(37,36,80,0.5)' }}>
                 Filters your Settle checklist to what matters right now.
               </p>
@@ -499,21 +566,18 @@ export default function ProfilePage() {
             {STAGES.map((s, i) => {
               const active = profile.stage === s.id
               return (
-                <button
-                  key={s.id}
+                <button key={s.id}
                   onClick={() => { setStage(s.id as Stage); flash(); setStageOpen(false) }}
                   className="w-full text-left px-5 py-4 hover:bg-stone-50 transition-colors"
                   style={{ borderBottom: i < STAGES.length - 1 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
                   <p className="text-sm font-semibold" style={{ color: active ? '#3D3CAC' : '#0F0E1E' }}>
-                    {s.label}
-                    {active && <span className="ml-2 text-[10px] font-black tracking-wider">✓</span>}
+                    {s.label}{active && <span className="ml-2 text-[10px] font-black tracking-wider">✓</span>}
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>{s.months}</p>
                 </button>
               )
             })}
-            <button onClick={() => setStageOpen(false)}
-              className="w-full py-4 text-sm"
+            <button onClick={() => setStageOpen(false)} className="w-full py-4 text-sm"
               style={{ color: 'rgba(37,36,80,0.35)', borderTop: '1px solid rgba(37,36,80,0.08)' }}>
               Cancel
             </button>
@@ -521,39 +585,69 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* ── Neighborhood picker bottom sheet ──────────────────────────────── */}
+      {/* ══ Neighborhood picker ════════════════════════════════════════════════ */}
       {neighborhoodOpen && city && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setNeighborhoodOpen(false)}>
-          <div
-            className="w-full sm:max-w-sm shadow-2xl"
+          <div className="w-full sm:max-w-sm shadow-2xl"
             style={{ background: '#fff', maxHeight: '80vh', overflowY: 'auto' }}
             onClick={e => e.stopPropagation()}>
-            <div className="px-5 pt-5 pb-3 sticky top-0 bg-white" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+            <div className="px-5 pt-5 pb-3 sticky top-0 bg-white"
+              style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
               <p className="text-[10px] font-black tracking-[0.2em] uppercase"
-                style={{ color: 'rgba(37,36,80,0.4)' }}>
-                Neighborhood
-              </p>
+                style={{ color: 'rgba(37,36,80,0.4)' }}>Neighborhood</p>
             </div>
             {[{ value: '', label: 'Not specified' }, ...neighborhoods.map(n => ({ value: n, label: n }))].map((opt, i, arr) => {
               const active = (profile.neighborhood ?? '') === opt.value
               return (
-                <button
-                  key={opt.value}
+                <button key={opt.value}
                   onClick={() => { setNeighborhood(opt.value || undefined); flash(); setNeighborhoodOpen(false) }}
                   className="w-full text-left px-5 py-3.5 hover:bg-stone-50 transition-colors"
                   style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
                   <p className="text-sm font-medium" style={{ color: active ? '#3D3CAC' : '#0F0E1E' }}>
-                    {opt.label}
-                    {active && <span className="ml-2 text-[10px] font-black">✓</span>}
+                    {opt.label}{active && <span className="ml-2 text-[10px] font-black">✓</span>}
                   </p>
                 </button>
               )
             })}
-            <button onClick={() => setNeighborhoodOpen(false)}
-              className="w-full py-4 text-sm"
+            <button onClick={() => setNeighborhoodOpen(false)} className="w-full py-4 text-sm"
+              style={{ color: 'rgba(37,36,80,0.35)', borderTop: '1px solid rgba(37,36,80,0.08)' }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══ Situation / profession picker ══════════════════════════════════════ */}
+      {situationOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setSituationOpen(false)}>
+          <div className="w-full sm:max-w-sm shadow-2xl" style={{ background: '#fff' }}
+            onClick={e => e.stopPropagation()}>
+            <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
+              <p className="text-[10px] font-black tracking-[0.2em] uppercase"
+                style={{ color: 'rgba(37,36,80,0.4)' }}>Your situation</p>
+            </div>
+            {SITUATION_OPTIONS.map((opt, i) => {
+              const active = primarySit === opt.id
+              return (
+                <button key={opt.id}
+                  onClick={() => {
+                    const rest = (profile.situations ?? []).filter(s => !SITUATION_OPTIONS.some(o => o.id === s))
+                    updateProfile({ situations: active ? rest : [opt.id, ...rest] })
+                    flash(); setSituationOpen(false)
+                  }}
+                  className="w-full text-left px-5 py-4 hover:bg-stone-50 transition-colors"
+                  style={{ borderBottom: i < SITUATION_OPTIONS.length - 1 ? '1px solid rgba(37,36,80,0.06)' : 'none' }}>
+                  <p className="text-sm font-semibold" style={{ color: active ? '#3D3CAC' : '#0F0E1E' }}>
+                    {opt.label}{active && <span className="ml-2 text-[10px] font-black tracking-wider">✓</span>}
+                  </p>
+                </button>
+              )
+            })}
+            <button onClick={() => setSituationOpen(false)} className="w-full py-4 text-sm"
               style={{ color: 'rgba(37,36,80,0.35)', borderTop: '1px solid rgba(37,36,80,0.08)' }}>
               Cancel
             </button>
