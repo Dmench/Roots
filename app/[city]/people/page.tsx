@@ -211,8 +211,20 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
                           {m.spots.map(spot => {
                             const cat = SPOT_CATEGORIES.find(c => c.id === spot.category)
                             return (
-                              <span key={spot.id} className="flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full shrink-0" style={{ background: cat?.color ?? '#888' }} />
+                              <span key={spot.id} className="flex items-center gap-1.5">
+                                {spot.photoRef ? (
+                                  <span className="w-4 h-4 shrink-0 overflow-hidden inline-block align-middle">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={`/api/places/photo?ref=${encodeURIComponent(spot.photoRef)}`}
+                                      alt=""
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  </span>
+                                ) : (
+                                  <span className="w-1 h-1 rounded-full shrink-0" style={{ background: cat?.color ?? '#888' }} />
+                                )}
                                 <span className="text-[11px]" style={{ color: 'rgba(10,10,10,0.55)' }}>
                                   {spot.name}
                                 </span>

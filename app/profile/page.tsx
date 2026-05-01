@@ -8,8 +8,9 @@ import { AuthModal } from '@/components/auth/AuthModal'
 import { getCity, STAGES, NEIGHBORHOODS } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { Nav } from '@/components/layout/Nav'
-import type { Stage, SpotCategory } from '@/lib/types'
+import type { Stage } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
+import { SpotSearch } from '@/components/city/SpotSearch'
 
 function daysInCity(arrivalDate?: string): number | null {
   if (!arrivalDate) return null
@@ -146,8 +147,6 @@ export default function ProfilePage() {
   const [stageOpen,   setStageOpen]   = useState(false)
   const [neighborhoodOpen, setNeighborhoodOpen] = useState(false)
   const [addingSpot,  setAddingSpot]  = useState(false)
-  const [spotName,    setSpotName]    = useState('')
-  const [spotCat,     setSpotCat]     = useState<SpotCategory>('cafe')
   const dateRef = useRef<HTMLInputElement>(null)
 
   function flash() { setSaved(true); setTimeout(() => setSaved(false), 2000) }
@@ -327,7 +326,7 @@ export default function ProfilePage() {
               My Spots
             </h2>
             <button
-              onClick={() => { setAddingSpot(true); setSpotName(''); setSpotCat('cafe') }}
+              onClick={() => setAddingSpot(true)}
               className="text-[10px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
               style={{ color: '#4744C8' }}>
               + Add spot
@@ -336,7 +335,7 @@ export default function ProfilePage() {
 
           {(profile.spots ?? []).length === 0 && !addingSpot && (
             <button
-              onClick={() => { setAddingSpot(true); setSpotName(''); setSpotCat('cafe') }}
+              onClick={() => setAddingSpot(true)}
               className="w-full py-6 text-sm text-left leading-relaxed hover:bg-neutral-50 transition-colors px-1"
               style={{ color: 'rgba(10,10,10,0.3)', borderTop: '1px solid rgba(10,10,10,0.08)' }}>
               Add the cafes, bars, bookshops, and record shops you love —
@@ -350,11 +349,34 @@ export default function ProfilePage() {
                 const cat = SPOT_CATEGORIES.find(c => c.id === spot.category)
                 return (
                   <div key={spot.id}
-                    className="flex items-center gap-3 py-3"
+                    className="flex items-center gap-3 py-2.5"
                     style={{ borderTop: idx === 0 ? '1px solid rgba(10,10,10,0.08)' : '1px solid rgba(10,10,10,0.05)' }}>
-                    <span className="shrink-0 w-2 h-2 rounded-full" style={{ background: cat?.color ?? '#888' }} />
-                    <p className="flex-1 text-sm font-medium" style={{ color: '#0A0A0A' }}>{spot.name}</p>
-                    <span className="text-[10px] font-semibold" style={{ color: cat?.color ?? '#888' }}>
+                    {/* Photo thumbnail or colored dot */}
+                    {spot.photoRef ? (
+                      <div className="w-9 h-9 shrink-0 overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/places/photo?ref=${encodeURIComponent(spot.photoRef)}`}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    ) : (
+                      <span className="shrink-0 w-2 h-2 rounded-full ml-1" style={{ background: cat?.color ?? '#888' }} />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate" style={{ color: '#0A0A0A' }}>{spot.name}</p>
+                      {spot.address && (
+                        <p className="text-[10px] truncate" style={{ color: 'rgba(10,10,10,0.35)' }}>{spot.address}</p>
+                      )}
+                    </div>
+                    {spot.rating && (
+                      <span className="text-[10px] font-semibold shrink-0" style={{ color: '#FAB400' }}>
+                        ★ {spot.rating.toFixed(1)}
+                      </span>
+                    )}
+                    <span className="text-[9px] font-black tracking-wide uppercase shrink-0" style={{ color: cat?.color ?? '#888' }}>
                       {cat?.label}
                     </span>
                     <button
@@ -370,55 +392,16 @@ export default function ProfilePage() {
           )}
 
           {addingSpot && (
-            <div className="pt-3 space-y-3" style={{ borderTop: '1px solid rgba(10,10,10,0.08)', marginTop: (profile.spots ?? []).length > 0 ? 0 : undefined }}>
-              <input
-                autoFocus
-                value={spotName}
-                onChange={e => setSpotName(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && spotName.trim()) {
-                    addSpot(spotName.trim(), spotCat)
-                    setAddingSpot(false)
-                    flash()
-                  }
-                  if (e.key === 'Escape') setAddingSpot(false)
+            <div className="pt-3" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
+              <SpotSearch
+                cityId={profile.cityId ?? 'brussels'}
+                onAdd={spotData => {
+                  addSpot(spotData)
+                  setAddingSpot(false)
+                  flash()
                 }}
-                placeholder="Place name…"
-                className="w-full px-3 py-2.5 text-sm focus:outline-none"
-                style={{ border: '1px solid rgba(10,10,10,0.2)', color: '#0A0A0A' }}
+                onCancel={() => setAddingSpot(false)}
               />
-              <div className="flex flex-wrap gap-1.5">
-                {SPOT_CATEGORIES.map(c => (
-                  <button
-                    key={c.id}
-                    onClick={() => setSpotCat(c.id)}
-                    className="text-[9px] font-black tracking-[0.12em] uppercase px-2.5 py-1 transition-all"
-                    style={{
-                      color: spotCat === c.id ? '#fff' : c.color,
-                      background: spotCat === c.id ? c.color : 'transparent',
-                      border: `1px solid ${c.color}`,
-                    }}>
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    if (spotName.trim()) { addSpot(spotName.trim(), spotCat); flash() }
-                    setAddingSpot(false)
-                  }}
-                  className="px-5 py-2 text-xs font-bold text-white"
-                  style={{ background: '#0A0A0A' }}>
-                  Add
-                </button>
-                <button
-                  onClick={() => setAddingSpot(false)}
-                  className="px-4 py-2 text-xs"
-                  style={{ color: 'rgba(10,10,10,0.4)' }}>
-                  Cancel
-                </button>
-              </div>
             </div>
           )}
         </div>

@@ -104,6 +104,11 @@ export interface Spot {
   name: string
   category: SpotCategory
   note?: string
+  // Google Places data (populated when found via search)
+  placeId?: string
+  address?: string
+  photoRef?: string   // photo_reference for /api/places/photo proxy
+  rating?: number
 }
 
 export const SPOT_CATEGORIES: { id: SpotCategory; label: string; color: string }[] = [

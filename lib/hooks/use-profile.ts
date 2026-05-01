@@ -141,8 +141,8 @@ export function useProfile() {
   const setCity            = (cityId: CityId)           => updateProfile({ cityId })
   const setStage           = (stage: Stage | undefined) => updateProfile({ stage })
 
-  const addSpot = (name: string, category: SpotCategory, note?: string) => {
-    const spot: Spot = { id: crypto.randomUUID(), name, category, note }
+  const addSpot = (data: Omit<Spot, 'id'>) => {
+    const spot: Spot = { id: crypto.randomUUID(), ...data }
     updateProfile({ spots: [...(profile.spots ?? []), spot] })
   }
 
