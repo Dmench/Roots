@@ -22,28 +22,7 @@ function inferCategory(types: string[]): SpotCategory {
 
 const COUNTRY_SUFFIX = /, (Belgium|Portugal|Germany|Spain|Netherlands|Czech Republic)$/
 
-// ── Allowed origins — only our own domain can call this ───────────────────────
-const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'https://roots-mu.vercel.app',
-  ...(process.env.NEXT_PUBLIC_SITE_URL ? [process.env.NEXT_PUBLIC_SITE_URL] : []),
-]
-
-function originAllowed(req: NextRequest): boolean {
-  const origin  = req.headers.get('origin')
-  const referer = req.headers.get('referer')
-  // In development (no origin header from same-origin fetch) always allow
-  if (!origin && !referer) return true
-  const check = origin ?? referer ?? ''
-  return ALLOWED_ORIGINS.some(o => check.startsWith(o))
-}
-
 export async function GET(req: NextRequest) {
-  // Block external callers
-  if (!originAllowed(req)) {
-    return NextResponse.json({ results: [], error: 'Forbidden' }, { status: 403 })
-  }
-
   const q      = req.nextUrl.searchParams.get('q')?.trim()
   const cityId = req.nextUrl.searchParams.get('cityId') ?? 'brussels'
 

@@ -1,24 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'https://roots-mu.vercel.app',
-  ...(process.env.NEXT_PUBLIC_SITE_URL ? [process.env.NEXT_PUBLIC_SITE_URL] : []),
-]
-
-function originAllowed(req: NextRequest): boolean {
-  const origin  = req.headers.get('origin')
-  const referer = req.headers.get('referer')
-  if (!origin && !referer) return true
-  const check = origin ?? referer ?? ''
-  return ALLOWED_ORIGINS.some(o => check.startsWith(o))
-}
-
 export async function GET(req: NextRequest) {
-  if (!originAllowed(req)) {
-    return new NextResponse(null, { status: 403 })
-  }
-
   const ref = req.nextUrl.searchParams.get('ref')
   if (!ref) return new NextResponse(null, { status: 400 })
 
