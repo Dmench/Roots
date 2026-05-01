@@ -55,7 +55,7 @@ For full Belgian accounts, BNP Paribas Fortis and ING are the most foreigner-fri
     estimatedTime: '1 hour (fintech) or 1–2 weeks (Belgian bank)',
     difficulty: 'easy',
     links: [
-      { label: 'Open Wise account', url: 'https://wise.com', type: 'affiliate' },
+      { label: 'Open Wise (recommended for new arrivals)', url: 'https://wise.com/invite/ah/roots?utm_source=roots&utm_medium=settle&utm_campaign=bank-account', type: 'affiliate' },
       { label: 'BNP Paribas Fortis Hello Bank', url: 'https://www.hellobank.be/en', type: 'official' },
       { label: 'ING Belgium', url: 'https://www.ing.be/en/private', type: 'official' },
     ],

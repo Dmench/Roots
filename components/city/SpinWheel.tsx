@@ -2,6 +2,24 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 
+const APP_URL = 'https://roots.so'
+
+async function shareResult(result: Result, cityId: string) {
+  const text = result.type === 'event'
+    ? `Roots picked "${result.title}" for me tonight in Brussels — spin for yourself`
+    : `Roots picked ${result.title} for me tonight in Brussels — spin for yours`
+  const url  = `${APP_URL}/${cityId}`
+
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    try { await navigator.share({ text, url }); return } catch { /* cancelled */ }
+  }
+  // Clipboard fallback
+  try {
+    await navigator.clipboard.writeText(`${text}: ${url}`)
+    return 'copied'
+  } catch { return 'error' }
+}
+
 export interface SpinVenue {
   id:           string
   name:         string
@@ -296,13 +314,13 @@ export function SpinWheel({ venues, events, cityId }: Props) {
             <a href={result.href} target="_blank" rel="noopener noreferrer"
               className="block p-5 bg-white hover:bg-neutral-50 transition-colors"
               style={{ border: '1px solid rgba(10,10,10,0.1)', borderLeft: `4px solid ${result.color}` }}>
-              <ResultCard result={result} />
+              <ResultCard result={result} cityId={cityId} />
             </a>
           ) : (
             <Link href={result.href}
               className="block p-5 bg-white hover:bg-neutral-50 transition-colors"
               style={{ border: '1px solid rgba(10,10,10,0.1)', borderLeft: `4px solid ${result.color}` }}>
-              <ResultCard result={result} />
+              <ResultCard result={result} cityId={cityId} />
             </Link>
           )}
         </div>
@@ -318,7 +336,17 @@ export function SpinWheel({ venues, events, cityId }: Props) {
   )
 }
 
-function ResultCard({ result }: { result: Result }) {
+function ResultCard({ result, cityId }: { result: Result; cityId: string }) {
+  const [copied, setCopied] = useState(false)
+
+  async function handleShare() {
+    const status = await shareResult(result, cityId)
+    if (status === 'copied') {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
   return (
     <>
       <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-2" style={{ color: result.color }}>
@@ -330,9 +358,33 @@ function ResultCard({ result }: { result: Result }) {
       <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.45)' }}>
         {result.sub}
       </p>
-      <p className="text-xs font-bold mt-3" style={{ color: result.color }}>
-        View details →
-      </p>
+      <div className="flex items-center justify-between mt-3">
+        <p className="text-xs font-bold" style={{ color: result.color }}>
+          View details →
+        </p>
+        <button
+          onClick={e => { e.preventDefault(); e.stopPropagation(); handleShare() }}
+          className="flex items-center gap-1.5 text-[10px] font-bold tracking-wide hover:opacity-60 transition-opacity"
+          style={{ color: 'rgba(10,10,10,0.35)' }}
+        >
+          {copied ? (
+            <>
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                <path d="M2 5.5l2.5 2.5 4.5-5" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{ color: '#10B981' }}>Copied!</span>
+            </>
+          ) : (
+            <>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              Share this pick
+            </>
+          )}
+        </button>
+      </div>
     </>
   )
 }
