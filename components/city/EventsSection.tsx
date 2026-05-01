@@ -131,22 +131,13 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                         className="group flex items-start gap-4 py-4 hover:bg-neutral-50 -mx-3 px-3 transition-colors"
                         style={{ borderTop: '1px solid rgba(10,10,10,0.07)' }}>
 
-                        {/* Thumbnail or branded swatch */}
-                        <div className="shrink-0 w-14 h-14 overflow-hidden relative">
-                          {ev.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
+                        {/* Thumbnail — only when image exists */}
+                        {ev.image && (
+                          <div className="shrink-0 w-14 h-14 overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={ev.image} alt="" className="w-full h-full object-cover" loading="lazy" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center relative"
-                              style={{ background: `${venueColor}12` }}>
-                              <span className="font-display font-black leading-none"
-                                style={{ fontSize: '1.4rem', color: venueColor, opacity: 0.45 }}>
-                                {ev.source.charAt(0)}
-                              </span>
-                              <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: venueColor }} />
-                            </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
 
                         <div className="flex-1 min-w-0 pt-0.5">
                           <p className="text-sm font-bold leading-snug group-hover:opacity-70 transition-opacity"
@@ -228,28 +219,25 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                             </div>
                           </div>
                         ) : (
-                          /* No-image hero — light editorial card, left-bordered */
-                          <div className="relative flex flex-col justify-between px-6 py-7 overflow-hidden"
-                            style={{ height: 'clamp(220px, 35vw, 340px)', background: `${venueColor}08`, borderLeft: `4px solid ${venueColor}` }}>
-                            <div>
-                              <span className="text-[9px] font-black px-2 py-0.5 uppercase tracking-wider inline-block mb-4"
-                                style={{ background: venueColor, color: '#fff' }}>
-                                {ev.source}
-                              </span>
-                              <p className="text-[10px] font-black tracking-widest uppercase mb-3"
-                                style={{ color: venueColor }}>
-                                {dates[0].date}{dates[0].time && ` · ${dates[0].time}`}
-                              </p>
-                              <p className="font-display font-black leading-tight"
-                                style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', color: '#0A0A0A', letterSpacing: '-0.01em' }}>
-                                {ev.title}
-                              </p>
-                            </div>
-                            {/* Ghost source name — light watermark at bottom */}
-                            <p className="font-display font-black leading-none select-none pointer-events-none truncate"
-                              style={{ fontSize: 'clamp(1.8rem, 5vw, 3.5rem)', color: venueColor, opacity: 0.1, letterSpacing: '-0.02em' }}>
+                          /* No image: clean text-only hero — no fake placeholder */
+                          <div className="px-6 py-8 pr-14"
+                            style={{ borderLeft: `4px solid ${venueColor}` }}>
+                            <span className="text-[9px] font-black px-2 py-0.5 uppercase tracking-wider inline-block mb-3"
+                              style={{ background: venueColor, color: '#fff' }}>
                               {ev.source}
+                            </span>
+                            <p className="text-[10px] font-black tracking-widest uppercase mb-3"
+                              style={{ color: 'rgba(10,10,10,0.4)' }}>
+                              {dates[0].date}{dates[0].time && ` · ${dates[0].time}`}
+                              {dates.length > 1 && <span className="ml-3 opacity-60">+{dates.length - 1} dates</span>}
                             </p>
+                            <p className="font-display font-black leading-tight"
+                              style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', color: '#0A0A0A', letterSpacing: '-0.01em' }}>
+                              {ev.title}
+                            </p>
+                            {ev.venue && ev.venue !== ev.source && (
+                              <p className="text-xs mt-2" style={{ color: 'rgba(10,10,10,0.38)' }}>{ev.venue}</p>
+                            )}
                           </div>
                         )}
                       </a>
@@ -265,53 +253,42 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                         return (
                           <a key={ev.id + idx}
                             href={dates[0].url} target="_blank" rel="noopener noreferrer"
-                            className="group overflow-hidden hover:opacity-85 transition-opacity relative flex flex-col"
-                            style={{ border: '1px solid rgba(10,10,10,0.08)', background: '#FFFFFF' }}>
+                            className="group overflow-hidden hover:opacity-85 transition-opacity flex flex-col"
+                            style={{ border: '1px solid rgba(10,10,10,0.08)', background: '#FFFFFF', borderLeft: ev.image ? '1px solid rgba(10,10,10,0.08)' : `3px solid ${venueColor}` }}>
 
-                            <div className="absolute top-2 right-2 z-10">
-                              <SaveButton saved={isSaved} onToggle={() => toggle(ev)} />
-                            </div>
-
-                            {/* Image or swatch */}
-                            <div className="relative overflow-hidden shrink-0" style={{ height: 100 }}>
-                              {ev.image ? (
-                                <>
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={ev.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
-                                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.5) 0%, transparent 60%)' }} />
-                                </>
-                              ) : (
-                                /* No-image grid swatch — light, source-branded */
-                                <div className="w-full h-full flex flex-col justify-between p-2.5"
-                                  style={{ background: `${venueColor}0C`, borderLeft: `2.5px solid ${venueColor}` }}>
-                                  <span className="text-[7px] font-black px-1.5 py-0.5 uppercase tracking-wide self-start"
-                                    style={{ background: venueColor, color: '#fff' }}>
-                                    {ev.source.split(' ')[0]}
-                                  </span>
-                                  <span className="font-display font-black leading-none self-end"
-                                    style={{ fontSize: '1.6rem', color: venueColor, opacity: 0.25 }}>
-                                    {ev.source.charAt(0)}
-                                  </span>
-                                </div>
-                              )}
-                              {/* Venue chip */}
-                              {ev.image && (
+                            {/* Image — only when available */}
+                            {ev.image && (
+                              <div className="relative overflow-hidden shrink-0" style={{ height: 100 }}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={ev.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+                                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.5) 0%, transparent 60%)' }} />
                                 <span className="absolute bottom-2 left-2 text-[7px] font-black px-1.5 py-0.5 uppercase tracking-wide"
                                   style={{ background: venueColor, color: '#fff' }}>
                                   {ev.source}
                                 </span>
-                              )}
-                            </div>
+                              </div>
+                            )}
 
                             {/* Body */}
                             <div className="px-3 py-3 flex flex-col flex-1">
-                              <p className="text-[9px] font-black tracking-wide uppercase mb-1.5" style={{ color: bucket.accent === 'rgba(10,10,10,0.12)' ? '#4744C8' : bucket.accent }}>
+                              {/* Source chip for text-only cards */}
+                              {!ev.image && (
+                                <span className="text-[7px] font-black px-1.5 py-0.5 uppercase tracking-wide self-start mb-2"
+                                  style={{ background: venueColor, color: '#fff' }}>
+                                  {ev.source}
+                                </span>
+                              )}
+                              <p className="text-[9px] font-black tracking-wide uppercase mb-1.5"
+                                style={{ color: bucket.accent === 'rgba(10,10,10,0.12)' ? '#4744C8' : bucket.accent }}>
                                 {dates[0].date.split(' ').slice(0, 3).join(' ')}
                                 {dates[0].time && <span className="ml-1 opacity-60">{dates[0].time}</span>}
                               </p>
                               <p className="text-xs font-bold leading-snug flex-1" style={{ color: '#0A0A0A' }}>
                                 {ev.title}
                               </p>
+                              <div className="mt-2 flex justify-end">
+                                <SaveButton saved={isSaved} onToggle={() => toggle(ev)} />
+                              </div>
                             </div>
                           </a>
                         )
