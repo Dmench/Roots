@@ -72,22 +72,22 @@ export default function AuthGate({ children, cityName = 'Brussels', cityId = 'br
             {/* Value prop */}
             <p className="text-base md:text-lg mb-3 leading-relaxed max-w-md"
               style={{ color: 'rgba(245,244,240,0.55)', fontWeight: 400 }}>
-              Events, venues, news, community — everything a city has to offer, curated for people who actually live there.
+              For everyone who calls {cityName} home — whether you just landed or you've been here for years.
             </p>
 
             <p className="text-sm mb-10"
               style={{ color: 'rgba(245,244,240,0.28)' }}>
-              Not a tourist guide. Built for people who are here for real.
+              Guided settle-in tools for newcomers. Local knowledge, venues, and community for everyone.
             </p>
 
             {/* What's inside — pill hints */}
             <div className="flex flex-wrap gap-2 mb-10">
               {[
-                { label: 'Tonight\'s events',  color: '#FF3EBA' },
-                { label: 'Curated venues',      color: '#E8612A' },
-                { label: 'Local news',          color: '#38C0F0' },
+                { label: 'Find your people',    color: '#FF3EBA' },
+                { label: 'Best venues',         color: '#E8612A' },
+                { label: 'What\'s on',          color: '#38C0F0' },
+                { label: 'Settle-in checklist', color: '#6865CC' },
                 { label: 'Ask the city AI',     color: '#FAB400' },
-                { label: 'Find your people',    color: '#4744C8' },
               ].map(p => (
                 <span key={p.label}
                   className="px-3 py-1.5 rounded-full text-[10px] font-bold"

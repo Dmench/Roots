@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
 import AuthGate from '@/components/auth/AuthGate'
 import { getCity, STAGES } from '@/lib/data/cities'
+import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
 interface Message {
@@ -211,9 +212,13 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
     setMessages(prev => [...prev, { role: 'user', content: q }])
     setLoading(true)
     try {
+      const { data: { session } } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }))
       const res  = await fetch('/api/ask', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({ question: q, city: cityId, stage: profile.stage, situations: profile.situations ?? [] }),
       })
       const data = await res.json()

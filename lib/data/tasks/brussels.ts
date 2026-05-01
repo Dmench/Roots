@@ -8,7 +8,7 @@ export const BRUSSELS_TASKS: Task[] = [
     slug: 'register-commune',
     category: 'admin',
     stageRelevance: ['just_arrived', 'settling'],
-    situationRelevance: [],
+    situationRelevance: ['eu_citizen'],
     summary: 'Your first official step in Belgium. Registration triggers the police visit, starts your 3-month eID clock, and unlocks nearly everything else.',
     guide: `Registering at your local commune (gemeente/commune) is your first and most important administrative step. Without it, you cannot get your eID, open most Belgian bank accounts, or access public healthcare. You must register within 8 days of establishing your main residence in Belgium, though in practice most communes accept you within 3 months.
 
@@ -306,6 +306,135 @@ The A-card does NOT allow travel outside Schengen without your national passport
     links: [
       { label: 'Immigration Office Belgium', url: 'https://dofi.ibz.be/en', type: 'official' },
       { label: 'Your commune — population office', url: 'https://www.bruxelles.be/19-communes', type: 'official' },
+    ],
+  },
+
+  {
+    id: 'bru-non-eu-income-proof',
+    cityId: 'brussels',
+    title: 'Prove financial means for your visa application',
+    slug: 'non-eu-income-proof',
+    category: 'admin',
+    stageRelevance: ['planning'],
+    situationRelevance: ['non_eu'],
+    summary: 'Belgian embassies require proof that you can support yourself financially. What counts, how much you need, and how to present it correctly.',
+    guide: `Every Belgian long-stay visa application requires proof of sufficient financial means. The embassy needs to be confident you won't become a charge on the Belgian social system. What qualifies — and how much — depends on your visa category.
+
+**How much is "sufficient"?**
+Belgium does not publish a single universal threshold. In practice, embassies look for monthly income or savings equivalent to the Belgian minimum wage (around €1,994/month gross in 2024) or a signed employment contract in Belgium that guarantees at least this. For family reunification or study visas, the sponsoring party's income is assessed instead.
+
+**What documents are accepted as proof:**
+- Employment contract with a Belgian employer (the clearest proof — salary is stated)
+- Bank statements from the last 3–6 months (your home country account)
+- Payslips from your current employer
+- Tax returns or financial statements if self-employed
+- Scholarship or fellowship letter (for students)
+- Proof of savings (usually 12 months of living costs upfront)
+
+**Key gotchas:**
+- Bank statements must show consistent balance, not a recent large deposit. A sudden €20k deposit the week before application is a red flag — embassies check the pattern.
+- Documents in languages other than French, Dutch, German, or English usually require a certified translation.
+- All documents should be recent (within 3 months of your application date).
+- If your employer in Belgium is sponsoring you, ask their HR to provide a hiring letter on company letterhead with salary and start date — this is often sufficient on its own.`,
+    steps: [
+      { step: 'Identify your visa category', detail: 'The income threshold and acceptable documents differ between work, family reunification, student, and self-employed visas.' },
+      { step: 'Gather bank statements', detail: 'Download 3–6 months of statements from your home bank. Most embassies want the full account history, not just the current balance.' },
+      { step: 'Get certified translations if needed', detail: 'If your bank statements are not in French, Dutch, German, or English, use a sworn translator (traducteur juré). Budget €40–80 per document.' },
+      { step: 'Compile employment documentation', detail: 'If you have a Belgian employer, request a hiring letter with salary, start date, and company details. This usually carries the most weight.' },
+      { step: 'Do not "stage" your finances', detail: 'Do not move money from family members to boost your balance just before applying. Embassies look at 3–6 months of history and unexplained large transfers raise flags.' },
+    ],
+    tip: 'If you are moving for a job, your Belgian employer\'s HR department has almost certainly done this before. Ask them for a boilerplate hiring letter for visa purposes — most large companies have a template.',
+    estimatedTime: '1–2 weeks to gather documents',
+    difficulty: 'medium',
+    links: [
+      { label: 'Belgium Immigration — financial means', url: 'https://dofi.ibz.be/en/themes/residence/coming-to-work-in-belgium', type: 'official' },
+      { label: 'Belgian embassies worldwide', url: 'https://diplomatie.belgium.be/en/embassies-and-consulates', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-non-eu-remote-work',
+    cityId: 'brussels',
+    title: 'Understand your right to work remotely for a foreign employer',
+    slug: 'non-eu-remote-work',
+    category: 'work',
+    stageRelevance: ['planning'],
+    situationRelevance: ['non_eu', 'digital_nomad', 'self_employed'],
+    summary: 'Living in Belgium while working for a company outside Belgium is a grey area with real legal and tax consequences. Here\'s what you need to know before you assume it\'s simple.',
+    guide: `Working remotely in Belgium for a foreign company while holding a Belgian residency is legally complex. Belgium has no official "digital nomad visa" — you must enter on another visa category, and the rules on what work you can do depend on that category.
+
+**Scenario 1 — You have a Belgian work permit (singlepermit) for a Belgian employer:**
+You are authorised to work for that specific employer only. Working for a foreign company on the side — even remotely, even unpaid — may breach your permit conditions. Check with an immigration lawyer before doing anything.
+
+**Scenario 2 — You are self-employed (indépendant) registered in Belgium:**
+You can work for any client, including foreign ones. You invoice them, pay Belgian social security contributions, and file Belgian taxes on your worldwide income. This is the most straightforward path for digital nomads.
+
+**Scenario 3 — You have a family reunification or student visa:**
+These visas may restrict your right to work. Some student visas allow part-time work (up to 20 hours/week); check your specific permit.
+
+**Tax implications:**
+Once you are a Belgian resident (registered at your commune), Belgium taxes your worldwide income — including salary or revenue from a foreign employer or foreign clients. You may also trigger payroll obligations in your home country or your employer's country (permanent establishment risk). This is a complex area: get advice from a cross-border tax accountant.
+
+**The A-card and work authorisation:**
+Non-EU residents in Belgium must have either a work permit (singlepermit for employees) or self-employed status to work legally. Simply having an A-card from a family reunification visa does not automatically give you the right to work.`,
+    steps: [
+      { step: 'Identify your visa/permit type', detail: 'Check what your visa or residence permit authorises. The conditions are printed on the card or in the accompanying letter.' },
+      { step: 'Consult an immigration lawyer if uncertain', detail: 'Belgian immigration law is not self-evident. A one-hour consultation with a Brussels immigration lawyer (€150–250) is worth it before making assumptions.' },
+      { step: 'If self-employed: register before invoicing', detail: 'Register with a caisse sociale within 90 days of starting activity. Do not invoice foreign clients before you are registered.' },
+      { step: 'Understand Belgian tax residency', detail: 'From the day you register at your commune, Belgium taxes your worldwide income. Notify your foreign employer — they may have payroll obligations too.' },
+      { step: 'Get cross-border tax advice', detail: 'A tax accountant familiar with Belgian expat taxation can structure your situation properly. The cost (€300–800 for initial setup) is much less than a tax penalty.' },
+    ],
+    tip: 'Belgium has tax treaties with most countries to prevent double taxation. If your home country taxes you and Belgium taxes you on the same income, the treaty usually determines who has the primary right to tax — but you must declare income in both countries and claim the treaty relief yourself.',
+    estimatedTime: '1–4 weeks (legal setup)',
+    difficulty: 'hard',
+    links: [
+      { label: 'SPF Finances — tax treaties', url: 'https://finance.belgium.be/en/private_individuals/taxation/international_taxation/double_taxation_conventions', type: 'official' },
+      { label: 'Immigration Office — work authorisation', url: 'https://dofi.ibz.be/en/themes/work', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-non-eu-pre-arrival-address',
+    cityId: 'brussels',
+    title: 'Solve the pre-arrival address catch-22',
+    slug: 'non-eu-pre-arrival-address',
+    category: 'housing',
+    stageRelevance: ['planning'],
+    situationRelevance: ['non_eu'],
+    summary: 'Your visa application needs a Belgian address. But you can\'t rent a flat until you\'re in Belgium. Here\'s how people actually solve this.',
+    guide: `This is one of the most common pre-arrival frustrations for non-EU nationals: the Belgian long-stay visa application requires a proof of address in Belgium — but you can\'t legally sign a long-term lease without first being in Belgium. This creates a circular problem.
+
+**How people actually solve it:**
+
+**Option 1 — Short-term rental (Airbnb / furnished apartment):**
+Book a furnished apartment for your first 1–3 months. The booking confirmation or rental agreement serves as your proof of address. Once in Belgium, you find a permanent flat, sign a long-term lease, and update your commune registration to the new address. This is the most common path.
+
+**Option 2 — Hotel or serviced apartment:**
+Less ideal financially but completely valid. A confirmed hotel booking at a Brussels address is accepted by most embassies as proof of accommodation for the visa application.
+
+**Option 3 — Friend or family sponsor:**
+If you know someone in Brussels willing to host you on paper, they can provide a written declaration (déclaration d\'hébergement) stating you will reside at their address. This is a legal document — they take on responsibility for confirming your presence. Your commune will verify it with a police visit.
+
+**Option 4 — Employer-provided accommodation:**
+Some employers (especially in tech and consulting) maintain company apartments or have partnerships with serviced apartment providers. Ask your HR whether relocation support is available — many companies cover 1–3 months of temporary accommodation.
+
+**What to avoid:**
+Do not provide a false permanent address on your visa application. If the police visit discovers you do not live there, it can jeopardise your entire residency application.
+
+**After you arrive:**
+Once you sign a permanent lease in Brussels, notify your commune and update your registration address. The police visit will be to your actual address.`,
+    steps: [
+      { step: 'Book a furnished apartment or Airbnb for 1–3 months', detail: 'Search on Immoweb (under "furnished"), Spotahome, Homelike, or Airbnb for monthly rentals in Brussels. Budget €900–1,500/month for a one-bedroom.' },
+      { step: 'Get a written booking confirmation', detail: 'The confirmation must show your name, the Brussels address, and the dates. Save it as a PDF — it is your proof of address for the visa application.' },
+      { step: 'Submit the address with your visa application', detail: 'This is usually a required field on the visa application form. Use the short-term address — you can update it at the commune after you arrive.' },
+      { step: 'Once in Belgium: find a permanent flat', detail: 'Use Immoweb.be, Zimmo.be, and local Facebook expat groups (Expats in Brussels, Bruxelles logement). Start the search before you arrive if possible.' },
+      { step: 'Update your commune registration', detail: 'When you move to your permanent address, go back to the commune and update your registration. A new police visit will be scheduled.' },
+    ],
+    tip: 'Homelike and Spotahome specialise in furnished monthly rentals across Europe and have strong Brussels inventory. Both accept bookings from abroad with credit card — no Belgian bank account required.',
+    estimatedTime: '1–4 weeks (to find and book short-term accommodation)',
+    difficulty: 'medium',
+    links: [
+      { label: 'Spotahome — Brussels furnished rentals', url: 'https://www.spotahome.com/brussels', type: 'community' },
+      { label: 'Immoweb — furnished apartments', url: 'https://www.immoweb.be/en/search/apartment/for-rent?countries=BE&localities=Brussels&furnished=true', type: 'official' },
+      { label: 'Homelike — monthly furnished rentals', url: 'https://www.thehomelike.com/en/brussels', type: 'community' },
     ],
   },
 

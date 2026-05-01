@@ -107,52 +107,77 @@ function PartnerCard({ venue }: { venue: Venue }) {
 
 /* ── Venue card ───────────────────────────────────────────────────────────── */
 
-function VenueCard({ venue, onSave, saved }: { venue: Venue; onSave: () => void; saved: boolean }) {
+function VenueCard({ venue, onSave, saved, photoRef }: {
+  venue: Venue; onSave: () => void; saved: boolean; photoRef?: string | null
+}) {
   const color   = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   const signals = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
   return (
-    <div className="flex gap-3 py-4" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-      <div className="w-0.5 shrink-0 self-stretch" style={{ background: color }} />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-baseline justify-between gap-2 mb-0.5">
-          <span className="text-[9px] font-black tracking-widest uppercase" style={{ color }}>{venue.neighborhood}</span>
-          <span className="text-xs font-bold shrink-0" style={{ color }}>{venue.price}</span>
-        </div>
-        {venue.website ? (
-          <a href={venue.website} target="_blank" rel="noopener noreferrer"
-            className="font-bold text-sm leading-snug hover:opacity-50 transition-opacity mb-0.5 block"
-            style={{ color: '#0F0E1E' }}>
-            {venue.name} ↗
-          </a>
+    <div className="flex gap-4 py-4" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
+      {/* Visual anchor: Places photo or branded color block */}
+      <div className="shrink-0 overflow-hidden" style={{ width: 72, height: 72, background: color }}>
+        {photoRef ? (
+          <img
+            src={`/api/places/photo?ref=${encodeURIComponent(photoRef)}`}
+            alt={venue.name}
+            width={72} height={72}
+            className="w-full h-full object-cover"
+            style={{ opacity: 0, transition: 'opacity 0.35s ease' }}
+            onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
+          />
         ) : (
-          <p className="font-bold text-sm leading-snug mb-1" style={{ color: '#0F0E1E' }}>{venue.name}</p>
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="font-display font-black select-none"
+              style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1 }}>
+              {venue.name.charAt(0)}
+            </span>
+          </div>
         )}
-        <p className="text-[10px] mb-2.5" style={{ color: 'rgba(15,14,30,0.35)' }}>{venue.category}</p>
-        <p className="text-[11px] leading-snug italic flex-1" style={{ color: 'rgba(15,14,30,0.6)' }}>{venue.vibe}</p>
-        <div className="flex items-center justify-between mt-3">
-          {signals.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {signals.map(t => {
-                const s = SIGNALS[t]
-                if (!s) return null
-                return (
-                  <span key={t} className="text-[8px] font-black tracking-wide uppercase px-1.5 py-0.5 rounded"
-                    style={{ background: s.bg, color: s.text }}>
-                    {s.label}
-                  </span>
-                )
-              })}
-            </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+        <div>
+          <div className="flex items-baseline justify-between gap-2 mb-0.5">
+            <span className="text-[9px] font-black tracking-widest uppercase" style={{ color }}>{venue.neighborhood}</span>
+            <span className="text-xs font-bold shrink-0" style={{ color }}>{venue.price}</span>
+          </div>
+          {venue.website ? (
+            <a href={venue.website} target="_blank" rel="noopener noreferrer"
+              className="font-bold text-sm leading-snug hover:opacity-50 transition-opacity mb-0.5 block"
+              style={{ color: '#0F0E1E' }}>
+              {venue.name} ↗
+            </a>
+          ) : (
+            <p className="font-bold text-sm leading-snug mb-0.5" style={{ color: '#0F0E1E' }}>{venue.name}</p>
           )}
+          <p className="text-[10px]" style={{ color: 'rgba(15,14,30,0.35)' }}>{venue.category}</p>
+        </div>
+        <div className="flex items-center justify-between gap-2 mt-1.5">
+          <div className="flex flex-wrap gap-1.5">
+            {signals.map(t => {
+              const s = SIGNALS[t]
+              if (!s) return null
+              return (
+                <span key={t} className="text-[8px] font-black tracking-wide uppercase px-1.5 py-0.5 rounded"
+                  style={{ background: s.bg, color: s.text }}>
+                  {s.label}
+                </span>
+              )
+            })}
+            {signals.length === 0 && (
+              <span className="text-[10px] italic leading-snug" style={{ color: 'rgba(15,14,30,0.5)' }}>{venue.vibe}</span>
+            )}
+          </div>
           <button
             onClick={onSave}
-            className="ml-auto shrink-0 text-[8px] font-black tracking-[0.15em] uppercase px-2 py-1 transition-all"
+            className="shrink-0 text-[8px] font-black tracking-[0.15em] uppercase px-2 py-1 transition-all"
             style={{
               color:      saved ? '#0E9B6B' : 'rgba(10,10,10,0.3)',
               background: saved ? 'rgba(16,185,129,0.08)' : 'transparent',
               border:     saved ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(10,10,10,0.1)',
             }}>
-            {saved ? '✓ Saved' : '+ My Spots'}
+            {saved ? '✓ Saved' : '+ Spots'}
           </button>
         </div>
       </div>
@@ -223,13 +248,39 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   const { user, loading: authLoading } = useAuth()
   const { profile, addSpot } = useProfile()
 
-  const [venues,     setVenues]     = useState<Venue[]>([])
-  const [typeFilter, setTypeFilter] = useState<VenueType>('all')
-  const [activeCol,  setActiveCol]  = useState<string | null>(null)
+  const [venues,      setVenues]      = useState<Venue[]>([])
+  const [typeFilter,  setTypeFilter]  = useState<VenueType>('all')
+  const [activeCol,   setActiveCol]   = useState<string | null>(null)
+  const [venuePhotos, setVenuePhotos] = useState<Record<string, string | null>>({})
 
   useEffect(() => {
     if (city) getVenues(city.id).then(setVenues)
   }, [city])
+
+  // Lazy-fetch Google Places photos for each venue (sessionStorage-cached)
+  useEffect(() => {
+    if (venues.length === 0 || !city) return
+    const cid = city.id
+    const fetchPhotos = async () => {
+      const entries = await Promise.all(venues.map(async v => {
+        const sKey = `places-eat-${cid}-${v.id}`
+        const cached = sessionStorage.getItem(sKey)
+        if (cached !== null) return [v.id, cached === '' ? null : cached] as const
+        try {
+          const q   = encodeURIComponent(`${v.name}${v.address ? ' ' + v.address : ''}`)
+          const res = await fetch(`/api/places/search?q=${q}&cityId=${cid}`)
+          const json = await res.json() as { results: Array<{ photoRef: string | null }> }
+          const ref  = json.results?.[0]?.photoRef ?? null
+          sessionStorage.setItem(sKey, ref ?? '')
+          return [v.id, ref] as const
+        } catch {
+          return [v.id, null] as const
+        }
+      }))
+      setVenuePhotos(Object.fromEntries(entries))
+    }
+    fetchPhotos()
+  }, [venues, city])
 
   if (!city) return null
   if (authLoading) return <div className="min-h-screen bg-cream" />
@@ -318,6 +369,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
               <span className="ml-2 font-medium" style={{ opacity: 0.5 }}>{filtered.length}</span>
             </p>
           </div>
+          {/* Type tabs are only relevant when browsing "all" — hide when a collection filter is active */}
           {!activeCol && (
             <div className="flex items-center gap-6 mb-7" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
               {(['all','restaurant','bar','cafe'] as VenueType[]).map(t => {
@@ -349,6 +401,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                     key={v.id}
                     venue={v}
                     saved={saved}
+                    photoRef={venuePhotos[v.id]}
                     onSave={() => {
                       if (!user) return
                       if (!saved) {

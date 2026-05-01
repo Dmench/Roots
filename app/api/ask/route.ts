@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { createUserClient } from '@/lib/supabase/server'
 
 const client = new Anthropic()
 
@@ -11,6 +12,13 @@ const MAX_QUESTION_CHARS = 600
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth guard — reject unauthenticated requests before touching Claude
+    const authHeader = req.headers.get('Authorization') ?? ''
+    const token      = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { data: { user } } = await createUserClient(token).auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const { question, city, stage, situations } = await req.json()
 
     if (!question?.trim()) {
