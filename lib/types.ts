@@ -121,6 +121,23 @@ export const SPOT_CATEGORIES: { id: SpotCategory; label: string; color: string }
   { id: 'market',     label: 'Market',      color: '#FAB400' },
 ]
 
+// Social graph
+export interface Follow {
+  follower_id:  string
+  following_id: string
+  created_at:   string
+}
+
+export interface PostComment {
+  id:         string
+  post_id:    string
+  author_id:  string
+  text:       string
+  created_at: string
+  // joined from profiles:
+  author_name?: string
+}
+
 // User profile (Supabase)
 export interface UserProfile {
   id: string

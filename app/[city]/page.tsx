@@ -311,7 +311,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                         <span className="shrink-0 w-1.5 h-1.5 rounded-full mt-1.5" style={{ background: tc }} />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline justify-between gap-1">
-                            <p className="text-xs font-bold truncate" style={{ color: '#0A0A0A' }}>{v.name}</p>
+                            <p className="text-sm font-bold truncate" style={{ color: '#0A0A0A' }}>{v.name}</p>
                             {'price' in v && (
                               <span className="text-[10px] font-bold shrink-0" style={{ color: tc }}>
                                 {(v as { price?: string }).price}
@@ -400,8 +400,8 @@ function SectionLabel({ children, right }: { children: React.ReactNode; right?: 
   return (
     <div className="flex items-center justify-between pb-3 mb-1"
       style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
-      <span className="text-[10px] font-black tracking-[0.22em] uppercase"
-        style={{ color: 'rgba(10,10,10,0.4)' }}>
+      <span className="text-xs font-black tracking-[0.16em] uppercase"
+        style={{ color: 'rgba(10,10,10,0.5)' }}>
         {children}
       </span>
       {right}

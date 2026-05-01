@@ -1,10 +1,11 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { AuthModal } from '@/components/auth/AuthModal'
+import { supabase } from '@/lib/supabase/client'
 import { getCity, STAGES, NEIGHBORHOODS } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { Nav } from '@/components/layout/Nav'
@@ -133,7 +134,18 @@ export default function ProfilePage() {
   const [situationOpen,     setSituationOpen]     = useState(false)
   const [addingSpot,        setAddingSpot]        = useState(false)
   const [cardCopied,        setCardCopied]        = useState(false)
+  const [followStats,       setFollowStats]       = useState({ following: 0, followers: 0 })
   const monthRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!user || !supabase) return
+    Promise.all([
+      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id',  user.id),
+      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', user.id),
+    ]).then(([{ count: fgc }, { count: fc }]) => {
+      setFollowStats({ following: fgc ?? 0, followers: fc ?? 0 })
+    })
+  }, [user])
 
   function flash() { setSaved(true); setTimeout(() => setSaved(false), 2000) }
   function saveName() {
@@ -209,7 +221,7 @@ export default function ProfilePage() {
     <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
       <Nav />
 
-      <div className="max-w-xl mx-auto px-4 md:px-8 pt-6 pb-20">
+      <div className="max-w-2xl mx-auto px-4 md:px-8 pt-6 pb-20">
 
         {/* ════════════════════════════════════════════════════════════════
             THE CARD — shareable identity block
@@ -225,10 +237,11 @@ export default function ProfilePage() {
             </span>
             <div className="flex items-center gap-3">
               {city ? (
-                <span className="text-[8px] font-black tracking-[0.3em] uppercase"
+                <Link href={`/${city.id}`}
+                  className="text-[8px] font-black tracking-[0.3em] uppercase hover:opacity-70 transition-opacity"
                   style={{ color: '#FAB400' }}>
-                  {city.name.toUpperCase()}
-                </span>
+                  {city.name.toUpperCase()} ↗
+                </Link>
               ) : (
                 <Link href="/cities?from=profile"
                   className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
@@ -359,6 +372,18 @@ export default function ProfilePage() {
                   )}
 
                 </div>
+
+                {/* Following / followers */}
+                {(followStats.following > 0 || followStats.followers > 0) && (
+                  <div className="flex gap-4 mt-3">
+                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.4)' }}>
+                      <strong style={{ color: '#0A0A0A' }}>{followStats.following}</strong> following
+                    </span>
+                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.4)' }}>
+                      <strong style={{ color: '#0A0A0A' }}>{followStats.followers}</strong> followers
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -477,6 +502,25 @@ export default function ProfilePage() {
 
         </div>
         {/* ─ end card ─ */}
+
+        {/* Quick city nav */}
+        {city && (
+          <div className="mt-4 flex gap-2 flex-wrap">
+            {[
+              { href: `/${city.id}`,         label: 'Hub'       },
+              { href: `/${city.id}/eat`,      label: 'Eat & Drink' },
+              { href: `/${city.id}/settle`,   label: 'Settle'    },
+              { href: `/${city.id}/connect`,  label: 'Community' },
+              { href: `/${city.id}/people`,   label: 'People'    },
+            ].map(l => (
+              <Link key={l.href} href={l.href}
+                className="px-3 py-1.5 text-[10px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
+                style={{ border: '1.5px solid rgba(10,10,10,0.15)', color: 'rgba(10,10,10,0.5)' }}>
+                {l.label}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {saved && (
           <p className="text-[10px] font-black tracking-[0.2em] uppercase mt-3 text-center"

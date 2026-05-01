@@ -7,7 +7,7 @@ import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import type { Post, PostCategory, Stage } from '@/lib/types'
+import type { Post, PostCategory, Stage, PostComment } from '@/lib/types'
 import type { FeedItem } from '@/app/api/feeds/route'
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
@@ -128,7 +128,12 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [redditPosts,  setRedditPosts]  = useState<FeedItem[]>([])
   const [redditFetch,  setRedditFetch]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-  const [activeChannel, setActiveChannel] = useState<ChannelId>('tips')
+  const [activeChannel,  setActiveChannel]  = useState<ChannelId>('tips')
+  const [expandedPost,   setExpandedPost]   = useState<string | null>(null)
+  const [comments,       setComments]       = useState<Record<string, PostComment[]>>({})
+  const [commentCounts,  setCommentCounts]  = useState<Record<string, number>>({})
+  const [commentDraft,   setCommentDraft]   = useState('')
+  const [commentPosting, setCommentPosting] = useState(false)
 
   useEffect(() => {
     if (!city || !supabase) return
@@ -246,6 +251,49 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     }
   }
 
+  async function toggleComments(postId: string) {
+    if (expandedPost === postId) { setExpandedPost(null); return }
+    setExpandedPost(postId)
+    if (comments[postId]) return   // already loaded
+    if (!supabase) return
+    const { data } = await supabase
+      .from('post_comments')
+      .select('id, post_id, author_id, text, created_at, profiles(display_name)')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true })
+    if (data) {
+      setComments(prev => ({
+        ...prev,
+        [postId]: data.map((r: Record<string, unknown>) => ({
+          id:          r.id as string,
+          post_id:     r.post_id as string,
+          author_id:   r.author_id as string,
+          text:        r.text as string,
+          created_at:  r.created_at as string,
+          author_name: (r.profiles as { display_name?: string } | null)?.display_name ?? 'Settler',
+        })),
+      }))
+      setCommentCounts(prev => ({ ...prev, [postId]: data.length }))
+    }
+  }
+
+  async function submitComment(postId: string) {
+    if (!commentDraft.trim() || !user || !supabase || commentPosting) return
+    setCommentPosting(true)
+    const optimistic: PostComment = {
+      id: `c${Date.now()}`, post_id: postId, author_id: user.id,
+      text: commentDraft.trim(), created_at: new Date().toISOString(),
+      author_name: 'You',
+    }
+    setComments(prev => ({ ...prev, [postId]: [...(prev[postId] ?? []), optimistic] }))
+    setCommentCounts(prev => ({ ...prev, [postId]: (prev[postId] ?? 0) + 1 }))
+    setCommentDraft('')
+    await supabase.from('post_comments').insert({
+      post_id: postId, author_id: user.id, text: optimistic.text,
+    })
+    setCommentPosting(false)
+  }
+
   const SOURCE_COLOR: Record<string, string> = {
     visitbrussels: '#FF3EBA', magasin4: '#C62828', botanique: '#2E7D32',
     flagey: '#4744C8', halles: '#E8612A', recyclart: '#7B1FA2',
@@ -302,47 +350,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* ── Community channels (tips / questions / heads-up) ──────── */}
             {channel.cat && (
               <>
-                {/* Composer */}
-                <div className="mb-7" style={{ border: `1.5px solid ${channel.color}25` }}>
-                  <div className="px-4 pt-3 pb-1">
-                    <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2.5"
-                      style={{ color: channel.color }}>
-                      {channel.id === 'tips'      ? 'Share a tip' :
-                       channel.id === 'questions' ? 'Ask the community' :
-                       'Post a heads-up'}
-                    </p>
-                    <textarea
-                      ref={composerRef}
-                      value={newPost.text}
-                      onChange={e => setNewPost({ text: e.target.value.slice(0, 280) })}
-                      placeholder={
-                        channel.id === 'tips'      ? 'Share something that made settling easier…' :
-                        channel.id === 'questions' ? 'What are you trying to figure out?' :
-                        'Something other settlers should know…'
-                      }
-                      rows={3}
-                      className="w-full text-sm focus:outline-none resize-none bg-transparent leading-relaxed"
-                      style={{ color: '#0A0A0A', fontSize: 14 }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between px-4 py-2.5"
-                    style={{ borderTop: `1px solid ${channel.color}18`, background: `${channel.color}06` }}>
-                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.25)' }}>
-                      {newPost.text.length}/280
-                      {!user && <button onClick={() => setAuthOpen(true)}
-                        className="ml-3 font-bold hover:opacity-60 transition-opacity"
-                        style={{ color: '#4744C8' }}>· Sign in to post</button>}
-                    </span>
-                    <button
-                      onClick={submit}
-                      disabled={!newPost.text.trim()}
-                      className="px-4 py-1.5 text-[10px] font-black tracking-wide uppercase text-white transition-opacity disabled:opacity-25"
-                      style={{ background: channel.color }}>
-                      {submitted ? '✓ Posted' : 'Post'}
-                    </button>
-                  </div>
-                </div>
-
                 {/* Posts */}
                 {(() => {
                   const pins = (PINNED[cityId]?.[channel.id] ?? [])
@@ -411,6 +418,49 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                               <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.75)' }}>
                                 {post.text}
                               </p>
+                              {/* Comment toggle */}
+                              <button
+                                onClick={() => toggleComments(post.id)}
+                                className="mt-2 text-[10px] font-bold hover:opacity-60 transition-opacity"
+                                style={{ color: 'rgba(10,10,10,0.3)' }}>
+                                {expandedPost === post.id
+                                  ? 'Hide replies'
+                                  : `${commentCounts[post.id] ?? 0} ${(commentCounts[post.id] ?? 0) === 1 ? 'reply' : 'replies'}`}
+                              </button>
+                              {/* Inline thread */}
+                              {expandedPost === post.id && (
+                                <div className="mt-3 pl-3" style={{ borderLeft: `2px solid ${m.color}40` }}>
+                                  {(comments[post.id] ?? []).map(c => (
+                                    <div key={c.id} className="py-1.5" style={{ borderBottom: '1px solid rgba(10,10,10,0.05)' }}>
+                                      <span className="text-[10px] font-black mr-2" style={{ color: m.color }}>
+                                        {c.author_name ?? 'Settler'}
+                                      </span>
+                                      <span className="text-xs" style={{ color: 'rgba(10,10,10,0.65)' }}>{c.text}</span>
+                                    </div>
+                                  ))}
+                                  {(comments[post.id] ?? []).length === 0 && (
+                                    <p className="text-[10px] py-1.5" style={{ color: 'rgba(10,10,10,0.3)' }}>No replies yet</p>
+                                  )}
+                                  <div className="flex gap-2 mt-2">
+                                    <input
+                                      type="text"
+                                      value={commentDraft}
+                                      onChange={e => setCommentDraft(e.target.value.slice(0, 140))}
+                                      onKeyDown={e => { if (e.key === 'Enter') submitComment(post.id) }}
+                                      placeholder="Reply…"
+                                      className="flex-1 text-xs focus:outline-none bg-transparent"
+                                      style={{ borderBottom: '1px solid rgba(10,10,10,0.15)', paddingBottom: 2, color: '#0A0A0A' }}
+                                    />
+                                    <button
+                                      onClick={() => submitComment(post.id)}
+                                      disabled={!commentDraft.trim() || commentPosting}
+                                      className="text-[10px] font-black text-white px-2.5 py-1 transition-opacity disabled:opacity-25"
+                                      style={{ background: m.color }}>
+                                      ↑
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )
@@ -425,6 +475,47 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     </div>
                   )
                 })()}
+
+                {/* Composer */}
+                <div className="mt-8" style={{ border: `1.5px solid ${channel.color}25` }}>
+                  <div className="px-4 pt-3 pb-1">
+                    <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2.5"
+                      style={{ color: channel.color }}>
+                      {channel.id === 'tips'      ? 'Share a tip' :
+                       channel.id === 'questions' ? 'Ask the community' :
+                       'Post a heads-up'}
+                    </p>
+                    <textarea
+                      ref={composerRef}
+                      value={newPost.text}
+                      onChange={e => setNewPost({ text: e.target.value.slice(0, 280) })}
+                      placeholder={
+                        channel.id === 'tips'      ? 'Share something that made settling easier…' :
+                        channel.id === 'questions' ? 'What are you trying to figure out?' :
+                        'Something other settlers should know…'
+                      }
+                      rows={3}
+                      className="w-full text-sm focus:outline-none resize-none bg-transparent leading-relaxed"
+                      style={{ color: '#0A0A0A', fontSize: 14 }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between px-4 py-2.5"
+                    style={{ borderTop: `1px solid ${channel.color}18`, background: `${channel.color}06` }}>
+                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.25)' }}>
+                      {newPost.text.length}/280
+                      {!user && <button onClick={() => setAuthOpen(true)}
+                        className="ml-3 font-bold hover:opacity-60 transition-opacity"
+                        style={{ color: '#4744C8' }}>· Sign in to post</button>}
+                    </span>
+                    <button
+                      onClick={submit}
+                      disabled={!newPost.text.trim()}
+                      className="px-4 py-1.5 text-[10px] font-black tracking-wide uppercase text-white transition-opacity disabled:opacity-25"
+                      style={{ background: channel.color }}>
+                      {submitted ? '✓ Posted' : 'Post'}
+                    </button>
+                  </div>
+                </div>
               </>
             )}
 

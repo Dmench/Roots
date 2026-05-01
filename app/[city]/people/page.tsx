@@ -6,6 +6,7 @@ import { getCity, STAGES, LANGUAGES } from '@/lib/data/cities'
 import { cn } from '@/lib/utils'
 import type { Stage, SituationTag, Spot } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
+import { FollowButton } from '@/components/social/FollowButton'
 
 interface Member {
   id: string
@@ -205,6 +206,9 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
                               {stageLabel(stage)}
                             </span>
                           )}
+                          <span onClick={e => e.stopPropagation()}>
+                            <FollowButton targetUserId={m.id} targetName={m.displayName ?? undefined} />
+                          </span>
                         </div>
                       </div>
 
