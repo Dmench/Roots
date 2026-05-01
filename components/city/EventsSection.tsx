@@ -132,19 +132,19 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                         style={{ borderTop: '1px solid rgba(10,10,10,0.07)' }}>
 
                         {/* Thumbnail or branded swatch */}
-                        <div className="shrink-0 w-14 h-14 overflow-hidden relative"
-                          style={{ background: ev.image ? `${venueColor}12` : '#0A0A0A' }}>
+                        <div className="shrink-0 w-14 h-14 overflow-hidden relative">
                           {ev.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={ev.image} alt="" className="w-full h-full object-cover" loading="lazy" />
                           ) : (
-                            <>
-                              <span className="absolute -bottom-1 -right-1 font-display font-black leading-none select-none pointer-events-none"
-                                style={{ fontSize: '1.8rem', color: 'rgba(255,255,255,0.08)' }}>
+                            <div className="w-full h-full flex items-center justify-center relative"
+                              style={{ background: `${venueColor}12` }}>
+                              <span className="font-display font-black leading-none"
+                                style={{ fontSize: '1.4rem', color: venueColor, opacity: 0.45 }}>
                                 {ev.source.charAt(0)}
                               </span>
                               <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: venueColor }} />
-                            </>
+                            </div>
                           )}
                         </div>
 
@@ -228,29 +228,28 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                             </div>
                           </div>
                         ) : (
-                          /* No-image hero — dark typographic card */
-                          <div className="relative overflow-hidden" style={{ height: 'clamp(220px, 35vw, 340px)', background: '#0A0A0A' }}>
-                            {/* Ghost source name */}
-                            <span className="absolute inset-0 flex items-center justify-center font-display font-black leading-none select-none pointer-events-none overflow-hidden"
-                              style={{ fontSize: 'clamp(3.5rem, 11vw, 7.5rem)', color: 'rgba(255,255,255,0.04)', whiteSpace: 'nowrap', paddingInline: '1rem' }}>
-                              {ev.source}
-                            </span>
-                            {/* Accent bar */}
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: bucket.accent }} />
-                            {/* Content */}
-                            <div className="absolute bottom-0 left-0 right-0 p-5">
-                              <span className="text-[9px] font-black px-2 py-0.5 uppercase tracking-wider mb-4 inline-block"
+                          /* No-image hero — light editorial card, left-bordered */
+                          <div className="relative flex flex-col justify-between px-6 py-7 overflow-hidden"
+                            style={{ height: 'clamp(220px, 35vw, 340px)', background: `${venueColor}08`, borderLeft: `4px solid ${venueColor}` }}>
+                            <div>
+                              <span className="text-[9px] font-black px-2 py-0.5 uppercase tracking-wider inline-block mb-4"
                                 style={{ background: venueColor, color: '#fff' }}>
                                 {ev.source}
                               </span>
-                              <p className="text-[10px] font-black tracking-widest uppercase mb-3" style={{ color: bucket.accent }}>
+                              <p className="text-[10px] font-black tracking-widest uppercase mb-3"
+                                style={{ color: venueColor }}>
                                 {dates[0].date}{dates[0].time && ` · ${dates[0].time}`}
                               </p>
-                              <p className="font-display font-black leading-tight text-white"
-                                style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', letterSpacing: '-0.01em' }}>
+                              <p className="font-display font-black leading-tight"
+                                style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', color: '#0A0A0A', letterSpacing: '-0.01em' }}>
                                 {ev.title}
                               </p>
                             </div>
+                            {/* Ghost source name — light watermark at bottom */}
+                            <p className="font-display font-black leading-none select-none pointer-events-none truncate"
+                              style={{ fontSize: 'clamp(1.8rem, 5vw, 3.5rem)', color: venueColor, opacity: 0.1, letterSpacing: '-0.02em' }}>
+                              {ev.source}
+                            </p>
                           </div>
                         )}
                       </a>
@@ -282,16 +281,16 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                                   <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.5) 0%, transparent 60%)' }} />
                                 </>
                               ) : (
-                                /* No-image grid swatch — dark typographic */
-                                <div className="w-full h-full relative overflow-hidden" style={{ background: '#0A0A0A' }}>
-                                  <span className="absolute -bottom-2 -right-1 font-display font-black leading-none select-none pointer-events-none"
-                                    style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.06)', whiteSpace: 'nowrap' }}>
-                                    {ev.source}
-                                  </span>
-                                  <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: venueColor }} />
-                                  <span className="absolute top-2 left-2 text-[7px] font-black px-1.5 py-0.5 uppercase tracking-wide"
+                                /* No-image grid swatch — light, source-branded */
+                                <div className="w-full h-full flex flex-col justify-between p-2.5"
+                                  style={{ background: `${venueColor}0C`, borderLeft: `2.5px solid ${venueColor}` }}>
+                                  <span className="text-[7px] font-black px-1.5 py-0.5 uppercase tracking-wide self-start"
                                     style={{ background: venueColor, color: '#fff' }}>
                                     {ev.source.split(' ')[0]}
+                                  </span>
+                                  <span className="font-display font-black leading-none self-end"
+                                    style={{ fontSize: '1.6rem', color: venueColor, opacity: 0.25 }}>
+                                    {ev.source.charAt(0)}
                                   </span>
                                 </div>
                               )}

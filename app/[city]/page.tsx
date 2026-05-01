@@ -120,9 +120,9 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {[
               { href: `/${cityId}/connect`, label: 'Community',   sub: 'Tips, questions & posts',        color: '#FF3EBA' },
               { href: `/${cityId}/eat`,     label: 'Eat & Drink', sub: `${venues.length} curated spots`, color: '#E8612A' },
-              { href: `/${cityId}/people`,  label: 'People',      sub: 'Meet other settlers',            color: '#4744C8' },
-              { href: `/${cityId}/ask`,     label: 'Ask the AI',  sub: 'Brussels, answered',             color: '#38C0F0' },
               { href: `/${cityId}/settle`,  label: 'Settle in',   sub: 'Your guided checklist',          color: '#FAB400' },
+              { href: `/${cityId}/ask`,     label: 'Ask the AI',  sub: 'Brussels, answered',             color: '#38C0F0' },
+              { href: `/${cityId}/people`,  label: 'People',      sub: 'Meet other settlers',            color: '#4744C8' },
             ].map(p => (
               <Link key={p.href} href={p.href}
                 className="group flex flex-col px-4 py-4 bg-white hover:bg-neutral-50 transition-colors"
