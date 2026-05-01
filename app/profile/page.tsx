@@ -131,6 +131,7 @@ export default function ProfilePage() {
   const [neighborhoodOpen,  setNeighborhoodOpen]  = useState(false)
   const [situationOpen,     setSituationOpen]     = useState(false)
   const [addingSpot,        setAddingSpot]        = useState(false)
+  const [cardCopied,        setCardCopied]        = useState(false)
   const monthRef = useRef<HTMLInputElement>(null)
 
   function flash() { setSaved(true); setTimeout(() => setSaved(false), 2000) }
@@ -220,18 +221,33 @@ export default function ProfilePage() {
               style={{ color: 'rgba(255,255,255,0.35)' }}>
               Settler Card
             </span>
-            {city ? (
-              <span className="text-[8px] font-black tracking-[0.3em] uppercase"
-                style={{ color: '#FAB400' }}>
-                {city.name.toUpperCase()}
-              </span>
-            ) : (
-              <Link href="/cities?from=profile"
-                className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
-                style={{ color: 'rgba(255,255,255,0.5)' }}>
-                Choose city →
-              </Link>
-            )}
+            <div className="flex items-center gap-3">
+              {city ? (
+                <span className="text-[8px] font-black tracking-[0.3em] uppercase"
+                  style={{ color: '#FAB400' }}>
+                  {city.name.toUpperCase()}
+                </span>
+              ) : (
+                <Link href="/cities?from=profile"
+                  className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+                  style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  Choose city →
+                </Link>
+              )}
+              {profile.showInDirectory && (
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/settlers/${user.id}`
+                    navigator.clipboard.writeText(url).catch(() => {})
+                    setCardCopied(true)
+                    setTimeout(() => setCardCopied(false), 2200)
+                  }}
+                  className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
+                  style={{ color: cardCopied ? '#FAB400' : 'rgba(255,255,255,0.4)' }}>
+                  {cardCopied ? '✓ copied' : 'Share ↗'}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* ── Identity ─────────────────────────────────────────────────── */}

@@ -86,3 +86,11 @@ h1, h2, h3, h4 {
 ::-webkit-scrollbar-thumb { background: #D8CABB; border-radius: 3px; }
 
 ::selection { background: #EBEBF8; color: #0D0C0A; }
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer-link {
+  color: rgba(10,10,10,0.4);
+  transition: color 0.15s;
+}
+.footer-link:hover { color: #0A0A0A; }
