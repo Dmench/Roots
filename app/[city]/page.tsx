@@ -115,20 +115,28 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
           </div>
 
-          {/* Nav — underline tabs */}
-          <div className="flex items-center gap-6 flex-wrap mt-6"
-            style={{ borderTop: '1px solid rgba(10,10,10,0.08)', paddingTop: 14 }}>
+          {/* Editorial portal cards — distinct from the nav's utility links */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-6">
             {[
-              { href: `/${cityId}/connect`, label: 'Community',    color: '#FF3EBA' },
-              { href: `/${cityId}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
-              { href: `/${cityId}/people`,  label: 'People',       color: '#4744C8' },
-              { href: `/${cityId}/ask`,     label: 'Ask anything', color: '#38C0F0' },
-              { href: `/${cityId}/settle`,  label: 'Get set up',   color: '#FAB400' },
+              { href: `/${cityId}/connect`, label: 'Community',  sub: 'Tips, questions & posts',      color: '#FF3EBA' },
+              { href: `/${cityId}/eat`,     label: 'Eat & Drink',sub: `${venues.length} curated spots`,color: '#E8612A' },
+              { href: `/${cityId}/people`,  label: 'People',     sub: 'Meet other settlers',           color: '#4744C8' },
+              { href: `/${cityId}/ask`,     label: 'Ask the AI', sub: 'Brussels, answered',            color: '#38C0F0' },
+              { href: `/${cityId}/settle`,  label: 'Settle in',  sub: 'Your guided checklist',         color: '#FAB400' },
             ].map(p => (
               <Link key={p.href} href={p.href}
-                className="text-[10px] font-black tracking-[0.18em] uppercase transition-opacity hover:opacity-50 pb-0.5"
-                style={{ color: p.color, borderBottom: `1px solid ${p.color}` }}>
-                {p.label}
+                className="group flex flex-col p-3 md:p-4 hover:opacity-90 transition-opacity"
+                style={{ borderTop: `2.5px solid ${p.color}`, background: `${p.color}0D` }}>
+                <span className="text-[9px] font-black tracking-[0.2em] uppercase mb-1.5" style={{ color: p.color }}>
+                  {p.label}
+                </span>
+                <span className="text-[11px] leading-snug flex-1" style={{ color: 'rgba(10,10,10,0.5)' }}>
+                  {p.sub}
+                </span>
+                <span className="text-xs font-bold mt-2.5 group-hover:translate-x-0.5 transition-transform inline-block"
+                  style={{ color: p.color }}>
+                  →
+                </span>
               </Link>
             ))}
           </div>
@@ -137,18 +145,52 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         </div>
       </div>
 
-      {/* ── Ask CTA strip ────────────────────────────────────────────────── */}
-      <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-        <div className="max-w-5xl mx-auto px-6 md:px-12 py-3 flex items-center justify-between gap-4">
-          <p className="text-xs" style={{ color: 'rgba(10,10,10,0.4)' }}>
-            <span className="font-black" style={{ color: '#38C0F0' }}>Ask</span>
-            {' '}— AI trained on Brussels admin, housing law, healthcare, and expat life.
-          </p>
-          <Link href={`/${cityId}/ask`}
-            className="shrink-0 text-[10px] font-black tracking-[0.15em] uppercase hover:opacity-60 transition-opacity"
-            style={{ color: '#38C0F0' }}>
-            Ask anything →
-          </Link>
+      {/* ── Ask featured block ───────────────────────────────────────────── */}
+      <div style={{ background: '#060E1A', borderBottom: '1px solid rgba(56,192,240,0.12)' }}>
+        <div className="max-w-5xl mx-auto px-6 md:px-12 py-9 md:py-11">
+          <div className="flex flex-col md:flex-row md:items-center gap-7 md:gap-12">
+
+            <div className="flex-1 min-w-0">
+              <p className="text-[8px] font-black tracking-[0.35em] uppercase mb-4" style={{ color: '#38C0F0' }}>
+                AI · Powered by Claude · {city.name}
+              </p>
+              <h2 className="font-display font-black leading-[0.92] mb-4"
+                style={{ fontSize: 'clamp(1.9rem, 5vw, 3rem)', color: '#F5F4F0', letterSpacing: '-0.02em' }}>
+                Ask anything<br />
+                <em className="not-italic" style={{ color: '#38C0F0' }}>about {city.name}.</em>
+              </h2>
+              <p className="text-sm max-w-sm mb-5" style={{ color: 'rgba(245,244,240,0.38)', lineHeight: '1.55' }}>
+                Admin, housing, healthcare, tax, expat life — specific answers, not generic guides.
+              </p>
+
+              {/* Clickable example questions */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  'How do I register at my commune?',
+                  'Which mutuelle is best for expats?',
+                  'What is a 3-6-9 lease?',
+                ].map(q => (
+                  <Link key={q} href={`/${cityId}/ask`}
+                    className="px-3 py-1.5 text-[10px] font-medium hover:opacity-75 transition-opacity"
+                    style={{
+                      background: 'rgba(56,192,240,0.08)',
+                      color: '#38C0F0',
+                      border: '1px solid rgba(56,192,240,0.18)',
+                    }}>
+                    {q} →
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <Link href={`/${cityId}/ask`}
+              className="shrink-0 flex items-center gap-3 px-8 py-4 font-bold text-sm hover:opacity-90 transition-opacity self-start md:self-center"
+              style={{ background: '#38C0F0', color: '#060E1A' }}>
+              Ask anything
+              <span className="text-base opacity-70">→</span>
+            </Link>
+
+          </div>
         </div>
       </div>
 
