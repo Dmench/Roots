@@ -104,7 +104,7 @@ export default function ResetPasswordPage() {
         {/* Success */}
         {done && (
           <div className="text-center py-6">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-5"
+            <div className="w-12 h-12 rounded-none flex items-center justify-center mx-auto mb-5"
               style={{ background: 'rgba(16,185,129,0.15)' }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
                   placeholder="New password"
                   autoFocus
                   required
-                  className="w-full px-4 py-3.5 pr-11 rounded-xl text-sm focus:outline-none transition-colors"
+                  className="w-full px-4 py-3.5 pr-11 rounded-none text-sm focus:outline-none transition-colors"
                   style={{ background: 'rgba(245,244,240,0.07)', border: '1px solid rgba(245,244,240,0.12)', color: '#F5F4F0' }}
                 />
                 <button type="button" onClick={() => setShowPw(s => !s)} tabIndex={-1}
@@ -152,7 +152,7 @@ export default function ResetPasswordPage() {
                   onChange={e => setConfirm(e.target.value)}
                   placeholder="Confirm new password"
                   required
-                  className="w-full px-4 py-3.5 pr-11 rounded-xl text-sm focus:outline-none transition-colors"
+                  className="w-full px-4 py-3.5 pr-11 rounded-none text-sm focus:outline-none transition-colors"
                   style={{ background: 'rgba(245,244,240,0.07)', border: '1px solid rgba(245,244,240,0.12)', color: '#F5F4F0' }}
                 />
                 <button type="button" onClick={() => setShowCf(s => !s)} tabIndex={-1}
@@ -167,7 +167,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={!password || !confirm || loading}
-                className="w-full py-4 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-30"
+                className="w-full py-4 rounded-none font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-30"
                 style={{ background: '#F5F4F0', color: '#0F0E1E' }}
               >
                 {loading ? '…' : 'Set new password →'}

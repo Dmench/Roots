@@ -102,12 +102,24 @@ export function Nav() {
 
           {/* Right */}
           <div className="flex items-center gap-1">
-            {!pathCity && (
+            {!pathCity && profileCity && (
               <Link
-                href={profileCity ? `/${profileCity.id}` : '/cities'}
+                href={`/${profileCity.id}`}
+                className="flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
+              >
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
+                </span>
+                {profileCity.name}
+              </Link>
+            )}
+            {!pathCity && !profileCity && (
+              <Link
+                href="/cities"
                 className="flex px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
               >
-                {profileCity ? profileCity.name : 'Explore cities'}
+                Explore cities
               </Link>
             )}
 

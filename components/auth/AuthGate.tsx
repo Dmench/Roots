@@ -28,14 +28,14 @@ export default function AuthGate({ children, cityName = 'Brussels', cityId = 'br
       <div className="min-h-screen flex flex-col relative overflow-hidden"
         style={{ background: '#0F0E1E' }}>
 
-        {/* Background geometry */}
-        <div className="absolute inset-0 pointer-events-none">
+        {/* Background geometry — sharp circles, same language as landing */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute rounded-full"
-            style={{ width: 600, height: 600, top: -200, right: -150, background: '#4744C8', opacity: 0.18, filter: 'blur(80px)' }} />
+            style={{ width: '55vw', height: '55vw', maxWidth: 640, maxHeight: 640, top: '-20%', right: '-15%', background: '#4744C8', opacity: 0.7 }} />
           <div className="absolute rounded-full"
-            style={{ width: 300, height: 300, bottom: -80, left: -80, background: '#FF3EBA', opacity: 0.12, filter: 'blur(60px)' }} />
+            style={{ width: '18vw', height: '18vw', maxWidth: 200, maxHeight: 200, bottom: '12%', left: '6%', background: '#FF3EBA', opacity: 0.5 }} />
           <div className="absolute rounded-full"
-            style={{ width: 200, height: 200, bottom: '20%', right: '10%', background: '#FAB400', opacity: 0.08, filter: 'blur(50px)' }} />
+            style={{ width: '8vw', height: '8vw', maxWidth: 90, maxHeight: 90, top: '40%', left: '3%', background: '#38C0F0', opacity: 0.4 }} />
         </div>
 
         {/* Top bar */}
@@ -90,7 +90,7 @@ export default function AuthGate({ children, cityName = 'Brussels', cityId = 'br
                 { label: 'Ask the city AI',     color: '#FAB400' },
               ].map(p => (
                 <span key={p.label}
-                  className="px-3 py-1.5 rounded-full text-[10px] font-bold"
+                  className="px-3 py-1.5 text-[10px] font-bold"
                   style={{ background: `${p.color}12`, color: p.color, border: `1px solid ${p.color}25` }}>
                   {p.label}
                 </span>
@@ -100,7 +100,7 @@ export default function AuthGate({ children, cityName = 'Brussels', cityId = 'br
             {/* CTA */}
             <button
               onClick={() => setAuthOpen(true)}
-              className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-bold text-base hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-3 px-10 py-4 font-bold text-base hover:opacity-90 transition-opacity"
               style={{ background: '#F5F4F0', color: '#0F0E1E' }}>
               Join Roots
               <span className="text-sm opacity-40">→</span>

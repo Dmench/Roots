@@ -118,8 +118,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           {(venues.length > 0 || allEvents.length > 0) && (
             <div className="mb-10 -mx-6 sm:-mx-10 md:-mx-14 px-6 sm:px-10 md:px-14 py-10 md:py-14 flex flex-col items-center text-center"
               style={{ background: '#252450', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <p className="text-[10px] font-black tracking-[0.32em] uppercase mb-3"
-                style={{ color: 'rgba(245,244,240,0.4)' }}>
+              <p className="text-xs font-black tracking-[0.28em] uppercase mb-3"
+                style={{ color: 'rgba(245,244,240,0.45)' }}>
                 What's the plan tonight?
               </p>
               <h2 className="font-display font-black mb-8"
@@ -165,12 +165,12 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               <Link key={p.href} href={p.href}
                 className="group flex flex-col px-5 py-6 md:py-8 bg-white hover:bg-neutral-50 transition-colors"
                 style={{ borderTop: `4px solid ${p.color}` }}>
-                <span className="text-xs font-black tracking-[0.12em] uppercase mb-2"
+                <span className="text-sm font-black tracking-[0.08em] uppercase mb-2"
                   style={{ color: p.color }}>
                   {p.label}
                 </span>
                 <span className="text-xs leading-snug flex-1"
-                  style={{ color: 'rgba(10,10,10,0.55)' }}>
+                  style={{ color: 'rgba(10,10,10,0.5)' }}>
                   {p.sub}
                 </span>
                 <span className="text-sm font-black mt-5 group-hover:translate-x-1 transition-transform inline-block"

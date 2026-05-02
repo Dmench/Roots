@@ -142,13 +142,13 @@ function CitiesInner() {
                           onKeyDown={e => e.key === 'Enter' && joinWaitlist(city.id)}
                           placeholder="your@email.com"
                           autoFocus
-                          className="w-full px-3 py-2 bg-white border border-sand rounded-lg text-sm text-espresso placeholder:text-stone/60 focus:outline-none focus:border-terracotta/50"
+                          className="w-full px-3 py-2 bg-white border border-sand rounded-none text-sm text-espresso placeholder:text-stone/60 focus:outline-none focus:border-terracotta/50"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={() => joinWaitlist(city.id)}
                             disabled={!waitlistEmail.trim() || loading}
-                            className="px-4 py-1.5 text-xs font-semibold text-white rounded-lg disabled:opacity-40 hover:opacity-90 transition-opacity"
+                            className="px-4 py-1.5 text-xs font-semibold text-white rounded-none disabled:opacity-40 hover:opacity-90 transition-opacity"
                             style={{ background: '#4744C8' }}>
                             {loading ? '…' : 'Notify me'}
                           </button>

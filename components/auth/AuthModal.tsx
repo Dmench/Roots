@@ -37,7 +37,7 @@ function PasswordInput({ value, onChange, placeholder, id }: {
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         required
-        className="w-full px-4 py-3 pr-11 bg-white border border-sand rounded-xl text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors"
+        className="w-full px-4 py-3 pr-11 bg-white border border-sand rounded-none text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors"
       />
       <button type="button" onClick={() => setShow(s => !s)} tabIndex={-1}
         className="absolute right-3 top-1/2 -translate-y-1/2 text-walnut/30 hover:text-walnut/60 transition-colors"
@@ -132,7 +132,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-espresso/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-cream border border-sand/60 rounded-2xl p-8 w-full max-w-sm shadow-2xl shadow-espresso/15">
+      <div className="relative bg-cream border border-sand/60 rounded-none p-8 w-full max-w-sm shadow-2xl shadow-espresso/15">
 
         <button onClick={onClose}
           className="absolute top-5 right-5 p-1 text-walnut/30 hover:text-espresso transition-colors"
@@ -145,7 +145,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
         {/* Confirmation screens */}
         {isPostSubmit && (
           <div className="text-center py-2">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-6"
+            <div className="w-12 h-12 rounded-none flex items-center justify-center mx-auto mb-6"
               style={{ background: '#252450' }}>
               <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
                 <rect x="1" y="1" width="18" height="14" rx="2" stroke="#F5F4F0" strokeWidth="1.5" />
@@ -182,7 +182,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
         {/* Sign in / Sign up forms */}
         {!isPostSubmit && (
           <>
-            <div className="flex gap-1 p-1 rounded-lg mb-6" style={{ background: 'rgba(37,36,80,0.06)' }}>
+            <div className="flex gap-1 p-1 rounded-none mb-6" style={{ background: 'rgba(37,36,80,0.06)' }}>
               {(['signin', 'signup'] as View[]).map(v => (
                 <button key={v}
                   onClick={() => { setView(v); setError(''); setPassword(''); setConfirm('') }}
@@ -197,12 +197,12 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
               {view === 'signup' && (
                 <input type="text" value={name} onChange={e => setName(e.target.value)}
                   placeholder="Your name (optional)"
-                  className="w-full px-4 py-3 bg-white border border-sand rounded-xl text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors" />
+                  className="w-full px-4 py-3 bg-white border border-sand rounded-none text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors" />
               )}
 
               <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="your@email.com" autoFocus required
-                className="w-full px-4 py-3 bg-white border border-sand rounded-xl text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors" />
+                className="w-full px-4 py-3 bg-white border border-sand rounded-none text-sm text-espresso placeholder:text-walnut/30 focus:outline-none focus:border-walnut/30 transition-colors" />
 
               <PasswordInput id="password" value={password} onChange={setPassword}
                 placeholder={view === 'signup' ? 'Password (min. 8 characters)' : 'Password'} />
@@ -216,7 +216,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
 
               <button type="submit"
                 disabled={!email.trim() || !password || (view === 'signup' && !confirm) || loading}
-                className="w-full py-3.5 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity disabled:opacity-30 text-sm"
+                className="w-full py-3.5 text-white rounded-none font-semibold hover:opacity-90 transition-opacity disabled:opacity-30 text-sm"
                 style={{ background: '#252450' }}>
                 {loading ? '…' : view === 'signin' ? 'Sign in →' : 'Create account →'}
               </button>

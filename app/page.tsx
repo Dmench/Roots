@@ -107,7 +107,7 @@ export default function HomePage() {
 
       {/* Header */}
       <div className="relative px-8 md:px-12 pt-8 flex items-center justify-between">
-        <span className="font-display font-black text-lg" style={{ color: '#F5ECD7' }}>Roots</span>
+        <span className="font-display font-black text-lg" style={{ color: '#F5F4F0' }}>Roots</span>
         <button
           onClick={() => setAuthOpen(true)}
           className="text-sm font-medium hover:opacity-70 transition-opacity"
@@ -126,7 +126,7 @@ export default function HomePage() {
           </p>
 
           <h1 className="font-display font-black leading-[0.82] mb-8"
-            style={{ fontSize: 'clamp(4.5rem, 14vw, 12rem)', color: '#F5ECD7' }}>
+            style={{ fontSize: 'clamp(4.5rem, 14vw, 12rem)', color: '#F5F4F0' }}>
             Put down<br />
             <em className="not-italic" style={{ color: '#FF3EBA' }}>roots.</em>
           </h1>
