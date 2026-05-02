@@ -12,37 +12,22 @@ async function checkRateLimit(userId: string): Promise<{ allowed: boolean; remai
     const admin = createAdminClient()
     const today = new Date().toISOString().split('T')[0]
 
-    // Upsert ask count for today
-    const { data, error } = await admin
-      .from('ask_rate_limits')
-      .upsert(
-        { user_id: userId, date: today, count: 1 },
-        { onConflict: 'user_id,date', ignoreDuplicates: false }
-      )
-      .select('count')
-      .single()
+    // Atomic increment via Postgres function — avoids race conditions
+    const { data: count, error } = await admin.rpc('increment_ask_count', {
+      uid: userId,
+      day: today,
+    })
 
     if (error) {
-      // If table doesn't exist yet, allow through (fail open)
-      if (error.code === '42P01') return { allowed: true, remaining: DAILY_LIMIT }
-      // Try incrementing via RPC
-      const { data: inc } = await admin.rpc('increment_ask_count', { uid: userId, day: today })
-      const count = inc ?? 1
-      return { allowed: count <= DAILY_LIMIT, remaining: Math.max(0, DAILY_LIMIT - count) }
+      // Table or function missing (42P01 = table, PGRST202 = function not found) — fail open
+      if (error.code === '42P01' || error.code === 'PGRST202') {
+        return { allowed: true, remaining: DAILY_LIMIT }
+      }
+      return { allowed: true, remaining: DAILY_LIMIT }
     }
 
-    const count = data?.count ?? 1
-    if (count > 1) {
-      // Row already existed — increment it
-      await admin
-        .from('ask_rate_limits')
-        .update({ count: count + 1 })
-        .eq('user_id', userId)
-        .eq('date', today)
-      const newCount = count + 1
-      return { allowed: newCount <= DAILY_LIMIT, remaining: Math.max(0, DAILY_LIMIT - newCount) }
-    }
-    return { allowed: true, remaining: DAILY_LIMIT - 1 }
+    const n = (count as number) ?? 1
+    return { allowed: n <= DAILY_LIMIT, remaining: Math.max(0, DAILY_LIMIT - n) }
   } catch {
     // Fail open — don't block users on rate limit errors
     return { allowed: true, remaining: DAILY_LIMIT }

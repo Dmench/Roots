@@ -219,7 +219,29 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
   const stageLabel  = profile.stage ? STAGES.find(s => s.id === profile.stage)?.label : null
-  const starterGroups = STARTERS[cityId] ?? STARTERS.brussels
+
+  const GENERIC_STARTERS = [
+    {
+      label: 'Getting started',
+      color: '#4744C8',
+      questions: [
+        'What do I need to do in my first week here?',
+        'How do I register as a resident?',
+        'What are the most important admin tasks on arrival?',
+      ],
+    },
+    {
+      label: 'Housing',
+      color: '#FAB400',
+      questions: [
+        'What are my rights as a tenant?',
+        'What documents do landlords typically require?',
+        'How does the rental deposit work?',
+      ],
+    },
+  ]
+
+  const starterGroups = STARTERS[cityId] ?? GENERIC_STARTERS
 
   const send = async (text: string) => {
     const q = text.trim()

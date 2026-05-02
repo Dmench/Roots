@@ -36,6 +36,7 @@ export function OnboardingModal({ cityName, onDone }: Props) {
   const [arrMonth,   setArrMonth]  = useState<number | null>(null)
   const [arrYear,    setArrYear]   = useState<number>(currentYear)
   const [saving,     setSaving]    = useState(false)
+  const [saveError,  setSaveError] = useState<string | null>(null)
 
   function toggleSit(id: SituationTag) {
     setSits(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id])
@@ -44,13 +45,19 @@ export function OnboardingModal({ cityName, onDone }: Props) {
   async function finish() {
     if (!picked) return
     setSaving(true)
-    const updates: Parameters<typeof updateProfile>[0] = { stage: picked }
-    if (sits.length) updates.situations = sits
-    if (arrMonth !== null) {
-      updates.arrivalDate = `${arrYear}-${String(arrMonth + 1).padStart(2, '0')}`
+    setSaveError(null)
+    try {
+      const updates: Parameters<typeof updateProfile>[0] = { stage: picked }
+      if (sits.length) updates.situations = sits
+      if (arrMonth !== null) {
+        updates.arrivalDate = `${arrYear}-${String(arrMonth + 1).padStart(2, '0')}`
+      }
+      updateProfile(updates)
+      onDone()
+    } catch {
+      setSaving(false)
+      setSaveError('Something went wrong. Please try again.')
     }
-    updateProfile(updates)
-    onDone()
   }
 
   return (
@@ -198,6 +205,9 @@ export function OnboardingModal({ cityName, onDone }: Props) {
                 Skip if you prefer not to say.
               </p>
             </div>
+            {saveError && (
+              <p className="px-6 pb-2 text-xs" style={{ color: '#C0392B' }}>{saveError}</p>
+            )}
             <div className="px-6 pb-6 flex gap-2" style={{ borderTop: '1px solid rgba(10,10,10,0.06)' }}>
               <button
                 onClick={() => setStep('situation')}
