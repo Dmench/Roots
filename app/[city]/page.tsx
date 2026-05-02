@@ -13,6 +13,9 @@ import AuthGate from '@/components/auth/AuthGate'
 import RedditFeed from '@/components/city/RedditFeed'
 import { CityHubClient } from '@/components/city/CityHubClient'
 import { SpinWheel } from '@/components/city/SpinWheel'
+import { WeatherWidget } from '@/components/city/WeatherWidget'
+import { TransportWidget } from '@/components/city/TransportWidget'
+import { RentalsWidget } from '@/components/city/RentalsWidget'
 
 export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
@@ -328,6 +331,15 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 </div>
               </section>
             )}
+
+            {/* Rent prices */}
+            <RentalsWidget cityId={cityId} />
+
+            {/* Weather */}
+            <WeatherWidget cityId={cityId} />
+
+            {/* Transport */}
+            <TransportWidget cityId={cityId} />
 
             {/* In the news */}
             {featuredNews && (

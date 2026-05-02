@@ -379,11 +379,120 @@ export async function getEvents(cityId: string): Promise<EventPreview[]> {
     } catch { return [] }
   }
 
-  const [tm, vb, m4, bot, flagey, halles, recyclart, lamonnaie, feu] = await Promise.all([
+  // ── Brussels Open Data: weekly markets ──────────────────────────────────
+  async function fromBrusselsMarkets(): Promise<EventPreview[]> {
+    if (cityId !== 'brussels') return []
+    try {
+      // Brussels Open Data — marchés weekly schedule
+      // dataset: https://opendata.brussels.be/explore/dataset/marchesbruxelles/
+      const url = 'https://opendata.brussels.be/api/explore/v2.1/catalog/datasets/marchesbruxelles/records?limit=100&timezone=Europe%2FBrussels'
+      const res = await fetch(url, { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10000) })
+      if (!res.ok) return []
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const json: any = await res.json()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const records: any[] = json.results ?? []
+      const out: EventPreview[] = []
+      const today  = new Date()
+      const todayDay = today.getDay() // 0=Sun
+
+      const DAY_MAP: Record<string, number> = {
+        dimanche: 0, lundi: 1, mardi: 2, mercredi: 3,
+        jeudi: 4, vendredi: 5, samedi: 6,
+        sunday: 0, monday: 1, tuesday: 2, wednesday: 3,
+        thursday: 4, friday: 5, saturday: 6,
+      }
+
+      for (const rec of records) {
+        const fields = rec
+        const name = fields.nom_marche ?? fields.name ?? fields.naam_markt
+        if (!name) continue
+        const dayRaw = (fields.jour_de_semaine ?? fields.day ?? '').toLowerCase().trim()
+        const targetDay = DAY_MAP[dayRaw]
+        if (targetDay === undefined) continue
+
+        // Next occurrence of this weekday
+        let daysAhead = targetDay - todayDay
+        if (daysAhead < 0) daysAhead += 7
+        if (daysAhead === 0) daysAhead = 0 // today is fine
+        const d = new Date(today)
+        d.setDate(d.getDate() + daysAhead)
+        d.setHours(7, 0, 0, 0)
+        if (d.getTime() < now) continue
+
+        const neighborhood = fields.commune ?? fields.municipality ?? 'Brussels'
+        const address      = fields.adresse ?? fields.address ?? neighborhood
+        const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20)
+
+        out.push({
+          id:      `market-${slug}-${targetDay}`,
+          title:   `${name} market`,
+          date:    d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+          time:    fields.horaires ?? '07:00',
+          venue:   address,
+          source:  'Brussels Markets',
+          url:     'https://www.brussels.be/markets',
+          dateObj: d,
+        })
+      }
+      return out
+    } catch { return [] }
+  }
+
+  // ── Brussels Open Data: cultural agenda ─────────────────────────────────
+  async function fromBrusselsAgenda(): Promise<EventPreview[]> {
+    if (cityId !== 'brussels') return []
+    try {
+      const today2  = new Date()
+      const dateMin = today2.toISOString().split('T')[0]
+      const params  = new URLSearchParams({
+        limit:     '50',
+        timezone:  'Europe/Brussels',
+        where:     `date_begin>='${dateMin}'`,
+        order_by:  'date_begin ASC',
+      })
+      const url = `https://opendata.brussels.be/api/explore/v2.1/catalog/datasets/agenda-cultural/records?${params}`
+      const res = await fetch(url, { next: { revalidate: 3600 }, signal: AbortSignal.timeout(10000) })
+      if (!res.ok) return []
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const json: any = await res.json()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const records: any[] = json.results ?? []
+      const out: EventPreview[] = []
+
+      for (const rec of records) {
+        const title    = rec.titre_fr ?? rec.titre_nl ?? rec.title
+        const dateRaw  = rec.date_begin ?? rec.date_start ?? rec.date
+        const url2     = rec.url ?? rec.website ?? 'https://www.brussels.be/agenda'
+        if (!title || !dateRaw) continue
+        const d = new Date(dateRaw)
+        if (isNaN(d.getTime()) || d.getTime() < now) continue
+        const venue = rec.lieu ?? rec.location ?? rec.lieu_fr ?? 'Brussels'
+        const imgRaw = rec.image ?? rec.photo
+        const image  = typeof imgRaw === 'string' ? imgRaw : imgRaw?.url ?? undefined
+        const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 24)
+        out.push({
+          id:      `bxlagenda-${slug}-${d.getTime()}`,
+          title,
+          date:    d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+          time:    d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+          venue,
+          source:  'Brussels Agenda',
+          url:     url2,
+          dateObj: d,
+          image,
+        })
+      }
+      return out
+    } catch { return [] }
+  }
+
+  const [tm, vb, m4, bot, flagey, halles, recyclart, lamonnaie, feu, markets, agenda] = await Promise.all([
     fromTicketmaster(), fromVisitBrussels(), fromMagasin4(), fromBotanique(),
     fromFlagey(), fromHalles(), fromRecyclart(), fromLaMonnaie(), fromFeu(),
+    fromBrusselsMarkets(), fromBrusselsAgenda(),
   ])
-  return [...tm, ...vb, ...m4, ...bot, ...flagey, ...halles, ...recyclart, ...lamonnaie, ...feu]
+  return [...tm, ...vb, ...m4, ...bot, ...flagey, ...halles, ...recyclart, ...lamonnaie, ...feu, ...markets, ...agenda]
     .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
 }
 
