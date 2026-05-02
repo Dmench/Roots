@@ -114,9 +114,13 @@ async function fetchStatBelCSV(): Promise<CityRentalData | null> {
       })
     }
 
-    if (!communes.length) return null
+    if (!communes.length) {
+      console.warn('[rentals] StatBel CSV parsed but no Brussels communes found — URL may have changed:', STATBEL_RENTAL_URL)
+      return null
+    }
     return { communes, cityAvg1BR: avg(all1), cityAvg2BR: avg(all2), updatedAt: Date.now() }
-  } catch {
+  } catch (err) {
+    console.warn('[rentals] StatBel fetch failed — using hardcoded fallback:', err)
     return null
   }
 }

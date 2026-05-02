@@ -436,7 +436,10 @@ export async function getEvents(cityId: string): Promise<EventPreview[]> {
         })
       }
       return out
-    } catch { return [] }
+    } catch (err) {
+      console.warn('[events] Brussels markets fetch failed:', err)
+      return []
+    }
   }
 
   // ── Brussels Open Data: cultural agenda ─────────────────────────────────
@@ -484,7 +487,10 @@ export async function getEvents(cityId: string): Promise<EventPreview[]> {
         })
       }
       return out
-    } catch { return [] }
+    } catch (err) {
+      console.warn('[events] Brussels cultural agenda fetch failed:', err)
+      return []
+    }
   }
 
   const [tm, vb, m4, bot, flagey, halles, recyclart, lamonnaie, feu, markets, agenda] = await Promise.all([

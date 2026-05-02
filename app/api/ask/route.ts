@@ -1,14 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { createUserClient } from '@/lib/supabase/server'
+import { createUserClient, createAdminClient } from '@/lib/supabase/server'
 
 const client = new Anthropic()
 
-// Hard spend cap: max tokens per request is already 1024 (set below).
-// Additional guard: reject if question is suspiciously large.
-// For production scale, swap to Upstash Redis rate limiting.
-// Each serverless invocation is stateless — in-memory maps don't persist across requests.
 const MAX_QUESTION_CHARS = 600
+const DAILY_LIMIT = 20
+
+async function checkRateLimit(userId: string): Promise<{ allowed: boolean; remaining: number }> {
+  try {
+    const admin = createAdminClient()
+    const today = new Date().toISOString().split('T')[0]
+
+    // Upsert ask count for today
+    const { data, error } = await admin
+      .from('ask_rate_limits')
+      .upsert(
+        { user_id: userId, date: today, count: 1 },
+        { onConflict: 'user_id,date', ignoreDuplicates: false }
+      )
+      .select('count')
+      .single()
+
+    if (error) {
+      // If table doesn't exist yet, allow through (fail open)
+      if (error.code === '42P01') return { allowed: true, remaining: DAILY_LIMIT }
+      // Try incrementing via RPC
+      const { data: inc } = await admin.rpc('increment_ask_count', { uid: userId, day: today })
+      const count = inc ?? 1
+      return { allowed: count <= DAILY_LIMIT, remaining: Math.max(0, DAILY_LIMIT - count) }
+    }
+
+    const count = data?.count ?? 1
+    if (count > 1) {
+      // Row already existed — increment it
+      await admin
+        .from('ask_rate_limits')
+        .update({ count: count + 1 })
+        .eq('user_id', userId)
+        .eq('date', today)
+      const newCount = count + 1
+      return { allowed: newCount <= DAILY_LIMIT, remaining: Math.max(0, DAILY_LIMIT - newCount) }
+    }
+    return { allowed: true, remaining: DAILY_LIMIT - 1 }
+  } catch {
+    // Fail open — don't block users on rate limit errors
+    return { allowed: true, remaining: DAILY_LIMIT }
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +57,15 @@ export async function POST(req: NextRequest) {
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const { data: { user } } = await createUserClient(token).auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // Rate limit check
+    const { allowed, remaining } = await checkRateLimit(user.id)
+    if (!allowed) {
+      return NextResponse.json(
+        { error: `Daily limit reached (${DAILY_LIMIT} questions/day). Resets at midnight.` },
+        { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
+      )
+    }
 
     const { question, city, stage, situations } = await req.json()
 
@@ -77,7 +125,9 @@ Only include URLs you are highly confident exist and are current. Leave arrays e
       } catch { /* leave defaults */ }
     }
 
-    return NextResponse.json({ answer, sources, relatedTasks })
+    return NextResponse.json({ answer, sources, relatedTasks }, {
+      headers: { 'X-RateLimit-Remaining': String(remaining) }
+    })
   } catch (err) {
     console.error('[ask]', err)
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })

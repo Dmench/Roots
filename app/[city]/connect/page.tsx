@@ -244,6 +244,12 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     ? posts.filter(p => p.category === channel.cat)
     : []
 
+  // Social signal: last post time for current community channel
+  const lastPost = activePosts[0]
+  const lastPostSignal = lastPost
+    ? `Last post ${lastPost.time} · ${postCounts[activeChannel] ?? 0} posts`
+    : null
+
   const submit = async () => {
     if (!newPost.text.trim() || !channel.cat) return
     if (!user) { setAuthOpen(true); return }
@@ -355,6 +361,15 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           </div>
         </div>
       </div>
+
+      {/* ── Channel signal bar ───────────────────────────────────────────── */}
+      {channel.cat && lastPostSignal && (
+        <div style={{ background: 'rgba(10,10,10,0.02)', borderBottom: '1px solid rgba(10,10,10,0.06)' }}>
+          <div className="max-w-5xl mx-auto px-6 md:px-12 py-2">
+            <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.35)' }}>{lastPostSignal}</p>
+          </div>
+        </div>
+      )}
 
       {/* ── Main layout ──────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12 py-8">

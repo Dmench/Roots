@@ -25,7 +25,9 @@ const COLLECTIONS = [
 const HOODS: Record<string, { name: string; sub: string; desc: string; color: string }[]> = {
   brussels: [
     { name: 'Ixelles',    sub: 'The settler heartland', desc: 'Where most expats end up. Natural wine bars, specialty coffee, the best ramen in the city, and independent restaurants on nearly every block.', color: '#4744C8' },
-    { name: 'Saint-Gilles', sub: 'Authentic & unhurried', desc: 'Arty, local, genuinely affordable. Moeder Lambic, terrace cafés on the parvis, and a neighbourhood feeling you cannot fake.', color: '#FF3EBA' },
+    { name: 'Parvis Saint-Gilles', sub: 'The best terrace in Brussels', desc: 'The square every expat gets told about on day 2. Moeder Lambic anchor one corner, a dozen terrace cafés fill the rest. Packed on any sunny day, year-round. This is the heartbeat of the city.', color: '#FF3EBA' },
+    { name: 'Marolles',   sub: 'Old Brussels, no tourists', desc: 'The flea market (Place du Jeu de Balle) every Sunday morning, friteries that have been there 40 years, estaminets with no menu in English. The most authentically Brussels neighbourhood left.', color: '#E8612A' },
+    { name: 'Flagey & Ixelles Square', sub: 'Market, brunch, and wine', desc: 'The Saturday morning market at Place Flagey is the best food market in Brussels — cheese, wine, bread, Moroccan olives. Surrounding the square: Belga (terrace institution), wine bars, specialty coffee. Go Saturday morning, stay for lunch.', color: '#10B981' },
     { name: 'Dansaert',   sub: 'Creative district', desc: 'Brussels Beer Project, fashion boutiques, all-day cafés. The city\'s coolest strip — come here when you want to look like you\'ve lived here a year.', color: '#38C0F0' },
     { name: 'EU Quarter', sub: 'Fast & functional', desc: 'Excellent specialty coffee, reliable lunch spots, no surprises. Built for mornings before 9am meetings.', color: '#FAB400' },
   ],

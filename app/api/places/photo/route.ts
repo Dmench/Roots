@@ -1,18 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createUserClient } from '@/lib/supabase/server'
 
 // Google Places photo references are base64url-encoded strings.
 // Validating format prevents SSRF — arbitrary URLs can't be injected.
-// Typical refs are 200-500 chars of alphanumerics, hyphens, underscores, plus signs.
 const PHOTO_REF_RE = /^[A-Za-z0-9_\-+/]{20,600}$/
 
 export async function GET(req: NextRequest) {
+  // Auth guard — protects Google API quota from unauthenticated scraping
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const token      = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (!token) return new NextResponse(null, { status: 401 })
+  const { data: { user } } = await createUserClient(token).auth.getUser()
+  if (!user) return new NextResponse(null, { status: 401 })
+
   const ref = req.nextUrl.searchParams.get('ref')
   if (!ref) return new NextResponse(null, { status: 400 })
 
-  // Reject anything that doesn't look like a real photo reference
-  if (!PHOTO_REF_RE.test(ref)) {
-    return new NextResponse(null, { status: 400 })
-  }
+  if (!PHOTO_REF_RE.test(ref)) return new NextResponse(null, { status: 400 })
 
   const key = process.env.GOOGLE_PLACES_API_KEY
   if (!key) return new NextResponse(null, { status: 500 })
@@ -26,7 +30,6 @@ export async function GET(req: NextRequest) {
     return new NextResponse(res.body, {
       headers: {
         'Content-Type': res.headers.get('Content-Type') ?? 'image/jpeg',
-        // 7-day browser cache — photo refs don't change for a given place
         'Cache-Control': 'public, max-age=604800, immutable',
       },
     })

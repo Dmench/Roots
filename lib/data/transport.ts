@@ -85,7 +85,8 @@ async function scrapeSTIBDisruptions(): Promise<TransportDisruption[]> {
     }
 
     return out
-  } catch {
+  } catch (err) {
+    console.warn('[transport] STIB scrape failed — disruptions may be unavailable:', err)
     return []
   }
 }

@@ -4,6 +4,10 @@ import { useProfile } from '@/lib/hooks/use-profile'
 import { STAGES } from '@/lib/data/cities'
 import type { Stage, SituationTag } from '@/lib/types'
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+const currentYear = new Date().getFullYear()
+const YEARS = [currentYear - 1, currentYear, currentYear + 1]
+
 const STAGE_META: Record<string, { color: string; sub: string }> = {
   planning:     { color: '#6865CC', sub: 'Before you arrive' },
   just_arrived: { color: '#B88A00', sub: 'First 0–3 months' },
@@ -26,10 +30,12 @@ interface Props { cityName: string; onDone: () => void }
 
 export function OnboardingModal({ cityName, onDone }: Props) {
   const { setStage, updateProfile } = useProfile()
-  const [step,      setStep]      = useState<'stage' | 'situation'>('stage')
-  const [picked,    setPicked]    = useState<Stage | null>(null)
-  const [sits,      setSits]      = useState<SituationTag[]>([])
-  const [saving,    setSaving]    = useState(false)
+  const [step,       setStep]      = useState<'stage' | 'situation' | 'arrival'>('stage')
+  const [picked,     setPicked]    = useState<Stage | null>(null)
+  const [sits,       setSits]      = useState<SituationTag[]>([])
+  const [arrMonth,   setArrMonth]  = useState<number | null>(null)
+  const [arrYear,    setArrYear]   = useState<number>(currentYear)
+  const [saving,     setSaving]    = useState(false)
 
   function toggleSit(id: SituationTag) {
     setSits(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id])
@@ -38,8 +44,12 @@ export function OnboardingModal({ cityName, onDone }: Props) {
   async function finish() {
     if (!picked) return
     setSaving(true)
-    setStage(picked)
-    if (sits.length) updateProfile({ situations: sits })
+    const updates: Parameters<typeof updateProfile>[0] = { stage: picked }
+    if (sits.length) updates.situations = sits
+    if (arrMonth !== null) {
+      updates.arrivalDate = `${arrYear}-${String(arrMonth + 1).padStart(2, '0')}`
+    }
+    updateProfile(updates)
     onDone()
   }
 
@@ -55,12 +65,14 @@ export function OnboardingModal({ cityName, onDone }: Props) {
             Welcome to {cityName}
           </p>
           <h2 className="font-display font-black text-xl leading-tight" style={{ color: '#0A0A0A' }}>
-            {step === 'stage' ? 'Where are you in your move?' : 'A bit about your situation'}
+            {step === 'stage' ? 'Where are you in your move?' : step === 'situation' ? 'A bit about your situation' : 'When did you arrive?'}
           </h2>
           <p className="text-xs mt-1.5 leading-relaxed" style={{ color: 'rgba(10,10,10,0.4)' }}>
             {step === 'stage'
               ? 'We\'ll use this to personalise your checklist and recommendations.'
-              : 'Select all that apply — this filters your settle tasks.'}
+              : step === 'situation'
+              ? 'Select all that apply — this filters your settle tasks.'
+              : 'Helps us track your timeline and show the right tasks.'}
           </p>
         </div>
 
@@ -128,6 +140,67 @@ export function OnboardingModal({ cityName, onDone }: Props) {
             <div className="px-6 pb-6 flex gap-2">
               <button
                 onClick={() => setStep('stage')}
+                className="px-4 py-3 text-sm"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                ← Back
+              </button>
+              <button
+                onClick={() => setStep('arrival')}
+                className="flex-1 py-3 text-sm font-bold text-white"
+                style={{ background: '#0A0A0A' }}>
+                Next →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 — Arrival date */}
+        {step === 'arrival' && (
+          <div>
+            <div className="px-6 py-5">
+              {/* Month grid */}
+              <div className="grid grid-cols-4 gap-1.5 mb-4">
+                {MONTHS.map((m, i) => {
+                  const active = arrMonth === i
+                  return (
+                    <button key={m}
+                      onClick={() => setArrMonth(i)}
+                      className="py-2 text-xs font-semibold transition-all"
+                      style={{
+                        border: `1.5px solid ${active ? '#4744C8' : 'rgba(10,10,10,0.12)'}`,
+                        background: active ? 'rgba(71,68,200,0.06)' : 'transparent',
+                        color: active ? '#4744C8' : '#0A0A0A',
+                      }}>
+                      {m}
+                    </button>
+                  )
+                })}
+              </div>
+              {/* Year selector */}
+              <div className="flex gap-1.5">
+                {YEARS.map(y => {
+                  const active = arrYear === y
+                  return (
+                    <button key={y}
+                      onClick={() => setArrYear(y)}
+                      className="flex-1 py-2 text-xs font-semibold transition-all"
+                      style={{
+                        border: `1.5px solid ${active ? '#4744C8' : 'rgba(10,10,10,0.12)'}`,
+                        background: active ? 'rgba(71,68,200,0.06)' : 'transparent',
+                        color: active ? '#4744C8' : '#0A0A0A',
+                      }}>
+                      {y}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="text-[10px] mt-3" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                Skip if you prefer not to say.
+              </p>
+            </div>
+            <div className="px-6 pb-6 flex gap-2" style={{ borderTop: '1px solid rgba(10,10,10,0.06)' }}>
+              <button
+                onClick={() => setStep('situation')}
                 className="px-4 py-3 text-sm"
                 style={{ color: 'rgba(10,10,10,0.4)' }}>
                 ← Back

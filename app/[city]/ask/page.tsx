@@ -15,6 +15,18 @@ interface Message {
   relatedTasks?: string[]
 }
 
+const HISTORY_KEY = (cityId: string) => `roots:ask-history:${cityId}`
+const MAX_HISTORY = 10
+
+function loadHistory(cityId: string): string[] {
+  if (typeof window === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY(cityId)) ?? '[]') } catch { return [] }
+}
+
+function saveHistory(cityId: string, questions: string[]) {
+  try { localStorage.setItem(HISTORY_KEY(cityId), JSON.stringify(questions.slice(0, MAX_HISTORY))) } catch {}
+}
+
 /* ── Starter questions grouped by theme ─────────────────────────────────── */
 
 const STARTERS: Record<string, { label: string; color: string; questions: string[] }[]> = {
@@ -189,9 +201,14 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   const [loading,   setLoading]   = useState(false)
   const [authOpen,  setAuthOpen]  = useState(false)
   const [activeTab, setActiveTab] = useState(0)
+  const [history,   setHistory]   = useState<string[]>([])
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    setHistory(loadHistory(cityId))
+  }, [cityId])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -210,6 +227,12 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
     if (!user) { setAuthOpen(true); return }
     setInput('')
     setMessages(prev => [...prev, { role: 'user', content: q }])
+    // Persist question to history
+    setHistory(prev => {
+      const next = [q, ...prev.filter(h => h !== q)].slice(0, MAX_HISTORY)
+      saveHistory(cityId, next)
+      return next
+    })
     setLoading(true)
     try {
       const { data: { session } } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }))
@@ -330,6 +353,26 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                   </button>
                 ))}
               </div>
+
+              {/* Recent questions */}
+              {history.length > 0 && (
+                <div className="mt-8">
+                  <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+                    style={{ color: 'rgba(37,36,80,0.3)' }}>
+                    Your recent questions
+                  </p>
+                  <div className="space-y-1">
+                    {history.map((q, i) => (
+                      <button key={i} onClick={() => send(q)}
+                        className="w-full text-left flex items-center gap-3 px-4 py-2.5 bg-white hover:opacity-70 transition-opacity"
+                        style={{ border: '1px solid rgba(37,36,80,0.07)' }}>
+                        <span className="text-[10px] shrink-0" style={{ color: 'rgba(37,36,80,0.25)' }}>↩</span>
+                        <span className="text-xs truncate" style={{ color: 'rgba(37,36,80,0.65)' }}>{q}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

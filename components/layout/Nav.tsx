@@ -213,6 +213,60 @@ export function Nav() {
       )}
 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+
+      {/* Mobile bottom tab bar — only shown when inside a city */}
+      {pathCity && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch"
+          style={{
+            background: 'rgba(255,255,255,0.97)',
+            borderTop: '1px solid rgba(10,10,10,0.1)',
+            backdropFilter: 'blur(12px)',
+            paddingBottom: 'env(safe-area-inset-bottom)',
+          }}>
+          {[
+            { href: `/${pathCity.id}`,         label: 'Home',      color: '#10B981', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            ), exact: true },
+            { href: `/${pathCity.id}/connect`, label: 'Community', color: '#FF3EBA', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+            ), exact: false },
+            { href: `/${pathCity.id}/eat`,     label: 'Eat',       color: '#E8612A', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+            ), exact: false },
+            { href: `/${pathCity.id}/settle`,  label: 'Settle',    color: '#FAB400', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+              </svg>
+            ), exact: false },
+            { href: `/${pathCity.id}/ask`,     label: 'Ask',       color: '#38C0F0', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            ), exact: false },
+          ].map(tab => {
+            const isActive = tab.exact
+              ? pathname === tab.href
+              : tab.href !== `/${pathCity.id}` && pathname.startsWith(tab.href)
+            return (
+              <Link key={tab.href} href={tab.href}
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-opacity"
+                style={{ color: isActive ? tab.color : 'rgba(10,10,10,0.35)' }}>
+                {tab.icon}
+                <span className="text-[9px] font-bold tracking-wide">{tab.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 w-6 h-0.5" style={{ background: tab.color }} />
+                )}
+              </Link>
+            )
+          })}
+        </nav>
+      )}
     </>
   )
 }

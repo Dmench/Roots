@@ -84,7 +84,7 @@ export async function RentalsWidget({ cityId }: Props) {
       ))}
 
       <p className="text-[9px] mt-2" style={{ color: 'rgba(10,10,10,0.2)' }}>
-        Source: StatBel {featured[0]?.year ?? '2023'} · avg/month
+        StatBel survey {featured[0]?.year ?? '2023'} · avg/month · may not reflect current market
       </p>
     </section>
   )

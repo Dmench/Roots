@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { getCity, ACTIVE_CITIES } from '@/lib/data/cities'
 import { getEvents } from '@/lib/data/events'
@@ -333,13 +334,19 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             )}
 
             {/* Rent prices */}
-            <RentalsWidget cityId={cityId} />
+            <Suspense fallback={<SidebarSkeleton label="Rent prices" />}>
+              <RentalsWidget cityId={cityId} />
+            </Suspense>
 
             {/* Weather */}
-            <WeatherWidget cityId={cityId} />
+            <Suspense fallback={<SidebarSkeleton label="Weather" />}>
+              <WeatherWidget cityId={cityId} />
+            </Suspense>
 
             {/* Transport */}
-            <TransportWidget cityId={cityId} />
+            <Suspense fallback={<SidebarSkeleton label="Transport" />}>
+              <TransportWidget cityId={cityId} />
+            </Suspense>
 
             {/* In the news */}
             {featuredNews && (
@@ -405,6 +412,24 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       </div>
     </div>
     </AuthGate>
+  )
+}
+
+function SidebarSkeleton({ label }: { label: string }) {
+  return (
+    <section className="mb-10">
+      <div className="flex items-center justify-between pb-3 mb-1"
+        style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
+        <span className="text-xs font-black tracking-[0.16em] uppercase"
+          style={{ color: 'rgba(10,10,10,0.5)' }}>{label}</span>
+      </div>
+      <div className="space-y-2 pt-1">
+        {[100, 75, 90].map(w => (
+          <div key={w} className="h-3 animate-pulse"
+            style={{ width: `${w}%`, background: 'rgba(10,10,10,0.06)' }} />
+        ))}
+      </div>
+    </section>
   )
 }
 

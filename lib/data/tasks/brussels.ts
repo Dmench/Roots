@@ -692,4 +692,82 @@ Applications for the following September typically open in January–February. F
       { label: 'European Schools Brussels', url: 'https://www.eursc.eu/en', type: 'official' },
     ],
   },
+  {
+    id: 'bru-mobib-card',
+    cityId: 'brussels',
+    title: 'Get your MOBIB transport card (optional physical card)',
+    slug: 'mobib-card',
+    category: 'transport',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: [],
+    summary: 'The MOBIB card is the physical card option for STIB passes. Most people now use JUMP app on their phone or eID — but MOBIB is useful as a backup or for seniors/children.',
+    guide: `MOBIB is the physical RFID card that can hold your STIB transport passes. Since JUMP app launched, most adults manage passes digitally via their phone or eID card — but a MOBIB card is still useful if:
+- You prefer a physical card
+- You want a card for a child or elderly family member
+- Your phone lacks NFC
+
+**Getting a MOBIB card:**
+Go to any STIB point of sale (main metro stations: Gare du Midi, De Brouckère, Schuman, Gare du Nord, Arts-Loi). Bring a passport-size photo and €5 (one-time card fee). You can also order online via the STIB website.
+
+**Loading your pass onto MOBIB:**
+At any STIB vending machine or service point, select your subscription type, pay, and tap your MOBIB card. The pass is loaded instantly.
+
+**MOBIB vs JUMP app:**
+JUMP is simpler and recommended for most adults. Your eID card (once received from commune) can also hold a STIB pass directly via NFC — no separate card needed.`,
+    steps: [
+      { step: 'Decide if you need a physical card', detail: 'If you have NFC on your phone, JUMP app or eID is easier. MOBIB is mainly for children, backup use, or no-smartphone preference.' },
+      { step: 'Visit a STIB point of sale', detail: 'Main STIB service points at Gare du Midi, De Brouckère, Schuman, Gare du Nord, Arts-Loi. Bring a passport photo and €5.' },
+      { step: 'Apply for the card', detail: 'Fill in the form at the desk, hand over your photo. You receive the card within minutes.' },
+      { step: 'Load your pass at a vending machine', detail: 'Use any STIB vending machine to load a monthly or annual pass. You can also do this online and sync at the next machine you tap.' },
+    ],
+    tip: 'MOBIB cards expire after 10 years. Keep it as a backup even if you mainly use JUMP — it\'s useful when your phone battery dies on a metro platform.',
+    estimatedTime: '20–30 minutes',
+    difficulty: 'easy',
+    links: [
+      { label: 'STIB MOBIB card info', url: 'https://www.stib-mivb.be/article.html?l=en&_guid=b44abbb0-b9da-4d15-9b15-65fa47ddba29', type: 'official' },
+      { label: 'STIB points of sale map', url: 'https://www.stib-mivb.be/retail.html?l=en', type: 'official' },
+    ],
+  },
+  {
+    id: 'bru-winter-readiness',
+    cityId: 'brussels',
+    title: 'Brace for the Brussels winter',
+    slug: 'winter-readiness',
+    category: 'daily',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: [],
+    summary: 'Brussels is grey, dark, and cold from October to March. First-time settlers consistently get blindsided. Here\'s how to stay sane.',
+    guide: `Brussels winters are genuinely difficult if you\'re not prepared — not because of extreme cold (it rarely drops below -5°C), but because of the relentless grey. From October to March, the sun may not appear for 2–3 weeks at a time. Daylight shrinks to 8 hours by December. This affects mood, energy, and motivation in ways that catch most newcomers off guard.
+
+**What actually helps:**
+
+**Light therapy:**
+A SAD (Seasonal Affective Disorder) lamp used for 20–30 minutes each morning makes a measurable difference. Brands: Philips HF3520, Lumie Arabica. Available at Bol.com (Belgian equivalent of Amazon), MediaMarkt, or Amazon.de. €40–80. This is the single most recommended thing by long-term Brussels expats.
+
+**Build an indoor community early:**
+Winter isolates people who haven\'t yet built a social network. Join something before October — a language class, a running club, a board game café (Bruxelles Les Bains, Jeux d\'Aujourd\'hui). The expat communities are very active indoors in winter.
+
+**Vitamin D:**
+Belgium has high rates of Vitamin D deficiency due to low sunlight. A supplement (1000–2000 IU/day) is recommended by most Belgian GPs for residents during winter months. Available at pharmacies without prescription.
+
+**Embrace Belgian winter culture:**
+Belgian Christmas markets (Grand Place, Flagey) run November–January and are genuinely excellent. Jenever (Belgian gin) culture peaks in winter. Cosy brown café (estaminet) culture — Moeder Lambic, A La Mort Subite — is best appreciated in January rain.
+
+**Keep moving:**
+Villo! bikes have covered stations so you can cycle even in light rain. Indoor sports clubs (David Lloyd, Basic Fit) are useful. Several Brussels pools (Poseidon, Longchamps) are open year-round.`,
+    steps: [
+      { step: 'Buy a light therapy lamp before October', detail: 'Philips or Lumie brands, 10,000 lux minimum. Use for 20 min each morning at breakfast. Available at MediaMarkt or bol.com.' },
+      { step: 'Start Vitamin D supplements', detail: '1000–2000 IU/day from a pharmacy. No prescription needed. Take daily through March.' },
+      { step: 'Join one indoor social group before winter hits', detail: 'Language exchange, sports club, running group, board game café. Do it in September — groups fill up and social momentum takes weeks to build.' },
+      { step: 'Stock up on cosy essentials', detail: 'A good rain jacket (Decathlon has excellent options at Brussels prices), waterproof ankle boots, and a wool layer. Belgian rain is horizontal.' },
+      { step: 'Plan 1–2 winter trips', detail: 'Booking a trip in February (Bruges day trip, Ardennes weekend, Amsterdam) gives you something to look forward to through the darkest weeks.' },
+    ],
+    tip: 'The two hardest months are January and February — the Christmas glow is gone and spring is distant. This is when most people either give up on Brussels or find their groove. Having a regular Thursday or Friday plan locked in helps enormously.',
+    estimatedTime: 'Ongoing preparation',
+    difficulty: 'easy',
+    links: [
+      { label: 'SAD lamps at Bol.com Belgium', url: 'https://www.bol.com/be/en/l/sad-lamps/', type: 'helpful' },
+      { label: 'Villo! bike share', url: 'https://www.villo.be/en', type: 'official' },
+    ],
+  },
 ]
