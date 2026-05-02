@@ -13,7 +13,16 @@ export default function AuthCallback() {
       const stored = sessionStorage.getItem('roots:returnTo')
       sessionStorage.removeItem('roots:returnTo')
       if (stored && stored.startsWith('/') && !stored.startsWith('/auth')) return stored
-      return '/'
+      // New device or fresh session — no returnTo in storage.
+      // Check localStorage for an existing profile; if no city set, send to onboarding.
+      try {
+        const raw = localStorage.getItem('roots-profile')
+        const prof = raw ? JSON.parse(raw) : {}
+        if (!prof.cityId) return '/cities'
+        return `/${prof.cityId}`
+      } catch {
+        return '/cities'
+      }
     }
 
     // Listen for the auth event BEFORE exchanging the code, so we can

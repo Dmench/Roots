@@ -132,20 +132,35 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [expandedPost,   setExpandedPost]   = useState<string | null>(null)
   const [comments,       setComments]       = useState<Record<string, PostComment[]>>({})
   const [commentCounts,  setCommentCounts]  = useState<Record<string, number>>({})
-  const [commentDraft,   setCommentDraft]   = useState('')
+  const [commentDrafts,  setCommentDrafts]  = useState<Record<string, string>>({})
   const [commentPosting, setCommentPosting] = useState(false)
 
   useEffect(() => {
     if (!city || !supabase) return
-    supabase.from('posts').select('*').eq('city_id', cityId)
+    const sb = supabase
+    sb.from('posts').select('*').eq('city_id', cityId)
       .order('created_at', { ascending: false }).limit(100)
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setPosts(data.map(p => ({
-            id: p.id, cityId: p.city_id, stage: p.stage ?? undefined,
-            category: p.category as PostCategory, text: p.text,
-            time: formatRelative(p.created_at), authorStage: p.author_stage ?? undefined,
-          })))
+      .then(async ({ data }) => {
+        if (!data || data.length === 0) return
+        const mapped = data.map(p => ({
+          id: p.id, cityId: p.city_id, stage: p.stage ?? undefined,
+          category: p.category as PostCategory, text: p.text,
+          time: formatRelative(p.created_at), authorStage: p.author_stage ?? undefined,
+        }))
+        setPosts(mapped)
+
+        // Fetch comment counts for all posts in one query
+        const ids = mapped.map(p => p.id)
+        const { data: counts } = await sb
+          .from('post_comments')
+          .select('post_id')
+          .in('post_id', ids)
+        if (counts) {
+          const tally: Record<string, number> = {}
+          for (const row of counts) {
+            tally[row.post_id] = (tally[row.post_id] ?? 0) + 1
+          }
+          setCommentCounts(tally)
         }
       })
   }, [cityId, city])
@@ -278,18 +293,19 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   }
 
   async function submitComment(postId: string) {
-    if (!commentDraft.trim() || !user || !supabase || commentPosting) return
+    const draft = (commentDrafts[postId] ?? '').trim()
+    if (!draft || !user || !supabase || commentPosting) return
     setCommentPosting(true)
     const optimistic: PostComment = {
       id: `c${Date.now()}`, post_id: postId, author_id: user.id,
-      text: commentDraft.trim(), created_at: new Date().toISOString(),
-      author_name: 'You',
+      text: draft, created_at: new Date().toISOString(),
+      author_name: profile.displayName ?? 'You',
     }
     setComments(prev => ({ ...prev, [postId]: [...(prev[postId] ?? []), optimistic] }))
     setCommentCounts(prev => ({ ...prev, [postId]: (prev[postId] ?? 0) + 1 }))
-    setCommentDraft('')
+    setCommentDrafts(prev => ({ ...prev, [postId]: '' }))
     await supabase.from('post_comments').insert({
-      post_id: postId, author_id: user.id, text: optimistic.text,
+      post_id: postId, author_id: user.id, text: draft,
     })
     setCommentPosting(false)
   }
@@ -444,8 +460,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                   <div className="flex gap-2 mt-2">
                                     <input
                                       type="text"
-                                      value={commentDraft}
-                                      onChange={e => setCommentDraft(e.target.value.slice(0, 140))}
+                                      value={commentDrafts[post.id] ?? ''}
+                                      onChange={e => setCommentDrafts(prev => ({ ...prev, [post.id]: e.target.value.slice(0, 140) }))}
                                       onKeyDown={e => { if (e.key === 'Enter') submitComment(post.id) }}
                                       placeholder="Reply…"
                                       className="flex-1 text-xs focus:outline-none bg-transparent"
@@ -453,7 +469,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                     />
                                     <button
                                       onClick={() => submitComment(post.id)}
-                                      disabled={!commentDraft.trim() || commentPosting}
+                                      disabled={!(commentDrafts[post.id] ?? '').trim() || commentPosting}
                                       className="text-[10px] font-black text-white px-2.5 py-1 transition-opacity disabled:opacity-25"
                                       style={{ background: m.color }}>
                                       ↑
