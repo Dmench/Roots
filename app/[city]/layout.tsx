@@ -21,7 +21,8 @@ export default async function CityLayout({
   return (
     <>
       <Nav />
-      <main>{children}</main>
+      {/* pb-16 clears the fixed mobile bottom tab bar (56px + safe area) */}
+      <main className="md:pb-0 pb-16">{children}</main>
       <Footer />
     </>
   )

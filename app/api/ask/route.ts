@@ -19,10 +19,12 @@ async function checkRateLimit(userId: string): Promise<{ allowed: boolean; remai
     })
 
     if (error) {
-      // Table or function missing (42P01 = table, PGRST202 = function not found) — fail open
+      // Table or function missing — fail open but log so we know the migration hasn't run
       if (error.code === '42P01' || error.code === 'PGRST202') {
+        console.warn('[rate-limit] increment_ask_count missing — run supabase/migration_ask_rate_limits.sql')
         return { allowed: true, remaining: DAILY_LIMIT }
       }
+      console.error('[rate-limit] unexpected error:', error.code, error.message)
       return { allowed: true, remaining: DAILY_LIMIT }
     }
 
