@@ -71,6 +71,7 @@
     "vibe": "Italian warmth, Belgian wine obsession. Wine is the only drink.",
     "why": "Near Flagey, reliably excellent wine list, regulars who come back every week. One of the best in the city.",
     "tags": ["natural-wine", "wine-only", "flagey", "regulars"],
+    "address": "Rue du Conseil 49",
     "lat": 50.8255, "lng": 4.3723,
     "openingHours": "Tu-Sa 17:00-24:00"
   },
@@ -397,5 +398,33 @@
     "address": "112 Chaussée de Charleroi",
     "lat": 50.8310, "lng": 4.3540,
     "openingHours": "Mo-Su 09:00-02:00"
+  },
+  {
+    "id": "curated-chez-biquet",
+    "name": "Chez Biquet",
+    "category": "Friterie",
+    "broadType": "restaurant",
+    "neighborhood": "Marolles",
+    "price": "€",
+    "vibe": "Proper Brussels friterie. Queue outside, eat on the steps of the flea market.",
+    "why": "Cash only, open since the 70s, frites fried twice in beef fat. The Marolles institution that hasn't changed and shouldn't.",
+    "tags": ["belgian", "frites", "cash-only", "no-reservations", "locals", "institution"],
+    "address": "Rue Haute 198",
+    "lat": 50.8393, "lng": 4.3489,
+    "openingHours": "Mo,We-Su 11:30-21:00"
+  },
+  {
+    "id": "curated-brasserie-ploegmans",
+    "name": "Brasserie Ploegmans",
+    "category": "Classic estaminet",
+    "broadType": "bar",
+    "neighborhood": "Marolles",
+    "price": "€",
+    "vibe": "Unchanged since 1930. Gueuze on tap, regulars who've been coming for decades.",
+    "why": "The most Brussels bar in Brussels. Overlooking Place du Jeu de Balle — go Saturday morning after the flea market with a gueuze and you'll understand the city.",
+    "tags": ["belgian", "locals", "institution", "classic", "cheap", "no-reservations"],
+    "address": "Place du Jeu de Balle 1",
+    "lat": 50.8385, "lng": 4.3469,
+    "openingHours": "Daily 08:00-23:00"
   }
 ]

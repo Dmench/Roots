@@ -325,11 +325,10 @@ export async function getVenues(cityId: string): Promise<Venue[]> {
     return enrichCurated(curated, cityId)
   }
 
-  const [google, osm] = await Promise.all([
-    fetchGoogleNearbyVenues(),
-    fetchOverpassVenues(),
-  ])
+  // Ship with curated list only — Google Nearby augmentation available but
+  // disabled until curated quality is high enough across all neighbourhoods.
+  // To re-enable: const [google, osm] = await Promise.all([fetchGoogleNearbyVenues(), fetchOverpassVenues()])
+  //               return enrichCurated(mergeVenues(curated, google, osm), cityId)
 
-  const merged = mergeVenues(curated, google, osm)
-  return enrichCurated(merged, cityId)
+  return enrichCurated(curated, cityId)
 }
