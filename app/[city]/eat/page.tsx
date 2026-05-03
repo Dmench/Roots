@@ -80,12 +80,14 @@ function PartnerTeaser() {
 
 /* ── Venue card (editorial, vertical) ────────────────────────────────────── */
 
-function VenueCard({ venue, onSave, saved, photoRef, lead = false }: {
+function VenueCard({ venue, onSave, saved, photoRef: photoRefOverride, lead = false }: {
   venue: Venue; onSave: () => void; saved: boolean; photoRef?: string | null; lead?: boolean
 }) {
-  const color   = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
-  const signals = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
-  const photoH  = lead ? 220 : 170
+  const color    = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
+  const signals  = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
+  const photoH   = lead ? 220 : 170
+  // Use photoRef baked into venue first, fall back to lazily-fetched override
+  const photoRef = venue.photoRef ?? photoRefOverride
 
   return (
     <div className="flex flex-col overflow-hidden h-full" style={{ border: '1px solid rgba(10,10,10,0.08)' }}>
@@ -110,6 +112,18 @@ function VenueCard({ venue, onSave, saved, photoRef, lead = false }: {
           style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
           {venue.price}
         </span>
+        {/* Rating badge — bottom left, only if available */}
+        {venue.rating != null && (
+          <span className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5"
+            style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+            ★ {venue.rating.toFixed(1)}
+            {venue.reviewCount != null && (
+              <span style={{ opacity: 0.65 }}>
+                ({venue.reviewCount >= 1000 ? `${(venue.reviewCount / 1000).toFixed(1)}k` : venue.reviewCount})
+              </span>
+            )}
+          </span>
+        )}
         {/* Type accent bar at bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: color }} />
       </div>
@@ -233,20 +247,25 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
     if (city) getVenues(city.id).then(setVenues)
   }, [city])
 
-  // Lazy-fetch Google Places photos for each venue (sessionStorage-cached)
+  // Lazy-fetch photos only for venues that don't have a photoRef baked in
+  // (curated venues without a Google match, and OSM venues)
   useEffect(() => {
     if (venues.length === 0 || !city) return
     const cid = city.id
+    const needsPhoto = venues.filter(v => !v.photoRef)
+    if (needsPhoto.length === 0) return
+
     const fetchPhotos = async () => {
-      const entries = await Promise.all(venues.map(async v => {
+      const { data: { session } } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }))
+      const headers: Record<string, string> = {}
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+      const entries = await Promise.all(needsPhoto.map(async v => {
         const sKey = `places-eat-${cid}-${v.id}`
         const cached = sessionStorage.getItem(sKey)
         if (cached !== null) return [v.id, cached === '' ? null : cached] as const
         try {
           const q   = encodeURIComponent(`${v.name}${v.address ? ' ' + v.address : ''}`)
-          const { data: { session } } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }))
-          const headers: Record<string, string> = {}
-          if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
           const res = await fetch(`/api/places/search?q=${q}&cityId=${cid}`, { headers })
           const json = await res.json() as { results: Array<{ photoRef: string | null }> }
           const ref  = json.results?.[0]?.photoRef ?? null
