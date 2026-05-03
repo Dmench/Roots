@@ -67,13 +67,66 @@ The current implementation leans toward international movers because Brussels ha
 - Rate limit via `increment_ask_count(uid, day)` postgres RPC — atomic, not a two-step upsert/update
 - Photo proxy at `/api/places/photo` validates `photoRef` via regex before forwarding to Google — SSRF protection
 
-## Supabase schema (key tables)
+## Supabase schema
 
-- `profiles` — user profile (stage, situations, arrival_date, city_id, completed_task_ids, spots, etc.)
-- `posts` — community posts (city_id, category, text, author_stage)
-- `post_comments` — comments on posts
-- `ask_rate_limits` — (user_id, date, count) — run `supabase/migration_ask_rate_limits.sql` to create
-- `follows` — (follower_id, following_id) — user follow graph
+All tables are live in production (migrations were run May 2026). SQL source files are in `supabase/`.
+
+### Tables
+
+**`profiles`** — one row per user, created on first sign-in
+```sql
+id uuid PK, display_name text, city_id text, neighborhood text,
+arrival_date text, stage text, languages text[], situations text[],
+completed_task_ids text[], saved_task_ids text[], show_in_directory boolean,
+digest_subscribed boolean, spots jsonb, updated_at timestamptz
+```
+RLS: users read/write own row; directory-opted-in rows readable by all authenticated users.
+
+**`posts`** — community feed posts
+```sql
+id uuid PK, city_id text, stage text, category text (recommendation|question|heads-up),
+text text (1–280 chars), author_id uuid→auth.users, author_stage text, created_at timestamptz
+```
+RLS: anyone can select; insert requires auth.uid() = author_id.
+
+**`post_comments`** — comments on community posts
+```sql
+id uuid PK, post_id uuid→posts, author_id uuid→auth.users,
+author_name text, text text (1–280 chars), created_at timestamptz
+```
+RLS: anyone can select; insert requires auth; delete own only.
+
+**`saved_events`** — events bookmarked by users
+```sql
+id uuid PK, user_id uuid→auth.users, city_id text, event_id text,
+title text, date text, time text, venue text, source text, date_ts bigint
+```
+
+**`follows`** — user follow graph
+```sql
+follower_id uuid→auth.users, following_id uuid→auth.users, created_at timestamptz
+PK (follower_id, following_id)
+```
+RLS: anyone can select; insert/delete own only.
+
+**`ask_rate_limits`** — daily question count per user for /api/ask
+```sql
+user_id uuid→auth.users, date date, count integer default 1
+PK (user_id, date)
+```
+RLS: users can read own row. Service role writes via `increment_ask_count()` function.
+
+### Functions
+
+**`increment_ask_count(uid uuid, day date) → integer`**
+Atomic INSERT ... ON CONFLICT ... DO UPDATE on `ask_rate_limits`. Returns new count.
+Used by `/api/ask` route to enforce 20 questions/day limit without race conditions.
+
+### Migration files (all already run)
+- `supabase/schema.sql` — core tables (profiles, posts, saved_events). **Do not re-run** — drops tables first.
+- `supabase/migration.sql` — adds neighborhood/languages/show_in_directory/spots columns to profiles.
+- `supabase/migration_follows_comments.sql` — creates follows + post_comments tables.
+- `supabase/migration_ask_rate_limits.sql` — creates ask_rate_limits table + increment_ask_count() function.
 
 ## Running locally
 
