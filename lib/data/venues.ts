@@ -1,4 +1,5 @@
 import brusselsVenues from './static/brussels-venues.json'
+import { scoutVenues } from './scout'
 
 export interface Venue {
   id:            string
@@ -22,7 +23,7 @@ export interface Venue {
   photoRef?:     string | null   // Google Places photo_reference
   rating?:       number | null   // Google Places rating (0–5)
   reviewCount?:  number | null   // Google user_ratings_total
-  source?:       'curated' | 'osm' | 'google'
+  source?:       'curated' | 'osm' | 'google' | 'scouted'
 }
 
 const STATIC: Record<string, Venue[]> = {
@@ -325,10 +326,18 @@ export async function getVenues(cityId: string): Promise<Venue[]> {
     return enrichCurated(curated, cityId)
   }
 
-  // Ship with curated list only — Google Nearby augmentation available but
-  // disabled until curated quality is high enough across all neighbourhoods.
-  // To re-enable: const [google, osm] = await Promise.all([fetchGoogleNearbyVenues(), fetchOverpassVenues()])
-  //               return enrichCurated(mergeVenues(curated, google, osm), cityId)
+  // Curated names set — scout and OSM won't duplicate these
+  const curatedNames = new Set(curated.map(v => normName(v.name)))
 
-  return enrichCurated(curated, cityId)
+  // Run scout and curated enrichment in parallel
+  const [enriched, scouted] = await Promise.all([
+    enrichCurated(curated, cityId),
+    scoutVenues(cityId, curatedNames),
+  ])
+
+  // Curated always first, scouted fills the rest
+  // Google Nearby disabled for now — re-enable below when ready:
+  // const [google, osm] = await Promise.all([fetchGoogleNearbyVenues(), fetchOverpassVenues()])
+  // return [...enriched, ...scouted, ...freshGoogle, ...freshOsm]
+  return [...enriched, ...scouted]
 }

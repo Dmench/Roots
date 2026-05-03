@@ -173,6 +173,69 @@ function VenueCard({ venue, onSave, saved, photoRef: photoRefOverride, lead = fa
   )
 }
 
+/* ── Scout card (compact, non-editorial) ────────────────────────────────── */
+
+function ScoutCard({ venue, onSave, saved }: {
+  venue: Venue; onSave: () => void; saved: boolean
+}) {
+  const color = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
+  return (
+    <div className="flex flex-col overflow-hidden" style={{ border: '1px solid rgba(10,10,10,0.07)' }}>
+      {/* Photo block */}
+      <div className="relative shrink-0 overflow-hidden" style={{ height: 120, background: color }}>
+        {venue.photoRef ? (
+          <img
+            src={`/api/places/photo?ref=${encodeURIComponent(venue.photoRef)}`}
+            alt={venue.name}
+            className="w-full h-full object-cover"
+            style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+            onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
+          />
+        ) : (
+          <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
+            style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.15)' }}>
+            {venue.name.charAt(0)}
+          </span>
+        )}
+        {/* Rating */}
+        {venue.rating != null && (
+          <span className="absolute bottom-1.5 left-1.5 text-[9px] font-black px-1 py-0.5"
+            style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+            ★ {venue.rating.toFixed(1)}
+          </span>
+        )}
+        <span className="absolute top-1.5 right-1.5 text-[9px] font-black px-1 py-0.5"
+          style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+          {venue.price}
+        </span>
+      </div>
+      {/* Content */}
+      <div className="p-2.5 flex flex-col flex-1">
+        <span className="text-[8px] font-black tracking-[0.18em] uppercase mb-0.5" style={{ color }}>{venue.neighborhood}</span>
+        <p className="text-xs font-bold leading-snug mb-1" style={{ color: '#0A0A0A' }}>{venue.name}</p>
+        <p className="text-[9px] mb-2" style={{ color: 'rgba(10,10,10,0.38)' }}>{venue.category}</p>
+        <div className="flex items-center justify-between mt-auto">
+          {venue.reviewCount != null && (
+            <span className="text-[9px]" style={{ color: 'rgba(10,10,10,0.3)' }}>
+              {venue.reviewCount >= 1000 ? `${(venue.reviewCount / 1000).toFixed(1)}k` : venue.reviewCount} reviews
+            </span>
+          )}
+          <button
+            onClick={onSave}
+            className="text-[8px] font-black tracking-[0.1em] uppercase px-1.5 py-0.5 transition-all ml-auto"
+            style={{
+              color:      saved ? '#0E9B6B' : 'rgba(10,10,10,0.3)',
+              background: saved ? 'rgba(16,185,129,0.08)' : 'transparent',
+              border:     saved ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(10,10,10,0.1)',
+            }}>
+            {saved ? '✓' : '+'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Reddit food panel ───────────────────────────────────────────────────── */
 
 interface RedditRow { id: string; title: string; score: number; comments: number; permalink: string; created: number }
@@ -284,9 +347,13 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   if (authLoading) return <div className="min-h-screen bg-cream" />
   if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
 
-  const featured = venues.find(v => v.featured)
-  const regular  = venues.filter(v => !v.featured)
-  const hoods    = HOODS[cityId] ?? []
+  const featured  = venues.find(v => v.featured)
+  const curated   = venues.filter(v => !v.featured && v.source !== 'scouted')
+  const scouted   = venues.filter(v => v.source === 'scouted')
+  const hoods     = HOODS[cityId] ?? []
+
+  // regular = curated (non-featured) for the editorial grid
+  const regular = curated
 
   let filtered = regular
   if (activeCol) {
@@ -418,6 +485,39 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
             </div>
           )}
         </div>
+
+        {/* ── Spotted around Brussels ─────────────────────────────────────── */}
+        {scouted.length > 0 && !activeCol && (
+          <div className="mb-14">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
+              <div className="shrink-0 text-center">
+                <p className="text-[10px] font-black tracking-[0.28em] uppercase" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                  Spotted around Brussels
+                </p>
+                <p className="text-[9px] mt-0.5" style={{ color: 'rgba(10,10,10,0.22)' }}>
+                  Via web · not manually vetted
+                </p>
+              </div>
+              <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {scouted
+                .filter(v => typeFilter === 'all' || v.broadType === typeFilter)
+                .map(v => {
+                  const saved = (profile.spots ?? []).some(s => s.name === v.name)
+                  return (
+                    <ScoutCard key={v.id} venue={v} saved={saved}
+                      onSave={() => {
+                        if (!user || saved) return
+                        const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'
+                        addSpot({ name: v.name, category: cat })
+                      }} />
+                  )
+                })}
+            </div>
+          </div>
+        )}
 
         {/* Neighbourhood guide */}
         {hoods.length > 0 && (
