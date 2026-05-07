@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
     .select('event_id')
     .eq('city_id', cityId)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[events/save] GET:', error.code)
+    return NextResponse.json({ error: 'Failed to load saved events' }, { status: 500 })
+  }
   return NextResponse.json({ savedIds: data.map(r => r.event_id) })
 }
 
@@ -29,6 +32,14 @@ export async function POST(req: NextRequest) {
 
   const { event, cityId } = await req.json()
   if (!event?.id || !cityId) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+  if (event.url) {
+    try {
+      const u = new URL(event.url)
+      if (!['http:', 'https:'].includes(u.protocol)) throw new Error()
+    } catch {
+      return NextResponse.json({ error: 'Invalid URL' }, { status: 400 })
+    }
+  }
 
   const sb = createUserClient(token)
   const { data: { user } } = await sb.auth.getUser()
@@ -48,7 +59,10 @@ export async function POST(req: NextRequest) {
     date_ts:  event.dateTs,
   }, { onConflict: 'user_id,event_id', ignoreDuplicates: true })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[events/save] POST:', error.code)
+    return NextResponse.json({ error: 'Could not save event' }, { status: 500 })
+  }
   return NextResponse.json({ ok: true })
 }
 
@@ -68,6 +82,9 @@ export async function DELETE(req: NextRequest) {
     .eq('user_id', user.id)
     .eq('event_id', eventId)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    console.error('[events/save] DELETE:', error.code)
+    return NextResponse.json({ error: 'Could not remove event' }, { status: 500 })
+  }
   return NextResponse.json({ ok: true })
 }

@@ -42,6 +42,7 @@ export async function getNews(cityId: string, limit = 6): Promise<NewsItem[]> {
       const res = await fetch(feed.url, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Roots/1.0)', Accept: 'application/rss+xml, */*' },
         next: { revalidate: 1800 },
+        signal: AbortSignal.timeout(10000),
       })
       if (!res.ok) continue
       const xml   = await res.text()

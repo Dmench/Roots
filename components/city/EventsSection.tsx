@@ -62,7 +62,7 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
           </button>
 
           {filterOpen && (
-            <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px] shadow-lg"
+            <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px]"
               style={{ background: '#fff', border: '1px solid rgba(10,10,10,0.1)' }}>
               <button
                 onClick={() => { setActiveSource(null); setFilterOpen(false) }}

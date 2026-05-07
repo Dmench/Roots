@@ -58,7 +58,7 @@ export type TaskDifficulty = 'easy' | 'medium' | 'hard'
 export interface TaskLink {
   label: string
   url: string
-  type: 'official' | 'affiliate' | 'community'
+  type: 'official' | 'affiliate' | 'community' | 'helpful'
 }
 
 export interface TaskStep {

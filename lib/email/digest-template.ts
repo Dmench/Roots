@@ -14,6 +14,20 @@ interface DigestData {
   appUrl:      string
 }
 
+function esc(s: string | null | undefined): string {
+  return (s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+// Only allow https URLs in email — strips anything else
+function safeUrl(url: string | null | undefined): string {
+  if (!url) return '#'
+  return /^https:\/\//i.test(url) ? url : '#'
+}
+
 const SOURCE_COLOR: Record<string, string> = {
   'The Bulletin': '#4744C8',
   'Politico EU':  '#EF3340',
@@ -30,7 +44,7 @@ function eventRow(ev: EventPreview, accent = '#4744C8'): string {
   const color = SOURCE_COLOR[ev.source] ?? accent
   const imgCell = ev.image
     ? `<td width="72" valign="top" style="padding-right:12px;padding-top:2px;">
-        <img src="${ev.image}" width="60" height="60" alt="" style="border-radius:8px;display:block;object-fit:cover;width:60px;height:60px;" />
+        <img src="${safeUrl(ev.image)}" width="60" height="60" alt="" style="border-radius:8px;display:block;object-fit:cover;width:60px;height:60px;" />
        </td>`
     : `<td width="72" valign="top" style="padding-right:12px;padding-top:2px;">
         <div style="width:60px;height:60px;border-radius:8px;background:${color}18;display:flex;align-items:center;justify-content:center;font-size:22px;text-align:center;line-height:60px;">&#127926;</div>
@@ -41,9 +55,9 @@ function eventRow(ev: EventPreview, accent = '#4744C8'): string {
       <tr>
         ${imgCell}
         <td valign="top">
-          <p style="margin:0 0 3px;font-size:9px;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;color:${color};">${ev.source.toUpperCase()}</p>
-          <p style="margin:0 0 4px;font-size:14px;font-weight:700;color:#1a1832;line-height:1.35;">${ev.title}</p>
-          <p style="margin:0;font-size:11px;color:#888;font-weight:500;">${ev.date}${ev.time ? ' · ' + ev.time : ''}${ev.venue && ev.venue !== ev.source ? ' · ' + ev.venue : ''}</p>
+          <p style="margin:0 0 3px;font-size:9px;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;color:${color};">${esc(ev.source).toUpperCase()}</p>
+          <p style="margin:0 0 4px;font-size:14px;font-weight:700;color:#1a1832;line-height:1.35;">${esc(ev.title)}</p>
+          <p style="margin:0;font-size:11px;color:#888;font-weight:500;">${esc(ev.date)}${ev.time ? ' · ' + esc(ev.time) : ''}${ev.venue && ev.venue !== ev.source ? ' · ' + esc(ev.venue) : ''}</p>
         </td>
       </tr>
     </table>`
@@ -70,7 +84,7 @@ export function buildDigestEmail(data: DigestData): { html: string; subject: str
     ? `
       ${sectionHeader('Your saved events', '#4744C8')}
       ${savedEvents.map(ev => `
-        <a href="${ev.url}" style="text-decoration:none;display:block;" target="_blank">
+        <a href="${safeUrl(ev.url)}" style="text-decoration:none;display:block;" target="_blank">
           ${eventRow(ev, '#4744C8')}
         </a>`).join('')}
     `
@@ -80,7 +94,7 @@ export function buildDigestEmail(data: DigestData): { html: string; subject: str
     ? `
       ${sectionHeader(hasSaved ? 'Also this week' : 'This week in ' + cityName, '#10B981')}
       ${picks.map(ev => `
-        <a href="${ev.url}" style="text-decoration:none;display:block;" target="_blank">
+        <a href="${safeUrl(ev.url)}" style="text-decoration:none;display:block;" target="_blank">
           ${eventRow(ev, '#10B981')}
         </a>`).join('')}
     `
@@ -93,9 +107,9 @@ export function buildDigestEmail(data: DigestData): { html: string; subject: str
         ${reddit.map((post, i) => `
           <tr>
             <td style="padding:${i === 0 ? '14px 16px' : '0 16px 14px'};border-top:${i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none'};">
-              <a href="${post.permalink}" target="_blank" style="text-decoration:none;display:block;">
-                <p style="margin:0 0 3px;font-size:11px;font-weight:700;color:#F5ECD7;line-height:1.4;">${post.title}</p>
-                <p style="margin:0;font-size:9px;color:rgba(245,236,215,0.35);">${post.score >= 1000 ? (post.score / 1000).toFixed(1) + 'k' : post.score} upvotes · ${post.comments} comments${post.flair ? ' · ' + post.flair : ''}</p>
+              <a href="${safeUrl(post.permalink)}" target="_blank" style="text-decoration:none;display:block;">
+                <p style="margin:0 0 3px;font-size:11px;font-weight:700;color:#F5ECD7;line-height:1.4;">${esc(post.title)}</p>
+                <p style="margin:0;font-size:9px;color:rgba(245,236,215,0.35);">${post.score >= 1000 ? (post.score / 1000).toFixed(1) + 'k' : post.score} upvotes · ${post.comments} comments${post.flair ? ' · ' + esc(post.flair) : ''}</p>
               </a>
             </td>
           </tr>`).join('')}
@@ -118,9 +132,9 @@ export function buildDigestEmail(data: DigestData): { html: string; subject: str
             <tr>
               <td width="3" style="background:${color};font-size:0;line-height:0;">&nbsp;</td>
               <td style="padding:10px 12px;">
-                <a href="${item.url}" target="_blank" style="text-decoration:none;">
-                  <p style="margin:0 0 2px;font-size:8px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:${color};">${item.source}</p>
-                  <p style="margin:0;font-size:12px;font-weight:600;color:#1a1832;line-height:1.4;">${item.title}</p>
+                <a href="${safeUrl(item.url)}" target="_blank" style="text-decoration:none;">
+                  <p style="margin:0 0 2px;font-size:8px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:${color};">${esc(item.source)}</p>
+                  <p style="margin:0;font-size:12px;font-weight:600;color:#1a1832;line-height:1.4;">${esc(item.title)}</p>
                 </a>
               </td>
             </tr>

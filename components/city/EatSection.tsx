@@ -44,7 +44,7 @@ interface Props {
 function PartnerCard({ venue }: { venue: Venue }) {
   const pal = TYPE_PALETTE[venue.broadType] ?? TYPE_PALETTE.other
   return (
-    <div className="rounded-2xl overflow-hidden mb-14"
+    <div className="overflow-hidden mb-14"
       style={{ background: '#0F0E1E' }}>
       {/* Header */}
       <div className="relative px-7 pt-7 pb-5 overflow-hidden"
@@ -80,7 +80,7 @@ function PartnerCard({ venue }: { venue: Venue }) {
         </p>
 
         {venue.deal && (
-          <div className="rounded-lg px-4 py-3 mb-5 inline-block"
+          <div className="px-4 py-3 mb-5 inline-block"
             style={{ background: `${pal.accent}18`, border: `1px solid ${pal.accent}30` }}>
             <p className="text-xs font-semibold" style={{ color: pal.accent }}>
               {venue.deal}
@@ -91,7 +91,7 @@ function PartnerCard({ venue }: { venue: Venue }) {
         <div className="flex items-center gap-3 flex-wrap">
           {venue.website && (
             <a href={venue.website} target="_blank" rel="noopener noreferrer"
-              className="text-[10px] font-black tracking-widest uppercase px-4 py-2 rounded-lg transition-opacity hover:opacity-75"
+              className="text-[10px] font-black tracking-widest uppercase px-4 py-2 transition-opacity hover:opacity-75"
               style={{ background: pal.accent, color: '#fff' }}>
               Visit ↗
             </a>
@@ -114,7 +114,7 @@ function VenueCard({ venue }: { venue: Venue }) {
     .slice(0, 2)
 
   return (
-    <div className="rounded-xl overflow-hidden flex flex-col bg-white"
+    <div className="overflow-hidden flex flex-col bg-white"
       style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
 
       {/* Coloured header band */}

@@ -110,7 +110,7 @@ export default function VenueMap({ venues, venuePhotos, selected, onSelect }: Pr
 
       {/* Selected venue panel */}
       {selectedVenue && (
-        <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-72 shadow-xl z-[1000]"
+        <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-72 z-[1000]"
           style={{ background: '#fff', border: '1px solid rgba(10,10,10,0.1)' }}>
           {/* Photo or color block */}
           <div className="relative overflow-hidden" style={{ height: 140 }}>

@@ -59,9 +59,9 @@ interface Result {
 /* ── Category selector config ─────────────────────────────────────────────── */
 
 const CATS: { type: PickType; label: string; icon: string; color: string }[] = [
-  { type: 'eat',   label: 'Eat',   icon: '🍽',  color: '#E8612A' },
-  { type: 'drink', label: 'Drink', icon: '🍺',  color: '#38C0F0' },
-  { type: 'event', label: 'Event', icon: '✦',   color: '#FF3EBA' },
+  { type: 'eat',   label: 'Eat',   icon: 'E',  color: '#E8612A' },
+  { type: 'drink', label: 'Drink', icon: 'D',  color: '#38C0F0' },
+  { type: 'event', label: 'Event', icon: '✦',  color: '#FF3EBA' },
 ]
 
 /* ── Wheel segments ───────────────────────────────────────────────────────── */

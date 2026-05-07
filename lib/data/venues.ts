@@ -208,6 +208,7 @@ async function fetchOverpassVenues(): Promise<Venue[]> {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body:   `data=${encodeURIComponent(OVERPASS_QUERY)}`,
       next:   { revalidate: 86400 },
+      signal: AbortSignal.timeout(15000),
     })
     if (!res.ok) return []
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

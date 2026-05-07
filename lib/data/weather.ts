@@ -79,7 +79,7 @@ export async function getWeather(cityId: string): Promise<WeatherData | null> {
   try {
     const res = await fetch(
       `https://api.open-meteo.com/v1/forecast?${params}`,
-      { next: { revalidate: 1800 } }
+      { next: { revalidate: 1800 }, signal: AbortSignal.timeout(10000) }
     )
     if (!res.ok) return null
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

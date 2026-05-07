@@ -622,7 +622,7 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setStageOpen(false)}>
-          <div className="w-full sm:max-w-sm shadow-2xl" style={{ background: '#fff' }}
+          <div className="w-full sm:max-w-sm " style={{ background: '#fff' }}
             onClick={e => e.stopPropagation()}>
             <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
               <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-0.5"
@@ -658,7 +658,7 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setNeighborhoodOpen(false)}>
-          <div className="w-full sm:max-w-sm shadow-2xl"
+          <div className="w-full sm:max-w-sm "
             style={{ background: '#fff', maxHeight: '80vh', overflowY: 'auto' }}
             onClick={e => e.stopPropagation()}>
             <div className="px-5 pt-5 pb-3 sticky top-0 bg-white"
@@ -692,7 +692,7 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setSituationOpen(false)}>
-          <div className="w-full sm:max-w-sm shadow-2xl" style={{ background: '#fff' }}
+          <div className="w-full sm:max-w-sm " style={{ background: '#fff' }}
             onClick={e => e.stopPropagation()}>
             <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
               <p className="text-[10px] font-black tracking-[0.2em] uppercase"

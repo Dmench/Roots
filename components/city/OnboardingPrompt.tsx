@@ -38,8 +38,8 @@ export default function OnboardingPrompt({ cityId, cityName }: Props) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 md:px-8 md:pb-6 pointer-events-none">
       <div className="max-w-xl mx-auto pointer-events-auto">
-        <div className="rounded-2xl overflow-hidden"
-          style={{ background: '#0F0E1E', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 -4px 40px rgba(0,0,0,0.4)' }}>
+        <div className="overflow-hidden"
+          style={{ background: '#0F0E1E', border: '1px solid rgba(255,255,255,0.08)' }}>
 
           <div className="flex items-start justify-between px-5 pt-4 pb-3"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -67,7 +67,7 @@ export default function OnboardingPrompt({ cityId, cityName }: Props) {
                   setStage(s.id as Stage)
                   setDismissed(true)
                 }}
-                className="text-left px-4 py-3 rounded-xl transition-all hover:opacity-80"
+                className="text-left px-4 py-3 transition-all hover:opacity-80"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <p className="text-[10px] font-black tracking-widest uppercase mb-0.5" style={{ color: 'rgba(245,244,240,0.35)' }}>
                   {s.months}

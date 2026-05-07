@@ -182,8 +182,12 @@ function renderMarkdown(text: string): React.ReactNode[] {
   return nodes
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
 function inlineFormat(text: string): string {
-  return text
+  return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#252450;font-weight:700">$1</strong>')
     .replace(/`(.+?)`/g, '<code style="background:rgba(37,36,80,0.07);padding:1px 5px;border-radius:4px;font-size:12px">$1</code>')
 }
@@ -303,7 +307,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
             </p>
           </div>
           {/* Trust signal */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg"
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-none"
             style={{ background: 'rgba(71,68,200,0.06)', border: '1px solid rgba(71,68,200,0.12)' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4744C8' }} />
             <span className="text-[10px] font-bold tracking-wide" style={{ color: '#4744C8' }}>
@@ -321,8 +325,8 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
           {!hasMessages && (
             <div>
               {/* Intro */}
-              <div className="mb-8 p-6 rounded-2xl"
-                style={{ background: 'linear-gradient(135deg, rgba(71,68,200,0.06) 0%, rgba(71,68,200,0.02) 100%)', border: '1px solid rgba(71,68,200,0.1)' }}>
+              <div className="mb-8 p-6"
+                style={{ background: 'rgba(71,68,200,0.04)', border: '1px solid rgba(71,68,200,0.1)' }}>
                 <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-2" style={{ color: '#4744C8' }}>
                   What Roots knows about {city.name}
                 </p>
@@ -331,7 +335,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                 </p>
                 <div className="flex flex-wrap gap-2 mt-4">
                   {['Commune registration', 'Healthcare system', 'Lease contracts', 'Tax & banking', 'Transport'].map(tag => (
-                    <span key={tag} className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                    <span key={tag} className="text-[10px] font-bold px-2.5 py-1"
                       style={{ background: 'rgba(71,68,200,0.08)', color: '#4744C8' }}>
                       {tag}
                     </span>
@@ -345,7 +349,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                   <button
                     key={i}
                     onClick={() => setActiveTab(i)}
-                    className="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
+                    className="shrink-0 px-3 py-1.5 text-xs font-bold transition-all"
                     style={activeTab === i
                       ? { background: group.color, color: '#fff' }
                       : { background: `${group.color}12`, color: group.color }
@@ -361,7 +365,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                   <button
                     key={i}
                     onClick={() => send(q)}
-                    className="text-left bg-white rounded-xl px-4 py-4 hover:shadow-md transition-all group"
+                    className="text-left bg-white rounded-none px-4 py-4 transition-all group"
                     style={{ border: '1px solid rgba(37,36,80,0.08)' }}
                   >
                     <p className="text-sm font-medium leading-snug group-hover:opacity-70 transition-opacity"
@@ -402,12 +406,12 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
           {messages.map((msg, i) => (
             <div key={i} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
               {msg.role === 'user' ? (
-                <div className="rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[80%]"
+                <div className="rounded-sm rounded-tr-sm px-5 py-3.5 max-w-[80%]"
                   style={{ background: '#252450' }}>
                   <p className="text-sm leading-relaxed text-white font-medium">{msg.content}</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-2xl rounded-tl-sm px-6 py-5 max-w-[90%] shadow-sm"
+                <div className="bg-white rounded-sm rounded-tl-sm px-6 py-5 max-w-[90%]"
                   style={{ border: '1px solid rgba(37,36,80,0.08)' }}>
 
                   {/* Rendered answer */}
@@ -448,7 +452,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                       </span>
                       {msg.relatedTasks.map((slug, j) => (
                         <a key={j} href={`/${cityId}/settle`}
-                          className="text-xs px-3 py-1 rounded-full font-bold hover:opacity-80 transition-opacity"
+                          className="text-xs px-3 py-1 font-bold hover:opacity-80 transition-opacity"
                           style={{ background: '#FAB40018', color: '#D49800', border: '1px solid #FAB40030' }}>
                           {slug.replace(/-/g, ' ')}
                         </a>
@@ -463,7 +467,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
           {/* Loading */}
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-white rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm"
+              <div className="bg-white rounded-sm rounded-tl-sm px-5 py-4"
                 style={{ border: '1px solid rgba(37,36,80,0.08)' }}>
                 <div className="flex items-center gap-3">
                   <div className="flex gap-1">
@@ -497,7 +501,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                 onKeyDown={handleKeyDown}
                 placeholder={`Ask anything about ${city.name}…`}
                 rows={1}
-                className="flex-1 resize-none rounded-xl px-5 py-3.5 text-sm focus:outline-none leading-relaxed"
+                className="flex-1 resize-none rounded-none px-5 py-3.5 text-sm focus:outline-none leading-relaxed"
                 style={{
                   maxHeight: 160,
                   overflowY: 'auto',
@@ -509,7 +513,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
               <button
                 onClick={() => send(input)}
                 disabled={!input.trim() || loading}
-                className="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center hover:opacity-80 transition-opacity disabled:opacity-25"
+                className="shrink-0 w-11 h-11 rounded-none flex items-center justify-center hover:opacity-80 transition-opacity disabled:opacity-25"
                 style={{ background: '#252450' }}
                 aria-label="Send"
               >
@@ -524,14 +528,14 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
           </div>
         ) : (
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-xl"
+            <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-none"
               style={{ background: '#F8F7F4', border: '1px solid rgba(37,36,80,0.1)' }}>
               <p className="text-sm" style={{ color: 'rgba(37,36,80,0.5)' }}>
                 Sign in to ask questions about {city.name}
               </p>
               <button
                 onClick={() => setAuthOpen(true)}
-                className="shrink-0 px-5 py-2 text-xs font-bold text-white rounded-lg hover:opacity-90 transition-opacity"
+                className="shrink-0 px-5 py-2 text-xs font-bold text-white rounded-none hover:opacity-90 transition-opacity"
                 style={{ background: '#252450' }}
               >
                 Sign in →

@@ -87,7 +87,7 @@ export default async function TaskPage(
           </span>
           <span className="text-[10px] font-medium px-2.5 py-1"
             style={{ background: 'rgba(10,10,10,0.05)', color: 'rgba(10,10,10,0.4)' }}>
-            ⏱ {task.estimatedTime}
+            {task.estimatedTime}
           </span>
         </div>
 

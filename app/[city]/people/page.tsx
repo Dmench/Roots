@@ -283,7 +283,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
           style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}
           onClick={() => setSelected(null)}>
-          <div className="w-full max-w-sm shadow-2xl" style={{ background: '#fff' }}
+          <div className="w-full max-w-sm" style={{ background: '#fff', border: '1px solid rgba(10,10,10,0.1)' }}
             onClick={e => e.stopPropagation()}>
 
             {/* Card header */}

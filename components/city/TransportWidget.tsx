@@ -15,7 +15,7 @@ const TYPE_LABEL: Record<TransportDisruption['type'], string> = {
   metro: 'M',
   tram:  'T',
   bus:   'B',
-  all:   '⚡',
+  all:   'All',
 }
 
 export async function TransportWidget({ cityId }: Props) {

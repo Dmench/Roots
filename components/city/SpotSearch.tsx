@@ -180,8 +180,8 @@ export function SpotSearch({ cityId, onAdd, onCancel }: Props) {
                     loading="lazy"
                   />
                 ) : (
-                  <span className="text-base" style={{ color: SPOT_CATEGORIES.find(c => c.id === place.category)?.color ?? '#888' }}>
-                    {place.category === 'cafe' ? '☕' : place.category === 'bar' ? '🍺' : place.category === 'restaurant' ? '🍽' : place.category === 'bookstore' ? '📚' : place.category === 'record' ? '🎵' : place.category === 'market' ? '🛒' : '🛍'}
+                  <span className="text-[10px] font-black tracking-wide uppercase" style={{ color: SPOT_CATEGORIES.find(c => c.id === place.category)?.color ?? '#888' }}>
+                    {place.category === 'cafe' ? 'CF' : place.category === 'bar' ? 'BR' : place.category === 'restaurant' ? 'RS' : place.category === 'bookstore' ? 'BK' : place.category === 'record' ? 'RC' : place.category === 'market' ? 'MK' : 'SP'}
                   </span>
                 )}
               </div>

@@ -132,7 +132,7 @@ export function AuthModal({ isOpen, onClose, returnTo }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-espresso/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-cream border border-sand/60 rounded-none p-8 w-full max-w-sm shadow-2xl shadow-espresso/15">
+      <div className="relative bg-cream border border-sand/60 rounded-none p-8 w-full max-w-sm">
 
         <button onClick={onClose}
           className="absolute top-5 right-5 p-1 text-walnut/30 hover:text-espresso transition-colors"

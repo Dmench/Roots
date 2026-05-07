@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
 
 /* ── Types ─────────────────────────────────────────────────────────────────── */
 
@@ -1199,6 +1200,10 @@ async function fetchFeu(): Promise<{ items: FeedItem[]; source: SourceResult }> 
 /* ── Route ─────────────────────────────────────────────────────────────────── */
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+  const { ok } = rateLimit(ip, { max: 20, windowMs: 60_000 })
+  if (!ok) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+
   const city  = req.nextUrl.searchParams.get('city') ?? 'brussels'
   const debug = req.nextUrl.searchParams.get('debug') === '1'
 

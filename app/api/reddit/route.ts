@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
 
 const CITY_SUBS: Record<string, string[]> = {
   brussels: ['brussels', 'belgium'],
@@ -66,6 +67,10 @@ async function fetchSub(sub: string): Promise<RedditPost[]> {
 }
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+  const { ok } = rateLimit(ip, { max: 20, windowMs: 60_000 })
+  if (!ok) return NextResponse.json({ posts: [] }, { status: 429 })
+
   const city = req.nextUrl.searchParams.get('city') ?? 'brussels'
   const subs = CITY_SUBS[city] ?? CITY_SUBS.brussels
 

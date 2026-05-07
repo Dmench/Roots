@@ -15,15 +15,15 @@ const STAGE_META: Record<string, { color: string; sub: string }> = {
   settled:      { color: '#0E9B6B', sub: 'You know the city' },
 }
 
-const SITUATIONS: { id: SituationTag; label: string; emoji: string }[] = [
-  { id: 'student',       label: 'Student',        emoji: '🎓' },
-  { id: 'employed',      label: 'Employee',        emoji: '💼' },
-  { id: 'self_employed', label: 'Freelancer',      emoji: '💻' },
-  { id: 'digital_nomad', label: 'Digital nomad',   emoji: '🌍' },
-  { id: 'renting',       label: 'Renting',         emoji: '🏠' },
-  { id: 'family',        label: 'With family',     emoji: '👨‍👩‍👧' },
-  { id: 'eu_citizen',    label: 'EU citizen',      emoji: '🇪🇺' },
-  { id: 'non_eu',        label: 'Non-EU',          emoji: '✈️' },
+const SITUATIONS: { id: SituationTag; label: string }[] = [
+  { id: 'student',       label: 'Student'      },
+  { id: 'employed',      label: 'Employee'     },
+  { id: 'self_employed', label: 'Freelancer'   },
+  { id: 'digital_nomad', label: 'Digital nomad'},
+  { id: 'renting',       label: 'Renting'      },
+  { id: 'family',        label: 'With family'  },
+  { id: 'eu_citizen',    label: 'EU citizen'   },
+  { id: 'non_eu',        label: 'Non-EU'       },
 ]
 
 interface Props { cityName: string; onDone: () => void }
@@ -63,7 +63,7 @@ export function OnboardingModal({ cityName, onDone }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}>
-      <div className="w-full max-w-sm shadow-2xl" style={{ background: '#fff' }}>
+      <div className="w-full max-w-sm" style={{ background: '#fff', border: '1px solid rgba(10,10,10,0.1)' }}>
 
         {/* Header */}
         <div className="px-6 pt-7 pb-5" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
@@ -135,7 +135,13 @@ export function OnboardingModal({ cityName, onDone }: Props) {
                         border: `1.5px solid ${active ? '#4744C8' : 'rgba(10,10,10,0.12)'}`,
                         background: active ? 'rgba(71,68,200,0.06)' : 'transparent',
                       }}>
-                      <span className="text-base">{s.emoji}</span>
+                      <div className="w-3 h-3 shrink-0 flex items-center justify-center transition-all"
+                        style={{
+                          border: `1.5px solid ${active ? '#4744C8' : 'rgba(10,10,10,0.2)'}`,
+                          background: active ? '#4744C8' : 'transparent',
+                        }}>
+                        {active && <span style={{ color: '#fff', fontSize: '7px', lineHeight: 1, fontWeight: 900 }}>✓</span>}
+                      </div>
                       <span className="text-xs font-semibold" style={{ color: active ? '#4744C8' : '#0A0A0A' }}>
                         {s.label}
                       </span>
