@@ -54,9 +54,11 @@ export const BRUSSELS_PICKS: EditorPick[] = [
       href: 'https://maps.google.com/?q=Place+Flagey+Brussels',
     },
     walk: {
-      title: 'Marolles Sunday morning',
-      sub: 'Flea market → frites → gueuze',
-      reason: 'Place du Jeu de Balle 7–11am — the city\'s last real flea market, no Instagram crowds. Chez Biquet for frites. End at Brasserie Ploegmans with a Cantillon gueuze before lunch.',
+      // Lead with the route — three proper nouns separated by arrows. The eyebrow
+      // names the moment, the reason gives the texture.
+      title: 'Place du Jeu de Balle → Chez Biquet → Brasserie Ploegmans',
+      sub: 'Marolles Sunday morning · 7–11am',
+      reason: 'The city\'s last real flea market, no Instagram crowds. Frites at Chez Biquet — cash, queue outside, no apologies. End with a Cantillon gueuze at Ploegmans before the lunch rush.',
     },
     tip: {
       headline: 'Always carry €5 in cash',

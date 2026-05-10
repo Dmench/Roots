@@ -5,6 +5,7 @@ import { getCity, ACTIVE_CITIES } from '@/lib/data/cities'
 import { getTasksForCity, getTask } from '@/lib/data/tasks'
 import type { CityId } from '@/lib/types'
 import { GeometricThread } from '@/components/layout/GeometricThread'
+import { ShareButtons } from '@/components/guide/ShareButtons'
 
 /* ── Static params + metadata ────────────────────────────────────────────── */
 
@@ -121,9 +122,15 @@ export default async function GuideTaskPage(
         </h1>
 
         {/* Summary */}
-        <p className="text-base leading-relaxed mb-10" style={{ color: 'rgba(10,10,10,0.65)' }}>
+        <p className="text-base leading-relaxed mb-6" style={{ color: 'rgba(10,10,10,0.65)' }}>
           {task.summary}
         </p>
+
+        {/* Share buttons — high-up, where intent is — so partners-moving-with-you
+            and friends-googling-the-same-thing get the link in one tap. */}
+        <div className="mb-10 pb-6" style={{ borderBottom: '1px solid rgba(10,10,10,0.06)' }}>
+          <ShareButtons title={`${task.title} — ${city.name}`} summary={task.summary} />
+        </div>
 
         {/* Inline soft CTA — show what they're missing */}
         <div className="px-4 py-3 mb-10 flex items-center justify-between gap-3 flex-wrap"
@@ -205,8 +212,18 @@ export default async function GuideTaskPage(
           </>
         )}
 
+        {/* Bottom share — second touchpoint after the user has read the whole guide,
+            highest-intent moment to forward to a partner / friend doing the same thing. */}
+        <div className="mt-12 mb-12">
+          <ShareButtons
+            title={`${task.title} — ${city.name}`}
+            summary={task.summary}
+            label="Helpful? Send it on."
+          />
+        </div>
+
         {/* Big bottom CTA */}
-        <div className="mt-12 px-6 py-7" style={{ background: '#252450' }}>
+        <div className="px-6 py-7" style={{ background: '#252450' }}>
           <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-2.5"
             style={{ color: 'rgba(245,236,215,0.5)' }}>
             Free Roots account

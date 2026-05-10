@@ -85,10 +85,27 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           height: '100%',
           background: '#F9F8F6',
           fontFamily: 'system-ui',
+          position: 'relative',
         }}
       >
+        {/* Pink geometric anchor — picks up the brand emphasis colour and makes
+            the receipt feel like a souvenir, not a stat block. */}
+        <div
+          style={{
+            display: 'flex',
+            position: 'absolute',
+            bottom: -160,
+            right: -160,
+            width: 460,
+            height: 460,
+            borderRadius: '50%',
+            background: '#FF3EBA',
+            opacity: 0.32,
+          }}
+        />
+
         {/* 8px brand rule */}
-        <div style={{ width: '100%', height: 8, background: '#252450' }} />
+        <div style={{ display: 'flex', width: '100%', height: 8, background: '#252450' }} />
 
         {/* Colophon header */}
         <div
