@@ -69,7 +69,20 @@ export function SavedEvents({ cityId }: Props) {
 
   const now      = Date.now() / 1000
   const upcoming = events.filter(e => e.date_ts >= now)
-  const past     = events.filter(e => e.date_ts < now)
+  // Auto-clean: silently drop past events from Supabase so they don't clutter
+  // the next render. Pure cleanup — no UX implication beyond the strip
+  // staying tight to actually-upcoming things.
+  useEffect(() => {
+    if (!supabase || !user) return
+    const stale = events.filter(e => e.date_ts < now).map(e => e.event_id)
+    if (stale.length === 0) return
+    supabase.from('saved_events').delete()
+      .eq('user_id', user.id)
+      .in('event_id', stale)
+      .then(({ error }) => {
+        if (error) console.warn('[saved-events] cleanup:', error.message)
+      })
+  }, [events, user, now])
 
   if (loading) {
     return (
@@ -89,26 +102,26 @@ export function SavedEvents({ cityId }: Props) {
     )
   }
 
-  if (events.length === 0) {
+  if (upcoming.length === 0) {
     return (
-      <section className="mt-10">
-        <div className="flex items-baseline justify-between mb-4 pb-2"
-          style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-          <p className="text-[10px] font-black tracking-[0.22em] uppercase"
-            style={{ color: 'rgba(10,10,10,0.4)' }}>Saved events</p>
+      <section className="mt-12">
+        <div className="flex items-baseline justify-between mb-5 pb-3"
+          style={{ borderBottom: '2px solid #0A0A0A' }}>
+          <p className="text-[10px] font-black tracking-[0.25em] uppercase"
+            style={{ color: '#0A0A0A' }}>Saved events</p>
         </div>
-        <div className="px-5 py-8 flex items-center gap-4"
-          style={{ border: '1px dashed rgba(10,10,10,0.15)' }}>
+        <div className="px-6 py-10 flex items-center gap-5"
+          style={{ border: '1px dashed rgba(10,10,10,0.15)', background: '#FAFAF7' }}>
           <div className="shrink-0 flex items-center justify-center"
-            style={{ width: 40, height: 40, background: 'rgba(255,62,186,0.08)', border: '1px dashed rgba(255,62,186,0.3)' }}>
-            <span style={{ fontSize: 16, color: '#FF3EBA' }}>♥</span>
+            style={{ width: 56, height: 56, background: 'rgba(255,62,186,0.08)', border: '1px dashed rgba(255,62,186,0.3)' }}>
+            <span style={{ fontSize: 20, color: '#FF3EBA' }}>♥</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold mb-0.5" style={{ color: '#0A0A0A' }}>
-              You haven&apos;t saved any events yet.
+            <p className="text-base font-semibold mb-1" style={{ color: '#0A0A0A' }}>
+              No upcoming events saved.
             </p>
-            <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.5)' }}>
-              Tap the heart on any event in your city hub to save it for later. Saved events show up here and in your weekly digest.
+            <p className="text-sm leading-relaxed max-w-md" style={{ color: 'rgba(10,10,10,0.55)' }}>
+              Tap the heart on any event in your city hub to save it. They&apos;ll show up here and in your weekly digest. Past events are removed automatically.
             </p>
           </div>
         </div>
@@ -117,55 +130,39 @@ export function SavedEvents({ cityId }: Props) {
   }
 
   return (
-    <section className="mt-10">
-      <div className="flex items-baseline justify-between mb-4 pb-2"
-        style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-        <p className="text-[10px] font-black tracking-[0.22em] uppercase"
-          style={{ color: 'rgba(10,10,10,0.4)' }}>Saved events</p>
-        <p className="text-[10px] font-bold" style={{ color: 'rgba(10,10,10,0.35)' }}>
+    <section className="mt-12">
+      <div className="flex items-baseline justify-between mb-5 pb-3"
+        style={{ borderBottom: '2px solid #0A0A0A' }}>
+        <p className="text-[10px] font-black tracking-[0.25em] uppercase"
+          style={{ color: '#0A0A0A' }}>Saved events</p>
+        <p className="text-[10px] font-black tracking-[0.18em] uppercase"
+          style={{ color: '#FF3EBA' }}>
           {upcoming.length} upcoming
-          {past.length > 0 && <span className="ml-2" style={{ color: 'rgba(10,10,10,0.25)' }}>· {past.length} past</span>}
         </p>
       </div>
 
-      {/* Upcoming row */}
-      {upcoming.length > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1" style={{ scrollbarWidth: 'thin' }}>
-          {upcoming.map(e => <SavedCard key={e.event_id} ev={e} past={false} onRemove={unsave} />)}
-        </div>
-      )}
-
-      {/* Past row — only if no upcoming or has past events */}
-      {past.length > 0 && upcoming.length === 0 && (
-        <p className="text-xs italic mt-2" style={{ color: 'rgba(10,10,10,0.45)' }}>
-          Nothing upcoming. Past:
-        </p>
-      )}
-      {past.length > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 mt-2" style={{ scrollbarWidth: 'thin', opacity: 0.55 }}>
-          {past.map(e => <SavedCard key={e.event_id} ev={e} past onRemove={unsave} />)}
-        </div>
-      )}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        {upcoming.map(e => <SavedCard key={e.event_id} ev={e} onRemove={unsave} />)}
+      </div>
     </section>
   )
 }
 
-function SavedCard({ ev, past, onRemove }: {
+function SavedCard({ ev, onRemove }: {
   ev: SavedRow
-  past: boolean
   onRemove: (id: string) => void
 }) {
   const color = ev.source ? (SOURCE_COLOR[ev.source] ?? '#4744C8') : '#4744C8'
   return (
-    <div className="shrink-0 w-44 group flex flex-col"
-      style={{ border: '1px solid rgba(10,10,10,0.1)', background: '#FFFFFF' }}>
+    <div className="group flex flex-col"
+      style={{ border: '1px solid rgba(10,10,10,0.08)', background: '#FFFFFF' }}>
       {/* Image OR colour block */}
-      <div className="relative h-20 overflow-hidden shrink-0" style={{ background: color + '12' }}>
+      <div className="relative h-28 overflow-hidden shrink-0" style={{ background: color + '12' }}>
         {ev.image ? (
-          <Image src={ev.image} alt="" fill sizes="180px" className="object-cover" />
+          <Image src={ev.image} alt="" fill sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[9px] font-black tracking-widest uppercase" style={{ color }}>
+            <span className="text-[10px] font-black tracking-widest uppercase" style={{ color }}>
               {ev.source}
             </span>
           </div>
@@ -181,17 +178,16 @@ function SavedCard({ ev, past, onRemove }: {
 
       {/* Body */}
       <a href={ev.url ?? '#'} target="_blank" rel="noopener noreferrer"
-        className="px-3 py-3 flex-1 flex flex-col hover:opacity-80 transition-opacity">
-        <p className="text-[9px] font-black tracking-widest uppercase mb-1" style={{ color }}>
+        className="px-3.5 py-3.5 flex-1 flex flex-col hover:opacity-80 transition-opacity">
+        <p className="text-[9px] font-black tracking-widest uppercase mb-1.5" style={{ color }}>
           {ev.source ?? 'Event'}
         </p>
-        <p className="text-xs font-bold leading-snug line-clamp-2 mb-1.5"
+        <p className="text-[13px] font-bold leading-snug line-clamp-2 mb-2"
           style={{ color: '#0A0A0A' }}>
           {ev.title}
         </p>
         <p className="text-[10px] mt-auto" style={{ color: 'rgba(10,10,10,0.45)' }}>
           {ev.date}{ev.time && <span className="opacity-70 ml-1">{ev.time}</span>}
-          {past && <span className="ml-1.5 italic" style={{ color: 'rgba(10,10,10,0.35)' }}>· past</span>}
         </p>
       </a>
     </div>

@@ -21,39 +21,39 @@ interface Props {
 // dashboard, which we are not).
 export function StatBento({ stats }: Props) {
   if (stats.length === 0) return null
+  // 2x2 grid by default — pairs naturally with a wider Settler Card on the
+  // left of a hero row. Each cell tall enough that the big number actually
+  // reads as a magazine spread, not a dashboard tile.
   return (
-    <section className="mt-8">
-      <div
-        className="grid gap-px"
-        style={{
-          background: 'rgba(10,10,10,0.08)',
-          border: '1px solid rgba(10,10,10,0.08)',
-          gridTemplateColumns: `repeat(${Math.min(stats.length, 4)}, minmax(0, 1fr))`,
-        }}
-      >
-        {stats.map((s, i) => (
-          <div key={i} className="px-4 py-5 flex flex-col items-start"
-            style={{
-              background: '#FFFFFF',
-              borderTop: `3px solid ${s.color}`,
-            }}>
-            <p className="font-display font-black leading-none flex items-baseline gap-1"
-              style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
-              {s.value}
-              {s.total !== undefined && (
-                <span className="font-display font-bold"
-                  style={{ fontSize: '0.65em', color: 'rgba(10,10,10,0.3)' }}>
-                  /{s.total}
-                </span>
-              )}
-            </p>
-            <p className="mt-2 text-[9px] font-black tracking-[0.22em] uppercase"
-              style={{ color: s.color }}>
-              {s.label}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
+    <div
+      className="grid grid-cols-2 gap-px h-full"
+      style={{
+        background: 'rgba(10,10,10,0.08)',
+        border: '1px solid rgba(10,10,10,0.08)',
+      }}
+    >
+      {stats.map((s, i) => (
+        <div key={i} className="px-5 py-6 flex flex-col items-start justify-between min-h-[140px]"
+          style={{
+            background: '#FFFFFF',
+            borderTop: `4px solid ${s.color}`,
+          }}>
+          <p className="font-display font-black leading-none flex items-baseline gap-1"
+            style={{ fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', color: '#0A0A0A', letterSpacing: '-0.03em' }}>
+            {s.value}
+            {s.total !== undefined && (
+              <span className="font-display font-bold"
+                style={{ fontSize: '0.55em', color: 'rgba(10,10,10,0.3)' }}>
+                /{s.total}
+              </span>
+            )}
+          </p>
+          <p className="text-[10px] font-black tracking-[0.22em] uppercase leading-tight"
+            style={{ color: s.color }}>
+            {s.label}
+          </p>
+        </div>
+      ))}
+    </div>
   )
 }

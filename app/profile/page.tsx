@@ -263,8 +263,12 @@ export default function ProfilePage() {
         )}
       </PageMasthead>
 
-      <div className="max-w-2xl mx-auto px-4 md:px-8 pt-6 pb-20">
+      <div className="max-w-5xl mx-auto px-4 md:px-8 pt-6 pb-20">
 
+        {/* ── Hero row — Settler Card (left) + Stat Bento (right) ─────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 items-stretch">
+
+        <div className="flex flex-col gap-4">
         {/* ════════════════════════════════════════════════════════════════
             THE CARD — shareable identity block (revamped to match the
             platform's editorial register: brand 4px navy rule on top,
@@ -583,9 +587,9 @@ export default function ProfilePage() {
         </div>
         {/* ─ end card ─ */}
 
-        {/* Quick city nav */}
+        {/* Quick city nav under the Settler Card */}
         {city && (
-          <div className="mt-4 flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap">
             {[
               { href: `/${city.id}`,         label: 'Hub'       },
               { href: `/${city.id}/eat`,      label: 'Eat & Drink' },
@@ -601,25 +605,30 @@ export default function ProfilePage() {
             ))}
           </div>
         )}
+        </div> {/* end hero left column */}
+
+        {/* Hero right column — stat bento */}
+        <div className="flex flex-col">
+          <StatBento
+            stats={[
+              ...(allTasks.length > 0 ? [{ value: doneCount, total: allTasks.length, label: 'Tasks done', color: '#4744C8' }] : []),
+              { value: spotsCount, label: spotsCount === 1 ? 'Spot saved' : 'Spots saved', color: '#E8612A' },
+              { value: flagsCount, label: flagsCount === 1 ? 'Place lived' : 'Places lived', color: '#FF3EBA' },
+              ...(daysHere !== null ? [{ value: daysHere, label: city ? `Days in ${city.name}` : 'Days here', color: '#10B981' }] : []),
+            ]}
+          />
+        </div>
+
+        </div> {/* end hero grid */}
 
         {saved && (
-          <p className="text-[10px] font-black tracking-[0.2em] uppercase mt-3 text-center"
+          <p className="text-[10px] font-black tracking-[0.2em] uppercase mt-4 text-center"
             style={{ color: '#10B981' }}>
             Saved ✓
           </p>
         )}
 
-        {/* ── Stat bento — magazine-style headline numbers ─────────────────── */}
-        <StatBento
-          stats={[
-            ...(allTasks.length > 0 ? [{ value: doneCount, total: allTasks.length, label: 'Tasks done', color: '#4744C8' }] : []),
-            { value: spotsCount, label: spotsCount === 1 ? 'Spot saved' : 'Spots saved', color: '#E8612A' },
-            { value: flagsCount, label: flagsCount === 1 ? 'Place lived' : 'Places lived', color: '#FF3EBA' },
-            ...(daysHere !== null ? [{ value: daysHere, label: city ? `Days in ${city.name}` : 'Days here', color: '#10B981' }] : []),
-          ]}
-        />
-
-        {/* ── Saved events — your bookmarks from the city hub ──────────────── */}
+        {/* ── Saved events — full-width below the hero ─────────────────────── */}
         {city && <SavedEvents cityId={city.id} />}
 
         {/* ── Settings — 2-col bento on desktop, stacked on mobile ─────────── */}
