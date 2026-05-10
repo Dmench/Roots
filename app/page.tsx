@@ -160,7 +160,7 @@ export default function HomePage() {
 
           <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-6"
             style={{ color: 'rgba(245,236,215,0.35)' }}>
-            City onboarding · Starting with Brussels
+            Settle-in playbook · Brussels live
           </p>
 
           <h1 className="font-display font-black leading-[0.82] mb-8"
@@ -169,18 +169,19 @@ export default function HomePage() {
             <em className="not-italic" style={{ color: '#FF3EBA' }}>roots.</em>
           </h1>
 
-          <p className="text-lg md:text-xl mb-10 leading-relaxed max-w-sm"
-            style={{ color: 'rgba(245,236,215,0.6)' }}>
-            Get set up, find your people, and actually feel at home — wherever you just moved.
+          <p className="text-lg md:text-xl mb-10 leading-relaxed max-w-md"
+            style={{ color: 'rgba(245,236,215,0.65)' }}>
+            Moving cities is sixty unwritten things in the right order. We&apos;ve written them down for Brussels —
+            every form, every office, every gotcha — plus a community of people doing it at the same time as you.
           </p>
 
           {/* Three pillars */}
           <div className="flex flex-wrap gap-x-6 gap-y-2 mb-12"
             style={{ borderTop: '1px solid rgba(245,236,215,0.12)', paddingTop: 16 }}>
             {[
-              { label: 'Guided settle-in checklist', color: '#FF3EBA' },
-              { label: 'Community of settlers', color: '#38C0F0' },
-              { label: 'AI that knows the city', color: '#FAB400' },
+              { label: '60+ settle-in guides', color: '#FF3EBA' },
+              { label: 'Live community feed',  color: '#38C0F0' },
+              { label: 'Brussels-aware AI',    color: '#FAB400' },
             ].map(p => (
               <span key={p.label}
                 className="text-[10px] font-black tracking-[0.18em] uppercase"
@@ -190,18 +191,24 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* CTA */}
+          {/* CTA pair — read first, sign up if you like it */}
           <div className="flex flex-col sm:flex-row gap-3 items-start">
-            <button
-              onClick={() => setAuthOpen(true)}
+            <Link
+              href="/brussels/guide"
               className="inline-flex items-center justify-center px-10 py-4 text-base font-bold hover:opacity-90 transition-opacity"
               style={{ background: '#F5F4F0', color: '#252450' }}>
-              Join Roots →
+              Read the Brussels playbook →
+            </Link>
+            <button
+              onClick={() => setAuthOpen(true)}
+              className="inline-flex items-center justify-center px-10 py-4 text-base font-medium hover:opacity-100 transition-opacity"
+              style={{ color: 'rgba(245,236,215,0.7)', border: '1px solid rgba(245,236,215,0.3)' }}>
+              Join Roots
             </button>
           </div>
 
           <p className="mt-6 text-xs" style={{ color: 'rgba(245,236,215,0.25)' }}>
-            Free to join. Your city, your data.
+            60+ guides free, no signup. Sign up to save progress, ask the AI, join the community.
           </p>
         </div>
       </div>
