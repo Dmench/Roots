@@ -14,23 +14,32 @@ import RedditChannel from '@/components/connect/RedditChannel'
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 
-interface Resource { id: string; cityId: string; name: string; type: 'facebook' | 'reddit'; desc: string; url: string }
+type ResourceType = 'reddit' | 'meetup'
+interface Resource { id: string; cityId: string; name: string; type: ResourceType; desc: string; url: string }
 
-// Reddit URLs are deterministic. Facebook group URLs are not — using FB's
-// public group search URL with the name as query is honest and lands the user
-// on the right group in one click.
-function fbSearch(name: string) { return `https://www.facebook.com/search/groups/?q=${encodeURIComponent(name)}` }
-
+// All URLs deterministic and work without login. Facebook groups dropped —
+// they require auth to view and Facebook's group-search URL fails outside a
+// session. Meetup slugs are verified against the same list used by the events
+// scraper (lib/data/events.ts), so they're known to exist.
 const RESOURCES: Resource[] = [
-  { id: 'r1', cityId: 'brussels', name: 'Brussels Expats',          type: 'facebook', desc: 'Housing, admin, jobs, social.',          url: fbSearch('Brussels Expats') },
-  { id: 'r2', cityId: 'brussels', name: 'English Speaking Brussels', type: 'facebook', desc: 'Jobs, lifestyle, events — very active.', url: fbSearch('English Speaking Brussels') },
-  { id: 'r3', cityId: 'brussels', name: 'r/brussels',               type: 'reddit',   desc: 'Local news, tips, recommendations.',     url: 'https://www.reddit.com/r/brussels' },
-  { id: 'r4', cityId: 'brussels', name: 'Moving to Brussels',       type: 'facebook', desc: 'Practical info for new arrivals.',       url: fbSearch('Moving to Brussels') },
-  { id: 'r5', cityId: 'brussels', name: 'r/eububble',               type: 'reddit',   desc: 'EU institutions and expat life.',        url: 'https://www.reddit.com/r/eububble' },
-  { id: 'r6', cityId: 'lisbon',   name: 'Lisbon Expat Community',   type: 'facebook', desc: 'Visas, housing, events, advice.',        url: fbSearch('Lisbon Expat Community') },
-  { id: 'r7', cityId: 'lisbon',   name: 'r/portugal',               type: 'reddit',   desc: 'National subreddit — news and discussion.', url: 'https://www.reddit.com/r/portugal' },
-  { id: 'r8', cityId: 'lisbon',   name: 'r/pliving',                type: 'reddit',   desc: 'Portugal living — visas, NHR, housing.', url: 'https://www.reddit.com/r/pliving' },
+  // Brussels
+  { id: 'bxl-r1', cityId: 'brussels', name: 'r/brussels',                 type: 'reddit', desc: 'Local news, tips, recs.',                  url: 'https://www.reddit.com/r/brussels' },
+  { id: 'bxl-r2', cityId: 'brussels', name: 'r/eububble',                 type: 'reddit', desc: 'EU institutions and expat life.',          url: 'https://www.reddit.com/r/eububble' },
+  { id: 'bxl-m1', cityId: 'brussels', name: 'Brussels Expats',            type: 'meetup', desc: 'Active in-person meetups.',                url: 'https://www.meetup.com/brussels-expats/' },
+  { id: 'bxl-m2', cityId: 'brussels', name: 'English Speaking Brussels',  type: 'meetup', desc: 'Social events in English.',                url: 'https://www.meetup.com/english-speaking-brussels/' },
+  { id: 'bxl-m3', cityId: 'brussels', name: 'Brussels Internationals',    type: 'meetup', desc: 'Mixed nationalities, social-first.',       url: 'https://www.meetup.com/brussels-internationals/' },
+  { id: 'bxl-m4', cityId: 'brussels', name: 'Brussels Tech Meetup',       type: 'meetup', desc: 'Engineering, AI, startups.',               url: 'https://www.meetup.com/brussels-tech-meetup/' },
+  // Lisbon
+  { id: 'lis-r1', cityId: 'lisbon',   name: 'r/portugal',                 type: 'reddit', desc: 'National subreddit.',                       url: 'https://www.reddit.com/r/portugal' },
+  { id: 'lis-r2', cityId: 'lisbon',   name: 'r/pliving',                  type: 'reddit', desc: 'Visas, NHR, housing.',                      url: 'https://www.reddit.com/r/pliving' },
+  { id: 'lis-m1', cityId: 'lisbon',   name: 'Lisbon Expats',              type: 'meetup', desc: 'Most active expat meetup.',                 url: 'https://www.meetup.com/lisbon-expats/' },
+  { id: 'lis-m2', cityId: 'lisbon',   name: 'Lisbon Internationals',      type: 'meetup', desc: 'Social events in English.',                 url: 'https://www.meetup.com/lisbon-internationals/' },
 ]
+
+const RESOURCE_STYLE: Record<ResourceType, { color: string; label: string }> = {
+  reddit: { color: '#FF4500', label: 'r/' },
+  meetup: { color: '#E1523D', label: 'mu' },
+}
 
 /* ── Curated seed content (clearly labeled, not fake activity) ───────────── */
 
@@ -450,21 +459,108 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     ticketmaster: '#026CDF', feu: '#FF6B00',
   }
 
+  // Live signal — counts for the masthead "X settlers · Y posts this week"
+  const postsThisWeek = posts.filter(p => {
+    const ts = Date.parse(p.time)
+    if (isNaN(ts)) return true   // optimistic posts have "just now"
+    return Date.now() - ts < 7 * 86400 * 1000
+  }).length
+
   return (
-    <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ background: '#FFFFFF', minHeight: '100vh' }} className="relative overflow-hidden">
+
+      {/* ── Geometric thread — same idiom as landing + city hub ──────────── */}
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#4744C8', width: '42vw', height: '42vw', maxWidth: 540, maxHeight: 540, top: '-22%', right: '-14%', opacity: 0.04 }} />
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#FF3EBA', width: '18vw', height: '18vw', maxWidth: 200, maxHeight: 200, bottom: '6%', left: '-4%', opacity: 0.04 }} />
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#38C0F0', width: '8vw', height: '8vw', maxWidth: 90, maxHeight: 90, top: '38%', left: '4%', opacity: 0.05 }} />
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#FAB400', width: '11vw', height: '11vw', maxWidth: 130, maxHeight: 130, top: '70%', right: '6%', opacity: 0.04 }} />
+
+      {/* ── Editorial masthead ───────────────────────────────────────────── */}
+      <div style={{ background: '#F9F8F6', borderBottom: '2px solid #0A0A0A' }}>
+        {/* 4px brand rule */}
+        <div style={{ height: 4, background: '#252450' }} />
+
+        <div className="max-w-5xl mx-auto px-6 md:px-12 pt-8 md:pt-10 pb-7 md:pb-9">
+          <div className="flex items-baseline justify-between gap-4 mb-5">
+            <p className="text-[10px] font-black tracking-[0.28em] uppercase"
+              style={{ color: 'rgba(10,10,10,0.4)' }}>
+              {city.name} · Community
+            </p>
+            <a href={`/${cityId}`}
+              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity hidden sm:block"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
+              ← Back to hub
+            </a>
+          </div>
+
+          <h1 className="font-display font-black leading-[0.92] mb-4"
+            style={{
+              fontSize: 'clamp(2.5rem, 8vw, 5.25rem)',
+              color: '#0A0A0A',
+              letterSpacing: '-0.02em',
+            }}>
+            {city.name},<br />
+            <em className="not-italic" style={{ color: '#FF3EBA' }}>talking.</em>
+          </h1>
+
+          <p className="text-sm md:text-base max-w-md mb-5 leading-relaxed"
+            style={{ color: 'rgba(10,10,10,0.55)' }}>
+            What&apos;s on, what to ask, who&apos;s settling. The Brussels conversation, in one place.
+          </p>
+
+          {/* Live signal strip */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 pt-4"
+            style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                  style={{ background: '#10B981' }} />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+                  style={{ background: '#10B981' }} />
+              </span>
+              <span className="text-[10px] font-black tracking-[0.15em] uppercase"
+                style={{ color: 'rgba(10,10,10,0.55)' }}>
+                Live
+              </span>
+            </div>
+            {postsThisWeek > 0 && (
+              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                style={{ color: '#10B981' }}>
+                {postsThisWeek} {postsThisWeek === 1 ? 'post' : 'posts'} this week
+              </span>
+            )}
+            {eventItems.length > 0 && (
+              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                style={{ color: '#E8612A' }}>
+                {eventItems.length} {eventItems.length === 1 ? 'event' : 'events'} ahead
+              </span>
+            )}
+            {redditItems.length > 0 && (
+              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                style={{ color: '#FF4500' }}>
+                r/{cityId} hot
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* ── Tab bar — Listen | Talk ──────────────────────────────────────── */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
         <div className="max-w-5xl mx-auto px-6 md:px-12">
           {/* Section labels above the tabs — collapsed on mobile, shown on sm+ */}
-          <div className="hidden sm:grid grid-cols-[auto_1px_auto_1fr] gap-x-4 pt-3 pb-1 items-center">
-            <span className="text-[9px] font-black tracking-[0.28em] uppercase"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
+          <div className="hidden sm:grid grid-cols-[auto_1px_auto_1fr] gap-x-4 pt-4 pb-1 items-center">
+            <span className="text-[10px] font-black tracking-[0.28em] uppercase"
+              style={{ color: '#252450' }}>
               Listen
             </span>
-            <span style={{ width: 1, height: 8, background: 'rgba(10,10,10,0.1)' }} />
-            <span className="text-[9px] font-black tracking-[0.28em] uppercase"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
+            <span style={{ width: 1, height: 10, background: 'rgba(10,10,10,0.15)' }} />
+            <span className="text-[10px] font-black tracking-[0.28em] uppercase"
+              style={{ color: '#FF3EBA' }}>
               Talk
             </span>
             <span />
@@ -1024,9 +1120,9 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer"
                       className="group flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
                       style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
-                      <span className="text-[10px] font-black shrink-0 w-4"
-                        style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
-                        {r.type === 'facebook' ? 'fb' : 'r/'}
+                      <span className="text-[10px] font-black shrink-0 w-5"
+                        style={{ color: RESOURCE_STYLE[r.type].color }}>
+                        {RESOURCE_STYLE[r.type].label}
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs truncate" style={{ color: '#0A0A0A' }}>{r.name}</p>
@@ -1069,9 +1165,9 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer"
                       className="group flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
                       style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
-                      <span className="text-[10px] font-black shrink-0 w-4"
-                        style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
-                        {r.type === 'facebook' ? 'fb' : 'r/'}
+                      <span className="text-[10px] font-black shrink-0 w-5"
+                        style={{ color: RESOURCE_STYLE[r.type].color }}>
+                        {RESOURCE_STYLE[r.type].label}
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs truncate" style={{ color: '#0A0A0A' }}>{r.name}</p>
