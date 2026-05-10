@@ -148,6 +148,50 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
 
       <div className="max-w-6xl mx-auto px-6 sm:px-10 md:px-14 py-8">
 
+        {/* ── Settled — celebration + receipt share ─────────────────────── */}
+        {pct === 100 && filteredTasks.length > 0 && (
+          <div className="mb-10 px-6 md:px-8 py-7 md:py-9 relative overflow-hidden"
+            style={{ background: '#252450' }}>
+            {/* Decorative pink dot, picks up the brand emphasis colour */}
+            <div className="absolute rounded-full pointer-events-none"
+              style={{ background: '#FF3EBA', width: 220, height: 220, top: -60, right: -60, opacity: 0.18 }} />
+            <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-3 relative"
+              style={{ color: 'rgba(245,236,215,0.5)' }}>
+              Settled · {city.name}
+            </p>
+            <h2 className="font-display font-black leading-tight mb-3 relative"
+              style={{ fontSize: 'clamp(1.6rem, 4.5vw, 2.6rem)', color: '#F5F4F0', letterSpacing: '-0.01em' }}>
+              You did it.<br />
+              <em className="not-italic" style={{ color: '#FF3EBA' }}>Share your receipt.</em>
+            </h2>
+            <p className="text-sm md:text-base mb-6 max-w-md leading-relaxed relative"
+              style={{ color: 'rgba(245,236,215,0.65)' }}>
+              Every task done. {doneCount} ticked off, {(profile.spots ?? []).length} spots saved.
+              Your settler card is a shareable image — post it anywhere.
+            </p>
+            <div className="flex flex-wrap gap-3 relative">
+              {profile.showInDirectory && user ? (
+                <Link href={`/settlers/${user.id}`}
+                  className="inline-flex items-center justify-center px-6 py-3 text-sm font-bold hover:opacity-90 transition-opacity"
+                  style={{ background: '#F5F4F0', color: '#252450' }}>
+                  See your card →
+                </Link>
+              ) : (
+                <Link href="/profile"
+                  className="inline-flex items-center justify-center px-6 py-3 text-sm font-bold hover:opacity-90 transition-opacity"
+                  style={{ background: '#F5F4F0', color: '#252450' }}>
+                  Make your card public →
+                </Link>
+              )}
+              <Link href="/profile"
+                className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium hover:opacity-100 transition-opacity"
+                style={{ color: 'rgba(245,236,215,0.7)', border: '1px solid rgba(245,236,215,0.25)' }}>
+                Edit profile
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* ── Situation filter ──────────────────────────────────────────── */}
         <div className="mb-6">
           <button

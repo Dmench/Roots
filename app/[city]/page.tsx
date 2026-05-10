@@ -8,6 +8,8 @@ import { getNews } from '@/lib/data/news'
 import { getVenues } from '@/lib/data/venues'
 import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
+import { EditorsPicks } from '@/components/city/EditorsPicks'
+import { currentBrusselsPick } from '@/lib/data/picks/brussels'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
 import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
@@ -161,8 +163,10 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_400px] gap-0 pb-16">
 
-          {/* ── LEFT: Events ────────────────────────────────────────────── */}
+          {/* ── LEFT: Editor's Picks + Events ──────────────────────────── */}
           <div className="lg:pr-10 pt-7">
+            {cityId === 'brussels' && <EditorsPicks pick={currentBrusselsPick()} />}
+
             <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-5"
               style={{ color: 'rgba(10,10,10,0.3)' }}>
               What&apos;s on in {city.name}

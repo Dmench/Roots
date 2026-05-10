@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/rate-limit'
 
+// Audited May 2026: only verified-real subreddits. r/eububble and r/pliving
+// were aspirational/wrong and returned 404 from Reddit's about.json endpoint.
 const CITY_SUBS: Record<string, string[]> = {
-  brussels: ['brussels', 'belgium'],
-  lisbon:   ['portugal', 'pliving'],
-  berlin:   ['berlin', 'germany'],
-  barcelona: ['barcelona', 'spain'],
-  amsterdam: ['amsterdam', 'thenetherlands'],
-  prague:   ['prague', 'czech'],
+  brussels:  ['brussels', 'belgium'],
+  lisbon:    ['lisbon', 'PortugalExpats'],
+  berlin:    ['berlin', 'germany'],
+  barcelona: ['Barcelona', 'spain'],
+  amsterdam: ['Amsterdam', 'thenetherlands'],
+  prague:    ['Prague', 'czech'],
 }
 
 export interface RedditPost {

@@ -19,23 +19,29 @@ import { PageMasthead } from '@/components/layout/PageMasthead'
 type ResourceType = 'reddit' | 'meetup'
 interface Resource { id: string; cityId: string; name: string; type: ResourceType; desc: string; url: string }
 
-// All URLs deterministic and work without login. Facebook groups dropped —
-// they require auth to view and Facebook's group-search URL fails outside a
-// session. Meetup slugs are verified against the same list used by the events
-// scraper (lib/data/events.ts), so they're known to exist.
+// Direct group URLs are fragile — Meetup admins rebrand or delete groups
+// constantly, so what works today 404s next month. We use Meetup's location-
+// scoped search URLs instead: those always resolve to current, real groups
+// for the keyword, regardless of which specific groups exist that day.
+// Reddit URLs are deterministic — only listed subs that actually exist (verified).
+function meetupSearch(keywords: string, locationCode: string) {
+  return `https://www.meetup.com/find/?keywords=${encodeURIComponent(keywords)}&source=GROUPS&location=${locationCode}`
+}
+
 const RESOURCES: Resource[] = [
-  // Brussels
-  { id: 'bxl-r1', cityId: 'brussels', name: 'r/brussels',                 type: 'reddit', desc: 'Local news, tips, recs.',                  url: 'https://www.reddit.com/r/brussels' },
-  { id: 'bxl-r2', cityId: 'brussels', name: 'r/eububble',                 type: 'reddit', desc: 'EU institutions and expat life.',          url: 'https://www.reddit.com/r/eububble' },
-  { id: 'bxl-m1', cityId: 'brussels', name: 'Brussels Expats',            type: 'meetup', desc: 'Active in-person meetups.',                url: 'https://www.meetup.com/brussels-expats/' },
-  { id: 'bxl-m2', cityId: 'brussels', name: 'English Speaking Brussels',  type: 'meetup', desc: 'Social events in English.',                url: 'https://www.meetup.com/english-speaking-brussels/' },
-  { id: 'bxl-m3', cityId: 'brussels', name: 'Brussels Internationals',    type: 'meetup', desc: 'Mixed nationalities, social-first.',       url: 'https://www.meetup.com/brussels-internationals/' },
-  { id: 'bxl-m4', cityId: 'brussels', name: 'Brussels Tech Meetup',       type: 'meetup', desc: 'Engineering, AI, startups.',               url: 'https://www.meetup.com/brussels-tech-meetup/' },
-  // Lisbon
-  { id: 'lis-r1', cityId: 'lisbon',   name: 'r/portugal',                 type: 'reddit', desc: 'National subreddit.',                       url: 'https://www.reddit.com/r/portugal' },
-  { id: 'lis-r2', cityId: 'lisbon',   name: 'r/pliving',                  type: 'reddit', desc: 'Visas, NHR, housing.',                      url: 'https://www.reddit.com/r/pliving' },
-  { id: 'lis-m1', cityId: 'lisbon',   name: 'Lisbon Expats',              type: 'meetup', desc: 'Most active expat meetup.',                 url: 'https://www.meetup.com/lisbon-expats/' },
-  { id: 'lis-m2', cityId: 'lisbon',   name: 'Lisbon Internationals',      type: 'meetup', desc: 'Social events in English.',                 url: 'https://www.meetup.com/lisbon-internationals/' },
+  // Brussels — Reddit
+  { id: 'bxl-r1', cityId: 'brussels', name: 'r/brussels',                  type: 'reddit', desc: 'Local news, tips, recs.',         url: 'https://www.reddit.com/r/brussels' },
+  { id: 'bxl-r2', cityId: 'brussels', name: 'r/belgium',                   type: 'reddit', desc: 'National subreddit.',             url: 'https://www.reddit.com/r/belgium' },
+  // Brussels — Meetup (search URLs land on filtered, current results)
+  { id: 'bxl-m1', cityId: 'brussels', name: 'Brussels expat meetups',      type: 'meetup', desc: 'Active in-person groups.',        url: meetupSearch('expats',           'be--Brussels') },
+  { id: 'bxl-m2', cityId: 'brussels', name: 'English-speaking groups',     type: 'meetup', desc: 'Social events in English.',       url: meetupSearch('english speaking', 'be--Brussels') },
+  { id: 'bxl-m3', cityId: 'brussels', name: 'Brussels tech meetups',       type: 'meetup', desc: 'Engineering, AI, startups.',      url: meetupSearch('tech',             'be--Brussels') },
+  // Lisbon — Reddit
+  { id: 'lis-r1', cityId: 'lisbon',   name: 'r/lisbon',                    type: 'reddit', desc: 'Local subreddit.',                url: 'https://www.reddit.com/r/lisbon' },
+  { id: 'lis-r2', cityId: 'lisbon',   name: 'r/PortugalExpats',            type: 'reddit', desc: 'Visas, NHR, housing.',            url: 'https://www.reddit.com/r/PortugalExpats' },
+  // Lisbon — Meetup
+  { id: 'lis-m1', cityId: 'lisbon',   name: 'Lisbon expat meetups',        type: 'meetup', desc: 'Most active expat groups.',       url: meetupSearch('expats',           'pt--Lisbon')   },
+  { id: 'lis-m2', cityId: 'lisbon',   name: 'English-speaking groups',     type: 'meetup', desc: 'Social events in English.',       url: meetupSearch('english speaking', 'pt--Lisbon')   },
 ]
 
 const RESOURCE_STYLE: Record<ResourceType, { color: string; label: string }> = {

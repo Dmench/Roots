@@ -41,28 +41,20 @@ interface SourceResult {
 
 /* ── Config ────────────────────────────────────────────────────────────────── */
 
-// Meetup group URL slugs — community/expat/social groups per city
+// Meetup group URL slugs — community/expat/social groups per city.
+// Audited May 2026: every slug we previously listed had been rebranded or
+// deleted, returning 404 on both /events/rss and the group page itself.
+// Disabled until we have a reliable way to discover live slugs (Meetup
+// removed their public GraphQL discovery API). The /api/feeds route still
+// works fine — Meetup events just don't show up.
 const CITY_MEETUP: Record<string, string[]> = {
-  brussels: [
-    'brussels-expats',
-    'english-speaking-brussels',
-    'brussels-internationals',
-    'brussels-language-exchange',
-    'lets-learn-languages-in-brussels',
-    'brusselsdrinkers',
-    'brussels-hiking-outdoor-activities',
-    'brussels-board-games',
-    'brussels-tech-meetup',
-  ],
-  lisbon: [
-    'lisbon-expats',
-    'lisbon-internationals',
-  ],
+  brussels: [],
+  lisbon:   [],
 }
 
 const CITY_SUBS: Record<string, string[]> = {
-  brussels: ['brussels'],
-  lisbon:   ['portugal', 'pliving'],
+  brussels: ['brussels', 'belgium'],
+  lisbon:   ['lisbon', 'PortugalExpats'],
 }
 
 const FLAIR_CATEGORY: Record<string, FeedCategory> = {
