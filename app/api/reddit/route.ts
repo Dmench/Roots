@@ -68,7 +68,7 @@ async function fetchSub(sub: string): Promise<RedditPost[]> {
 
 export async function GET(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
-  const { ok } = rateLimit(ip, { max: 20, windowMs: 60_000 })
+  const { ok } = await rateLimit(`reddit:${ip}`, { max: 20, windowMs: 60_000 })
   if (!ok) return NextResponse.json({ posts: [] }, { status: 429 })
 
   const city = req.nextUrl.searchParams.get('city') ?? 'brussels'

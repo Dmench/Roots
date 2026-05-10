@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Image from 'next/image'
 
 interface Props {
   src:        string
@@ -7,9 +8,15 @@ interface Props {
   sourceColor: string
   aspectClass?: string   // e.g. 'aspect-[16/9]' or 'w-16 h-14'
   className?:  string
+  sizes?:     string
 }
 
-export function NewsImage({ src, source, sourceColor, aspectClass = 'aspect-[16/9]', className = '' }: Props) {
+export function NewsImage({
+  src, source, sourceColor,
+  aspectClass = 'aspect-[16/9]',
+  className = '',
+  sizes = '(max-width: 1024px) 100vw, 50vw',
+}: Props) {
   const [failed, setFailed] = useState(false)
 
   if (failed) {
@@ -30,15 +37,17 @@ export function NewsImage({ src, source, sourceColor, aspectClass = 'aspect-[16/
 
   return (
     <div
-      className={`${aspectClass} ${className} rounded-sm overflow-hidden`}
+      className={`relative ${aspectClass} ${className} rounded-sm overflow-hidden`}
       style={{ background: 'rgba(37,36,80,0.06)' }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={src}
         alt=""
+        fill
+        sizes={sizes}
         onError={() => setFailed(true)}
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        className="object-cover group-hover:scale-105 transition-transform duration-500"
+        unoptimized={false}
       />
     </div>
   )

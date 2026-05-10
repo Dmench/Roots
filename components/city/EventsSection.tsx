@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { SaveButton } from '@/components/city/SaveButton'
 import { useSavedEvents } from '@/lib/hooks/use-saved-events'
@@ -133,9 +134,8 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
 
                         {/* Thumbnail — only when image exists */}
                         {ev.image && (
-                          <div className="shrink-0 w-14 h-14 overflow-hidden">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={ev.image} alt="" className="w-full h-full object-cover" loading="lazy" />
+                          <div className="shrink-0 relative w-14 h-14 overflow-hidden">
+                            <Image src={ev.image} alt="" fill sizes="56px" className="object-cover" />
                           </div>
                         )}
 
@@ -192,8 +192,14 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
 
                         {ev.image ? (
                           <div className="relative overflow-hidden" style={{ height: 'clamp(220px, 35vw, 340px)' }}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={ev.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
+                            <Image
+                              src={ev.image}
+                              alt=""
+                              fill
+                              sizes="(max-width: 1024px) 100vw, 60vw"
+                              priority
+                              className="object-cover group-hover:scale-[1.02] transition-transform duration-700"
+                            />
                             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.88) 0%, rgba(5,5,5,0.3) 45%, transparent 70%)' }} />
                             {/* Venue chip */}
                             <span className="absolute top-4 left-4 text-[10px] font-black px-2 py-0.5 uppercase tracking-wider"
@@ -259,8 +265,13 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
                             {/* Image — only when available */}
                             {ev.image && (
                               <div className="relative overflow-hidden shrink-0" style={{ height: 100 }}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={ev.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" />
+                                <Image
+                                  src={ev.image}
+                                  alt=""
+                                  fill
+                                  sizes="(max-width: 768px) 50vw, 25vw"
+                                  className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                                />
                                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.5) 0%, transparent 60%)' }} />
                                 <span className="absolute bottom-2 left-2 text-[7px] font-black px-1.5 py-0.5 uppercase tracking-wide"
                                   style={{ background: venueColor, color: '#fff' }}>

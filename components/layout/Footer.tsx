@@ -21,6 +21,7 @@ export function Footer() {
             { href: '/cities',  label: 'Cities' },
             { href: '/about',   label: 'About' },
             { href: '/privacy', label: 'Privacy' },
+            { href: '/terms',   label: 'Terms' },
           ].map(({ href, label }) => (
             <Link key={href} href={href} className="footer-link text-[11px] font-medium tracking-wide">
               {label}

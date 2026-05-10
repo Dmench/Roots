@@ -1,5 +1,6 @@
 'use client'
 import { use, useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { AuthModal } from '@/components/auth/AuthModal'
@@ -590,8 +591,13 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                           style={{ background: '#0F0E1E', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
                           {fi.image && (
                             <div className="relative h-48 overflow-hidden">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={fi.image} alt="" className="w-full h-full object-cover opacity-60 group-hover:opacity-70 transition-opacity" />
+                              <Image
+                                src={fi.image}
+                                alt=""
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 50vw"
+                                className="object-cover opacity-60 group-hover:opacity-70 transition-opacity"
+                              />
                               <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 20%, #0F0E1E 100%)' }} />
                             </div>
                           )}
@@ -621,8 +627,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                           className="flex items-start gap-4 py-3.5 group hover:opacity-70 transition-opacity"
                           style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
                           {fi.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={fi.image} alt="" className="w-14 h-14 object-cover shrink-0" />
+                            <Image src={fi.image} alt="" width={56} height={56} sizes="56px" className="w-14 h-14 object-cover shrink-0" />
                           ) : (
                             <div className="w-14 h-14 shrink-0 flex items-center justify-center"
                               style={{ background: `${dotColor}12` }}>

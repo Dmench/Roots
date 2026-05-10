@@ -23,18 +23,15 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
+    // We aggregate images from many third-party sources (event scrapers, news RSS,
+    // Reddit, Google Places). Whitelisting every CDN is unmaintainable and breaks
+    // silently when a source changes its image host. We trust HTTPS image URLs
+    // returned by our own server-side fetchers; the optimizer will refuse non-images.
     remotePatterns: [
-      { protocol: 'https', hostname: 's1.ticketm.net' },
-      { protocol: 'https', hostname: '*.ticketmaster.com' },
-      { protocol: 'https', hostname: 'resizer.ticketmaster.com' },
-      { protocol: 'https', hostname: 'pict.myclubplasma.be' },
-      { protocol: 'https', hostname: 'botanique.be' },
-      { protocol: 'https', hostname: 'd3i6li5p17fo2k.cloudfront.net' },
-      { protocol: 'https', hostname: 'www.halles.be' },
-      { protocol: 'https', hostname: 'recyclart.be' },
-      { protocol: 'https', hostname: 'www.lamonnaiedemunt.be' },
-      { protocol: 'https', hostname: 'www.flagey.be' },
+      { protocol: 'https', hostname: '**' },
     ],
+    // Cache optimised images for a day on the CDN.
+    minimumCacheTTL: 86400,
   },
 
   async headers() {

@@ -1201,7 +1201,7 @@ async function fetchFeu(): Promise<{ items: FeedItem[]; source: SourceResult }> 
 
 export async function GET(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
-  const { ok } = rateLimit(ip, { max: 20, windowMs: 60_000 })
+  const { ok } = await rateLimit(`feeds:${ip}`, { max: 20, windowMs: 60_000 })
   if (!ok) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
 
   const city  = req.nextUrl.searchParams.get('city') ?? 'brussels'
