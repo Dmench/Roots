@@ -64,7 +64,15 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
   return (
     <AuthGate cityName={city.name} cityId={cityId}>
-    <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ background: '#FFFFFF', minHeight: '100vh' }} className="relative overflow-hidden">
+      {/* Geometric thread — echoes landing page */}
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#4744C8', width: '40vw', height: '40vw', maxWidth: 500, maxHeight: 500, top: '-18%', right: '-12%', opacity: 0.03 }} />
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#FF3EBA', width: '15vw', height: '15vw', maxWidth: 180, maxHeight: 180, bottom: '8%', left: '3%', opacity: 0.025 }} />
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#FAB400', width: '10vw', height: '10vw', maxWidth: 120, maxHeight: 120, top: '60%', right: '5%', opacity: 0.03 }} />
+
       <CityHubClient cityName={city.name} cityId={cityId} />
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
@@ -168,7 +176,20 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           {/* ── RIGHT: Sidebar ──────────────────────────────────────────── */}
           <div className="lg:pl-10 pt-7">
 
-            {/* Eat & Drink strip */}
+            {/* ─ Daily context ─ */}
+            <Suspense fallback={<SidebarSkeleton label="Weather" />}>
+              <WeatherWidget cityId={cityId} />
+            </Suspense>
+
+            <Suspense fallback={<SidebarSkeleton label="Transport" />}>
+              <TransportWidget cityId={cityId} />
+            </Suspense>
+
+            <Suspense fallback={<SidebarSkeleton label="Rent prices" />}>
+              <RentalsWidget cityId={cityId} />
+            </Suspense>
+
+            {/* ─ Eat & Drink ─ */}
             {venues.length > 0 && (
               <section className="mb-10">
                 <SectionLabel right={
@@ -181,7 +202,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                   Eat &amp; Drink
                 </SectionLabel>
 
-                {/* Featured venue — orange-bordered card, no dark bg */}
                 {venues.find(v => v.featured) && (() => {
                   const p = venues.find(v => v.featured)!
                   return (
@@ -234,21 +254,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 </div>
               </section>
             )}
-
-            {/* Rent prices */}
-            <Suspense fallback={<SidebarSkeleton label="Rent prices" />}>
-              <RentalsWidget cityId={cityId} />
-            </Suspense>
-
-            {/* Weather */}
-            <Suspense fallback={<SidebarSkeleton label="Weather" />}>
-              <WeatherWidget cityId={cityId} />
-            </Suspense>
-
-            {/* Transport */}
-            <Suspense fallback={<SidebarSkeleton label="Transport" />}>
-              <TransportWidget cityId={cityId} />
-            </Suspense>
 
             {/* In the news */}
             {featuredNews && (

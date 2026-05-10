@@ -100,13 +100,14 @@ function VenueCard({ venue, onSave, saved, photoRef: photoRefOverride, lead = fa
             className="w-full h-full object-cover"
             style={{ opacity: 0, transition: 'opacity 0.4s ease' }}
             onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
+            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
           />
-        ) : (
-          <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
-            style={{ fontSize: lead ? '5rem' : '4rem', color: 'rgba(255,255,255,0.18)', lineHeight: 1 }}>
-            {venue.name.charAt(0)}
-          </span>
-        )}
+        ) : null}
+        {/* Fallback initial — always rendered behind photo */}
+        <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
+          style={{ fontSize: lead ? '5rem' : '4rem', color: 'rgba(255,255,255,0.18)', lineHeight: 1 }}>
+          {venue.name.charAt(0)}
+        </span>
         {/* Price badge */}
         <span className="absolute top-2 right-2 text-[10px] font-black px-1.5 py-0.5"
           style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
@@ -190,13 +191,13 @@ function ScoutCard({ venue, onSave, saved }: {
             className="w-full h-full object-cover"
             style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
             onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
+            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
           />
-        ) : (
-          <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
-            style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.15)' }}>
-            {venue.name.charAt(0)}
-          </span>
-        )}
+        ) : null}
+        <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
+          style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.15)' }}>
+          {venue.name.charAt(0)}
+        </span>
         {/* Rating */}
         {venue.rating != null && (
           <span className="absolute bottom-1.5 left-1.5 text-[9px] font-black px-1 py-0.5"
@@ -329,7 +330,11 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         if (cached !== null) return [v.id, cached === '' ? null : cached] as const
         try {
           const q   = encodeURIComponent(`${v.name}${v.address ? ' ' + v.address : ''}`)
-          const res = await fetch(`/api/places/search?q=${q}&cityId=${cid}`, { headers })
+          const res = await fetch(`/api/places/search?q=${q}&cityId=${cid}`, {
+            headers,
+            signal: AbortSignal.timeout(8000),
+          })
+          if (!res.ok) return [v.id, null] as const
           const json = await res.json() as { results: Array<{ photoRef: string | null }> }
           const ref  = json.results?.[0]?.photoRef ?? null
           sessionStorage.setItem(sKey, ref ?? '')
@@ -364,7 +369,12 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ background: '#FFFFFF' }}>
+      {/* Geometric thread */}
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#E8612A', width: '35vw', height: '35vw', maxWidth: 420, maxHeight: 420, top: '-15%', right: '-10%', opacity: 0.025 }} />
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#FAB400', width: '12vw', height: '12vw', maxWidth: 140, maxHeight: 140, bottom: '10%', left: '4%', opacity: 0.03 }} />
 
       {/* ── Section masthead — newspaper section front ─────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12" style={{ borderBottom: '2px solid #0A0A0A' }}>

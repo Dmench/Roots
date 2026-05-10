@@ -291,7 +291,12 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   const hasMessages = messages.length > 0
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 56px)', background: '#F8F7F4' }}>
+    <div className="flex flex-col relative overflow-hidden" style={{ height: 'calc(100vh - 56px)', background: '#F8F7F4' }}>
+      {/* Geometric thread */}
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#38C0F0', width: '30vw', height: '30vw', maxWidth: 360, maxHeight: 360, top: '-10%', right: '-8%', opacity: 0.03 }} />
+      <div className="fixed rounded-full pointer-events-none -z-10"
+        style={{ background: '#4744C8', width: '12vw', height: '12vw', maxWidth: 140, maxHeight: 140, bottom: '15%', left: '2%', opacity: 0.025 }} />
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="shrink-0 px-6 md:px-10 py-5 bg-white"

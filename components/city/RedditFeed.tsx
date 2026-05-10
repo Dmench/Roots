@@ -32,35 +32,55 @@ export default function RedditFeed({ cityId }: { cityId: string }) {
   const [status,  setStatus]  = useState<'loading' | 'ok' | 'error'>('loading')
 
   useEffect(() => {
-    // Fetch directly from reddit.com in the browser — user IPs are never blocked.
-    // Reddit supports CORS on .json endpoints so this works cross-origin.
-    fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=15&raw_json=1`, {
-      headers: { 'Accept': 'application/json' },
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
-        return r.json()
-      })
-      .then(json => {
-        const items: Post[] = (json.data?.children ?? [])
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((c: any) => !c.data.over_18 && !c.data.stickied)
-          .slice(0, 5)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((c: any) => ({
-            id:        c.data.id,
-            title:     c.data.title,
-            score:     c.data.score,
-            comments:  c.data.num_comments,
-            permalink: `https://reddit.com${c.data.permalink}`,
-            created:   c.data.created_utc,
-            flair:     c.data.link_flair_text ?? null,
+    let cancelled = false
+
+    async function load() {
+      // Try direct Reddit first (fastest, no server load)
+      try {
+        const r = await fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=15&raw_json=1`, {
+          headers: { 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(6000),
+        })
+        if (r.ok) {
+          const json = await r.json()
+          const items: Post[] = (json.data?.children ?? [])
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .filter((c: any) => !c.data.over_18 && !c.data.stickied)
+            .slice(0, 5)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .map((c: any) => ({
+              id:        c.data.id,
+              title:     c.data.title,
+              score:     c.data.score,
+              comments:  c.data.num_comments,
+              permalink: `https://reddit.com${c.data.permalink}`,
+              created:   c.data.created_utc,
+              flair:     c.data.link_flair_text ?? null,
+            }))
+          if (!cancelled && items.length > 0) { setPosts(items); setStatus('ok'); return }
+        }
+      } catch { /* fall through to server fallback */ }
+
+      // Fallback: our own /api/reddit route (server-side, more reliable)
+      try {
+        const r = await fetch(`/api/reddit?city=${cityId}`, { signal: AbortSignal.timeout(10000) })
+        if (r.ok) {
+          const json = await r.json()
+          const items: Post[] = (json.posts ?? []).slice(0, 5).map((p: Post) => ({
+            id: p.id, title: p.title, score: p.score,
+            comments: p.comments, permalink: p.permalink,
+            created: p.created, flair: p.flair,
           }))
-        setPosts(items)
-        setStatus('ok')
-      })
-      .catch(() => setStatus('error'))
-  }, [sub])
+          if (!cancelled && items.length > 0) { setPosts(items); setStatus('ok'); return }
+        }
+      } catch { /* both failed */ }
+
+      if (!cancelled) setStatus('error')
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [sub, cityId])
 
   if (status === 'loading') {
     return (
