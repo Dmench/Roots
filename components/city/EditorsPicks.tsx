@@ -84,19 +84,39 @@ export function EditorsPicks({ pick }: Props) {
           </p>
         </div>
 
-        {/* Tip */}
+        {/* Phrase — bilingual Brussels expression */}
         <div className="px-5 py-5"
           style={{ background: '#FFFFFF', borderTop: '4px solid #FAB400' }}>
-          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2"
+          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
             style={{ color: '#FAB400' }}>
-            Tip
+            Phrase
           </p>
-          <p className="font-display font-black leading-tight mb-2.5"
-            style={{ fontSize: '1.15rem', color: '#0A0A0A', letterSpacing: '-0.01em' }}>
-            {pick.tip.headline}
+
+          {/* FR — primary anchor */}
+          <p className="font-display font-black leading-tight"
+            style={{ fontSize: '1.2rem', color: '#0A0A0A', letterSpacing: '-0.01em' }}>
+            «&thinsp;{pick.phrase.fr}&thinsp;»
+            <span className="ml-2 text-[9px] font-black tracking-[0.22em] align-middle"
+              style={{ color: 'rgba(10,10,10,0.35)' }}>FR</span>
           </p>
-          <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.65)' }}>
-            {pick.tip.body}
+
+          {/* NL — paired equivalent, slightly muted */}
+          <p className="font-display font-bold leading-tight mt-1"
+            style={{ fontSize: '1rem', color: 'rgba(10,10,10,0.7)', letterSpacing: '-0.005em' }}>
+            «&thinsp;{pick.phrase.nl}&thinsp;»
+            <span className="ml-2 text-[9px] font-black tracking-[0.22em] align-middle"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>NL</span>
+          </p>
+
+          {/* Gloss — italic, sets up the punchline */}
+          <p className="text-[11px] italic mt-2.5 leading-snug"
+            style={{ color: 'rgba(10,10,10,0.5)' }}>
+            {pick.phrase.meaning}
+          </p>
+
+          {/* Reason */}
+          <p className="text-xs leading-relaxed mt-2.5" style={{ color: 'rgba(10,10,10,0.65)' }}>
+            {pick.phrase.reason}
           </p>
         </div>
 

@@ -30,9 +30,18 @@ export interface EditorPick {
     sub:          string
     reason:       string
   }
-  tip: {
-    headline:     string
-    body:         string
+  /** Brussels is bilingual — every phrase pick carries both French and Dutch.
+      Picks must be tasteful and specific enough to entertain native Belgians,
+      not tourist-phrasebook material. */
+  phrase: {
+    /** French version — usually the headline. */
+    fr:      string
+    /** Dutch version — paired equivalent, not always a literal translation. */
+    nl:      string
+    /** One-line English gloss — gives the punchline beat for non-speakers. */
+    meaning: string
+    /** Editorial reason: when to use, why it's a Belgicism, what it signals. */
+    reason:  string
   }
 }
 
@@ -60,9 +69,11 @@ export const BRUSSELS_PICKS: EditorPick[] = [
       sub: 'Marolles Sunday morning · 7–11am',
       reason: 'The city\'s last real flea market, no Instagram crowds. Frites at Chez Biquet — cash, queue outside, no apologies. End with a Cantillon gueuze at Ploegmans before the lunch rush.',
     },
-    tip: {
-      headline: 'Always carry €5 in cash',
-      body: 'Frites stands, the Sunday market, the bus driver who can\'t change a €50. Belgium runs on small cash even in 2026 — and the people who run on small cash are the ones worth queueing for.',
+    phrase: {
+      fr: 'Non peut-être',
+      nl: 'Niet kapot van',
+      meaning: 'Belgian double-negatives. Both mean: actually quite good.',
+      reason: '«Non peut-être» is the Belgicism every Bruxellois recognises instantly — a double negative that lands as wholehearted yes. Its Flemish cousin, «niet kapot van iets zijn» («not broken about it»), runs the same trick in reverse: muted understatement that\'s actually a quiet recommendation. Drop either in a café and you\'ve passed for local.',
     },
   },
 ]
