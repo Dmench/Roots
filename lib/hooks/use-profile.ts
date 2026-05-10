@@ -33,6 +33,7 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
     showInDirectory:  (data.show_in_directory as boolean | null) ?? true,
     digestSubscribed: (data.digest_subscribed as boolean | null) ?? true,
     spots:            (data.spots as Spot[]) ?? [],
+    flags:            (data.flags as string[]) ?? [],
   }
 }
 
@@ -93,6 +94,7 @@ export function useProfile() {
               ...(db.situations?.length       && { situations:       db.situations }),
               ...(db.completedTaskIds?.length && { completedTaskIds: db.completedTaskIds }),
               ...(db.spots?.length            && { spots:            db.spots }),
+              ...(db.flags?.length            && { flags:            db.flags }),
               showInDirectory: db.showInDirectory ?? prev.showInDirectory ?? true,
             }
             saveProfile(merged)
@@ -130,9 +132,36 @@ export function useProfile() {
           show_in_directory:  next.showInDirectory  ?? true,
           digest_subscribed:  next.digestSubscribed ?? true,
           spots:              next.spots            ?? [],
+          flags:              next.flags            ?? [],
           updated_at:         new Date().toISOString(),
         }).then(({ error }) => {
-          if (error) console.error('[profile] upsert failed:', error.message)
+          // Migration `migration_profile_flags.sql` adds the `flags` column.
+          // Until it's run, the upsert returns 42703; retry without flags so
+          // the rest of the profile still saves.
+          if (error?.code === '42703') {
+            const fallback = { ...next } as Record<string, unknown>
+            delete fallback.flags
+            supabase!.from('profiles').upsert({
+              id:                 uid,
+              display_name:       next.displayName      ?? null,
+              city_id:            next.cityId           ?? null,
+              neighborhood:       next.neighborhood     ?? null,
+              languages:          next.languages        ?? [],
+              arrival_date:       next.arrivalDate      ?? null,
+              stage:              next.stage            ?? null,
+              situations:         next.situations       ?? [],
+              completed_task_ids: next.completedTaskIds ?? [],
+              saved_task_ids:     next.savedTaskIds     ?? [],
+              show_in_directory:  next.showInDirectory  ?? true,
+              digest_subscribed:  next.digestSubscribed ?? true,
+              spots:              next.spots            ?? [],
+              updated_at:         new Date().toISOString(),
+            }).then(({ error: e2 }) => {
+              if (e2) console.error('[profile] upsert (no-flags retry) failed:', e2.message)
+            })
+          } else if (error) {
+            console.error('[profile] upsert failed:', error.message)
+          }
         })
       }
 

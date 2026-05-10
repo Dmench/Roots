@@ -9,6 +9,7 @@ import { SPOT_CATEGORIES } from '@/lib/types'
 import { FollowButton } from '@/components/social/FollowButton'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
+import { Flag } from '@/components/ui/Flag'
 
 interface Member {
   id: string
@@ -19,6 +20,7 @@ interface Member {
   languages: string[]
   arrivalDate: string | null
   spots: Spot[]
+  flags: string[]
 }
 
 function daysInCity(d?: string | null): number | null {
@@ -51,7 +53,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
     supabase
       .from('profiles')
-      .select('id, display_name, neighborhood, stage, situations, languages, arrival_date, spots')
+      .select('id, display_name, neighborhood, stage, situations, languages, arrival_date, spots, flags')
       .eq('city_id', cityId)
       .eq('show_in_directory', true)
       .order('arrival_date', { ascending: false })
@@ -66,6 +68,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
           languages:   (row.languages as string[]) ?? [],
           arrivalDate: row.arrival_date as string | null,
           spots:       (row.spots as Spot[]) ?? [],
+          flags:       (row.flags as string[] | null) ?? [],
         }))
         setMembers(mapped)
         setLoading(false)
@@ -186,10 +189,23 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
                     <div className="flex-1 min-w-0">
                       {/* Name + stage */}
                       <div className="flex items-baseline justify-between gap-3">
-                        <p className="text-sm font-semibold leading-tight" style={{ color: '#0A0A0A' }}>
-                          {m.displayName ?? 'Settler'}
+                        <p className="text-sm font-semibold leading-tight flex items-center gap-1.5 flex-wrap" style={{ color: '#0A0A0A' }}>
+                          <span>{m.displayName ?? 'Settler'}</span>
+                          {/* Flag strip — small, inline with the name */}
+                          {m.flags.length > 0 && (
+                            <span className="inline-flex items-center gap-0.5">
+                              {m.flags.slice(0, 4).map(code => (
+                                <Flag key={code} code={code} size={14} />
+                              ))}
+                              {m.flags.length > 4 && (
+                                <span className="text-[9px] font-bold" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                                  +{m.flags.length - 4}
+                                </span>
+                              )}
+                            </span>
+                          )}
                           {m.neighborhood && (
-                            <span className="ml-2 text-xs font-normal" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                            <span className="text-xs font-normal" style={{ color: 'rgba(10,10,10,0.35)' }}>
                               · {m.neighborhood}
                             </span>
                           )}

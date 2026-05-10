@@ -51,7 +51,7 @@ export default function PrivacyPage() {
             },
             {
               title: 'What we collect',
-              body: 'When you create an account: your email address (for sign-in). When you set up your profile: display name, city, neighborhood, arrival date, life stage, situations, languages, and any "spots" you save. When you use the community: posts and comments you write. When you use Ask: the questions you submit are sent to Anthropic for response generation. We store a daily count of Ask requests per user (for rate limiting). We do not collect anything silently — you enter everything yourself.',
+              body: 'When you create an account: your email address (for sign-in). When you set up your profile: display name, city, neighborhood, arrival date, life stage, situations, languages, any "spots" you save, and optional country flags marking places you\'ve called home. When you use the community: posts and comments you write. When you use Ask: the questions you submit are sent to Anthropic for response generation. We store a daily count of Ask requests per user (for rate limiting). We do not collect anything silently — you enter everything yourself. The flags you choose are voluntary self-declared geographic history — not a nationality or ethnicity claim.',
             },
             {
               title: 'Why we collect it (legal basis)',

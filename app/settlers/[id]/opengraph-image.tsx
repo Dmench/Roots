@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { createAnonClient } from '@/lib/supabase/server'
 import { getCity, STAGES } from '@/lib/data/cities'
+import { flagSvgUrl } from '@/lib/data/countries'
 import type { Stage, SituationTag, Spot } from '@/lib/types'
 
 export const runtime = 'nodejs'
@@ -25,7 +26,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const sb = createAnonClient()
   const { data } = await sb
     .from('profiles')
-    .select('display_name, city_id, neighborhood, stage, situations, arrival_date, spots, completed_task_ids')
+    .select('display_name, city_id, neighborhood, stage, situations, arrival_date, spots, completed_task_ids, flags')
     .eq('id', id)
     .eq('show_in_directory', true)
     .single()
@@ -67,6 +68,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const spots        = (data.spots as Spot[] | null) ?? []
   const completed    = (data.completed_task_ids as string[] | null) ?? []
   const situations   = (data.situations as SituationTag[] | null) ?? []
+  const flags        = ((data.flags as string[] | null) ?? []).slice(0, 6)
 
   const city         = cityId ? getCity(cityId) : null
   const cityName     = city?.name ?? cityId
@@ -167,12 +169,42 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
+          {/* Flags strip — passport-stamp register, anchors the receipt to a story */}
+          {flags.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 14,
+                marginTop: 36,
+                paddingTop: 24,
+                paddingBottom: 4,
+                borderTop: '1px solid rgba(10,10,10,0.1)',
+              }}
+            >
+              <span style={{ fontSize: 14, letterSpacing: 4, color: 'rgba(10,10,10,0.4)', textTransform: 'uppercase', fontWeight: 900 }}>
+                Lived in
+              </span>
+              {flags.map(code => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={code}
+                  src={flagSvgUrl(code)}
+                  alt=""
+                  width={48}
+                  height={36}
+                  style={{ display: 'inline-block' }}
+                />
+              ))}
+            </div>
+          )}
+
           {/* Stat strip */}
           <div
             style={{
               display: 'flex',
               gap: 48,
-              marginTop: 48,
+              marginTop: flags.length > 0 ? 28 : 48,
               paddingTop: 24,
               borderTop: '1px solid rgba(10,10,10,0.1)',
             }}

@@ -154,4 +154,6 @@ export interface UserProfile {
   showInDirectory?: boolean
   digestSubscribed?: boolean
   spots: Spot[]
+  /** ISO 3166-1 alpha-2 codes — voluntary "where you've called home" history. */
+  flags?: string[]
 }

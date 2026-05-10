@@ -15,6 +15,9 @@ import { PageMasthead } from '@/components/layout/PageMasthead'
 import type { Stage, SituationTag } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { SpotSearch } from '@/components/city/SpotSearch'
+import { Flag } from '@/components/ui/Flag'
+import { FlagsPicker } from '@/components/profile/FlagsPicker'
+import { getCountry } from '@/lib/data/countries'
 
 // "2024-09" or "2024-09-14" → "Sep '24"
 function fmtMonth(val: string): string {
@@ -134,6 +137,7 @@ export default function ProfilePage() {
   const [stageOpen,         setStageOpen]         = useState(false)
   const [neighborhoodOpen,  setNeighborhoodOpen]  = useState(false)
   const [situationOpen,     setSituationOpen]     = useState(false)
+  const [flagsOpen,         setFlagsOpen]         = useState(false)
   const [addingSpot,        setAddingSpot]        = useState(false)
   const [cardCopied,        setCardCopied]        = useState(false)
   const [followStats,       setFollowStats]       = useState({ following: 0, followers: 0 })
@@ -407,6 +411,39 @@ export default function ProfilePage() {
                     </button>
                   )}
 
+                </div>
+
+                {/* Where you've called home — passport-stamp register */}
+                <div className="mt-4">
+                  {(profile.flags ?? []).length > 0 ? (
+                    <button onClick={() => setFlagsOpen(true)}
+                      className="w-full flex items-center gap-2 hover:opacity-80 transition-opacity group">
+                      <span className="text-[9px] font-black tracking-[0.22em] uppercase shrink-0"
+                        style={{ color: 'rgba(10,10,10,0.4)' }}>
+                        Lived in
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {(profile.flags ?? []).map(code => (
+                          <span key={code} className="flex items-center gap-1 px-2 py-0.5"
+                            style={{ background: 'rgba(10,10,10,0.04)', border: '1px solid rgba(10,10,10,0.08)' }}>
+                            <Flag code={code} size={14} />
+                            <span className="text-[9px] font-black tracking-[0.1em] uppercase"
+                              style={{ color: '#0A0A0A' }}>
+                              {getCountry(code)?.name ?? code}
+                            </span>
+                          </span>
+                        ))}
+                      </div>
+                      <span className="ml-auto text-[10px] opacity-30 group-hover:opacity-60 transition-opacity"
+                        style={{ color: '#0A0A0A' }}>edit</span>
+                    </button>
+                  ) : (
+                    <button onClick={() => setFlagsOpen(true)}
+                      className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
+                      style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
+                      + Where you&apos;ve called home
+                    </button>
+                  )}
                 </div>
 
                 {/* Following / followers */}
@@ -757,6 +794,16 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ══ Flags / "where you've called home" picker ══════════════════════════ */}
+      {flagsOpen && (
+        <FlagsPicker
+          selected={profile.flags ?? []}
+          onChange={(next) => { updateProfile({ flags: next }); flash() }}
+          onClose={() => setFlagsOpen(false)}
+          max={8}
+        />
       )}
     </div>
     <Footer />

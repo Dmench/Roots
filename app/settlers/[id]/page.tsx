@@ -7,6 +7,8 @@ import type { Stage, SituationTag, Spot } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { CopyButton } from './CopyButton'
 import { Footer } from '@/components/layout/Footer'
+import { Flag } from '@/components/ui/Flag'
+import { getCountry } from '@/lib/data/countries'
 
 const APP_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://roots-mu.vercel.app'
 
@@ -78,7 +80,7 @@ export default async function SettlerCardPage(
 
   const { data, error } = await sb
     .from('profiles')
-    .select('id, display_name, city_id, neighborhood, stage, situations, arrival_date, spots')
+    .select('id, display_name, city_id, neighborhood, stage, situations, arrival_date, spots, flags')
     .eq('id', id)
     .eq('show_in_directory', true)
     .single()
@@ -92,6 +94,7 @@ export default async function SettlerCardPage(
   const situations   = (data.situations as SituationTag[]) ?? []
   const arrivalDate  = data.arrival_date as string | null
   const spots        = (data.spots as Spot[]) ?? []
+  const flags        = (data.flags as string[] | null) ?? []
 
   const city         = cityId ? getCity(cityId) : null
   const stageConfig  = stage ? STAGES.find(s => s.id === stage) : null
@@ -181,6 +184,28 @@ export default async function SettlerCardPage(
             </div>
           </div>
         </div>
+
+        {/* Flags row — "where they've called home" */}
+        {flags.length > 0 && (
+          <div className="px-5 pb-5 -mt-1">
+            <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-2"
+              style={{ color: 'rgba(10,10,10,0.4)' }}>
+              Lived in
+            </p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {flags.map(code => (
+                <span key={code} className="flex items-center gap-1.5 px-2 py-0.5"
+                  style={{ background: 'rgba(10,10,10,0.04)', border: '1px solid rgba(10,10,10,0.08)' }}>
+                  <Flag code={code} size={14} />
+                  <span className="text-[9px] font-black tracking-[0.1em] uppercase"
+                    style={{ color: '#0A0A0A' }}>
+                    {getCountry(code)?.name ?? code}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Spots */}
         {spots.length > 0 && (
