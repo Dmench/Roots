@@ -8,22 +8,28 @@ import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import type { Post, PostCategory, Stage, PostComment } from '@/lib/types'
+import type { Post, PostCategory, Stage, PostComment, CityId } from '@/lib/types'
 import type { FeedItem } from '@/app/api/feeds/route'
+import RedditChannel from '@/components/connect/RedditChannel'
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 
-interface Resource { id: string; cityId: string; name: string; type: 'facebook' | 'reddit'; desc: string }
+interface Resource { id: string; cityId: string; name: string; type: 'facebook' | 'reddit'; desc: string; url: string }
+
+// Reddit URLs are deterministic. Facebook group URLs are not — using FB's
+// public group search URL with the name as query is honest and lands the user
+// on the right group in one click.
+function fbSearch(name: string) { return `https://www.facebook.com/search/groups/?q=${encodeURIComponent(name)}` }
 
 const RESOURCES: Resource[] = [
-  { id: 'r1', cityId: 'brussels', name: 'Brussels Expats',          type: 'facebook', desc: 'Housing, admin, jobs, social.' },
-  { id: 'r2', cityId: 'brussels', name: 'English Speaking Brussels', type: 'facebook', desc: 'Jobs, lifestyle, events — very active.' },
-  { id: 'r3', cityId: 'brussels', name: 'r/brussels',               type: 'reddit',   desc: 'Local news, tips, recommendations.' },
-  { id: 'r4', cityId: 'brussels', name: 'Moving to Brussels',       type: 'facebook', desc: 'Practical info for new arrivals.' },
-  { id: 'r5', cityId: 'brussels', name: 'EU Bubble',                type: 'reddit',   desc: 'EU institutions and expat life.' },
-  { id: 'r6', cityId: 'lisbon',   name: 'Lisbon Expat Community',   type: 'facebook', desc: 'Visas, housing, events, advice.' },
-  { id: 'r7', cityId: 'lisbon',   name: 'r/portugal',               type: 'reddit',   desc: 'National subreddit — news and discussion.' },
-  { id: 'r8', cityId: 'lisbon',   name: 'r/pliving',                type: 'reddit',   desc: 'Portugal living — visas, NHR, housing.' },
+  { id: 'r1', cityId: 'brussels', name: 'Brussels Expats',          type: 'facebook', desc: 'Housing, admin, jobs, social.',          url: fbSearch('Brussels Expats') },
+  { id: 'r2', cityId: 'brussels', name: 'English Speaking Brussels', type: 'facebook', desc: 'Jobs, lifestyle, events — very active.', url: fbSearch('English Speaking Brussels') },
+  { id: 'r3', cityId: 'brussels', name: 'r/brussels',               type: 'reddit',   desc: 'Local news, tips, recommendations.',     url: 'https://www.reddit.com/r/brussels' },
+  { id: 'r4', cityId: 'brussels', name: 'Moving to Brussels',       type: 'facebook', desc: 'Practical info for new arrivals.',       url: fbSearch('Moving to Brussels') },
+  { id: 'r5', cityId: 'brussels', name: 'r/eububble',               type: 'reddit',   desc: 'EU institutions and expat life.',        url: 'https://www.reddit.com/r/eububble' },
+  { id: 'r6', cityId: 'lisbon',   name: 'Lisbon Expat Community',   type: 'facebook', desc: 'Visas, housing, events, advice.',        url: fbSearch('Lisbon Expat Community') },
+  { id: 'r7', cityId: 'lisbon',   name: 'r/portugal',               type: 'reddit',   desc: 'National subreddit — news and discussion.', url: 'https://www.reddit.com/r/portugal' },
+  { id: 'r8', cityId: 'lisbon',   name: 'r/pliving',                type: 'reddit',   desc: 'Portugal living — visas, NHR, housing.', url: 'https://www.reddit.com/r/pliving' },
 ]
 
 /* ── Curated seed content (clearly labeled, not fake activity) ───────────── */
@@ -67,22 +73,30 @@ const PINNED: Record<string, Record<string, CuratedPin[]>> = {
 /* ── Channel definitions ─────────────────────────────────────────────────── */
 
 type ChannelId = 'tips' | 'questions' | 'heads-up' | 'events' | 'news' | 'reddit'
+type ChannelGroup = 'listen' | 'talk'
 
 interface Channel {
   id:    ChannelId
   label: string
   sub:   string
   color: string
+  group: ChannelGroup
   cat?:  PostCategory
 }
 
+// Channels are split into two groups:
+//   Listen — aggregated city signal (read-only, always populated)
+//   Talk   — settler-generated posts (you write here)
+// Order within each group reflects current Brussels signal density.
 const CHANNELS: Channel[] = [
-  { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',      color: '#10B981', cat: 'recommendation' },
-  { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', cat: 'question'       },
-  { id: 'heads-up',  label: 'Heads-up',  sub: 'Warnings & things to know',      color: '#FAB400', cat: 'heads-up'       },
-  { id: 'events',    label: 'Events',     sub: 'What\'s happening this week',     color: '#E8612A'                        },
-  { id: 'news',      label: 'News',       sub: 'Curated local headlines',         color: '#4744C8'                        },
-  { id: 'reddit',    label: 'Reddit',     sub: 'What the city is talking about',  color: '#FF4500'                        },
+  // Listen
+  { id: 'events',    label: 'Events',     sub: 'What\'s happening this week',     color: '#E8612A', group: 'listen'                          },
+  { id: 'reddit',    label: 'Reddit',     sub: 'What the city is talking about',  color: '#FF4500', group: 'listen'                          },
+  { id: 'news',      label: 'News',       sub: 'Curated local headlines',         color: '#4744C8', group: 'listen'                          },
+  // Talk
+  { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',       color: '#10B981', group: 'talk',   cat: 'recommendation'   },
+  { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', group: 'talk',   cat: 'question'         },
+  { id: 'heads-up',  label: 'Heads-up',   sub: 'Warnings & things to know',       color: '#FAB400', group: 'talk',   cat: 'heads-up'         },
 ]
 
 const CAT_META: Record<PostCategory, { color: string; label: string }> = {
@@ -94,6 +108,28 @@ const CAT_META: Record<PostCategory, { color: string; label: string }> = {
 const STAGE_LABELS: Record<Stage, string> = {
   planning: 'Planning', just_arrived: 'Just arrived',
   settling: 'Getting settled', settled: 'Settled',
+}
+
+// Quick-filter neighbourhoods per city. Full list is in lib/data/cities.ts —
+// these are the most-asked-about hoods for new arrivals. Showing too many here
+// turns the filter into another decision instead of a one-tap convenience.
+const POPULAR_HOODS: Record<string, string[]> = {
+  brussels: [
+    'Ixelles / Elsene',
+    'Saint-Gilles / Sint-Gillis',
+    'Etterbeek',
+    'Schaerbeek / Schaarbeek',
+    'European Quarter',
+    'City centre / Pentagone',
+  ],
+  lisbon: [
+    'Príncipe Real',
+    'Bairro Alto',
+    'Alfama',
+    'Arroios',
+    'Estrela',
+    'Belém',
+  ],
 }
 
 const SOURCE_STYLE: Record<string, { color: string; label: string }> = {
@@ -129,7 +165,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [redditPosts,  setRedditPosts]  = useState<FeedItem[]>([])
   const [redditFetch,  setRedditFetch]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-  const [activeChannel,  setActiveChannel]  = useState<ChannelId>('tips')
+  const [activeChannel,  setActiveChannel]  = useState<ChannelId>('events')
+  const [activeHood,     setActiveHood]     = useState<string | null>(null)
   const [expandedPost,   setExpandedPost]   = useState<string | null>(null)
   const [comments,       setComments]       = useState<Record<string, PostComment[]>>({})
   const [commentCounts,  setCommentCounts]  = useState<Record<string, number>>({})
@@ -147,6 +184,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           id: p.id, cityId: p.city_id, stage: p.stage ?? undefined,
           category: p.category as PostCategory, text: p.text,
           time: formatRelative(p.created_at), authorStage: p.author_stage ?? undefined,
+          neighborhood: p.neighborhood ?? undefined,
         }))
         setPosts(mapped)
 
@@ -165,6 +203,54 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
         }
       })
   }, [cityId, city])
+
+  // Realtime subscription — appends posts + comments as they're written by
+  // other settlers. Requires the `posts` and `post_comments` tables to have
+  // realtime enabled in the Supabase dashboard. Falls silent on any error.
+  useEffect(() => {
+    if (!supabase || !city || !user) return
+    const sb = supabase
+    const myId = user.id
+    const channel = sb.channel(`connect:${cityId}`)
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts', filter: `city_id=eq.${cityId}` },
+        (payload) => {
+          const p = payload.new as {
+            id: string; city_id: string; stage: string | null; category: string;
+            text: string; created_at: string; author_id: string;
+            author_stage: string | null; neighborhood: string | null
+          }
+          // Skip my own inserts — already in state via optimistic update
+          if (p.author_id === myId) return
+          const incoming: Post = {
+            id: p.id, cityId: p.city_id as CityId,
+            stage: (p.stage ?? undefined) as Stage | undefined,
+            category: p.category as PostCategory,
+            text: p.text, time: 'just now',
+            authorStage: (p.author_stage ?? undefined) as Stage | undefined,
+            neighborhood: p.neighborhood ?? undefined,
+          }
+          setPosts(prev => prev.some(x => x.id === incoming.id) ? prev : [incoming, ...prev])
+        })
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'post_comments' },
+        (payload) => {
+          const c = payload.new as {
+            id: string; post_id: string; author_id: string; text: string; created_at: string
+          }
+          if (c.author_id === myId) return  // own comments are already optimistic
+          setCommentCounts(prev => ({ ...prev, [c.post_id]: (prev[c.post_id] ?? 0) + 1 }))
+          setComments(prev => prev[c.post_id]
+            ? { ...prev, [c.post_id]: [...prev[c.post_id], {
+                id: c.id, post_id: c.post_id, author_id: c.author_id,
+                text: c.text, created_at: c.created_at, author_name: 'Settler',
+              }] }
+            : prev)
+        })
+      .subscribe()
+
+    return () => { sb.removeChannel(channel) }
+  }, [cityId, city, user])
 
   useEffect(() => {
     if (feedState !== 'idle') return
@@ -242,8 +328,17 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   }
 
   const activePosts = channel.cat
-    ? posts.filter(p => p.category === channel.cat)
+    ? posts
+        .filter(p => p.category === channel.cat)
+        .filter(p => !activeHood || p.neighborhood === activeHood)
     : []
+
+  // Hoods to surface in the filter row: profile's hood (always first), then
+  // city's most-asked-about ones, deduped.
+  const popularHoods = POPULAR_HOODS[cityId] ?? []
+  const hoodChips    = profile.neighborhood && !popularHoods.includes(profile.neighborhood)
+    ? [profile.neighborhood, ...popularHoods]
+    : popularHoods
 
   // Social signal: last post time for current community channel
   const lastPost = activePosts[0]
@@ -259,17 +354,48 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
       stage: profile.stage as Stage | undefined,
       category: channel.cat, text: newPost.text.trim(),
       time: 'just now', authorStage: profile.stage as Stage | undefined,
+      neighborhood: profile.neighborhood ?? undefined,
     }
     setPosts(prev => [optimistic, ...prev])
     setNewPost({ text: '' })
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)
     if (supabase) {
-      await supabase.from('posts').insert({
+      // Server-side rate limit (5 posts/min/user) + insert. If the migration
+      // for check_post_rate_limit hasn't run yet, the function is missing and
+      // we fall through to the insert (fail-open for beta).
+      const { data: allowed, error: rlErr } = await supabase.rpc('check_post_rate_limit', { uid: user.id, max_per_min: 5 })
+      if (rlErr) {
+        if (rlErr.code !== '42P01' && rlErr.code !== 'PGRST202') {
+          console.warn('[posts:rate-limit]', rlErr.code, rlErr.message)
+        }
+      } else if (allowed === false) {
+        // Roll back the optimistic post and surface a soft warning.
+        setPosts(prev => prev.filter(p => p.id !== optimistic.id))
+        setNewPost({ text: optimistic.text })
+        alert('You\'re posting a lot — please wait a minute and try again.')
+        return
+      }
+
+      const insertPayload: Record<string, unknown> = {
         city_id: city.id, stage: profile.stage ?? null,
         category: channel.cat, text: optimistic.text,
         author_id: user.id, author_stage: profile.stage ?? null,
-      })
+        neighborhood: profile.neighborhood ?? null,
+      }
+      const { error: insErr } = await supabase.from('posts').insert(insertPayload)
+      if (insErr) {
+        // Column missing (migration not run) — retry without neighborhood.
+        if (insErr.code === '42703') {
+          delete insertPayload.neighborhood
+          await supabase.from('posts').insert(insertPayload)
+        } else {
+          // Roll back optimistic and let user retry.
+          console.error('[posts:insert]', insErr.code, insErr.message)
+          setPosts(prev => prev.filter(p => p.id !== optimistic.id))
+          setNewPost({ text: optimistic.text })
+        }
+      }
     }
   }
 
@@ -327,36 +453,59 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   return (
     <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
 
-      {/* ── Tab bar ──────────────────────────────────────────────────────── */}
+      {/* ── Tab bar — Listen | Talk ──────────────────────────────────────── */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
         <div className="max-w-5xl mx-auto px-6 md:px-12">
-          <div className="flex gap-0 overflow-x-auto scrollbar-none">
-            {CHANNELS.map(ch => {
+          {/* Section labels above the tabs — collapsed on mobile, shown on sm+ */}
+          <div className="hidden sm:grid grid-cols-[auto_1px_auto_1fr] gap-x-4 pt-3 pb-1 items-center">
+            <span className="text-[9px] font-black tracking-[0.28em] uppercase"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
+              Listen
+            </span>
+            <span style={{ width: 1, height: 8, background: 'rgba(10,10,10,0.1)' }} />
+            <span className="text-[9px] font-black tracking-[0.28em] uppercase"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
+              Talk
+            </span>
+            <span />
+          </div>
+
+          <div className="flex items-stretch overflow-x-auto scrollbar-none">
+            {CHANNELS.map((ch, i) => {
               const active = ch.id === activeChannel
+              const prev   = i > 0 ? CHANNELS[i - 1] : null
+              const groupBoundary = prev && prev.group !== ch.group
+
+              const count =
+                ch.id === 'events' ? eventItems.length :
+                ch.id === 'news'   ? newsItems.length  :
+                ch.id === 'reddit' ? redditItems.length :
+                postCounts[ch.id] ?? 0
+
               return (
-                <button
-                  key={ch.id}
-                  onClick={() => setActiveChannel(ch.id)}
-                  className="flex-none flex items-center gap-2 px-4 py-4 text-sm font-semibold transition-all border-b-2 whitespace-nowrap"
-                  style={{
-                    color: active ? ch.color : 'rgba(10,10,10,0.4)',
-                    borderBottomColor: active ? ch.color : 'transparent',
-                  }}
-                >
-                  {ch.label}
-                  {(postCounts[ch.id] ?? 0) > 0 && ch.id !== 'events' && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: active ? `${ch.color}15` : 'rgba(10,10,10,0.06)', color: active ? ch.color : 'rgba(10,10,10,0.3)' }}>
-                      {postCounts[ch.id]}
-                    </span>
+                <div key={ch.id} className="flex items-stretch">
+                  {/* Group divider */}
+                  {groupBoundary && (
+                    <div className="self-stretch mx-2 my-3 hidden sm:block"
+                      style={{ width: 1, background: 'rgba(10,10,10,0.12)' }} />
                   )}
-                  {ch.id === 'events' && eventItems.length > 0 && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: active ? `${ch.color}15` : 'rgba(10,10,10,0.06)', color: active ? ch.color : 'rgba(10,10,10,0.3)' }}>
-                      {eventItems.length}
-                    </span>
-                  )}
-                </button>
+                  <button
+                    onClick={() => setActiveChannel(ch.id)}
+                    className="flex-none flex items-center gap-2 px-4 py-4 text-sm font-semibold transition-all border-b-2 whitespace-nowrap"
+                    style={{
+                      color: active ? ch.color : 'rgba(10,10,10,0.4)',
+                      borderBottomColor: active ? ch.color : 'transparent',
+                    }}
+                  >
+                    {ch.label}
+                    {count > 0 && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{ background: active ? `${ch.color}15` : 'rgba(10,10,10,0.06)', color: active ? ch.color : 'rgba(10,10,10,0.3)' }}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                </div>
               )
             })}
           </div>
@@ -382,6 +531,38 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* ── Community channels (tips / questions / heads-up) ──────── */}
             {channel.cat && (
               <>
+                {/* Neighbourhood filter — only when there are posts to filter */}
+                {hoodChips.length > 0 && posts.some(p => p.category === channel.cat) && (
+                  <div className="mb-6 flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1">
+                    <button
+                      onClick={() => setActiveHood(null)}
+                      className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-2.5 py-1 transition-all"
+                      style={{
+                        color: activeHood === null ? '#FFFFFF' : 'rgba(10,10,10,0.45)',
+                        background: activeHood === null ? '#0A0A0A' : 'transparent',
+                        border: '1px solid rgba(10,10,10,0.15)',
+                      }}>
+                      All
+                    </button>
+                    {hoodChips.map(h => {
+                      const isActive = activeHood === h
+                      return (
+                        <button
+                          key={h}
+                          onClick={() => setActiveHood(isActive ? null : h)}
+                          className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-2.5 py-1 transition-all"
+                          style={{
+                            color: isActive ? '#FFFFFF' : 'rgba(10,10,10,0.5)',
+                            background: isActive ? channel.color : 'transparent',
+                            border: `1px solid ${isActive ? channel.color : 'rgba(10,10,10,0.12)'}`,
+                          }}>
+                          {h.split(' / ')[0]}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
                 {/* Posts */}
                 {(() => {
                   const pins = (PINNED[cityId]?.[channel.id] ?? [])
@@ -413,16 +594,28 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                               </div>
                             </div>
                           ))}
-                          <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
-                            <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-4"
+                          <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
+                            <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-3"
                               style={{ color: 'rgba(10,10,10,0.25)' }}>
                               Community posts
                             </p>
-                            <p className="text-xs py-6" style={{ color: 'rgba(10,10,10,0.3)' }}>
-                              {channel.id === 'tips'      ? 'Be the first to share a tip.' :
-                               channel.id === 'questions' ? 'Be the first to ask a question.' :
-                               'Be the first to post a heads-up.'}
+                            <p className="text-sm font-semibold mb-1.5" style={{ color: '#0A0A0A' }}>
+                              {channel.id === 'tips'      ? 'A great tip is specific.' :
+                               channel.id === 'questions' ? 'Ask the question you wish someone had answered for you.' :
+                               'A heads-up saves someone a wasted afternoon.'}
                             </p>
+                            <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.5)' }}>
+                              {channel.id === 'tips'      ? 'Mention the place, the price, the catch. "The mutuelle on Rue Vanderkindere processed mine in two days" beats "good mutuelle".' :
+                               channel.id === 'questions' ? 'Other settlers are figuring out the same thing right now. Ask in plain language — no need to caveat.' :
+                               'Recent admin gotcha? Closed office? Strike? Post it. The shorter, the better.'}
+                            </p>
+                            <button
+                              onClick={() => composerRef.current?.focus()}
+                              className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.16em] uppercase hover:opacity-60 transition-opacity"
+                              style={{ color: channel.color }}>
+                              {channel.id === 'tips' ? 'Share a tip' : channel.id === 'questions' ? 'Ask a question' : 'Post a heads-up'}
+                              <span>→</span>
+                            </button>
                           </div>
                         </>
                       )}
@@ -450,15 +643,24 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                               <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.75)' }}>
                                 {post.text}
                               </p>
-                              {/* Comment toggle */}
-                              <button
-                                onClick={() => toggleComments(post.id)}
-                                className="mt-2 text-[10px] font-bold hover:opacity-60 transition-opacity"
-                                style={{ color: 'rgba(10,10,10,0.3)' }}>
-                                {expandedPost === post.id
-                                  ? 'Hide replies'
-                                  : `${commentCounts[post.id] ?? 0} ${(commentCounts[post.id] ?? 0) === 1 ? 'reply' : 'replies'}`}
-                              </button>
+                              {/* Action row — comments + report */}
+                              <div className="mt-2 flex items-center gap-4">
+                                <button
+                                  onClick={() => toggleComments(post.id)}
+                                  className="text-[10px] font-bold hover:opacity-60 transition-opacity"
+                                  style={{ color: 'rgba(10,10,10,0.3)' }}>
+                                  {expandedPost === post.id
+                                    ? 'Hide replies'
+                                    : `${commentCounts[post.id] ?? 0} ${(commentCounts[post.id] ?? 0) === 1 ? 'reply' : 'replies'}`}
+                                </button>
+                                <a
+                                  href={`mailto:dmench9@gmail.com?subject=${encodeURIComponent(`Report post ${post.id} (${cityId})`)}&body=${encodeURIComponent(`Reason for reporting:\n\n\nPost ID: ${post.id}\nCategory: ${post.category}\nText: ${post.text.slice(0, 200)}`)}`}
+                                  className="text-[10px] hover:opacity-100 transition-opacity"
+                                  style={{ color: 'rgba(10,10,10,0.2)' }}
+                                  title="Report this post">
+                                  Report
+                                </a>
+                              </div>
                               {/* Inline thread */}
                               {expandedPost === post.id && (
                                 <div className="mt-3 pl-3" style={{ borderLeft: `2px solid ${m.color}40` }}>
@@ -498,11 +700,18 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         )
                       })}
 
-                      {/* No content */}
+                      {/* No content (no curated pins available either) */}
                       {showPins && pins.length === 0 && (
-                        <p className="text-xs py-8" style={{ color: 'rgba(10,10,10,0.3)' }}>
-                          Be the first to post.
-                        </p>
+                        <div className="py-10 text-center">
+                          <p className="text-sm font-semibold mb-1.5" style={{ color: '#0A0A0A' }}>
+                            {channel.id === 'tips' ? 'No tips yet — yours could be the first.'
+                             : channel.id === 'questions' ? 'No questions yet — ask away.'
+                             : 'No heads-ups yet.'}
+                          </p>
+                          <p className="text-xs" style={{ color: 'rgba(10,10,10,0.45)' }}>
+                            Use the box below — we read every post.
+                          </p>
+                        </div>
                       )}
                     </div>
                   )
@@ -511,12 +720,19 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 {/* Composer */}
                 <div className="mt-8" style={{ border: `1.5px solid ${channel.color}25` }}>
                   <div className="px-4 pt-3 pb-1">
-                    <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2.5"
-                      style={{ color: channel.color }}>
-                      {channel.id === 'tips'      ? 'Share a tip' :
-                       channel.id === 'questions' ? 'Ask the community' :
-                       'Post a heads-up'}
-                    </p>
+                    <div className="flex items-baseline justify-between mb-2.5 gap-3">
+                      <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+                        style={{ color: channel.color }}>
+                        {channel.id === 'tips'      ? 'Share a tip' :
+                         channel.id === 'questions' ? 'Ask the community' :
+                         'Post a heads-up'}
+                      </p>
+                      {profile.neighborhood && (
+                        <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                          Posting from <span className="font-bold" style={{ color: channel.color }}>{profile.neighborhood.split(' / ')[0]}</span>
+                        </p>
+                      )}
+                    </div>
                     <textarea
                       ref={composerRef}
                       value={newPost.text}
@@ -770,120 +986,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
             {/* ── Reddit channel ───────────────────────────────────────── */}
             {channel.id === 'reddit' && (
-              <>
-                {redditFetch === 'loading' && (
-                  <div style={{ background: '#1C1A2E' }}>
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className="px-5 py-4 animate-pulse flex gap-3"
-                        style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                        <div className="w-8 bg-white/10 rounded shrink-0" />
-                        <div className="flex-1">
-                          <div className="h-3 bg-white/10 rounded w-full mb-1.5" />
-                          <div className="h-2.5 bg-white/8 rounded w-2/3" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {redditFetch !== 'loading' && redditItems.length === 0 && (
-                  <div className="py-16">
-                    <p className="text-sm" style={{ color: 'rgba(10,10,10,0.35)' }}>No Reddit posts right now</p>
-                  </div>
-                )}
-                {redditItems.length > 0 && (
-                  <div style={{ background: '#1C1A2E' }}>
-                    <div className="flex items-center justify-between px-5 py-4"
-                      style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-black" style={{ color: '#FF4500' }}>r/{cityId}</span>
-                        <span className="flex items-center gap-1">
-                          <span className="relative flex h-1.5 w-1.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#10B981' }} />
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#10B981' }} />
-                          </span>
-                          <span className="text-[10px]" style={{ color: 'rgba(245,236,215,0.3)' }}>live</span>
-                        </span>
-                      </div>
-                      <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-                        className="text-[10px] font-black tracking-wider hover:opacity-60 transition-opacity"
-                        style={{ color: 'rgba(245,236,215,0.25)', letterSpacing: '0.1em' }}>
-                        OPEN ↗
-                      </a>
-                    </div>
-
-                    {/* Featured top post */}
-                    {(() => {
-                      const top  = redditItems[0]
-                      const diff = Math.floor(Date.now() / 1000) - top.published
-                      const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
-                      return (
-                        <a href={top.url} target="_blank" rel="noopener noreferrer"
-                          className="block px-5 py-5 group hover:opacity-80 transition-opacity"
-                          style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                          <div className="flex items-start gap-4">
-                            <div className="shrink-0 text-center" style={{ minWidth: 36 }}>
-                              <p className="text-2xl font-black leading-none" style={{ color: '#FF4500' }}>↑</p>
-                              <p className="text-xs font-black mt-0.5" style={{ color: '#FF4500' }}>
-                                {(top.score ?? 0) >= 1000 ? `${((top.score ?? 0) / 1000).toFixed(1)}k` : top.score ?? 0}
-                              </p>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              {top.flair && (
-                                <span className="inline-block text-[10px] font-black px-2 py-0.5 mb-2"
-                                  style={{ background: 'rgba(255,69,0,0.2)', color: '#FF4500', letterSpacing: '0.06em' }}>
-                                  {top.flair.toUpperCase()}
-                                </span>
-                              )}
-                              <p className="text-sm font-bold leading-snug" style={{ color: '#F5ECD7' }}>
-                                {top.title}
-                              </p>
-                              <p className="text-[10px] mt-2" style={{ color: 'rgba(245,236,215,0.3)' }}>
-                                {top.comments ?? 0} comments · {ago}
-                              </p>
-                            </div>
-                          </div>
-                        </a>
-                      )
-                    })()}
-
-                    {redditItems.slice(1).map((fi, i) => {
-                      const diff = Math.floor(Date.now() / 1000) - fi.published
-                      const ago  = diff < 3600 ? `${Math.floor(diff / 60)}m` : diff < 86400 ? `${Math.floor(diff / 3600)}h` : `${Math.floor(diff / 86400)}d`
-                      const maxScore = Math.max(...redditItems.map(p => p.score ?? 0))
-                      const barPct   = maxScore > 0 ? Math.round(((fi.score ?? 0) / maxScore) * 100) : 0
-                      return (
-                        <a key={`${fi.id}-${i}`} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-3 px-5 py-3.5 group hover:opacity-70 transition-opacity"
-                          style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                          <div className="shrink-0 flex flex-col items-center gap-0.5" style={{ width: 28 }}>
-                            <p className="text-[10px] font-black leading-none" style={{ color: 'rgba(255,69,0,0.7)' }}>
-                              {(fi.score ?? 0) >= 1000 ? `${((fi.score ?? 0) / 1000).toFixed(1)}k` : fi.score ?? 0}
-                            </p>
-                            <div className="w-full h-0.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                              <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: '#FF4500' }} />
-                            </div>
-                          </div>
-                          <p className="flex-1 min-w-0 text-sm font-semibold leading-snug line-clamp-2"
-                            style={{ color: 'rgba(245,236,215,0.7)' }}>
-                            {fi.title}
-                          </p>
-                          <span className="shrink-0 text-[10px]" style={{ color: 'rgba(245,236,215,0.2)' }}>{ago}</span>
-                        </a>
-                      )
-                    })}
-
-                    <div className="px-5 py-4 flex items-center justify-between"
-                      style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                      <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-                        className="text-[10px] font-black tracking-wider hover:opacity-60 transition-opacity"
-                        style={{ color: 'rgba(245,236,215,0.3)', letterSpacing: '0.1em' }}>
-                        OPEN r/{cityId} ↗
-                      </a>
-                      <span className="text-[10px]" style={{ color: 'rgba(245,236,215,0.15)' }}>via Reddit API</span>
-                    </div>
-                  </div>
-                )}
-              </>
+              <RedditChannel cityId={cityId} items={redditItems} loading={redditFetch === 'loading'} />
             )}
 
           </div>
@@ -918,20 +1021,70 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                 </p>
                 <div>
                   {resources.map((r, i) => (
-                    <div key={r.id}
-                      className="flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
+                    <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer"
+                      className="group flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
                       style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
                       <span className="text-[10px] font-black shrink-0 w-4"
                         style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
                         {r.type === 'facebook' ? 'fb' : 'r/'}
                       </span>
-                      <p className="text-xs truncate" style={{ color: '#0A0A0A' }}>{r.name}</p>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs truncate" style={{ color: '#0A0A0A' }}>{r.name}</p>
+                        <p className="text-[10px] truncate" style={{ color: 'rgba(10,10,10,0.4)' }}>{r.desc}</p>
+                      </div>
+                      <span className="text-[10px] opacity-30 group-hover:opacity-60 transition-opacity"
+                        style={{ color: '#0A0A0A' }}>↗</span>
+                    </a>
                   ))}
                 </div>
               </div>
             )}
           </aside>
+
+          {/* ── Mobile-only: Settlers + Community groups (under main column) ─ */}
+          <div className="lg:hidden mt-12 pt-10 space-y-8" style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
+            <div>
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+                style={{ color: 'rgba(10,10,10,0.3)', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 8 }}>
+                Settlers
+              </p>
+              <a href={`/${cityId}/people`}
+                className="flex items-center justify-between py-2 group hover:opacity-60 transition-opacity">
+                <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>Settler directory</p>
+                <span className="text-xs" style={{ color: 'rgba(10,10,10,0.3)' }}>→</span>
+              </a>
+              <p className="text-xs" style={{ color: 'rgba(10,10,10,0.4)' }}>
+                Who else is settling in {city.name}
+              </p>
+            </div>
+
+            {resources.length > 0 && (
+              <div>
+                <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+                  style={{ color: 'rgba(10,10,10,0.3)', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 8 }}>
+                  Community groups
+                </p>
+                <div>
+                  {resources.map((r, i) => (
+                    <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer"
+                      className="group flex items-center gap-2.5 py-2.5 hover:opacity-60 transition-opacity"
+                      style={{ borderBottom: i < resources.length - 1 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
+                      <span className="text-[10px] font-black shrink-0 w-4"
+                        style={{ color: r.type === 'facebook' ? '#1877F2' : '#FF4500' }}>
+                        {r.type === 'facebook' ? 'fb' : 'r/'}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs truncate" style={{ color: '#0A0A0A' }}>{r.name}</p>
+                        <p className="text-[10px] truncate" style={{ color: 'rgba(10,10,10,0.4)' }}>{r.desc}</p>
+                      </div>
+                      <span className="text-[10px] opacity-30 group-hover:opacity-60 transition-opacity"
+                        style={{ color: '#0A0A0A' }}>↗</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
         </div>
       </div>

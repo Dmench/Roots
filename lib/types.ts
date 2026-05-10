@@ -94,6 +94,7 @@ export interface Post {
   text: string
   time: string
   authorStage?: Stage
+  neighborhood?: string
 }
 
 // Spots — user's favourite places
