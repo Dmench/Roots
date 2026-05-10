@@ -56,29 +56,6 @@ const FOOD_KW = ['restaurant','food','eat','bar','drink','coffee','brunch','lunc
   'café','cafe','recommend','pizza','vegan','beer','frites','belgian','hidden gem','best place',
   'where to','wine','brasserie','bistro','ramen','sushi','pasta','burger','thai','italian']
 
-/* ── Partner teaser (coming soon slot) ───────────────────────────────────── */
-
-function PartnerTeaser() {
-  return (
-    <div className="flex items-center gap-5 px-5 py-4 mb-3"
-      style={{ border: '1.5px dashed rgba(10,10,10,0.13)' }}>
-      {/* Placeholder square */}
-      <div className="shrink-0 flex flex-col items-center justify-center"
-        style={{ width: 56, height: 56, border: '1.5px dashed rgba(10,10,10,0.12)', background: 'rgba(10,10,10,0.02)' }}>
-        <span style={{ fontSize: '1.4rem', opacity: 0.18 }}>★</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-0.5"
-          style={{ color: 'rgba(10,10,10,0.28)' }}>
-          Venue of the Month · Coming soon
-        </p>
-        <p className="text-xs" style={{ color: 'rgba(10,10,10,0.38)' }}>
-          We'll feature an exclusive deal with a Brussels venue here.
-        </p>
-      </div>
-    </div>
-  )
-}
 
 /* ── Venue card (editorial, vertical) ────────────────────────────────────── */
 
@@ -403,12 +380,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         )}
       </PageMasthead>
 
-      <div className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
-
-        {/* Coming-soon partner slot */}
-        <div className="pt-4">
-          <PartnerTeaser />
-        </div>
+      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-6 pb-16">
 
         {/* Browse */}
         <div className="mb-14">

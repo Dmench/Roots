@@ -55,7 +55,7 @@ function PartnerCard({ venue }: { venue: Venue }) {
         </span>
         <span className="text-[10px] font-black tracking-[0.28em] uppercase"
           style={{ color: pal.accent }}>
-          {venue.dealTag ?? 'Partner Venue'} · Exclusive deal
+          {venue.dealTag ?? 'Editor’s pick'}
         </span>
       </div>
 
@@ -78,15 +78,6 @@ function PartnerCard({ venue }: { venue: Venue }) {
           style={{ color: 'rgba(245,244,240,0.65)' }}>
           "{venue.why}"
         </p>
-
-        {venue.deal && (
-          <div className="px-4 py-3 mb-5 inline-block"
-            style={{ background: `${pal.accent}18`, border: `1px solid ${pal.accent}30` }}>
-            <p className="text-xs font-semibold" style={{ color: pal.accent }}>
-              {venue.deal}
-            </p>
-          </div>
-        )}
 
         <div className="flex items-center gap-3 flex-wrap">
           {venue.website && (

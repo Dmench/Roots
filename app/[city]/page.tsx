@@ -218,9 +218,9 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                           {p.dealTag ?? 'Venue pick'}
                         </p>
                         <p className="text-xs font-black truncate" style={{ color: '#0A0A0A' }}>{p.name}</p>
-                        {p.deal && (
+                        {p.neighborhood && (
                           <p className="text-[10px] mt-0.5 line-clamp-1" style={{ color: 'rgba(10,10,10,0.45)' }}>
-                            {p.deal}
+                            {p.neighborhood} · {(p as { vibe?: string }).vibe?.split(',')[0] ?? p.category}
                           </p>
                         )}
                       </div>
