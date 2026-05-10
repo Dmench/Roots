@@ -64,12 +64,12 @@ export function OnboardingModal({ cityName, onDone }: Props) {
             Welcome to {cityName}
           </p>
           <h2 className="font-display font-black text-xl leading-tight" style={{ color: '#0A0A0A' }}>
-            {step === 'stage' ? 'How long have you been here?' : 'Anything else?'}
+            {step === 'stage' ? 'What fits you best?' : 'Anything else?'}
           </h2>
           <p className="text-xs mt-1.5 leading-relaxed" style={{ color: 'rgba(10,10,10,0.4)' }}>
             {step === 'stage'
-              ? 'This shapes your checklist — you can change it later.'
-              : 'Optional. Helps filter tasks to what\'s relevant for you.'}
+              ? 'Shapes your checklist — you can change it later.'
+              : 'Optional. Helps filter what\'s relevant.'}
           </p>
         </div>
 
