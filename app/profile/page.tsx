@@ -18,6 +18,8 @@ import { SpotSearch } from '@/components/city/SpotSearch'
 import { Flag } from '@/components/ui/Flag'
 import { FlagsPicker } from '@/components/profile/FlagsPicker'
 import { getCountry } from '@/lib/data/countries'
+import { SavedEvents } from '@/components/profile/SavedEvents'
+import { StatBento } from '@/components/profile/StatBento'
 
 // "2024-09" or "2024-09-14" → "Sep '24"
 function fmtMonth(val: string): string {
@@ -165,6 +167,11 @@ export default function ProfilePage() {
   const allTasks     = city ? getTasksForCity(city.id) : []
   const doneCount    = (profile.completedTaskIds ?? []).filter(id => allTasks.some(t => t.id === id)).length
   const pct          = allTasks.length > 0 ? Math.round((doneCount / allTasks.length) * 100) : 0
+  const spotsCount   = (profile.spots ?? []).length
+  const flagsCount   = (profile.flags ?? []).length
+  const daysHere     = profile.arrivalDate
+    ? Math.max(0, Math.floor((Date.now() - new Date(profile.arrivalDate).getTime()) / 86400000))
+    : null
 
   const handleSignOut = async () => { await signOut(); router.push('/') }
 
@@ -602,79 +609,68 @@ export default function ProfilePage() {
           </p>
         )}
 
-        {/* ── Settle progress ──────────────────────────────────────────────── */}
-        {city && allTasks.length > 0 && (
-          <div className="mt-8 py-4"
-            style={{ borderTop: '1px solid rgba(10,10,10,0.07)', borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
-            <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[10px] font-black tracking-[0.2em] uppercase"
-                style={{ color: 'rgba(10,10,10,0.3)' }}>
-                Settle checklist
-              </p>
-              <Link href={`/${city.id}/settle`}
-                className="text-[10px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
-                style={{ color: '#4744C8' }}>
-                View →
-              </Link>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-0.5" style={{ background: 'rgba(10,10,10,0.07)' }}>
-                <div className="h-full transition-all duration-700" style={{ width: `${pct}%`, background: '#4744C8' }} />
-              </div>
-              <span className="text-xs font-semibold shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
-                {doneCount}/{allTasks.length}
-              </span>
-            </div>
+        {/* ── Stat bento — magazine-style headline numbers ─────────────────── */}
+        <StatBento
+          stats={[
+            ...(allTasks.length > 0 ? [{ value: doneCount, total: allTasks.length, label: 'Tasks done', color: '#4744C8' }] : []),
+            { value: spotsCount, label: spotsCount === 1 ? 'Spot saved' : 'Spots saved', color: '#E8612A' },
+            { value: flagsCount, label: flagsCount === 1 ? 'Place lived' : 'Places lived', color: '#FF3EBA' },
+            ...(daysHere !== null ? [{ value: daysHere, label: city ? `Days in ${city.name}` : 'Days here', color: '#10B981' }] : []),
+          ]}
+        />
+
+        {/* ── Saved events — your bookmarks from the city hub ──────────────── */}
+        {city && <SavedEvents cityId={city.id} />}
+
+        {/* ── Settings — 2-col bento on desktop, stacked on mobile ─────────── */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div>
+            <SectionLabel>Location</SectionLabel>
+            <FieldGroup>
+              <FieldRow label="City" value={city?.name} placeholder="Not set"
+                onClick={() => router.push('/cities?from=profile')} />
+              {city && (
+                <FieldRow label="Neighborhood" value={profile.neighborhood} placeholder="Select…"
+                  onClick={() => setNeighborhoodOpen(true)} />
+              )}
+              <FieldRow label="Arrived" last
+                value={profile.arrivalDate ? fmtMonth(profile.arrivalDate) : undefined}
+                placeholder="Set month"
+                onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()} />
+            </FieldGroup>
           </div>
-        )}
 
-        {/* ── Settings ─────────────────────────────────────────────────────── */}
-        <div className="mt-8 space-y-0">
+          <div>
+            <SectionLabel>Community</SectionLabel>
+            <FieldGroup>
+              <ToggleRow
+                label="Show me in settler directory"
+                sub={city ? `Visible to other settlers in ${city.name}` : undefined}
+                checked={profile.showInDirectory !== false}
+                onChange={v => { setShowInDirectory(v); flash() }}
+              />
+              <ToggleRow
+                label="Weekly digest email"
+                sub="What's on, settler tips, and city news"
+                checked={profile.digestSubscribed !== false}
+                onChange={v => { setDigestSubscribed(v); flash() }}
+                last={!city}
+              />
+              {city && (
+                <FieldRow label="View settler directory" last
+                  onClick={() => router.push(`/${city.id}/people`)} />
+              )}
+            </FieldGroup>
+          </div>
 
-          <SectionLabel>Location</SectionLabel>
-          <FieldGroup>
-            <FieldRow label="City" value={city?.name} placeholder="Not set"
-              onClick={() => router.push('/cities?from=profile')} />
-            {city && (
-              <FieldRow label="Neighborhood" value={profile.neighborhood} placeholder="Select…"
-                onClick={() => setNeighborhoodOpen(true)} />
-            )}
-            <FieldRow label="Arrived" last
-              value={profile.arrivalDate ? fmtMonth(profile.arrivalDate) : undefined}
-              placeholder="Set month"
-              onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()} />
-          </FieldGroup>
-
-          <div className="mb-6" />
-
-          <SectionLabel>Community</SectionLabel>
-          <FieldGroup>
-            <ToggleRow
-              label="Show me in settler directory"
-              sub={city ? `Visible to other settlers in ${city.name}` : undefined}
-              checked={profile.showInDirectory !== false}
-              onChange={v => { setShowInDirectory(v); flash() }}
-            />
-            <ToggleRow
-              label="Weekly digest email"
-              sub="What's on, settler tips, and city news"
-              checked={profile.digestSubscribed !== false}
-              onChange={v => { setDigestSubscribed(v); flash() }}
-              last={!city}
-            />
-            {city && (
-              <FieldRow label="View settler directory" last
-                onClick={() => router.push(`/${city.id}/people`)} />
-            )}
-          </FieldGroup>
-
-          <div className="mb-6" />
-
-          <SectionLabel>Account</SectionLabel>
-          <FieldGroup>
-            <FieldRow label="Email" value={user.email ?? undefined} />
-            <FieldRow label="Sign out" last danger onClick={handleSignOut} />
-          </FieldGroup>
+          <div className="md:col-span-2">
+            <SectionLabel>Account</SectionLabel>
+            <FieldGroup>
+              <FieldRow label="Email" value={user.email ?? undefined} />
+              <FieldRow label="Sign out" last danger onClick={handleSignOut} />
+            </FieldGroup>
+          </div>
 
         </div>
       </div>
