@@ -13,7 +13,6 @@ import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
 import RedditFeed from '@/components/city/RedditFeed'
 import { CityHubClient } from '@/components/city/CityHubClient'
-import { SpinWheel } from '@/components/city/SpinWheel'
 import { WeatherWidget } from '@/components/city/WeatherWidget'
 import { TransportWidget } from '@/components/city/TransportWidget'
 import { RentalsWidget } from '@/components/city/RentalsWidget'
@@ -118,129 +117,28 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
           </div>
 
-          {/* ── Spin wheel — hero action above portal cards ───────────────── */}
-          {(venues.length > 0 || allEvents.length > 0) && (
-            <div className="mb-10 -mx-6 sm:-mx-10 md:-mx-14 px-6 sm:px-10 md:px-14 py-10 md:py-14 flex flex-col items-center text-center"
-              style={{ background: '#252450', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <p className="text-xs font-black tracking-[0.28em] uppercase mb-3"
-                style={{ color: 'rgba(245,244,240,0.45)' }}>
-                What's the plan tonight?
-              </p>
-              <h2 className="font-display font-black mb-8"
-                style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#F5F4F0', letterSpacing: '-0.02em' }}>
-                Pick a vibe. Spin. Go.
-              </h2>
-              <SpinWheel
-                venues={venues.map(v => ({
-                  id: v.id, name: v.name, category: v.category,
-                  broadType: v.broadType, neighborhood: v.neighborhood,
-                  vibe: v.vibe, website: v.website,
-                }))}
-                events={allEvents.slice(0, 30).map(ge => ({
-                  title: ge.ev.title,
-                  date:  ge.ev.date,
-                  venue: ge.ev.venue,
-                  url:   ge.ev.url,
-                }))}
-                cityId={cityId}
-                dark
-              />
-            </div>
-          )}
-
-          {/* ── Section portal cards ─────────────────────────────────────────
-               Heading tells users what this is. Cards are large enough to read
-               and tap. gap-px + bg = 1px gridlines. */}
-          <div className="mb-2">
-            <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-3"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
-              Explore {city.name}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-px"
-            style={{ background: 'rgba(10,10,10,0.1)', border: '1px solid rgba(10,10,10,0.1)' }}>
+          {/* ── Section nav ────────────────────────────────────────────────── */}
+          <nav className="flex flex-wrap gap-x-1 gap-y-1 mt-2"
+            style={{ borderTop: '1px solid rgba(10,10,10,0.08)', paddingTop: 14 }}>
             {[
-              { href: `/${cityId}/connect`, label: 'Community',   sub: 'Tips, questions & local posts',  color: '#FF3EBA' },
-              { href: `/${cityId}/eat`,     label: 'Eat & Drink', sub: `${venues.length} curated spots`, color: '#E8612A' },
-              { href: `/${cityId}/settle`,  label: 'Settle in',   sub: 'Admin, housing & setup guide',   color: '#FAB400' },
-              { href: `/${cityId}/ask`,     label: 'Ask the AI',  sub: 'Any question, answered fast',    color: '#38C0F0' },
-              { href: `/${cityId}/people`,  label: 'People',      sub: 'Meet settlers like you',         color: '#4744C8' },
+              { href: `/${cityId}/settle`,  label: 'Settle',      color: '#FAB400' },
+              { href: `/${cityId}/eat`,     label: 'Eat & Drink', color: '#E8612A' },
+              { href: `/${cityId}/connect`, label: 'Community',   color: '#FF3EBA' },
+              { href: `/${cityId}/ask`,     label: 'Ask',         color: '#38C0F0' },
+              { href: `/${cityId}/people`,  label: 'People',      color: '#4744C8' },
             ].map(p => (
               <Link key={p.href} href={p.href}
-                className="group flex flex-col px-5 py-6 md:py-8 bg-white hover:bg-neutral-50 transition-colors"
-                style={{ borderTop: `4px solid ${p.color}` }}>
-                <span className="text-sm font-black tracking-[0.08em] uppercase mb-2"
-                  style={{ color: p.color }}>
-                  {p.label}
-                </span>
-                <span className="text-xs leading-snug flex-1"
-                  style={{ color: 'rgba(10,10,10,0.5)' }}>
-                  {p.sub}
-                </span>
-                <span className="text-sm font-black mt-5 group-hover:translate-x-1 transition-transform inline-block"
-                  style={{ color: p.color }}>
-                  →
-                </span>
+                className="text-[10px] font-black tracking-[0.14em] uppercase px-3 py-2 hover:opacity-70 transition-opacity"
+                style={{ color: p.color, border: `1px solid ${p.color}30` }}>
+                {p.label}
               </Link>
             ))}
-          </div>
+          </nav>
 
           <SettlersStrip cityId={cityId} />
         </div>
       </div>
 
-      {/* ── Ask featured block — light sky tint, NOT dark ─────────────────── */}
-      <div style={{
-        background: 'rgba(56,192,240,0.04)',
-        borderTop: '3px solid #38C0F0',
-        borderBottom: '1px solid rgba(56,192,240,0.15)',
-      }}>
-        <div className="px-6 sm:px-10 md:px-14 py-9 md:py-12">
-          <div className="flex flex-col md:flex-row md:items-center gap-7 md:gap-14">
-
-            <div className="flex-1 min-w-0">
-              <p className="text-[8px] font-black tracking-[0.35em] uppercase mb-4"
-                style={{ color: '#38C0F0' }}>
-                AI · Powered by Claude · {city.name}
-              </p>
-              <h2 className="font-display font-black leading-[0.92] mb-4"
-                style={{ fontSize: 'clamp(1.9rem, 5vw, 3rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
-                Ask anything<br />
-                <em className="not-italic" style={{ color: '#38C0F0' }}>about {city.name}.</em>
-              </h2>
-              <p className="text-sm max-w-sm mb-6" style={{ color: 'rgba(10,10,10,0.45)', lineHeight: 1.6 }}>
-                Admin, housing, healthcare, tax, expat life — specific answers, not generic guides.
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'How do I register at my commune?',
-                  'Which mutuelle is best for expats?',
-                  'What is a 3-6-9 lease?',
-                ].map(q => (
-                  <Link key={q} href={`/${cityId}/ask`}
-                    className="px-3 py-1.5 text-[10px] font-medium hover:opacity-75 transition-opacity"
-                    style={{
-                      background: 'rgba(56,192,240,0.1)',
-                      color: '#0A8AAA',
-                      border: '1px solid rgba(56,192,240,0.22)',
-                    }}>
-                    {q} →
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <Link href={`/${cityId}/ask`}
-              className="shrink-0 flex items-center gap-3 px-8 py-4 font-bold text-sm hover:opacity-90 transition-opacity self-start md:self-center"
-              style={{ background: '#38C0F0', color: '#FFFFFF' }}>
-              Ask anything
-              <span className="opacity-70">→</span>
-            </Link>
-
-          </div>
-        </div>
-      </div>
 
       {/* ── Editorial body ───────────────────────────────────────────────── */}
       <div className="px-6 sm:px-10 md:px-14">
@@ -257,6 +155,10 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
           {/* ── LEFT: Events ────────────────────────────────────────────── */}
           <div className="lg:pr-10 pt-7">
+            <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-5"
+              style={{ color: 'rgba(10,10,10,0.3)' }}>
+              What&apos;s on in {city.name}
+            </p>
             <EventsSection allEvents={allEvents} cityId={cityId} />
           </div>
 
