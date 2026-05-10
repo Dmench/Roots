@@ -20,12 +20,59 @@ const VENUE_COLOR: Record<string, string> = {
   'Ticketmaster': '#0073E6',
 }
 
+// Categorise venues so the "All venues" dropdown lists them in groups instead
+// of one flat alphabetical list. Nothing is hidden — section headers just tell
+// the user the kind of programming each venue runs before they click in.
+type VenueCategory =
+  | 'classical'    // opera, classical music, traditional cultural institutions
+  | 'cultural'     // mixed cultural programming, official city events
+  | 'indie'        // indie / world / theatre / dance / cinema
+  | 'underground'  // punk / hardcore / metal / experimental / DIY
+  | 'mainstream'   // large-scale promoter listings
+  | 'community'    // meetups, social events, mixed user-submitted
+
+const VENUE_CATEGORY: Record<string, VenueCategory> = {
+  'La Monnaie':            'classical',
+  'Flagey':                'classical',
+  'Visit Brussels':        'cultural',
+  'Botanique':             'indie',
+  'Halles de Schaerbeek':  'indie',
+  'Recyclart':             'indie',
+  'Magasin 4':             'underground',
+  'Bruxelles Brûle':       'underground',
+  'Ticketmaster':          'mainstream',
+  'Meetup':                'community',
+  'Eventbrite':            'community',
+}
+
+const CATEGORY_ORDER: VenueCategory[] = [
+  'cultural', 'classical', 'indie', 'mainstream', 'community', 'underground',
+]
+
+const CATEGORY_LABEL: Record<VenueCategory, string> = {
+  classical:   'Classical & Opera',
+  cultural:    'Cultural & Official',
+  indie:       'Indie & Alternative',
+  underground: 'Underground & DIY',
+  mainstream:  'Mainstream',
+  community:   'Meetups & Social',
+}
+
 export default function EventsSection({ allEvents, cityId }: { allEvents: GroupedEvent[]; cityId: string }) {
   const [activeSource, setActiveSource] = useState<string | null>(null)
   const [filterOpen,   setFilterOpen]   = useState(false)
   const { savedIds, toggle } = useSavedEvents(cityId)
 
   const sources = Array.from(new Set(allEvents.map(({ ev }) => ev.source))).sort()
+
+  // Group sources by category for the dropdown. Sources without a known category
+  // ("Other") still show up — fail-open: a new scraper added to lib/data/events.ts
+  // doesn't disappear from the UI just because we forgot to categorise it.
+  const sourcesByCategory: Partial<Record<VenueCategory | 'other', string[]>> = {}
+  for (const src of sources) {
+    const cat = VENUE_CATEGORY[src] ?? 'other'
+    ;(sourcesByCategory[cat] ||= []).push(src)
+  }
 
   const filtered = activeSource
     ? allEvents.filter(({ ev }) => ev.source === activeSource)
@@ -63,26 +110,52 @@ export default function EventsSection({ allEvents, cityId }: { allEvents: Groupe
           </button>
 
           {filterOpen && (
-            <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px]"
-              style={{ background: '#fff', border: '1px solid rgba(10,10,10,0.1)' }}>
+            <div className="absolute right-0 top-full mt-1 z-20 min-w-[220px] max-h-[70vh] overflow-y-auto"
+              style={{ background: '#fff', border: '1px solid rgba(10,10,10,0.12)', boxShadow: '0 4px 16px rgba(10,10,10,0.04)' }}>
+              {/* All venues — unfilter */}
               <button
                 onClick={() => { setActiveSource(null); setFilterOpen(false) }}
-                className="w-full text-left px-4 py-2.5 text-[10px] font-black tracking-wide uppercase hover:bg-neutral-50 transition-colors"
-                style={{ color: !activeSource ? '#0A0A0A' : 'rgba(10,10,10,0.4)', borderBottom: '1px solid rgba(10,10,10,0.06)' }}>
-                All venues
+                className="w-full text-left px-4 py-2.5 text-[10px] font-black tracking-wide uppercase hover:bg-neutral-50 transition-colors flex items-center justify-between"
+                style={{
+                  color: !activeSource ? '#0A0A0A' : 'rgba(10,10,10,0.4)',
+                  borderBottom: '1px solid rgba(10,10,10,0.08)',
+                  background: !activeSource ? 'rgba(10,10,10,0.02)' : 'transparent',
+                }}>
+                <span>All venues</span>
+                <span style={{ color: 'rgba(10,10,10,0.3)' }}>{allEvents.length}</span>
               </button>
-              {sources.map(src => {
-                const color = VENUE_COLOR[src] ?? '#4744C8'
-                const count = allEvents.filter(({ ev }) => ev.source === src).length
+
+              {/* Categorised venues */}
+              {[...CATEGORY_ORDER, 'other' as const].map(cat => {
+                const list = sourcesByCategory[cat]
+                if (!list || list.length === 0) return null
+                const label = cat === 'other' ? 'Other' : CATEGORY_LABEL[cat as VenueCategory]
                 return (
-                  <button
-                    key={src}
-                    onClick={() => { setActiveSource(activeSource === src ? null : src); setFilterOpen(false) }}
-                    className="w-full text-left px-4 py-2.5 flex items-center justify-between hover:bg-neutral-50 transition-colors"
-                    style={{ borderBottom: '1px solid rgba(10,10,10,0.04)' }}>
-                    <span className="text-[10px] font-black tracking-wide uppercase" style={{ color }}>{src}</span>
-                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{count}</span>
-                  </button>
+                  <div key={cat}>
+                    <p className="px-4 pt-3 pb-1.5 text-[9px] font-black tracking-[0.2em] uppercase"
+                      style={{ color: 'rgba(10,10,10,0.35)' }}>
+                      {label}
+                    </p>
+                    {list.map(src => {
+                      const color = VENUE_COLOR[src] ?? '#4744C8'
+                      const count = allEvents.filter(({ ev }) => ev.source === src).length
+                      const isActive = activeSource === src
+                      return (
+                        <button
+                          key={src}
+                          onClick={() => { setActiveSource(isActive ? null : src); setFilterOpen(false) }}
+                          className="w-full text-left px-4 py-2 flex items-center justify-between hover:bg-neutral-50 transition-colors"
+                          style={{
+                            background: isActive ? 'rgba(71,68,200,0.05)' : 'transparent',
+                          }}>
+                          <span className="text-[10px] font-black tracking-wide uppercase" style={{ color }}>
+                            {src}
+                          </span>
+                          <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{count}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
                 )
               })}
             </div>
