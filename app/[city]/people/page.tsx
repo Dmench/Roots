@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils'
 import type { Stage, SituationTag, Spot } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { FollowButton } from '@/components/social/FollowButton'
+import { GeometricThread } from '@/components/layout/GeometricThread'
+import { PageMasthead } from '@/components/layout/PageMasthead'
 
 interface Member {
   id: string
@@ -83,28 +85,24 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
 
   return (
     <>
-    <div style={{ background: '#FFFFFF', minHeight: '100vh' }}>
-      <div className="max-w-3xl mx-auto px-6 md:px-8 py-10 md:py-14">
+    <div className="relative overflow-hidden" style={{ background: '#FFFFFF', minHeight: '100vh' }}>
+      <GeometricThread />
 
-        {/* Header */}
-        <div className="mb-8" style={{ borderBottom: '2px solid #0A0A0A', paddingBottom: 16 }}>
-          <Link href={`/${cityId}`}
-            className="inline-flex items-center gap-1.5 text-xs hover:opacity-60 transition-opacity mb-4"
-            style={{ color: 'rgba(10,10,10,0.4)' }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M8 2L4 6l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            {city.name}
-          </Link>
-          <div className="flex items-baseline justify-between gap-4">
-            <h1 className="font-display font-black text-3xl leading-tight" style={{ color: '#0A0A0A' }}>
-              Settlers in {city.name}
-            </h1>
-            <span className="text-sm shrink-0" style={{ color: 'rgba(10,10,10,0.3)' }}>
-              {loading ? '…' : `${members.length} members`}
-            </span>
-          </div>
-        </div>
+      <PageMasthead
+        eyebrow={`${city.name} · People`}
+        headline={`${city.name},`}
+        emphasis="together."
+        tagline={`Other settlers in ${city.name}, in your stage and your situation. Opt-in directory — find people, follow them, see their spots.`}
+        backHref={`/${cityId}`}
+        backLabel="← Back to hub"
+      >
+        <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+          style={{ color: '#4744C8' }}>
+          {loading ? '…' : `${members.length} ${members.length === 1 ? 'settler' : 'settlers'}`}
+        </span>
+      </PageMasthead>
+
+      <div className="max-w-3xl mx-auto px-6 md:px-8 py-10 md:py-14">
 
         {/* Stage filter — underline tabs */}
         <div className="flex flex-wrap gap-x-5 gap-y-2 mb-8">

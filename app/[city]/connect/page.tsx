@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils'
 import type { Post, PostCategory, Stage, PostComment, CityId } from '@/lib/types'
 import type { FeedItem } from '@/app/api/feeds/route'
 import RedditChannel from '@/components/connect/RedditChannel'
+import { GeometricThread } from '@/components/layout/GeometricThread'
+import { PageMasthead } from '@/components/layout/PageMasthead'
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 
@@ -469,85 +471,47 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   return (
     <div style={{ background: '#FFFFFF', minHeight: '100vh' }} className="relative overflow-hidden">
 
-      {/* ── Geometric thread — same idiom as landing + city hub ──────────── */}
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#4744C8', width: '42vw', height: '42vw', maxWidth: 540, maxHeight: 540, top: '-22%', right: '-14%', opacity: 0.04 }} />
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#FF3EBA', width: '18vw', height: '18vw', maxWidth: 200, maxHeight: 200, bottom: '6%', left: '-4%', opacity: 0.04 }} />
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#38C0F0', width: '8vw', height: '8vw', maxWidth: 90, maxHeight: 90, top: '38%', left: '4%', opacity: 0.05 }} />
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#FAB400', width: '11vw', height: '11vw', maxWidth: 130, maxHeight: 130, top: '70%', right: '6%', opacity: 0.04 }} />
+      <GeometricThread />
 
-      {/* ── Editorial masthead ───────────────────────────────────────────── */}
-      <div style={{ background: '#F9F8F6', borderBottom: '2px solid #0A0A0A' }}>
-        {/* 4px brand rule */}
-        <div style={{ height: 4, background: '#252450' }} />
-
-        <div className="max-w-5xl mx-auto px-6 md:px-12 pt-8 md:pt-10 pb-7 md:pb-9">
-          <div className="flex items-baseline justify-between gap-4 mb-5">
-            <p className="text-[10px] font-black tracking-[0.28em] uppercase"
-              style={{ color: 'rgba(10,10,10,0.4)' }}>
-              {city.name} · Community
-            </p>
-            <a href={`/${cityId}`}
-              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity hidden sm:block"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
-              ← Back to hub
-            </a>
-          </div>
-
-          <h1 className="font-display font-black leading-[0.92] mb-4"
-            style={{
-              fontSize: 'clamp(2.5rem, 8vw, 5.25rem)',
-              color: '#0A0A0A',
-              letterSpacing: '-0.02em',
-            }}>
-            {city.name},<br />
-            <em className="not-italic" style={{ color: '#FF3EBA' }}>talking.</em>
-          </h1>
-
-          <p className="text-sm md:text-base max-w-md mb-5 leading-relaxed"
+      <PageMasthead
+        eyebrow={`${city.name} · Community`}
+        headline={`${city.name},`}
+        emphasis="talking."
+        tagline={`What's on, what to ask, who's settling. The ${city.name} conversation, in one place.`}
+        backHref={`/${cityId}`}
+        backLabel="← Back to hub"
+      >
+        <div className="flex items-center gap-1.5">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+              style={{ background: '#10B981' }} />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+              style={{ background: '#10B981' }} />
+          </span>
+          <span className="text-[10px] font-black tracking-[0.15em] uppercase"
             style={{ color: 'rgba(10,10,10,0.55)' }}>
-            What&apos;s on, what to ask, who&apos;s settling. The Brussels conversation, in one place.
-          </p>
-
-          {/* Live signal strip */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 pt-4"
-            style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
-                  style={{ background: '#10B981' }} />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5"
-                  style={{ background: '#10B981' }} />
-              </span>
-              <span className="text-[10px] font-black tracking-[0.15em] uppercase"
-                style={{ color: 'rgba(10,10,10,0.55)' }}>
-                Live
-              </span>
-            </div>
-            {postsThisWeek > 0 && (
-              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                style={{ color: '#10B981' }}>
-                {postsThisWeek} {postsThisWeek === 1 ? 'post' : 'posts'} this week
-              </span>
-            )}
-            {eventItems.length > 0 && (
-              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                style={{ color: '#E8612A' }}>
-                {eventItems.length} {eventItems.length === 1 ? 'event' : 'events'} ahead
-              </span>
-            )}
-            {redditItems.length > 0 && (
-              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                style={{ color: '#FF4500' }}>
-                r/{cityId} hot
-              </span>
-            )}
-          </div>
+            Live
+          </span>
         </div>
-      </div>
+        {postsThisWeek > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#10B981' }}>
+            {postsThisWeek} {postsThisWeek === 1 ? 'post' : 'posts'} this week
+          </span>
+        )}
+        {eventItems.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#E8612A' }}>
+            {eventItems.length} {eventItems.length === 1 ? 'event' : 'events'} ahead
+          </span>
+        )}
+        {redditItems.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#FF4500' }}>
+            r/{cityId} hot
+          </span>
+        )}
+      </PageMasthead>
 
       {/* ── Tab bar — Listen | Talk ──────────────────────────────────────── */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(10,10,10,0.08)' }}>

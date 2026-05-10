@@ -8,6 +8,8 @@ import { getCity } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
 import type { Venue } from '@/lib/data/venues'
 import { supabase } from '@/lib/supabase/client'
+import { GeometricThread } from '@/components/layout/GeometricThread'
+import { PageMasthead } from '@/components/layout/PageMasthead'
 
 const VenueMap = dynamic(() => import('./VenueMap'), { ssr: false })
 
@@ -370,30 +372,35 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#FFFFFF' }}>
-      {/* Geometric thread */}
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#E8612A', width: '35vw', height: '35vw', maxWidth: 420, maxHeight: 420, top: '-15%', right: '-10%', opacity: 0.025 }} />
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#FAB400', width: '12vw', height: '12vw', maxWidth: 140, maxHeight: 140, bottom: '10%', left: '4%', opacity: 0.03 }} />
+      <GeometricThread />
 
-      {/* ── Section masthead — newspaper section front ─────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 md:px-12" style={{ borderBottom: '2px solid #0A0A0A' }}>
-        <div className="flex items-end justify-between gap-4 py-5">
-          <div>
-            <p className="text-[8px] font-black tracking-[0.32em] uppercase mb-1"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
-              {city.name}
-            </p>
-            <h1 className="font-display font-black leading-none"
-              style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
-              Eat &amp; Drink
-            </h1>
-          </div>
-          <p className="text-xs max-w-xs text-right hidden sm:block pb-1" style={{ color: 'rgba(10,10,10,0.38)' }}>
-            Curated by people who live here. No tourist traps, no paid rankings.
-          </p>
-        </div>
-      </div>
+      <PageMasthead
+        eyebrow={`${city.name} · Eat & Drink`}
+        headline={`${city.name},`}
+        emphasis="hungry."
+        tagline={`Where actual locals eat. Curated neighbourhood by neighbourhood — no tourist traps, no paid rankings.`}
+        backHref={`/${cityId}`}
+        backLabel="← Back to hub"
+      >
+        {venues.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#E8612A' }}>
+            {venues.length} {venues.length === 1 ? 'venue' : 'venues'}
+          </span>
+        )}
+        {hoods.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#FAB400' }}>
+            {hoods.length} neighbourhoods
+          </span>
+        )}
+        {scouted.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#FF3EBA' }}>
+            {scouted.length} new this season
+          </span>
+        )}
+      </PageMasthead>
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
 

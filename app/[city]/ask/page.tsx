@@ -7,6 +7,8 @@ import AuthGate from '@/components/auth/AuthGate'
 import { getCity, STAGES } from '@/lib/data/cities'
 import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import { GeometricThread } from '@/components/layout/GeometricThread'
+import { PageMasthead } from '@/components/layout/PageMasthead'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -291,36 +293,30 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
   const hasMessages = messages.length > 0
 
   return (
-    <div className="flex flex-col relative overflow-hidden" style={{ height: 'calc(100vh - 56px)', background: '#F8F7F4' }}>
-      {/* Geometric thread */}
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#38C0F0', width: '30vw', height: '30vw', maxWidth: 360, maxHeight: 360, top: '-10%', right: '-8%', opacity: 0.03 }} />
-      <div className="fixed rounded-full pointer-events-none -z-10"
-        style={{ background: '#4744C8', width: '12vw', height: '12vw', maxWidth: 140, maxHeight: 140, bottom: '15%', left: '2%', opacity: 0.025 }} />
+    <div className="flex flex-col relative overflow-hidden min-h-screen" style={{ background: '#F8F7F4' }}>
+      <GeometricThread />
 
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="shrink-0 px-6 md:px-10 py-5 bg-white"
-        style={{ borderBottom: '1px solid rgba(37,36,80,0.08)' }}>
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="font-display font-bold text-espresso text-lg leading-tight">
-              {city.name} Intelligence
-            </h1>
-            <p className="text-xs mt-0.5" style={{ color: 'rgba(37,36,80,0.4)' }}>
-              Practical answers about living in {city.name}
-              {stageLabel && <span> · {stageLabel}</span>}
-            </p>
-          </div>
-          {/* Trust signal */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-none"
-            style={{ background: 'rgba(71,68,200,0.06)', border: '1px solid rgba(71,68,200,0.12)' }}>
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4744C8' }} />
-            <span className="text-[10px] font-bold tracking-wide" style={{ color: '#4744C8' }}>
-              POWERED BY CLAUDE
-            </span>
-          </div>
+      <PageMasthead
+        eyebrow={`${city.name} · Ask`}
+        headline={`${city.name},`}
+        emphasis="explained."
+        tagline={`Practical answers about admin, housing, healthcare, transport, and daily life — grounded in how ${city.name} actually works. Not generic expat advice.`}
+        backHref={`/${cityId}`}
+        backLabel="← Back to hub"
+      >
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4744C8' }} />
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: '#4744C8' }}>
+            Powered by Claude
+          </span>
         </div>
-      </div>
+        {stageLabel && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: 'rgba(10,10,10,0.5)' }}>
+            {stageLabel}
+          </span>
+        )}
+      </PageMasthead>
 
       {/* ── Conversation area ─────────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-6 md:px-10 py-8">

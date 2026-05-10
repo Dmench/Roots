@@ -8,6 +8,15 @@ import AuthGate from '@/components/auth/AuthGate'
 import { getTasksForCity, filterTasks } from '@/lib/data/tasks'
 import { cn } from '@/lib/utils'
 import type { Stage, SituationTag, TaskCategory } from '@/lib/types'
+import { GeometricThread } from '@/components/layout/GeometricThread'
+import { PageMasthead } from '@/components/layout/PageMasthead'
+
+const STAGE_EMPHASIS: Record<Stage, string> = {
+  planning:     'planning.',
+  just_arrived: 'arriving.',
+  settling:     'settling.',
+  settled:      'home.',
+}
 
 const CATEGORY_META: Record<TaskCategory, { label: string; color: string }> = {
   admin:     { label: 'Admin',      color: '#4744C8' },
@@ -100,51 +109,41 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
 
   /* ── Task list ─────────────────────────────────────────────────────────── */
   return (
-    <div style={{ background: '#F5F4F0', minHeight: '100vh' }}>
+    <div className="relative overflow-hidden" style={{ background: '#FFFFFF', minHeight: '100vh' }}>
+      <GeometricThread />
 
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div style={{ borderBottom: '2px solid #252450' }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-10 md:px-14 pt-8 pb-6">
-          <div className="flex items-end justify-between gap-6 mb-5">
-            <div>
-              <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-2"
-                style={{ color: 'rgba(37,36,80,0.3)' }}>
-                Settle · {city.name}
-              </p>
-              <div className="flex items-baseline gap-3">
-                <h1 className="font-display font-black leading-tight"
-                  style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: '#252450' }}>
-                  {currentStage.label}
-                </h1>
-                <button
-                  onClick={() => setStage(undefined)}
-                  className="text-[10px] font-bold hover:opacity-50 transition-opacity"
-                  style={{ color: 'rgba(37,36,80,0.4)' }}>
-                  change
-                </button>
-              </div>
-            </div>
-            {filteredTasks.length > 0 && (
-              <div className="text-right shrink-0">
-                <p className="font-display font-black text-3xl leading-none" style={{ color: '#252450' }}>
-                  {pct}<span className="text-lg">%</span>
-                </p>
-                <p className="text-[10px] mt-1" style={{ color: 'rgba(37,36,80,0.35)' }}>
-                  {doneCount} of {filteredTasks.length} done
-                </p>
-              </div>
-            )}
-          </div>
+      <PageMasthead
+        eyebrow={`${city.name} · Settle`}
+        headline={`${city.name},`}
+        emphasis={STAGE_EMPHASIS[profile.stage as Stage] ?? 'landed.'}
+        tagline={`Your stage-specific checklist for ${currentStage.label.toLowerCase()}. From admin to identity to actually belonging.`}
+        backHref={`/${cityId}`}
+        backLabel="← Back to hub"
+      >
+        <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+          style={{ color: stageColor }}>
+          {currentStage.label}
+        </span>
+        <button onClick={() => setStage(undefined)}
+          className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+          style={{ color: 'rgba(10,10,10,0.4)' }}>
+          Change stage
+        </button>
+        {filteredTasks.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#10B981' }}>
+            {pct}% complete · {doneCount}/{filteredTasks.length}
+          </span>
+        )}
+      </PageMasthead>
 
-          {/* Progress bar */}
-          {filteredTasks.length > 0 && (
-            <div className="h-0.5 w-full" style={{ background: 'rgba(37,36,80,0.1)' }}>
-              <div className="h-full transition-all duration-700"
-                style={{ width: `${pct}%`, background: stageColor }} />
-            </div>
-          )}
+      {/* Progress bar — full width under the masthead */}
+      {filteredTasks.length > 0 && (
+        <div className="h-0.5 w-full" style={{ background: 'rgba(37,36,80,0.08)' }}>
+          <div className="h-full transition-all duration-700"
+            style={{ width: `${pct}%`, background: stageColor }} />
         </div>
-      </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-6 sm:px-10 md:px-14 py-8">
 

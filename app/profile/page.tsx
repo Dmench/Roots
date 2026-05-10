@@ -10,6 +10,8 @@ import { getCity, STAGES, NEIGHBORHOODS } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { Nav } from '@/components/layout/Nav'
 import { Footer } from '@/components/layout/Footer'
+import { GeometricThread } from '@/components/layout/GeometricThread'
+import { PageMasthead } from '@/components/layout/PageMasthead'
 import type { Stage, SituationTag } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { SpotSearch } from '@/components/city/SpotSearch'
@@ -218,8 +220,35 @@ export default function ProfilePage() {
   /* ── Signed in ── */
   return (
     <>
-    <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
+    <div className="relative overflow-hidden min-h-screen" style={{ background: '#FFFFFF' }}>
       <Nav />
+      <GeometricThread />
+
+      <PageMasthead
+        eyebrow="Roots · Profile"
+        headline="Your"
+        emphasis="roots."
+        tagline="Identity, neighbourhood, languages, and the places you've claimed as yours. Edit anytime."
+      >
+        {city && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#4744C8' }}>
+            Settling in {city.name}
+          </span>
+        )}
+        {allTasks.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#10B981' }}>
+            {pct}% of checklist done
+          </span>
+        )}
+        {spots.length > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#FAB400' }}>
+            {spots.length} {spots.length === 1 ? 'spot' : 'spots'}
+          </span>
+        )}
+      </PageMasthead>
 
       <div className="max-w-2xl mx-auto px-4 md:px-8 pt-6 pb-20">
 
