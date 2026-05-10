@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import type { Spot, SpotCategory } from '@/lib/types'
+import { supabase } from '@/lib/supabase/client'
 
 interface PlaceResult {
   placeId:  string
@@ -54,7 +55,13 @@ export function SpotSearch({ cityId, onAdd, onCancel }: Props) {
     setLoading(true)
     timerRef.current = setTimeout(async () => {
       try {
-        const res  = await fetch(`/api/places/search?q=${encodeURIComponent(q)}&cityId=${cityId}`)
+        // /api/places/search requires a Bearer token (auth-gated to protect Google quota).
+        // Pull the current session and forward the access token.
+        const { data: { session } } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }))
+        const headers: Record<string, string> = {}
+        if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+        const res  = await fetch(`/api/places/search?q=${encodeURIComponent(q)}&cityId=${cityId}`, { headers })
         const json = await res.json()
         setResults(json.results ?? [])
       } catch {
