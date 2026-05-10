@@ -36,11 +36,18 @@ export function CityHubClient({ cityName, cityId }: Props) {
 
   useEffect(() => {
     if (!hydrated || !user) return
+    // Don't show if user already completed onboarding (persisted across sessions)
+    if (localStorage.getItem('roots:onboarded') === '1') return
     if (!profile.stage) {
       const t = setTimeout(() => setShowOnboarding(true), 600)
       return () => clearTimeout(t)
     }
   }, [hydrated, user, profile.stage])
+
+  function handleOnboardingDone() {
+    localStorage.setItem('roots:onboarded', '1')
+    setShowOnboarding(false)
+  }
 
   // Stage-aware hero strip (not shown for 'settled' or unauthenticated)
   const stage = profile.stage
@@ -143,7 +150,7 @@ export function CityHubClient({ cityName, cityId }: Props) {
       {showOnboarding && (
         <OnboardingModal
           cityName={cityName}
-          onDone={() => setShowOnboarding(false)}
+          onDone={handleOnboardingDone}
         />
       )}
     </>

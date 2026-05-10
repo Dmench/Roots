@@ -82,10 +82,10 @@ export function getCity(id: string): City | undefined {
 }
 
 export const STAGES: StageConfig[] = [
-  { id: 'planning',     label: 'Planning the move', sublabel: 'Research mode',       months: 'Before you arrive' },
-  { id: 'just_arrived', label: 'Just arrived',       sublabel: 'First few weeks',     months: '0–4 weeks in' },
-  { id: 'settling',     label: 'Getting settled',    sublabel: 'Building your life',  months: '1–6 months in' },
-  { id: 'settled',      label: 'Settled in',         sublabel: 'You know the ropes',  months: '6+ months in' },
+  { id: 'planning',     label: 'Haven\'t moved yet', sublabel: 'Researching from abroad',  months: 'Pre-move' },
+  { id: 'just_arrived', label: 'First month here',   sublabel: 'Admin, keys, SIM card',    months: '0–4 weeks' },
+  { id: 'settling',     label: 'Finding my feet',    sublabel: 'Routines forming',          months: '1–6 months' },
+  { id: 'settled',      label: 'I live here now',    sublabel: 'Know my way around',        months: '6+ months' },
 ]
 
 // ── Neighborhoods per city ────────────────────────────────────────────────────

@@ -16,7 +16,10 @@ export default function OnboardingPrompt({ cityId, cityName }: Props) {
   const [dismissed, setDismissed] = useState(true) // start hidden to avoid flash
 
   useEffect(() => {
-    setDismissed(localStorage.getItem(DISMISSED_KEY) === '1')
+    setDismissed(
+      localStorage.getItem(DISMISSED_KEY) === '1' ||
+      localStorage.getItem('roots:onboarded') === '1'
+    )
   }, [])
 
   // Auto-set city from URL
@@ -65,6 +68,7 @@ export default function OnboardingPrompt({ cityId, cityName }: Props) {
                 key={s.id}
                 onClick={() => {
                   setStage(s.id as Stage)
+                  localStorage.setItem('roots:onboarded', '1')
                   setDismissed(true)
                 }}
                 className="text-left px-4 py-3 transition-all hover:opacity-80"
