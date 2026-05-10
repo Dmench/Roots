@@ -39,7 +39,8 @@ export function CityHubClient({ cityName, cityId }: Props) {
     // Don't show if user already completed onboarding (persisted across sessions)
     if (localStorage.getItem('roots:onboarded') === '1') return
     if (!profile.stage) {
-      const t = setTimeout(() => setShowOnboarding(true), 600)
+      // Defer 1.2s so the editorial masthead lands before the commitment ask.
+      const t = setTimeout(() => setShowOnboarding(true), 1200)
       return () => clearTimeout(t)
     }
   }, [hydrated, user, profile.stage])

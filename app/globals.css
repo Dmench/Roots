@@ -110,3 +110,24 @@ h1, h2, h3, h4 {
   transition: color 0.15s;
 }
 .footer-link:hover { color: #0A0A0A; }
+
+/* ─── Accessibility — keyboard focus ─────────────────────────────────────── */
+
+/* Visible focus rings only when navigating by keyboard. Mouse clicks won't
+   trigger this. EAA / WCAG 2.2 SC 2.4.7 requirement. */
+*:focus { outline: none; }
+*:focus-visible {
+  outline: 2px solid #4744C8;
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #4744C8;
+  outline-offset: 2px;
+}

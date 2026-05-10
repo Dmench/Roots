@@ -15,8 +15,12 @@ interface Props {
 }
 
 export function GeometricThread({ accent, intensity = 'standard' }: Props = {}) {
-  const base   = intensity === 'bold' ? 0.085 : intensity === 'quiet' ? 0.045 : 0.065
-  const dom    = intensity === 'bold' ? 0.13  : intensity === 'quiet' ? 0.07  : 0.10
+  // Bumped from the original whisper-faint defaults (0.04–0.05) so the brand
+  // identity from the landing page actually carries into the auth'd platform.
+  // Standard now feels present without dominating; bold approaches the
+  // landing-page register for welcome moments.
+  const base   = intensity === 'bold' ? 0.12 : intensity === 'quiet' ? 0.055 : 0.085
+  const dom    = intensity === 'bold' ? 0.18 : intensity === 'quiet' ? 0.085 : 0.13
   const domCol = accent ?? '#4744C8'
 
   return (

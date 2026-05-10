@@ -167,6 +167,7 @@ export default function ProfilePage() {
   const STAGE_COLOR: Record<string, string> = {
     planning: '#6865CC', just_arrived: '#B88A00', settling: '#1A8FAD', settled: '#0E9B6B',
   }
+  const stageColor = profile.stage ? STAGE_COLOR[profile.stage] ?? '#252450' : '#252450'
 
   /* ── Loading ── */
   if (authLoading || !hydrated) {
@@ -254,28 +255,33 @@ export default function ProfilePage() {
       <div className="max-w-2xl mx-auto px-4 md:px-8 pt-6 pb-20">
 
         {/* ════════════════════════════════════════════════════════════════
-            THE CARD — shareable identity block
+            THE CARD — shareable identity block (revamped to match the
+            platform's editorial register: brand 4px navy rule on top,
+            cream colophon header, stage-coloured avatar.)
         ════════════════════════════════════════════════════════════════ */}
-        <div style={{ border: '2px solid #0A0A0A' }}>
+        <div style={{ border: '2px solid #0A0A0A', background: '#FFFFFF' }}>
 
-          {/* ── Header bar ──────────────────────────────────────────────── */}
+          {/* 4px navy rule — same as every masthead in the platform */}
+          <div style={{ height: 4, background: '#252450' }} />
+
+          {/* ── Header bar — cream colophon, not the old black slab ────── */}
           <div className="flex items-center justify-between px-4 py-2.5"
-            style={{ background: '#0A0A0A' }}>
+            style={{ background: '#F9F8F6', borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
             <span className="text-[8px] font-black tracking-[0.3em] uppercase"
-              style={{ color: 'rgba(255,255,255,0.35)' }}>
+              style={{ color: 'rgba(10,10,10,0.4)' }}>
               Settler Card
             </span>
             <div className="flex items-center gap-3">
               {city ? (
                 <Link href={`/${city.id}`}
-                  className="text-[8px] font-black tracking-[0.3em] uppercase hover:opacity-70 transition-opacity"
-                  style={{ color: '#FAB400' }}>
+                  className="text-[8px] font-black tracking-[0.3em] uppercase hover:opacity-60 transition-opacity"
+                  style={{ color: '#4744C8' }}>
                   {city.name.toUpperCase()} ↗
                 </Link>
               ) : (
                 <Link href="/cities?from=profile"
-                  className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-60 transition-opacity"
+                  style={{ color: 'rgba(10,10,10,0.4)' }}>
                   Choose city →
                 </Link>
               )}
@@ -287,8 +293,8 @@ export default function ProfilePage() {
                     setCardCopied(true)
                     setTimeout(() => setCardCopied(false), 2200)
                   }}
-                  className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-70 transition-opacity"
-                  style={{ color: cardCopied ? '#FAB400' : 'rgba(255,255,255,0.4)' }}>
+                  className="text-[8px] font-black tracking-[0.2em] uppercase hover:opacity-60 transition-opacity"
+                  style={{ color: cardCopied ? '#10B981' : 'rgba(10,10,10,0.35)' }}>
                   {cardCopied ? '✓ copied' : 'Share ↗'}
                 </button>
               )}
@@ -298,9 +304,9 @@ export default function ProfilePage() {
           {/* ── Identity ─────────────────────────────────────────────────── */}
           <div className="px-5 py-6">
             <div className="flex items-start gap-4">
-              {/* Square avatar */}
+              {/* Stage-coloured avatar — falls back to brand navy when no stage */}
               <div className="shrink-0 w-16 h-16 flex items-center justify-center font-display font-black text-2xl"
-                style={{ background: '#0A0A0A', color: '#fff' }}>
+                style={{ background: stageColor, color: '#fff' }}>
                 {displayInitial}
               </div>
 

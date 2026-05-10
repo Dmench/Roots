@@ -113,19 +113,22 @@ export default async function SettlerCardPage(
         Roots
       </Link>
 
-      {/* ── Settler Card ──────────────────────────────────────────────────── */}
-      <div className="w-full max-w-sm" style={{ border: '2px solid #0A0A0A' }}>
+      {/* ── Settler Card — matches the platform's editorial register ─────── */}
+      <div className="w-full max-w-sm" style={{ border: '2px solid #0A0A0A', background: '#FFFFFF' }}>
 
-        {/* Header bar */}
+        {/* 4px brand rule */}
+        <div style={{ height: 4, background: '#252450' }} />
+
+        {/* Header colophon */}
         <div className="flex items-center justify-between px-4 py-2.5"
-          style={{ background: '#0A0A0A' }}>
+          style={{ background: '#F9F8F6', borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
           <span className="text-[8px] font-black tracking-[0.3em] uppercase"
-            style={{ color: 'rgba(255,255,255,0.35)' }}>
+            style={{ color: 'rgba(10,10,10,0.4)' }}>
             Settler Card
           </span>
           {city && (
             <span className="text-[8px] font-black tracking-[0.3em] uppercase"
-              style={{ color: '#FAB400' }}>
+              style={{ color: '#4744C8' }}>
               {city.name.toUpperCase()}
             </span>
           )}
@@ -135,7 +138,7 @@ export default async function SettlerCardPage(
         <div className="px-5 py-6">
           <div className="flex items-start gap-4">
             <div className="shrink-0 w-16 h-16 flex items-center justify-center font-display font-black text-2xl"
-              style={{ background: '#0A0A0A', color: '#fff' }}>
+              style={{ background: stageColor, color: '#fff' }}>
               {initial}
             </div>
             <div className="flex-1 min-w-0">
@@ -241,8 +244,8 @@ export default async function SettlerCardPage(
         </p>
         <Link
           href={city ? `/${cityId}` : '/cities'}
-          className="block text-center py-3 text-[11px] font-black tracking-[0.18em] uppercase text-white hover:opacity-85 transition-opacity"
-          style={{ background: '#0A0A0A' }}>
+          className="block text-center py-3 text-[11px] font-black tracking-[0.18em] uppercase text-white hover:opacity-90 transition-opacity"
+          style={{ background: '#4744C8' }}>
           Join Roots →
         </Link>
       </div>

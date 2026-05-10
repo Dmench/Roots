@@ -177,9 +177,9 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
                   style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
 
                   <div className="flex items-start gap-3">
-                    {/* Avatar */}
+                    {/* Avatar — coloured by stage so identity is legible at a glance */}
                     <div className="w-7 h-7 shrink-0 flex items-center justify-center text-xs font-black"
-                      style={{ background: '#0A0A0A', color: '#FFFFFF' }}>
+                      style={{ background: colors?.text ?? '#252450', color: '#FFFFFF' }}>
                       {initial}
                     </div>
 
