@@ -86,12 +86,13 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
   return (
     <>
     <div className="relative overflow-hidden" style={{ background: '#FFFFFF', minHeight: '100vh' }}>
-      <GeometricThread />
+      <GeometricThread accent="#4744C8" />
 
       <PageMasthead
         eyebrow={`${city.name} · People`}
         headline={`${city.name},`}
         emphasis="together."
+        emphasisColor="#4744C8"
         tagline={`Other settlers in ${city.name}, in your stage and your situation. Opt-in directory — find people, follow them, see their spots.`}
         backHref={`/${cityId}`}
         backLabel="← Back to hub"

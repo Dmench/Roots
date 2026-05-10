@@ -13,8 +13,11 @@ interface Props {
   eyebrow: string
   // First line of the headline (no emphasis), e.g., "Brussels,"
   headline: string
-  // The emphasised word, rendered in pink. Always include the punctuation.
+  // The emphasised word, rendered in the section's identity colour.
+  // Always include trailing punctuation — it's part of the editorial voice.
   emphasis: string
+  // Section identity colour for the emphasis word. Defaults to brand pink.
+  emphasisColor?: string
   // One-sentence subtitle under the headline.
   tagline: string
   // Optional "← Back to hub" link in the top-right.
@@ -26,7 +29,8 @@ interface Props {
 }
 
 export function PageMasthead({
-  eyebrow, headline, emphasis, tagline, backHref, backLabel, children,
+  eyebrow, headline, emphasis, emphasisColor = '#FF3EBA',
+  tagline, backHref, backLabel, children,
 }: Props) {
   return (
     <div style={{ background: '#F9F8F6', borderBottom: '2px solid #0A0A0A' }}>
@@ -55,7 +59,7 @@ export function PageMasthead({
             letterSpacing: '-0.02em',
           }}>
           {headline}<br />
-          <em className="not-italic" style={{ color: '#FF3EBA' }}>{emphasis}</em>
+          <em className="not-italic" style={{ color: emphasisColor }}>{emphasis}</em>
         </h1>
 
         <p className="text-sm md:text-base max-w-md mb-5 leading-relaxed"

@@ -110,12 +110,13 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
   /* ── Task list ─────────────────────────────────────────────────────────── */
   return (
     <div className="relative overflow-hidden" style={{ background: '#FFFFFF', minHeight: '100vh' }}>
-      <GeometricThread />
+      <GeometricThread accent="#FAB400" />
 
       <PageMasthead
         eyebrow={`${city.name} · Settle`}
         headline={`${city.name},`}
         emphasis={STAGE_EMPHASIS[profile.stage as Stage] ?? 'landed.'}
+        emphasisColor="#FAB400"
         tagline={`Your stage-specific checklist for ${currentStage.label.toLowerCase()}. From admin to identity to actually belonging.`}
         backHref={`/${cityId}`}
         backLabel="← Back to hub"

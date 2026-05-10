@@ -372,12 +372,13 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#FFFFFF' }}>
-      <GeometricThread />
+      <GeometricThread accent="#E8612A" />
 
       <PageMasthead
         eyebrow={`${city.name} · Eat & Drink`}
         headline={`${city.name},`}
         emphasis="hungry."
+        emphasisColor="#E8612A"
         tagline={`Where actual locals eat. Curated neighbourhood by neighbourhood — no tourist traps, no paid rankings.`}
         backHref={`/${cityId}`}
         backLabel="← Back to hub"

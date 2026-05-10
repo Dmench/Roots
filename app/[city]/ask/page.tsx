@@ -294,12 +294,13 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
 
   return (
     <div className="flex flex-col relative overflow-hidden min-h-screen" style={{ background: '#F8F7F4' }}>
-      <GeometricThread />
+      <GeometricThread accent="#38C0F0" />
 
       <PageMasthead
         eyebrow={`${city.name} · Ask`}
         headline={`${city.name},`}
         emphasis="explained."
+        emphasisColor="#38C0F0"
         tagline={`Practical answers about admin, housing, healthcare, transport, and daily life — grounded in how ${city.name} actually works. Not generic expat advice.`}
         backHref={`/${cityId}`}
         backLabel="← Back to hub"

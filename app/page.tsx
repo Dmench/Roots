@@ -3,6 +3,7 @@ import { getCity } from '@/lib/data/cities'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { AuthModal } from '@/components/auth/AuthModal'
+import { GeometricThread } from '@/components/layout/GeometricThread'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -30,23 +31,60 @@ export default function HomePage() {
   // ── Signed-in ────────────────────────────────────────────────────────────
   if (user) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
+      <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: '#FFFFFF' }}>
         {/* 4px brand rule — consistent with city hub */}
         <div style={{ height: 4, background: '#252450' }} />
 
-        <div className="flex-1 flex flex-col justify-center px-8 md:px-16 relative">
-          <div className="max-w-lg">
-            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-6"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
+        <GeometricThread accent="#FF3EBA" intensity="bold" />
+
+        <div className="flex-1 flex flex-col justify-center px-8 md:px-16 relative py-16">
+          <div className="max-w-2xl">
+            <p className="text-[10px] font-black tracking-[0.28em] uppercase mb-6"
+              style={{ color: 'rgba(10,10,10,0.4)' }}>
               Roots · Welcome back
             </p>
-            <h1 className="font-display font-black leading-[0.85] mb-5"
-              style={{ fontSize: 'clamp(3.5rem, 10vw, 8rem)', color: '#0A0A0A' }}>
-              {firstName ? `Hey,\n${firstName}.` : 'Welcome\nback.'}
-            </h1>
-            <p className="text-base mb-10" style={{ color: 'rgba(10,10,10,0.5)', maxWidth: 300 }}>
-              {cityObj ? `Your ${cityObj.name} home is ready.` : 'Pick up where you left off.'}
+
+            {firstName ? (
+              <h1 className="font-display font-black leading-[0.85] mb-5"
+                style={{ fontSize: 'clamp(3.5rem, 11vw, 9rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
+                Hey,<br />
+                <em className="not-italic" style={{ color: '#FF3EBA' }}>{firstName}.</em>
+              </h1>
+            ) : (
+              <h1 className="font-display font-black leading-[0.85] mb-5"
+                style={{ fontSize: 'clamp(3.5rem, 11vw, 9rem)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
+                Welcome<br />
+                <em className="not-italic" style={{ color: '#FF3EBA' }}>back.</em>
+              </h1>
+            )}
+
+            <p className="text-base md:text-lg mb-8 max-w-md leading-relaxed"
+              style={{ color: 'rgba(10,10,10,0.55)' }}>
+              {cityObj ? `Your ${cityObj.name} home is ready. Pick up wherever you left off.` : 'Pick up where you left off — settle, ask, or wander.'}
             </p>
+
+            {/* Signal strip — small editorial chips */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mb-10 pt-5"
+              style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
+              {cityObj && (
+                <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                  style={{ color: '#4744C8' }}>
+                  Settling in {cityObj.name}
+                </span>
+              )}
+              {profile.stage && (
+                <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                  style={{ color: '#FAB400' }}>
+                  {profile.stage.replace(/_/g, ' ')}
+                </span>
+              )}
+              {profile.neighborhood && (
+                <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                  style={{ color: '#10B981' }}>
+                  {profile.neighborhood.split(' / ')[0]}
+                </span>
+              )}
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
               {cityObj ? (

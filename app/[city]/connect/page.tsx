@@ -471,12 +471,13 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   return (
     <div style={{ background: '#FFFFFF', minHeight: '100vh' }} className="relative overflow-hidden">
 
-      <GeometricThread />
+      <GeometricThread accent="#FF3EBA" />
 
       <PageMasthead
         eyebrow={`${city.name} · Community`}
         headline={`${city.name},`}
         emphasis="talking."
+        emphasisColor="#FF3EBA"
         tagline={`What's on, what to ask, who's settling. The ${city.name} conversation, in one place.`}
         backHref={`/${cityId}`}
         backLabel="← Back to hub"

@@ -222,12 +222,13 @@ export default function ProfilePage() {
     <>
     <div className="relative overflow-hidden min-h-screen" style={{ background: '#FFFFFF' }}>
       <Nav />
-      <GeometricThread />
+      <GeometricThread accent="#252450" />
 
       <PageMasthead
         eyebrow="Roots · Profile"
         headline="Your"
         emphasis="roots."
+        emphasisColor="#252450"
         tagline="Identity, neighbourhood, languages, and the places you've claimed as yours. Edit anytime."
       >
         {city && (
