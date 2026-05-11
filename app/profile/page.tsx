@@ -173,6 +173,20 @@ export default function ProfilePage() {
     ? Math.max(0, Math.floor((Date.now() - new Date(profile.arrivalDate).getTime()) / 86400000))
     : null
 
+  // Settler Card completion — five fields, the actual "settle progress" metric
+  // for the first-touch experience. Independent of the 60-task expat checklist
+  // (which lives at /[city]/settle and is its own thing).
+  const cardFields = {
+    name:         !!profile.displayName,
+    neighborhood: !!profile.neighborhood,
+    arrival:      !!profile.arrivalDate,
+    flags:        flagsCount > 0,
+    spots:        spotsCount > 0,
+  }
+  const cardDone  = Object.values(cardFields).filter(Boolean).length
+  const cardTotal = Object.keys(cardFields).length
+  const cardComplete = cardDone === cardTotal
+
   const handleSignOut = async () => { await signOut(); router.push('/') }
 
   const STAGE_COLOR: Record<string, string> = {
@@ -249,12 +263,10 @@ export default function ProfilePage() {
             Settling in {city.name}
           </span>
         )}
-        {allTasks.length > 0 && (
-          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-            style={{ color: '#10B981' }}>
-            {pct}% of checklist done
-          </span>
-        )}
+        <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+          style={{ color: cardComplete ? '#10B981' : '#FF3EBA' }}>
+          {cardComplete ? 'Card complete ✓' : `Card ${cardDone}/${cardTotal}`}
+        </span>
         {spots.length > 0 && (
           <span className="text-[10px] font-black tracking-[0.18em] uppercase"
             style={{ color: '#FAB400' }}>
@@ -607,14 +619,19 @@ export default function ProfilePage() {
         )}
         </div> {/* end hero left column */}
 
-        {/* Hero right column — stat bento */}
+        {/* Hero right column — stat bento.
+            "Card X/5" is the primary settle metric (5 identity fields). The
+            60-task expat checklist progress lives below as its own opt-in
+            section. */}
         <div className="flex flex-col">
           <StatBento
             stats={[
-              ...(allTasks.length > 0 ? [{ value: doneCount, total: allTasks.length, label: 'Tasks done', color: '#4744C8' }] : []),
+              { value: cardDone, total: cardTotal, label: 'Card complete', color: '#FF3EBA' },
+              { value: flagsCount, label: flagsCount === 1 ? 'Place lived' : 'Places lived', color: '#4744C8' },
               { value: spotsCount, label: spotsCount === 1 ? 'Spot saved' : 'Spots saved', color: '#E8612A' },
-              { value: flagsCount, label: flagsCount === 1 ? 'Place lived' : 'Places lived', color: '#FF3EBA' },
-              ...(daysHere !== null ? [{ value: daysHere, label: city ? `Days in ${city.name}` : 'Days here', color: '#10B981' }] : []),
+              ...(daysHere !== null
+                ? [{ value: daysHere, label: city ? `Days in ${city.name}` : 'Days here', color: '#10B981' }]
+                : [{ value: '—', label: city ? `Days in ${city.name}` : 'Days here', color: '#10B981' }]),
             ]}
           />
         </div>
@@ -630,6 +647,38 @@ export default function ProfilePage() {
 
         {/* ── Saved events — full-width below the hero ─────────────────────── */}
         {city && <SavedEvents cityId={city.id} />}
+
+        {/* ── Expat checklist — secondary, explicitly separated from the
+              Card progress above. Lives here as an opt-in for users who want
+              the admin/logistics layer; not promoted on the hub. ────────── */}
+        {city && allTasks.length > 0 && (
+          <section className="mt-12">
+            <div className="flex items-baseline justify-between mb-3 pb-2"
+              style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                Expat checklist
+              </p>
+              <p className="text-[10px] font-bold" style={{ color: 'rgba(10,10,10,0.4)' }}>
+                {doneCount}/{allTasks.length}
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-1" style={{ background: 'rgba(10,10,10,0.06)' }}>
+                <div className="h-full transition-all duration-700"
+                  style={{ width: `${pct}%`, background: '#4744C8' }} />
+              </div>
+              <Link href={`/${city.id}/settle`}
+                className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                style={{ color: '#4744C8' }}>
+                {pct === 100 ? 'Review →' : pct === 0 ? 'Browse →' : 'Continue →'}
+              </Link>
+            </div>
+            <p className="text-[10px] mt-2 leading-relaxed max-w-md" style={{ color: 'rgba(10,10,10,0.4)' }}>
+              The full admin playbook for {city.name} — commune, mutuelle, lease, taxes. Optional, do-at-your-own-pace.
+            </p>
+          </section>
+        )}
 
         {/* ── Settings — 2-col bento on desktop, stacked on mobile ─────────── */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
