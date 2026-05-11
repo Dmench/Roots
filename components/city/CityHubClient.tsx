@@ -73,80 +73,16 @@ export function CityHubClient({ cityName, cityId }: Props) {
   const cardPct      = Math.round((cardComplete / cardTotal) * 100)
   const cardDone     = cardPct === 100
 
+  // User feedback (May 2026): nobody is asking for the settle checklist yet —
+  // the draw is venues and community. The stage-aware hero strip + settler-card
+  // nudge that previously sat above the masthead pushed Settle hard on every
+  // visit. Both removed. Onboarding modal is kept (it only fires once per user
+  // and captures stage/situation for personalisation downstream).
+  // Variables above (hero, showCardNudge, cardPct, allTasks, etc.) intentionally
+  // kept — re-enable the strips by uncommenting if Settle priority shifts.
+  void hero; void showCardNudge; void cardDone; void cardPct; void allTasks
   return (
     <>
-      {/* Stage-aware hero strip */}
-      {hero && hydrated && user && (
-        <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-          <div className="max-w-5xl mx-auto px-6 md:px-12 py-4">
-            <div className="flex items-center gap-5">
-              {/* Progress ring */}
-              <div className="shrink-0 flex flex-col items-center gap-1">
-                <div className="relative w-10 h-10">
-                  <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
-                    <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(10,10,10,0.08)" strokeWidth="3" />
-                    <circle cx="20" cy="20" r="16" fill="none" stroke={hero.color} strokeWidth="3"
-                      strokeDasharray={`${2 * Math.PI * 16}`}
-                      strokeDashoffset={`${2 * Math.PI * 16 * (1 - pct / 100)}`}
-                      strokeLinecap="round" />
-                  </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black"
-                    style={{ color: hero.color }}>
-                    {pct}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-black leading-tight" style={{ color: '#0A0A0A' }}>
-                  {hero.headline}
-                </p>
-                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(10,10,10,0.4)' }}>
-                  {hero.sub(allTasks.length, doneCount)}
-                </p>
-              </div>
-
-              <Link href={`/${cityId}/settle`}
-                className="shrink-0 px-4 py-2 text-[10px] font-black tracking-[0.12em] uppercase text-white hover:opacity-80 transition-opacity"
-                style={{ background: hero.color }}>
-                {hero.cta}
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Settler card nudge — shown for settled users whose card is incomplete */}
-      {showCardNudge && !cardDone && (
-        <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-          <div className="max-w-5xl mx-auto px-6 md:px-12 py-3 flex items-center gap-5">
-            {/* Mini progress bar */}
-            <div className="shrink-0 flex flex-col gap-1">
-              <div className="w-16 h-1" style={{ background: 'rgba(10,10,10,0.08)' }}>
-                <div className="h-full transition-all duration-500"
-                  style={{ width: `${cardPct}%`, background: '#FAB400' }} />
-              </div>
-              <span className="text-[8px] font-black" style={{ color: 'rgba(10,10,10,0.3)' }}>
-                {cardPct}%
-              </span>
-            </div>
-            <p className="flex-1 text-xs" style={{ color: 'rgba(10,10,10,0.45)' }}>
-              Your settler card is{' '}
-              <span className="font-black" style={{ color: '#0A0A0A' }}>{cardPct}% complete</span>
-              {' '}— add {!profile.neighborhood && 'a neighborhood, '}
-              {!profile.arrivalDate && 'arrival date, '}
-              {(profile.spots ?? []).length === 0 && 'your favourite spots'}
-              {' '}to share it.
-            </p>
-            <Link href="/profile"
-              className="shrink-0 text-[10px] font-black tracking-[0.12em] uppercase hover:opacity-60 transition-opacity"
-              style={{ color: '#FAB400' }}>
-              Complete card →
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Onboarding modal */}
       {showOnboarding && (
         <OnboardingModal

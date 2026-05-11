@@ -15,11 +15,21 @@ const VenueMap = dynamic(() => import('./VenueMap'), { ssr: false })
 
 /* ── Editorial collections ───────────────────────────────────────────────── */
 
+// Vibe-led collections — what users actually ask for ("somewhere fancy",
+// "real Belgian", "dancing"). Practical filters (walk-in, remote-work) live
+// further down for the smaller subset of users who plan that way.
 const COLLECTIONS = [
-  { id: 'walk-in', label: 'Just walk in',     sub: 'No reservations, no apps',       color: '#10B981', matchTag: 'no-reservations' },
-  { id: 'remote',  label: 'Work from here',   sub: 'Wifi, plugs, and no rush',       color: '#38C0F0', matchTag: 'remote-work'     },
-  { id: 'belgian', label: 'Belgian classics', sub: 'The real thing, no tourist tax', color: '#FAB400', matchTag: 'belgian'         },
-  { id: 'late',    label: 'Still open late',  sub: 'When dinner turns into drinks',  color: '#FF3EBA', matchTag: 'late-night'      },
+  { id: 'friends',   label: 'Friends in town',   sub: 'Show-off Brussels',                color: '#FF3EBA', matchTag: 'friends-visiting' },
+  { id: 'belgian',   label: 'Real Belgian',      sub: 'Frites, gueuze, no tourist tax',   color: '#FAB400', matchTag: 'belgian-classic'  },
+  { id: 'fancy',     label: 'Fancy',             sub: 'When it has to be special',        color: '#4744C8', matchTag: 'fancy'            },
+  { id: 'date',      label: 'Date night',        sub: 'Candles, low light, somewhere romantic', color: '#9B4DCA', matchTag: 'dark-lit'   },
+  { id: 'cozy',      label: 'Cozy',              sub: 'Wood, fire, somewhere to sit for hours', color: '#E8612A', matchTag: 'cozy'       },
+  { id: 'trendy',    label: 'Trendy',            sub: "What's actually good right now",   color: '#38C0F0', matchTag: 'trendy'           },
+  { id: 'dancing',   label: 'Dancing',           sub: 'Late-late, techno-and-after',      color: '#252450', matchTag: 'nightclub'        },
+  { id: 'wholesome', label: 'Wholesome',         sub: 'Brunch, family, sunny days',       color: '#10B981', matchTag: 'wholesome'        },
+  { id: 'fireplace', label: 'By the fire',       sub: 'A wood fire, a glass, somewhere quiet', color: '#8A7868', matchTag: 'fireplace'   },
+  { id: 'walk-in',   label: 'Just walk in',      sub: 'No reservations, no apps',         color: '#0E9B6B', matchTag: 'no-reservations'  },
+  { id: 'remote',    label: 'Work from here',    sub: 'Wifi, plugs, and no rush',         color: '#1A8FAD', matchTag: 'remote-work'      },
 ]
 
 /* ── Neighbourhood primer ────────────────────────────────────────────────── */
