@@ -10,6 +10,7 @@ import EventsSection from '@/components/city/EventsSection'
 import type { GroupedEvent } from '@/components/city/EventsSection'
 import { EditorsPicks } from '@/components/city/EditorsPicks'
 import { currentBrusselsPick } from '@/lib/data/picks/brussels'
+import { VenueSpotlight } from '@/components/city/VenueSpotlight'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
 import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
@@ -180,6 +181,16 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           {/* ── RIGHT: Sidebar ──────────────────────────────────────────── */}
           <div className="lg:pl-10 pt-7">
 
+            {/* ─ Venue spotlight — photo-led editorial moment at the very top.
+                Picks the featured curated venue with a Google Places photo;
+                falls back to any curated venue with a photo. The hub's only
+                photographic surface — everything below is type-led. ─ */}
+            {(() => {
+              const spotlight = venues.find(v => v.featured && v.photoRef)
+                              ?? venues.find(v => v.photoRef)
+              return spotlight ? <VenueSpotlight venue={spotlight} cityId={cityId} /> : null
+            })()}
+
             {/* ─ Daily context ─ */}
             <Suspense fallback={<SidebarSkeleton label="Weather" />}>
               <WeatherWidget cityId={cityId} />
@@ -187,10 +198,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
             <Suspense fallback={<SidebarSkeleton label="Transport" />}>
               <TransportWidget cityId={cityId} />
-            </Suspense>
-
-            <Suspense fallback={<SidebarSkeleton label="Rent prices" />}>
-              <RentalsWidget cityId={cityId} />
             </Suspense>
 
             {/* ─ Eat & Drink ─ */}
@@ -258,6 +265,12 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 </div>
               </section>
             )}
+
+            {/* Rentals moved down — practical reference, not daily-read.
+                Sits between Eat (discovery) and News (pulse). */}
+            <Suspense fallback={<SidebarSkeleton label="Rent prices" />}>
+              <RentalsWidget cityId={cityId} />
+            </Suspense>
 
             {/* In the news */}
             {featuredNews && (
