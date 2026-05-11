@@ -182,12 +182,14 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <div className="lg:pl-10 pt-7">
 
             {/* ─ Venue spotlight — photo-led editorial moment at the very top.
-                Picks the featured curated venue with a Google Places photo;
-                falls back to any curated venue with a photo. The hub's only
-                photographic surface — everything below is type-led. ─ */}
+                Always renders (component has internal colour-block fallback for
+                missing/broken photos). Prefers the featured curated venue with
+                a photoRef; falls back to any curated venue. ─ */}
             {(() => {
               const spotlight = venues.find(v => v.featured && v.photoRef)
+                              ?? venues.find(v => v.featured)
                               ?? venues.find(v => v.photoRef)
+                              ?? venues[0]
               return spotlight ? <VenueSpotlight venue={spotlight} cityId={cityId} /> : null
             })()}
 

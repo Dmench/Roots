@@ -1,5 +1,6 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import type { Venue } from '@/lib/data/venues'
 
 interface Props {
@@ -7,37 +8,59 @@ interface Props {
   cityId: string
 }
 
-// Photo-led editorial moment at the top of the city hub sidebar. Pulls a
-// Google Places photo via the auth-free /api/places/photo proxy (regex +
-// rate-limit + same-origin referer protection). Caller is responsible for
-// picking a venue with a valid photoRef — if none, render nothing (the
-// fallback is handled in the parent so the layout stays consistent).
+// Photo-led editorial moment at the top of the city hub sidebar. Always
+// renders — when photoRef is missing OR the image fails to load, falls back
+// to a colour-block hero card so the editorial section still anchors the
+// sidebar instead of disappearing into nothing. (Previously this returned
+// null on missing photoRef which produced an invisible feature.)
 //
-// Why this matters: it's the only photographic surface on the hub. The
-// rest of the page is type-led. One strong image at the top anchors the
-// editorial register the rest of the platform now promises.
+// Client component because we need `onError` on the image to switch to the
+// fallback state when Google's photo URL is missing or 404s.
 export function VenueSpotlight({ venue, cityId }: Props) {
-  if (!venue.photoRef) return null
-
+  const [imgErrored, setImgErrored] = useState(false)
   const label = venue.dealTag ?? 'Editor’s pick'
+  const photoUrl = venue.photoRef
+    ? `/api/places/photo?ref=${encodeURIComponent(venue.photoRef)}`
+    : null
+  const showImage = !!photoUrl && !imgErrored
+
+  // Colour block fallback uses the broadType register — terracotta for
+  // restaurants, navy/purple for bars, gold for cafés.
+  const fallbackBg =
+    venue.broadType === 'bar'        ? '#4744C8' :
+    venue.broadType === 'cafe'       ? '#B08800' :
+    venue.broadType === 'restaurant' ? '#E8612A' : '#252450'
 
   return (
     <section className="mb-10">
       <Link href={`/${cityId}/eat`} className="block group">
         <div className="relative w-full overflow-hidden"
-          style={{ aspectRatio: '5 / 4', background: 'rgba(10,10,10,0.05)' }}>
-          <Image
-            src={`/api/places/photo?ref=${encodeURIComponent(venue.photoRef)}`}
-            alt={venue.name}
-            fill
-            sizes="400px"
-            priority
-            className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
-          />
+          style={{ aspectRatio: '5 / 4', background: fallbackBg }}>
 
-          {/* Bottom gradient for legibility */}
+          {showImage && (
+            // Plain <img> not next/image — the photo proxy at /api/places/photo
+            // streams the bytes itself; the Next.js image optimizer adds nothing
+            // here, and using <img> sidesteps optimizer pipeline edge cases that
+            // were occasionally returning an empty slot.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photoUrl}
+              alt={venue.name}
+              onError={() => setImgErrored(true)}
+              loading="eager"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+            />
+          )}
+
+          {/* Bottom gradient for legibility — heavier when no image so the
+              caption still reads against the colour block. */}
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.78) 100%)' }} />
+            style={{
+              background: showImage
+                ? 'linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.78) 100%)'
+                : 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)',
+            }} />
 
           {/* Top-left chip */}
           <span className="absolute top-3 left-3 text-[8px] font-black tracking-[0.28em] uppercase px-2 py-1"
