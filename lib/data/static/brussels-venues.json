@@ -12,9 +12,7 @@
     "address": "188 Rue Antoine Dansaert",
     "lat": 50.8524, "lng": 4.3463,
     "openingHours": "Mo,Tu 17:00-24:00; We 17:00-01:00; Th,Fr 17:00-02:00; Sa 15:00-02:00; Su 15:00-24:00",
-    "website": "https://www.beerproject.be",
-    "featured": true,
-    "dealTag": "Editor's pick"
+    "website": "https://www.beerproject.be"
   },
   {
     "id": "curated-moeder-lambic",
@@ -248,10 +246,12 @@
     "neighborhood": "Ixelles / Châtelain",
     "price": "€",
     "vibe": "Blue-green interiors near Tenbosch Park, NY-style bagels, precise espresso.",
-    "why": "The specialty coffee shop that doesn't feel like it's trying. Artisan roasters, seasonal bagels, proper baristas.",
+    "why": "The specialty coffee shop that doesn't feel like it's trying. Artisan roasters, seasonal bagels, proper baristas — and a room you'll want to come back to.",
     "tags": ["specialty-coffee", "remote-work", "bagels", "expat-favorite", "quiet", "wholesome", "brunch"],
     "address": "Chaussée de Waterloo 586",
-    "lat": 50.8044, "lng": 4.3648
+    "lat": 50.8044, "lng": 4.3648,
+    "featured": true,
+    "dealTag": "Editor's pick"
   },
   {
     "id": "curated-de-hoef",
