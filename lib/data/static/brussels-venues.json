@@ -916,5 +916,159 @@
     "vibe": "Eighth-floor rooftop with 180° views over Brussels. Cocktails, sunset crowd, a proper occasion drink.",
     "why": "When you want the view to be the night. Pre-dinner showpiece for friends visiting; works as a fancy first date too.",
     "tags": ["cocktails", "view", "trendy", "fancy", "friends-visiting", "occasion", "terrace"]
+  },
+  {
+    "id": "curated-le-dillens",
+    "name": "Le Dillens",
+    "category": "Café-bistro-bar",
+    "broadType": "bar",
+    "neighborhood": "Saint-Gilles",
+    "price": "€€",
+    "vibe": "All-day café-bistro that slides into late-bar without changing register. Saint-Gilles social default.",
+    "why": "The place you booked brunch and somehow are still there at midnight. Drinks, plates, the same crew rotating through.",
+    "tags": ["trendy", "all-day", "friends-visiting", "late-night", "neighbourhood", "locals", "no-reservations"]
+  },
+  {
+    "id": "curated-cafe-la-pompe",
+    "name": "Café La Pompe",
+    "category": "Late-night bar",
+    "broadType": "bar",
+    "neighborhood": "Saint-Gilles",
+    "price": "€€",
+    "vibe": "Casual-classy Saint-Gilles bar with a big terrace, late hours, and DJs or live music on the right nights.",
+    "why": "Where a 'one drink' becomes the rest of the night. Big enough to land with friends, polished enough to bring a date, late enough to skip the next plan.",
+    "tags": ["trendy", "late-night", "terrace", "friends-visiting", "groups", "live-music", "locals"]
+  },
+  {
+    "id": "curated-bar-des-amis",
+    "name": "Bar des Amis",
+    "category": "Lively neighbourhood bar",
+    "broadType": "bar",
+    "neighborhood": "Sainte-Catherine",
+    "price": "€€",
+    "vibe": "Central, group-friendly, lively from afternoon. Less intimate, more 'where are we going? — there.'",
+    "why": "Sainte-Catherine's easy-meet bar. Walk-in, draft beer, fits a crew of seven, doesn't take itself too seriously.",
+    "tags": ["friends-visiting", "groups", "locals", "no-reservations", "lively", "all-day"]
+  },
+  {
+    "id": "curated-le-tigre",
+    "name": "Le Tigre",
+    "category": "Trendy bar",
+    "broadType": "bar",
+    "neighborhood": "Flagey",
+    "price": "€€",
+    "vibe": "Polished Flagey alternative, open later on weekends than Belga. A degree more considered than the obvious choices.",
+    "why": "When you want Flagey but not the Belga crowd. Better drinks, smaller room, longer night.",
+    "tags": ["trendy", "late-night", "neighbourhood", "date-night", "cocktails"]
+  },
+  {
+    "id": "curated-le-pantin",
+    "name": "Le Pantin",
+    "category": "Beer bar",
+    "broadType": "bar",
+    "neighborhood": "Flagey",
+    "price": "€",
+    "vibe": "Quirky student-meets-local beer bar near Flagey. Casual, cheap-ish, a healthy mix of regulars and university crowd.",
+    "why": "Where you drink before pivoting somewhere else, or settle in for a long unplanned night. No pretension — just decent beer and someone you'll end up talking to.",
+    "tags": ["craft-beer", "locals", "cheap", "no-reservations", "neighbourhood", "cozy"]
+  },
+  {
+    "id": "curated-chez-richard",
+    "name": "Chez Richard",
+    "category": "Bistro-bar",
+    "broadType": "bar",
+    "neighborhood": "Sablon",
+    "price": "€€",
+    "vibe": "Sablon classy-casual. Terrace apero, bistro-bar inside, regulars who treat it as their living room.",
+    "why": "The real-Brussels Sablon move — not the antique-shop crowd, the people who actually live around the corner. Apero, charcuterie, decent wine, done.",
+    "tags": ["locals", "terrace", "trendy", "friends-visiting", "neighbourhood", "wine"]
+  },
+  {
+    "id": "curated-gamin",
+    "name": "Gamin!",
+    "category": "Natural wine bar",
+    "broadType": "bar",
+    "neighborhood": "Saint-Gilles",
+    "price": "€€",
+    "vibe": "Young Saint-Gilles natural wine bar. Approachable list, no wine-snob register, fills up fast.",
+    "why": "Where you go when you want a good bottle without the lecture. Friendly, well-priced, the kind of place you bring three friends and stay.",
+    "tags": ["natural-wine", "trendy", "young-crowd", "date-night", "small-plates", "neighbourhood"]
+  },
+  {
+    "id": "curated-calmos",
+    "name": "Calmos",
+    "category": "Natural wine bar",
+    "broadType": "bar",
+    "neighborhood": "Saint-Gilles",
+    "price": "€€",
+    "vibe": "Small, local, low-key Saint-Gilles wine bar. Drink with the regulars, not the scene.",
+    "why": "The wine bar your neighbour goes to. No reservations, no pretension, a careful list, an even smaller room.",
+    "tags": ["natural-wine", "cozy", "locals", "neighbourhood", "date-night", "small-plates"]
+  },
+  {
+    "id": "curated-la-flaque",
+    "name": "La Flaque",
+    "category": "Natural wine bar",
+    "broadType": "bar",
+    "neighborhood": "Sainte-Catherine",
+    "price": "€€",
+    "vibe": "Sainte-Catherine wine bar — selected list, small plates, the polish of the neighbourhood without the stiffness.",
+    "why": "The wine-bar version of Sainte-Catherine's mood: serious but unstuffy. Reliable list, careful kitchen, a small room you'll feel at home in by the second visit.",
+    "tags": ["natural-wine", "trendy", "small-plates", "cozy", "date-night"]
+  },
+  {
+    "id": "curated-tortue",
+    "name": "Tortue",
+    "category": "Classy wine bar",
+    "broadType": "bar",
+    "neighborhood": "Uccle",
+    "price": "€€€",
+    "vibe": "Quieter Uccle wine bar. More selected than loud, more bottles than chatter.",
+    "why": "The Uccle move for an actually-good wine night. Smaller crowd, careful pours, conversation you can hear.",
+    "tags": ["natural-wine", "wine-only", "cozy", "date-night", "quiet"]
+  },
+  {
+    "id": "curated-chemistry-botanics",
+    "name": "Chemistry & Botanic's",
+    "category": "Cocktail bar",
+    "broadType": "bar",
+    "neighborhood": "City Centre",
+    "price": "€€€",
+    "vibe": "Polished central cocktail bar — proper drinks without the speakeasy theatre.",
+    "why": "Easy walk-in cocktails when Hortense is booked. Considered list, no gatekeeping, drinks that land.",
+    "tags": ["cocktails", "trendy", "friends-visiting", "date-night", "all-day"]
+  },
+  {
+    "id": "curated-edgars-flavors",
+    "name": "Edgar's Flavors",
+    "category": "Agave cocktail bar",
+    "broadType": "bar",
+    "neighborhood": "Louise",
+    "price": "€€€",
+    "vibe": "Mezcal, tequila, agave-forward cocktails. The most specific cocktail focus in the city.",
+    "why": "Where to go when you actually want to learn something — agave for the curious, not just the Mexican-themed-bar crowd.",
+    "tags": ["cocktails", "trendy", "date-night", "chef-driven", "dark-lit"]
+  },
+  {
+    "id": "curated-modern-alchemist",
+    "name": "The Modern Alchemist",
+    "category": "Cocktail bar",
+    "broadType": "bar",
+    "neighborhood": "Saint-Gilles",
+    "price": "€€€",
+    "vibe": "Dark, cozy Saint-Gilles cocktail bar. The kind of low-light room a good night starts in.",
+    "why": "For when the brief is 'somewhere dark and good.' Drinks land, the room invites you to stay another one, and another.",
+    "tags": ["cocktails", "dark-lit", "cozy", "date-night", "trendy", "late-night"]
+  },
+  {
+    "id": "curated-chez-maman",
+    "name": "Chez Maman",
+    "category": "Drag cabaret bar",
+    "broadType": "bar",
+    "neighborhood": "City Centre",
+    "price": "€€",
+    "vibe": "Brussels' iconic drag cabaret. Late-night, loud, unmissable. Bring friends; bring stamina.",
+    "why": "Not classy, not subtle, not for everyone — exactly the point. One of the few venues in Brussels where the show is the whole night and people walk out smiling.",
+    "tags": ["late-night", "live-music", "iconic", "friends-visiting", "groups", "lively"]
   }
 ]
