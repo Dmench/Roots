@@ -11,29 +11,31 @@ interface Props {
 
 // Photo-led editorial moment at the top of the city hub sidebar.
 //
-// Two-stage photo resolution (mirrors the pattern used on /[city]/eat):
-//   1. If server-side enrichCurated() filled in venue.photoRef, render it.
-//   2. Otherwise client-side fetch /api/places/search?q=<name> to find one.
-// This works around the case where the server-side enrichment returns no
-// photos (the Text Search response sometimes drops the photos array for
-// reasons that aren't ours to debug).
+// Three-stage photo resolution:
+//   1. If venue.photo is set (manually-curated direct URL), render that.
+//      Bypasses Google Places entirely — no quota burn, no API dependency.
+//   2. Else if venue.photoRef is set (filled by Places enrichment), render it
+//      through /api/places/photo proxy.
+//   3. Else try client-side /api/places/search to find a photoRef.
+//   4. If all three fail or quota is exhausted, colour-block fallback.
 //
-// Final fallback: a colour block tinted by venue.broadType so the editorial
-// section always anchors the sidebar — never invisible.
+// The venue.photo path is the quota-free escape hatch — paste a direct
+// HTTPS image URL into the venue JSON and we skip Google for that venue.
 export function VenueSpotlight({ venue, cityId }: Props) {
   const [photoRef, setPhotoRef]     = useState<string | null>(venue.photoRef ?? null)
   const [imgErrored, setImgErrored] = useState(false)
 
-  // Client-side lookup when server didn't have a photoRef. Same auth pattern
-  // /eat uses — we're authenticated on this page, so the search call works.
+  // Direct URL takes precedence — skip everything else if present
+  const directPhoto = venue.photo
+
+  // Client-side lookup only when no direct photo AND no photoRef.
   useEffect(() => {
-    if (photoRef) return
+    if (directPhoto || photoRef) return
     let cancelled = false
     const sb = supabase
     if (!sb) return
 
     const lookupPhoto = async () => {
-      // Session-token cache so we don't re-fetch on every hub visit
       const cacheKey = `venue-spotlight-photo:${venue.id}`
       const cached   = sessionStorage.getItem(cacheKey)
       if (cached !== null) {
@@ -65,10 +67,11 @@ export function VenueSpotlight({ venue, cityId }: Props) {
     }
     lookupPhoto()
     return () => { cancelled = true }
-  }, [venue.id, venue.name, venue.address, cityId, photoRef])
+  }, [venue.id, venue.name, venue.address, cityId, photoRef, directPhoto])
 
   const label = venue.dealTag ?? 'Editor’s pick'
-  const photoUrl  = photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null
+  const photoUrl  = directPhoto
+    ?? (photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null)
   const showImage = !!photoUrl && !imgErrored
 
   const fallbackBg =

@@ -20,7 +20,11 @@ export interface Venue {
   featured?:     boolean
   deal?:         string
   dealTag?:      string
-  photoRef?:     string | null   // Google Places photo_reference
+  /** Direct image URL — takes precedence over photoRef. Paste here when you
+      want a specific shot for the spotlight / hero, or to skip Google Places
+      entirely. Must be HTTPS and CORS-friendly (most CDN-hosted images work). */
+  photo?:        string
+  photoRef?:     string | null   // Google Places photo_reference (used as fallback)
   rating?:       number | null   // Google Places rating (0–5)
   reviewCount?:  number | null   // Google user_ratings_total
   source?:       'curated' | 'osm' | 'google' | 'scouted'
