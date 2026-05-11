@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase/client'
 import type { Venue } from '@/lib/data/venues'
 
 interface Props {
@@ -8,24 +9,68 @@ interface Props {
   cityId: string
 }
 
-// Photo-led editorial moment at the top of the city hub sidebar. Always
-// renders — when photoRef is missing OR the image fails to load, falls back
-// to a colour-block hero card so the editorial section still anchors the
-// sidebar instead of disappearing into nothing. (Previously this returned
-// null on missing photoRef which produced an invisible feature.)
+// Photo-led editorial moment at the top of the city hub sidebar.
 //
-// Client component because we need `onError` on the image to switch to the
-// fallback state when Google's photo URL is missing or 404s.
+// Two-stage photo resolution (mirrors the pattern used on /[city]/eat):
+//   1. If server-side enrichCurated() filled in venue.photoRef, render it.
+//   2. Otherwise client-side fetch /api/places/search?q=<name> to find one.
+// This works around the case where the server-side enrichment returns no
+// photos (the Text Search response sometimes drops the photos array for
+// reasons that aren't ours to debug).
+//
+// Final fallback: a colour block tinted by venue.broadType so the editorial
+// section always anchors the sidebar — never invisible.
 export function VenueSpotlight({ venue, cityId }: Props) {
+  const [photoRef, setPhotoRef]     = useState<string | null>(venue.photoRef ?? null)
   const [imgErrored, setImgErrored] = useState(false)
+
+  // Client-side lookup when server didn't have a photoRef. Same auth pattern
+  // /eat uses — we're authenticated on this page, so the search call works.
+  useEffect(() => {
+    if (photoRef) return
+    let cancelled = false
+    const sb = supabase
+    if (!sb) return
+
+    const lookupPhoto = async () => {
+      // Session-token cache so we don't re-fetch on every hub visit
+      const cacheKey = `venue-spotlight-photo:${venue.id}`
+      const cached   = sessionStorage.getItem(cacheKey)
+      if (cached !== null) {
+        if (!cancelled && cached) setPhotoRef(cached)
+        return
+      }
+
+      try {
+        const { data: { session } } = await sb.auth.getSession()
+        const headers: Record<string, string> = {}
+        if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+        const q = encodeURIComponent(venue.name + (venue.address ? ' ' + venue.address : ` ${cityId}`))
+        const res = await fetch(`/api/places/search?q=${q}&cityId=${cityId}`, {
+          headers,
+          signal: AbortSignal.timeout(6000),
+        })
+        if (!res.ok) {
+          sessionStorage.setItem(cacheKey, '')
+          return
+        }
+        const json = await res.json() as { results?: Array<{ photoRef?: string | null }> }
+        const ref  = json.results?.[0]?.photoRef ?? ''
+        sessionStorage.setItem(cacheKey, ref)
+        if (!cancelled && ref) setPhotoRef(ref)
+      } catch {
+        // Silent — the colour-block fallback takes over
+      }
+    }
+    lookupPhoto()
+    return () => { cancelled = true }
+  }, [venue.id, venue.name, venue.address, cityId, photoRef])
+
   const label = venue.dealTag ?? 'Editor’s pick'
-  const photoUrl = venue.photoRef
-    ? `/api/places/photo?ref=${encodeURIComponent(venue.photoRef)}`
-    : null
+  const photoUrl  = photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null
   const showImage = !!photoUrl && !imgErrored
 
-  // Colour block fallback uses the broadType register — terracotta for
-  // restaurants, navy/purple for bars, gold for cafés.
   const fallbackBg =
     venue.broadType === 'bar'        ? '#4744C8' :
     venue.broadType === 'cafe'       ? '#B08800' :
@@ -38,10 +83,6 @@ export function VenueSpotlight({ venue, cityId }: Props) {
           style={{ aspectRatio: '5 / 4', background: fallbackBg }}>
 
           {showImage && (
-            // Plain <img> not next/image — the photo proxy at /api/places/photo
-            // streams the bytes itself; the Next.js image optimizer adds nothing
-            // here, and using <img> sidesteps optimizer pipeline edge cases that
-            // were occasionally returning an empty slot.
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={photoUrl}
@@ -53,8 +94,6 @@ export function VenueSpotlight({ venue, cityId }: Props) {
             />
           )}
 
-          {/* Bottom gradient for legibility — heavier when no image so the
-              caption still reads against the colour block. */}
           <div className="absolute inset-0 pointer-events-none"
             style={{
               background: showImage
@@ -62,13 +101,11 @@ export function VenueSpotlight({ venue, cityId }: Props) {
                 : 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)',
             }} />
 
-          {/* Top-left chip */}
           <span className="absolute top-3 left-3 text-[8px] font-black tracking-[0.28em] uppercase px-2 py-1"
             style={{ background: '#FF3EBA', color: '#FFFFFF' }}>
             {label}
           </span>
 
-          {/* Bottom-left caption */}
           <div className="absolute left-4 right-4 bottom-3 text-white">
             <p className="font-display font-black leading-tight"
               style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)', letterSpacing: '-0.01em' }}>
