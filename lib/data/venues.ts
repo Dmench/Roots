@@ -324,25 +324,31 @@ async function enrichCurated(venues: Venue[], cityId: string): Promise<Venue[]> 
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
+// Master kill-switch for all Google Places API usage from this app.
+// Set GOOGLE_PLACES_ENABLED=true in Vercel env vars to re-enable Places.
+// Default is paused — no requests made, no quota burned, no charges.
+const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED === 'true'
+
 export async function getVenues(cityId: string): Promise<Venue[]> {
   const curated = STATIC[cityId] ?? []
+
+  // Places paused → return static venues as-is. Photos come from the
+  // optional `photo` field on each venue, OR fall back to colour blocks
+  // in the UI. No Google calls. Zero quota burn.
+  if (!PLACES_ENABLED) {
+    return curated
+  }
 
   if (cityId !== 'brussels') {
     return enrichCurated(curated, cityId)
   }
 
-  // Curated names set — scout and OSM won't duplicate these
   const curatedNames = new Set(curated.map(v => normName(v.name)))
 
-  // Run scout and curated enrichment in parallel
   const [enriched, scouted] = await Promise.all([
     enrichCurated(curated, cityId),
     scoutVenues(cityId, curatedNames),
   ])
 
-  // Curated always first, scouted fills the rest
-  // Google Nearby disabled for now — re-enable below when ready:
-  // const [google, osm] = await Promise.all([fetchGoogleNearbyVenues(), fetchOverpassVenues()])
-  // return [...enriched, ...scouted, ...freshGoogle, ...freshOsm]
   return [...enriched, ...scouted]
 }

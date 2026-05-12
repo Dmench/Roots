@@ -23,7 +23,21 @@ function inferCategory(types: string[]): SpotCategory {
 
 const COUNTRY_SUFFIX = /, (Belgium|Portugal|Germany|Spain|Netherlands|Czech Republic)$/
 
+// Master kill-switch — set GOOGLE_PLACES_ENABLED=true in Vercel to re-enable.
+const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED === 'true'
+
 export async function GET(req: NextRequest) {
+  // Places paused → return empty results without touching Google. Profile
+  // SpotSearch users can still add spots via the "Add without search" manual
+  // path; other surfaces (VenueSpotlight, /eat photo lookup) fall back to
+  // colour blocks. Zero quota burn.
+  if (!PLACES_ENABLED) {
+    return NextResponse.json(
+      { results: [], paused: true },
+      { headers: { 'Cache-Control': 'public, max-age=300' } },
+    )
+  }
+
   // Auth guard — only signed-in users may query Places (protects Google API quota)
   const authHeader = req.headers.get('Authorization') ?? ''
   const token      = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null

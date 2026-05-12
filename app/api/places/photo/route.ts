@@ -5,7 +5,22 @@ import { rateLimit } from '@/lib/rate-limit'
 // Validating format prevents SSRF — arbitrary URLs can't be injected.
 const PHOTO_REF_RE = /^[A-Za-z0-9_\-+/]{20,600}$/
 
+// Master kill-switch — set GOOGLE_PLACES_ENABLED=true in Vercel to re-enable.
+const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED === 'true'
+
 export async function GET(req: NextRequest) {
+  if (!PLACES_ENABLED) {
+    // Short-circuit: respond with a 1×1 transparent GIF cached forever.
+    // Cheap, cacheable, no Google call. The <img onError> handlers in the
+    // UI will pick this up and fall back to colour blocks. We use 204
+    // No Content actually — onError fires on non-2xx OR on no image bytes,
+    // and 204 means "intentionally empty, don't retry."
+    return new NextResponse(null, {
+      status: 204,
+      headers: { 'Cache-Control': 'public, max-age=86400' },
+    })
+  }
+
   // This endpoint must be callable from <img src=...> tags, which can't send
   // an Authorization header. We rely on three layers instead:
   //   1) photoRef regex validation (SSRF protection — only valid Google refs pass)
