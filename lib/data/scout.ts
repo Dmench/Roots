@@ -79,7 +79,9 @@ async function searchPlaces(query: string, key: string): Promise<any[]> {
     url.searchParams.set('query',    query)
     url.searchParams.set('location', '50.8503,4.3517') // Brussels centre
     url.searchParams.set('radius',   '8000')
-    url.searchParams.set('fields',   'place_id,name,formatted_address,rating,user_ratings_total,price_level,photos,types,geometry,opening_hours')
+    // No opening_hours — that's the Contact Data SKU and costs ~€2.80/1000.
+    // Text Search returns rating/user_ratings_total/price_level by default.
+    url.searchParams.set('fields',   'place_id,name,formatted_address,rating,user_ratings_total,price_level,photos,types,geometry')
     url.searchParams.set('key',      key)
 
     const res = await fetch(url.toString(), {

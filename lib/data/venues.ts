@@ -292,7 +292,9 @@ async function enrichCurated(venues: Venue[], cityId: string): Promise<Venue[]> 
       try {
         const params = new URLSearchParams({
           query:  `${v.name} ${cityName}`,
-          fields: 'place_id,photos,rating,user_ratings_total,opening_hours',
+          // No opening_hours — that's the Contact Data SKU (~€2.80/1000).
+          // Rating + user_ratings_total come back by default with Text Search.
+          fields: 'place_id,photos,rating,user_ratings_total',
           key,
         })
         const res = await fetch(
