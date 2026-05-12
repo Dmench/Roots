@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/use-auth'
@@ -20,6 +20,7 @@ import { FlagsPicker } from '@/components/profile/FlagsPicker'
 import { getCountry } from '@/lib/data/countries'
 import { SavedEvents } from '@/components/profile/SavedEvents'
 import { StatBento } from '@/components/profile/StatBento'
+import { ArrivalPicker } from '@/components/profile/ArrivalPicker'
 
 // "2024-09" or "2024-09-14" → "Sep '24"
 function fmtMonth(val: string): string {
@@ -140,10 +141,10 @@ export default function ProfilePage() {
   const [neighborhoodOpen,  setNeighborhoodOpen]  = useState(false)
   const [situationOpen,     setSituationOpen]     = useState(false)
   const [flagsOpen,         setFlagsOpen]         = useState(false)
+  const [arrivalOpen,       setArrivalOpen]       = useState(false)
   const [addingSpot,        setAddingSpot]        = useState(false)
   const [cardCopied,        setCardCopied]        = useState(false)
   const [followStats,       setFollowStats]       = useState({ following: 0, followers: 0 })
-  const monthRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!user || !supabase) return
@@ -391,13 +392,13 @@ export default function ProfilePage() {
 
                   {/* Arrival chip */}
                   {profile.arrivalDate ? (
-                    <button onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()}
+                    <button onClick={() => setArrivalOpen(true)}
                       className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ background: 'rgba(10,10,10,0.07)', color: '#0A0A0A' }}>
                       Since {fmtMonth(profile.arrivalDate)}
                     </button>
                   ) : (
-                    <button onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()}
+                    <button onClick={() => setArrivalOpen(true)}
                       className="text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1 hover:opacity-70 transition-opacity"
                       style={{ color: 'rgba(10,10,10,0.22)', border: '1px dashed rgba(10,10,10,0.18)' }}>
                       + Arrival
@@ -695,7 +696,7 @@ export default function ProfilePage() {
               <FieldRow label="Arrived" last
                 value={profile.arrivalDate ? fmtMonth(profile.arrivalDate) : undefined}
                 placeholder="Set month"
-                onClick={() => monthRef.current?.showPicker?.() ?? monthRef.current?.click()} />
+                onClick={() => setArrivalOpen(true)} />
             </FieldGroup>
           </div>
 
@@ -732,17 +733,6 @@ export default function ProfilePage() {
 
         </div>
       </div>
-
-      {/* ── Hidden month input ───────────────────────────────────────────────── */}
-      <input
-        ref={monthRef}
-        type="month"
-        value={profile.arrivalDate ? profile.arrivalDate.slice(0, 7) : ''}
-        onChange={e => { if (e.target.value) { setArrivalDate(e.target.value); flash() } }}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden
-      />
 
       {/* ══ Stage picker ═══════════════════════════════════════════════════════ */}
       {stageOpen && (
@@ -857,6 +847,15 @@ export default function ProfilePage() {
           onChange={(next) => { updateProfile({ flags: next }); flash() }}
           onClose={() => setFlagsOpen(false)}
           max={8}
+        />
+      )}
+
+      {/* ══ Arrival month picker — custom modal, not the broken native widget ══ */}
+      {arrivalOpen && (
+        <ArrivalPicker
+          value={profile.arrivalDate}
+          onChange={(ym) => { setArrivalDate(ym); flash() }}
+          onClose={() => setArrivalOpen(false)}
         />
       )}
     </div>

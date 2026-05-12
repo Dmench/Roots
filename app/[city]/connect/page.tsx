@@ -297,44 +297,37 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
       .catch(() => setFeedState('error'))
   }, [cityId, feedState])
 
-  // Fetch Reddit directly from the browser — Vercel IPs are blocked by Reddit,
-  // but user IPs never are, and Reddit supports CORS on .json endpoints.
+  // Reddit fetch via our server-side /api/reddit proxy.
+  // Direct browser fetch to reddit.com/hot.json was broken (Reddit started
+  // returning 403 to no-UA browser requests). The server route rotates UAs
+  // and falls back to old.reddit.com on failure — much more reliable.
   useEffect(() => {
     if (redditFetch !== 'idle') return
-    const SUB_MAP: Record<string, string> = {
-      brussels: 'brussels', lisbon: 'portugal', berlin: 'berlin',
-      barcelona: 'barcelona', amsterdam: 'amsterdam', prague: 'prague',
-    }
-    const sub = SUB_MAP[cityId] ?? cityId
     setRedditFetch('loading')
-    fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=20&raw_json=1`, {
-      headers: { 'Accept': 'application/json' },
-    })
+    fetch(`/api/reddit?city=${cityId}`)
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then(json => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items: FeedItem[] = (json.data?.children ?? [])
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((c: any) => !c.data.over_18 && !c.data.stickied)
+        const items: FeedItem[] = (json.posts ?? [])
           .slice(0, 8)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((c: any) => ({
-            id:          c.data.id,
+          .map((p: any) => ({
+            id:          p.id,
             source:      'reddit' as const,
-            sourceLabel: `r/${sub}`,
+            sourceLabel: p.subreddit ? `r/${p.subreddit}` : 'Reddit',
             category:    'community' as const,
-            title:       c.data.title,
-            summary:     (c.data.selftext ?? '').slice(0, 220),
-            url:         `https://reddit.com${c.data.permalink}`,
-            published:   c.data.created_utc,
-            subreddit:   c.data.subreddit,
-            flair:       c.data.link_flair_text ?? undefined,
-            score:       c.data.score,
-            comments:    c.data.num_comments,
-            author:      c.data.author,
+            title:       p.title,
+            summary:     (p.text ?? '').slice(0, 220),
+            url:         p.permalink,
+            published:   p.created,
+            subreddit:   p.subreddit,
+            flair:       p.flair ?? undefined,
+            score:       p.score,
+            comments:    p.comments,
+            author:      p.author,
           }))
         setRedditPosts(items)
-        setRedditFetch('done')
+        setRedditFetch(items.length > 0 ? 'done' : 'error')
       })
       .catch(() => setRedditFetch('error'))
   }, [cityId, redditFetch])

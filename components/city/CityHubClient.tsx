@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { OnboardingModal } from './OnboardingModal'
+import { WelcomeTour } from '@/components/onboarding/WelcomeTour'
 
 interface Props { cityName: string; cityId: string }
 
@@ -24,6 +25,7 @@ export function CityHubClient({ cityName, cityId }: Props) {
   const { user } = useAuth()
   const { profile, hydrated } = useProfile()
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showTour, setShowTour]             = useState(false)
 
   // Onboarding modal logic — fixed to handle multi-device / cleared-localStorage.
   // Old behaviour: relied only on localStorage 'roots:onboarded' flag. If a user
@@ -51,6 +53,24 @@ export function CityHubClient({ cityName, cityId }: Props) {
   function handleOnboardingDone() {
     try { localStorage.setItem('roots:onboarded', '1') } catch { /* private mode */ }
     setShowOnboarding(false)
+  }
+
+  // Welcome tour — fires once per user, after stage/situation onboarding is
+  // complete. Separate localStorage key so users who onboarded before the
+  // tour existed still get a chance to see it.
+  useEffect(() => {
+    if (!hydrated || !user) return
+    if (showOnboarding) return                  // wait for the stage modal
+    if (!profile.stage) return                  // not onboarded yet — onboarding modal will fire first
+    const tourDone = typeof window !== 'undefined' && localStorage.getItem('roots:tour-complete') === '1'
+    if (tourDone) return
+    const t = setTimeout(() => setShowTour(true), 700)
+    return () => clearTimeout(t)
+  }, [hydrated, user, showOnboarding, profile.stage])
+
+  function handleTourDone() {
+    try { localStorage.setItem('roots:tour-complete', '1') } catch { /* private mode */ }
+    setShowTour(false)
   }
 
   // ── Settler Card completion ──────────────────────────────────────────────
@@ -121,6 +141,11 @@ export function CityHubClient({ cityName, cityId }: Props) {
           cityName={cityName}
           onDone={handleOnboardingDone}
         />
+      )}
+
+      {/* 5-step welcome tour — fires after onboarding for first-time users. */}
+      {showTour && !showOnboarding && (
+        <WelcomeTour cityName={cityName} onDone={handleTourDone} />
       )}
     </>
   )
