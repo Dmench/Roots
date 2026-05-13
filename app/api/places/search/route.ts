@@ -23,8 +23,8 @@ function inferCategory(types: string[]): SpotCategory {
 
 const COUNTRY_SUFFIX = /, (Belgium|Portugal|Germany|Spain|Netherlands|Czech Republic)$/
 
-// Master kill-switch — set GOOGLE_PLACES_ENABLED=true in Vercel to re-enable.
-const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED === 'true'
+// Master kill-switch — default ON. Set GOOGLE_PLACES_ENABLED=false to pause.
+const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED !== 'false'
 
 export async function GET(req: NextRequest) {
   // Places paused → return empty results without touching Google. Profile

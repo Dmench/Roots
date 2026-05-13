@@ -327,9 +327,10 @@ async function enrichCurated(venues: Venue[], cityId: string): Promise<Venue[]> 
 // ── Public API ────────────────────────────────────────────────────────────────
 
 // Master kill-switch for all Google Places API usage from this app.
-// Set GOOGLE_PLACES_ENABLED=true in Vercel env vars to re-enable Places.
-// Default is paused — no requests made, no quota burned, no charges.
-const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED === 'true'
+// Default ON now — the Contact Data SKU is no longer requested, and the
+// user's GCP daily quota cap (161/day) hard-limits any runaway. To pause
+// in an emergency, set GOOGLE_PLACES_ENABLED=false in Vercel env vars.
+const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED !== 'false'
 
 export async function getVenues(cityId: string): Promise<Venue[]> {
   const curated = STATIC[cityId] ?? []

@@ -5,8 +5,8 @@ import { rateLimit } from '@/lib/rate-limit'
 // Validating format prevents SSRF — arbitrary URLs can't be injected.
 const PHOTO_REF_RE = /^[A-Za-z0-9_\-+/]{20,600}$/
 
-// Master kill-switch — set GOOGLE_PLACES_ENABLED=true in Vercel to re-enable.
-const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED === 'true'
+// Master kill-switch — default ON. Set GOOGLE_PLACES_ENABLED=false to pause.
+const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED !== 'false'
 
 export async function GET(req: NextRequest) {
   if (!PLACES_ENABLED) {
