@@ -8,7 +8,7 @@ export const BRUSSELS_TASKS: Task[] = [
     slug: 'register-commune',
     category: 'admin',
     stageRelevance: ['just_arrived', 'settling'],
-    situationRelevance: ['eu_citizen'],
+    situationRelevance: ['eu_citizen', 'local'],
     summary: 'Your first official step in Belgium. Registration triggers the police visit, starts your 3-month eID clock, and unlocks nearly everything else.',
     guide: `Registering at your local commune (gemeente/commune) is your first and most important administrative step. Without it, you cannot get your eID, open most Belgian bank accounts, or access public healthcare. You must register within 8 days of establishing your main residence in Belgium, though in practice most communes accept you within 3 months.
 

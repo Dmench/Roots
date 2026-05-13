@@ -13,6 +13,7 @@ const STAGE_META: Record<string, { color: string; sub: string }> = {
 }
 
 const SITUATIONS: { id: SituationTag; label: string }[] = [
+  { id: 'local',         label: 'Local'        },
   { id: 'student',       label: 'Student'      },
   { id: 'employed',      label: 'Employee'     },
   { id: 'self_employed', label: 'Freelancer'   },

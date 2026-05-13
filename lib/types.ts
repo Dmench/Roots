@@ -35,6 +35,7 @@ export type SituationTag =
   | 'digital_nomad'
   | 'eu_citizen'
   | 'non_eu'
+  | 'local'
 
 export interface SituationConfig {
   id: SituationTag

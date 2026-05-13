@@ -161,6 +161,7 @@ export const LANGUAGES: { code: string; label: string; flag: string }[] = [
 ]
 
 export const SITUATIONS: SituationConfig[] = [
+  { id: 'local',         label: 'Local — from here',          icon: '🏡' },
   { id: 'renting',       label: 'Renting',                    icon: '🏠' },
   { id: 'buying',        label: 'Buying property',            icon: '🔑' },
   { id: 'employed',      label: 'Employed',                   icon: '💼' },

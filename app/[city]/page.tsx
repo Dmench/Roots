@@ -19,6 +19,7 @@ import { CityHubClient } from '@/components/city/CityHubClient'
 import { WeatherWidget } from '@/components/city/WeatherWidget'
 import { TransportWidget } from '@/components/city/TransportWidget'
 import { RentalsWidget } from '@/components/city/RentalsWidget'
+import { SpinWheel } from '@/components/city/SpinWheel'
 
 export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
@@ -267,6 +268,36 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                       </div>
                     )
                   })}
+                </div>
+              </section>
+            )}
+
+            {/* Interactive discovery — pairs with the Eat&Drink editorial
+                block above. Randomized pick across the curated venue and
+                event corpus, shareable result card. Keeps the sidebar from
+                being a pure-feed read; gives users a thing to do. */}
+            {(venues.length > 0 || allEvents.length > 0) && (
+              <section className="mb-10">
+                <SectionLabel>Decide for me</SectionLabel>
+                <div className="pt-3 pb-2">
+                  <SpinWheel
+                    cityId={cityId}
+                    venues={venues.map(v => ({
+                      id:           v.id,
+                      name:         v.name,
+                      category:     v.category,
+                      broadType:    v.broadType,
+                      neighborhood: v.neighborhood ?? '',
+                      vibe:         (v as { vibe?: string }).vibe ?? '',
+                      website:      v.website,
+                    }))}
+                    events={allEvents.slice(0, 30).map(e => ({
+                      title: e.ev.title,
+                      date:  e.ev.date,
+                      venue: e.ev.venue,
+                      url:   e.ev.url ?? `/${cityId}`,
+                    }))}
+                  />
                 </div>
               </section>
             )}

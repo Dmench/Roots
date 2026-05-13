@@ -32,6 +32,7 @@ function fmtMonth(val: string): string {
 }
 
 const SITUATION_OPTIONS: { id: SituationTag; label: string }[] = [
+  { id: 'local',         label: 'Local' },
   { id: 'student',       label: 'Student' },
   { id: 'employed',      label: 'Employee' },
   { id: 'self_employed', label: 'Freelancer' },

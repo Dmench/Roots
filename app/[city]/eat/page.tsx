@@ -7,7 +7,6 @@ import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
 import type { Venue } from '@/lib/data/venues'
-import { supabase } from '@/lib/supabase/client'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 
@@ -300,41 +299,31 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
     if (city) getVenues(city.id).then(setVenues)
   }, [city])
 
-  // Lazy-fetch photos only for venues that don't have a photoRef baked in
-  // (curated venues without a Google match, and OSM venues)
+  // Pull cached photoRefs from the server-side venue_photo_cache table.
+  // /eat is a client component so it can't read Supabase with the service-
+  // role admin client (where the cache lives) directly — this single
+  // endpoint exposes it as JSON. No Google calls, no quota burn.
+  //
+  // For venues not yet in the cache, the city hub's server-side
+  // enrichCurated() fills entries up to 5 per render. After a few /brussels
+  // visits, the cache covers the corpus.
   useEffect(() => {
     if (venues.length === 0 || !city) return
     const cid = city.id
-    const needsPhoto = venues.filter(v => !v.photoRef)
-    if (needsPhoto.length === 0) return
 
-    const fetchPhotos = async () => {
-      const { data: { session } } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }))
-      const headers: Record<string, string> = {}
-      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
-
-      const entries = await Promise.all(needsPhoto.map(async v => {
-        const sKey = `places-eat-${cid}-${v.id}`
-        const cached = sessionStorage.getItem(sKey)
-        if (cached !== null) return [v.id, cached === '' ? null : cached] as const
-        try {
-          const q   = encodeURIComponent(`${v.name}${v.address ? ' ' + v.address : ''}`)
-          const res = await fetch(`/api/places/search?q=${q}&cityId=${cid}`, {
-            headers,
-            signal: AbortSignal.timeout(8000),
-          })
-          if (!res.ok) return [v.id, null] as const
-          const json = await res.json() as { results: Array<{ photoRef: string | null }> }
-          const ref  = json.results?.[0]?.photoRef ?? null
-          sessionStorage.setItem(sKey, ref ?? '')
-          return [v.id, ref] as const
-        } catch {
-          return [v.id, null] as const
-        }
-      }))
-      setVenuePhotos(Object.fromEntries(entries))
+    const fetchCache = async () => {
+      try {
+        const res = await fetch(`/api/venues/photo-cache?cityId=${cid}`, {
+          signal: AbortSignal.timeout(8000),
+        })
+        if (!res.ok) return
+        const cache = await res.json() as Record<string, string | null>
+        setVenuePhotos(cache)
+      } catch {
+        // Cache fetch failed — fall back to colour blocks. No retry.
+      }
     }
-    fetchPhotos()
+    fetchCache()
   }, [venues, city])
 
   if (!city) return null
