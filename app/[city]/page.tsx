@@ -14,7 +14,6 @@ import { VenueSpotlight } from '@/components/city/VenueSpotlight'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
 import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
-import RedditFeed from '@/components/city/RedditFeed'
 import { CityHubClient } from '@/components/city/CityHubClient'
 import { WeatherWidget } from '@/components/city/WeatherWidget'
 import { TransportWidget } from '@/components/city/TransportWidget'
@@ -350,8 +349,9 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </section>
             )}
 
-            {/* City pulse — Reddit */}
-            <RedditFeed cityId={cityId} />
+            {/* City pulse (Reddit feed) removed from hub — Reddit's anonymous
+                API is blocked from Vercel IPs and OAuth setup was a wall.
+                /connect still surfaces r/brussels as a community channel. */}
 
             {/* Explore links */}
             <section>
