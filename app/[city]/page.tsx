@@ -24,7 +24,10 @@ export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
 }
 
-export const revalidate = 1800
+// Shortened from 1800s (30 min) to 300s (5 min) so changes to the
+// venue_photo_cache propagate faster — without it, a freshly-populated
+// photoRef can take up to 30 min to appear in user views.
+export const revalidate = 300
 
 export default async function CityPage({ params }: { params: Promise<{ city: string }> }) {
   const { city: cityId } = await params
