@@ -22,8 +22,10 @@ const CITY_ID = 'brussels'
 const CITY_NAME = 'Brussels'
 
 const DRY = process.env.DRY === '1'
-const CONCURRENCY = 4
-const DELAY_MS = 250  // gentle on Google rate limits
+const CONCURRENCY = 1
+const DELAY_MS = 400  // serial + gentle — Google's per-second rate limit
+                      // trips when 4-wide concurrency fires this fast.
+                      // Slower is safer; we have a daily budget, not minute pressure.
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
