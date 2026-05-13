@@ -35,33 +35,11 @@ export default function RedditFeed({ cityId }: { cityId: string }) {
     let cancelled = false
 
     async function load() {
-      // Try direct Reddit first (fastest, no server load)
-      try {
-        const r = await fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=15&raw_json=1`, {
-          headers: { 'Accept': 'application/json' },
-          signal: AbortSignal.timeout(6000),
-        })
-        if (r.ok) {
-          const json = await r.json()
-          const items: Post[] = (json.data?.children ?? [])
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .filter((c: any) => !c.data.over_18 && !c.data.stickied)
-            .slice(0, 5)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((c: any) => ({
-              id:        c.data.id,
-              title:     c.data.title,
-              score:     c.data.score,
-              comments:  c.data.num_comments,
-              permalink: `https://reddit.com${c.data.permalink}`,
-              created:   c.data.created_utc,
-              flair:     c.data.link_flair_text ?? null,
-            }))
-          if (!cancelled && items.length > 0) { setPosts(items); setStatus('ok'); return }
-        }
-      } catch { /* fall through to server fallback */ }
-
-      // Fallback: our own /api/reddit route (server-side, more reliable)
+      // Always go through our server proxy. Direct browser fetches to
+      // reddit.com are CORS-blocked in prod and 403'd anywhere else, so
+      // skipping that attempt saves 6s and a lot of console noise.
+      // The proxy caches at the Vercel edge for 30 min — Reddit only sees
+      // one request per city per half-hour across all our users.
       try {
         const r = await fetch(`/api/reddit?city=${cityId}`, { signal: AbortSignal.timeout(10000) })
         if (r.ok) {
@@ -73,7 +51,7 @@ export default function RedditFeed({ cityId }: { cityId: string }) {
           }))
           if (!cancelled && items.length > 0) { setPosts(items); setStatus('ok'); return }
         }
-      } catch { /* both failed */ }
+      } catch { /* fall through to error */ }
 
       if (!cancelled) setStatus('error')
     }
