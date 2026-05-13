@@ -1,5 +1,6 @@
 import brusselsVenues from './static/brussels-venues.json'
 import { scoutVenues } from './scout'
+import { createAdminClient } from '@/lib/supabase/server'
 
 export interface Venue {
   id:            string
@@ -276,52 +277,126 @@ function mergeVenues(curated: Venue[], google: Venue[], osm: Venue[]): Venue[] {
   return [...curated, ...freshGoogle, ...freshOsm]
 }
 
-// ── Google Places enrichment for curated venues ───────────────────────────────
-// Gets open_now + photoRef + rating for curated venues that don't have them yet.
-// Caps at 15 to stay within quota. Revalidates every 30 min.
+// ── Persistent photoRef cache (Supabase-backed) ───────────────────────────────
+// Once a photoRef is discovered for a venue (or confirmed absent), it lives
+// in venue_photo_cache forever. Subsequent renders read from there — no
+// Google Places call. Bootstraps within 1–2 days of normal traffic; after
+// that, Google API usage drops to ~zero for the spotlight + hub.
+
+interface CacheEntry {
+  photoRef: string | null  // null = cached "no photo found" — don't ask again
+  hit:      true            // sentinel so we can distinguish "no entry" from "entry with null"
+}
+
+async function loadPhotoRefCache(cityId: string): Promise<Map<string, CacheEntry>> {
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from('venue_photo_cache')
+      .select('venue_id, photo_ref')
+      .eq('city_id', cityId)
+    if (error || !data) return new Map()
+    return new Map(
+      data.map(r => [
+        r.venue_id as string,
+        { photoRef: (r.photo_ref as string | null) ?? null, hit: true as const },
+      ]),
+    )
+  } catch {
+    // Cache unavailable (migration not run, etc.) — proceed with empty cache.
+    return new Map()
+  }
+}
+
+async function savePhotoRefToCache(
+  venueId: string, cityId: string, photoRef: string | null,
+): Promise<void> {
+  try {
+    const admin = createAdminClient()
+    await admin.from('venue_photo_cache').upsert(
+      {
+        venue_id:  venueId,
+        city_id:   cityId,
+        photo_ref: photoRef,
+        found_at:  new Date().toISOString(),
+        last_used: new Date().toISOString(),
+      },
+      { onConflict: 'venue_id,city_id' },
+    )
+  } catch {
+    // Caching failure shouldn't break the page render.
+  }
+}
+
+// Cache-aware enrichment. Up to MAX_FRESH_LOOKUPS new Google calls per render
+// (caps quota burn during bootstrap). After cache fills, this drops to zero.
+const MAX_FRESH_LOOKUPS = 5
 
 async function enrichCurated(venues: Venue[], cityId: string): Promise<Venue[]> {
+  // 1. Batch-load cached photoRefs from Supabase (1 query)
+  const cache = await loadPhotoRefCache(cityId)
+
+  // 2. Apply cached entries to venues that need them
+  const withCache = venues.map(v => {
+    if (v.photoRef) return v                       // already has one (rare for curated)
+    if (v.source !== 'curated') return v           // we only cache curated venues
+    const entry = cache.get(v.id)
+    if (entry) return { ...v, photoRef: entry.photoRef }  // cache hit (may be null)
+    return v
+  })
+
+  // 3. Bail if Places API is disabled or no key
   const key = process.env.GOOGLE_PLACES_API_KEY
-  if (!key) return venues
+  if (!key) return withCache
 
-  const cityName  = cityId.charAt(0).toUpperCase() + cityId.slice(1)
-  const toEnrich  = venues.filter(v => v.source === 'curated').slice(0, 15)
+  // 4. Find venues with NO cache entry (not just null) — need fresh lookup
+  const needsLookup = withCache
+    .filter(v => v.source === 'curated' && !cache.has(v.id))
+    .slice(0, MAX_FRESH_LOOKUPS)
 
-  const enriched = await Promise.all(
-    toEnrich.map(async v => {
+  if (needsLookup.length === 0) return withCache
+
+  // 5. Fresh Google calls + write to cache
+  const cityName = cityId.charAt(0).toUpperCase() + cityId.slice(1)
+  const fresh = await Promise.all(
+    needsLookup.map(async v => {
       try {
         const params = new URLSearchParams({
           query:  `${v.name} ${cityName}`,
           // No opening_hours — that's the Contact Data SKU (~€2.80/1000).
-          // Rating + user_ratings_total come back by default with Text Search.
           fields: 'place_id,photos,rating,user_ratings_total',
           key,
         })
         const res = await fetch(
           `https://maps.googleapis.com/maps/api/place/textsearch/json?${params}`,
-          { next: { revalidate: 1800 } } // 30 min — open_now changes
+          { next: { revalidate: 86400 } }, // 24h — we cache to Supabase anyway
         )
-        if (!res.ok) return v
+        if (!res.ok) {
+          await savePhotoRefToCache(v.id, cityId, null)
+          return v
+        }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const json: any = await res.json()
         const result = json.results?.[0]
-        if (!result) return v
+        const photoRef = (result?.photos?.[0]?.photo_reference as string | undefined) ?? null
+
+        // Cache the result (including null misses) so we never re-fetch.
+        await savePhotoRefToCache(v.id, cityId, photoRef)
 
         return {
           ...v,
-          openNow:     result.opening_hours?.open_now ?? v.openNow,
-          photoRef:    result.photos?.[0]?.photo_reference ?? v.photoRef ?? null,
-          rating:      typeof result.rating === 'number' ? result.rating : v.rating,
-          reviewCount: typeof result.user_ratings_total === 'number' ? result.user_ratings_total : v.reviewCount,
+          photoRef,
+          rating:      typeof result?.rating === 'number' ? result.rating : v.rating,
+          reviewCount: typeof result?.user_ratings_total === 'number' ? result.user_ratings_total : v.reviewCount,
         }
       } catch {
         return v
       }
-    })
+    }),
   )
 
-  const enrichedMap = new Map(enriched.map(v => [v.id, v]))
-  return venues.map(v => enrichedMap.get(v.id) ?? v)
+  const freshMap = new Map(fresh.map(v => [v.id, v]))
+  return withCache.map(v => freshMap.get(v.id) ?? v)
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
