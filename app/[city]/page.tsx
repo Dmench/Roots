@@ -170,7 +170,16 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
           {/* ── LEFT: Editor's Picks + Events ──────────────────────────── */}
           <div className="lg:pr-10 pt-7">
-            {cityId === 'brussels' && <EditorsPicks pick={currentBrusselsPick()} />}
+            {cityId === 'brussels' && (() => {
+              const pick = currentBrusselsPick()
+              // Resolve the editor's-pick venue's photoRef from the
+              // already-enriched venue list. Falls back to `null` and the
+              // component renders the text-only hero variant.
+              const pickVenue = pick.venue.venueId
+                ? venues.find(v => v.id === pick.venue.venueId)
+                : null
+              return <EditorsPicks pick={pick} photoRef={pickVenue?.photoRef ?? null} />
+            })()}
 
             <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-5"
               style={{ color: 'rgba(10,10,10,0.3)' }}>

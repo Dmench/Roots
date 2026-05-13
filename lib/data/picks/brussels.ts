@@ -15,6 +15,13 @@ export interface EditorPick {
     reason:       string
     /** External or internal href. Use Google Maps for venues we don't have on /eat yet. */
     href:         string
+    /** Optional — ID of a venue in brussels-venues.json. When set, the hub
+     *  resolves the photoRef from venue_photo_cache automatically. Prefer
+     *  this over `photo` for curated-corpus venues. */
+    venueId?:     string
+    /** Optional — direct image URL (Unsplash, CDN, etc.) for venues not
+     *  in the curated corpus. Use when `venueId` isn't available. */
+    photo?:       string
   }
   event: {
     title:        string
@@ -47,13 +54,14 @@ export interface EditorPick {
 
 export const BRUSSELS_PICKS: EditorPick[] = [
   {
-    week: '2026-W19',
-    weekLabel: 'Week of 10 May 2026',
+    week: '2026-W20',
+    weekLabel: 'Week of 11 May 2026',
     venue: {
-      name: 'Maison Antoine',
-      neighborhood: 'Place Jourdan',
-      reason: 'The frites stand every Brusseleer points to — cash only, paper cone, eat them on a bench in the square. Andalouse if it\'s sunny, samourai if you can handle it. Closed Mondays.',
-      href: 'https://maps.google.com/?q=Maison+Antoine+Brussels',
+      name: 'Fin de Siècle',
+      neighborhood: 'Saint-Géry',
+      reason: 'No reservations, cash only, paper menu — and every guidebook lists it for a reason. Stoemp aux saucisses, lapin à la kriek, students next to suits, queues outside by 19:30. Sit at the bar if you\'re alone. Closed Tuesdays.',
+      href: 'https://maps.google.com/?q=Fin+de+Si%C3%A8cle+Brussels',
+      venueId: 'curated-fin-de-siecle',
     },
     event: {
       title: 'Saturday market at Place Flagey',

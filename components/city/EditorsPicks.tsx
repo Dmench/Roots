@@ -1,13 +1,22 @@
 import type { EditorPick } from '@/lib/data/picks/brussels'
 
 interface Props {
-  pick: EditorPick
+  pick:      EditorPick
+  /** photoRef resolved from venue_photo_cache when `pick.venue.venueId` is set.
+   *  Hub passes it through; we render the hero with a photo when available. */
+  photoRef?: string | null
 }
 
 // Editorial weekly picks — curated, no commerce. One venue, one event, one
 // walk, one tip. Renders at the top of the city hub above the events feed.
 // The framing is "this is what the editor picked," not "this is sponsored."
-export function EditorsPicks({ pick }: Props) {
+export function EditorsPicks({ pick, photoRef }: Props) {
+  // Photo source — venueId → cached photoRef, else direct URL from pick data.
+  // No photo → renders a coloured bar above the hero text (sets up the kicker
+  // visually without claiming "we have a picture").
+  const photoUrl = pick.venue.photo
+    ?? (photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null)
+
   return (
     <section className="mb-12">
       <div className="flex items-baseline justify-between gap-4 pb-3 mb-6"
@@ -22,25 +31,60 @@ export function EditorsPicks({ pick }: Props) {
         </p>
       </div>
 
-      {/* Lead — Venue is the pick. Full row, larger display, proper standfirst.
-          Replaces the 2×2 swatch with a magazine-style hero + three-up. */}
+      {/* Lead — Venue is the pick. Photo + text laid out as a magazine
+          intro: image on the left, kicker + display title + standfirst on
+          the right. Without a photo we fall through to a text-only hero. */}
       <a href={pick.venue.href} target="_blank" rel="noopener noreferrer"
         className="block py-5 group hover:opacity-95 transition-opacity"
         style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
-        <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2"
-          style={{ color: '#E8612A' }}>
-          Venue · This week
-        </p>
-        <p className="font-display font-black leading-[1.05] mb-1.5"
-          style={{ fontSize: '1.65rem', color: '#0A0A0A', letterSpacing: '-0.015em' }}>
-          {pick.venue.name}
-        </p>
-        <p className="text-[10px] font-bold mb-2.5" style={{ color: 'rgba(10,10,10,0.45)' }}>
-          {pick.venue.neighborhood}
-        </p>
-        <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.7)', maxWidth: '54ch' }}>
-          {pick.venue.reason}
-        </p>
+        {photoUrl ? (
+          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-5 items-start">
+            <div className="relative w-full overflow-hidden bg-[#252450]"
+              style={{ aspectRatio: '4 / 3' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photoUrl}
+                alt={pick.venue.name}
+                loading="eager"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+              />
+            </div>
+            <div>
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2"
+                style={{ color: '#E8612A' }}>
+                Venue · This week
+              </p>
+              <p className="font-display font-black leading-[1.05] mb-1.5"
+                style={{ fontSize: '1.65rem', color: '#0A0A0A', letterSpacing: '-0.015em' }}>
+                {pick.venue.name}
+              </p>
+              <p className="text-[10px] font-bold mb-2.5" style={{ color: 'rgba(10,10,10,0.45)' }}>
+                {pick.venue.neighborhood}
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.7)' }}>
+                {pick.venue.reason}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2"
+              style={{ color: '#E8612A' }}>
+              Venue · This week
+            </p>
+            <p className="font-display font-black leading-[1.05] mb-1.5"
+              style={{ fontSize: '1.65rem', color: '#0A0A0A', letterSpacing: '-0.015em' }}>
+              {pick.venue.name}
+            </p>
+            <p className="text-[10px] font-bold mb-2.5" style={{ color: 'rgba(10,10,10,0.45)' }}>
+              {pick.venue.neighborhood}
+            </p>
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.7)', maxWidth: '54ch' }}>
+              {pick.venue.reason}
+            </p>
+          </>
+        )}
       </a>
 
       {/* Three-up — Event / Walk / Phrase. No coloured top-bars; single
