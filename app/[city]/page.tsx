@@ -178,7 +178,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               const pickVenue = pick.venue.venueId
                 ? venues.find(v => v.id === pick.venue.venueId)
                 : null
-              return <EditorsPicks pick={pick} photoRef={pickVenue?.photoRef ?? null} />
+              return <EditorsPicks pick={pick} cityId={cityId} photoRef={pickVenue?.photoRef ?? null} />
             })()}
 
             <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-5"

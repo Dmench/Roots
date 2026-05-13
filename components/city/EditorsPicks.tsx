@@ -1,21 +1,43 @@
+'use client'
+
+import { useState } from 'react'
 import type { EditorPick } from '@/lib/data/picks/brussels'
+import { venuePhotoUrl } from '@/lib/photos'
 
 interface Props {
   pick:      EditorPick
+  cityId:    string
   /** photoRef resolved from venue_photo_cache when `pick.venue.venueId` is set.
-   *  Hub passes it through; we render the hero with a photo when available. */
+   *  Hub passes it through as the fallback source if Supabase Storage doesn't
+   *  yet have the JPG bytes for this venue. */
   photoRef?: string | null
 }
 
 // Editorial weekly picks — curated, no commerce. One venue, one event, one
 // walk, one tip. Renders at the top of the city hub above the events feed.
 // The framing is "this is what the editor picked," not "this is sponsored."
-export function EditorsPicks({ pick, photoRef }: Props) {
-  // Photo source — venueId → cached photoRef, else direct URL from pick data.
-  // No photo → renders a coloured bar above the hero text (sets up the kicker
-  // visually without claiming "we have a picture").
-  const photoUrl = pick.venue.photo
-    ?? (photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null)
+export function EditorsPicks({ pick, cityId, photoRef }: Props) {
+  // Photo source preference (highest → lowest):
+  //   1. pick.venue.photo (direct URL set by the curator, manual escape hatch)
+  //   2. Supabase Storage at venue-photos/{city}/{venueId}.jpg (cached bytes,
+  //      no Google quota burn — populated by scripts/upload-photos-to-storage)
+  //   3. /api/places/photo?ref=... fallback through the Google proxy (counts
+  //      against the daily Places quota; used only when Storage 404s)
+  const directPhoto  = pick.venue.photo ?? null
+  const storageUrl   = pick.venue.venueId ? venuePhotoUrl(cityId, pick.venue.venueId) : null
+  const proxyUrl     = photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null
+
+  const initialUrl   = directPhoto ?? storageUrl ?? proxyUrl ?? null
+  const [photoUrl, setPhotoUrl] = useState<string | null>(initialUrl)
+
+  // Cascade: if Storage 404s, try the proxy; if proxy fails, give up.
+  const handleError = () => {
+    if (photoUrl === storageUrl && proxyUrl) {
+      setPhotoUrl(proxyUrl)
+    } else {
+      setPhotoUrl(null)
+    }
+  }
 
   return (
     <section className="mb-12">
@@ -45,6 +67,7 @@ export function EditorsPicks({ pick, photoRef }: Props) {
               <img
                 src={photoUrl}
                 alt={pick.venue.name}
+                onError={handleError}
                 loading="eager"
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"

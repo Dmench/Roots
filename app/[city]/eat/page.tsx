@@ -7,6 +7,7 @@ import AuthGate from '@/components/auth/AuthGate'
 import { getCity } from '@/lib/data/cities'
 import { getVenues } from '@/lib/data/venues'
 import type { Venue } from '@/lib/data/venues'
+import { venuePhotoUrl } from '@/lib/photos'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 
@@ -68,29 +69,41 @@ const FOOD_KW = ['restaurant','food','eat','bar','drink','coffee','brunch','lunc
 
 /* ── Venue card (editorial, vertical) ────────────────────────────────────── */
 
-function VenueCard({ venue, onSave, saved, photoRef: photoRefOverride, lead = false }: {
-  venue: Venue; onSave: () => void; saved: boolean; photoRef?: string | null; lead?: boolean
+function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, lead = false }: {
+  venue: Venue; cityId: string; onSave: () => void; saved: boolean; photoRef?: string | null; lead?: boolean
 }) {
   const color    = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   const signals  = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
   const photoH   = lead ? 220 : 170
   // Use photoRef baked into venue first, fall back to lazily-fetched override
   const photoRef = venue.photoRef ?? photoRefOverride
+  // Primary source: Supabase Storage (no Google quota). Fallback: /api/places/photo
+  // proxy, which counts against the daily Places quota. data-fallback is set so
+  // the onError handler can swap to it without needing component state per card.
+  const storageUrl = venuePhotoUrl(cityId, venue.id)
+  const proxyUrl   = photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : ''
 
   return (
     <div className="flex flex-col overflow-hidden h-full" style={{ border: '1px solid rgba(10,10,10,0.08)' }}>
       {/* Photo / color block — full card width */}
       <div className="relative shrink-0 overflow-hidden" style={{ height: photoH, background: color }}>
-        {photoRef ? (
-          <img
-            src={`/api/places/photo?ref=${encodeURIComponent(photoRef)}`}
-            alt={venue.name}
-            className="w-full h-full object-cover"
-            style={{ opacity: 0, transition: 'opacity 0.4s ease' }}
-            onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
-            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-          />
-        ) : null}
+        <img
+          src={storageUrl}
+          data-fallback={proxyUrl}
+          alt={venue.name}
+          className="w-full h-full object-cover"
+          style={{ opacity: 0, transition: 'opacity 0.4s ease' }}
+          onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
+          onError={e => {
+            const img = e.currentTarget as HTMLImageElement
+            const fb  = img.getAttribute('data-fallback')
+            if (fb && img.src.indexOf(fb) === -1) {
+              img.src = fb
+              return
+            }
+            img.style.display = 'none'
+          }}
+        />
         {/* Fallback initial — always rendered behind photo */}
         <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
           style={{ fontSize: lead ? '5rem' : '4rem', color: 'rgba(255,255,255,0.18)', lineHeight: 1 }}>
@@ -164,24 +177,33 @@ function VenueCard({ venue, onSave, saved, photoRef: photoRefOverride, lead = fa
 
 /* ── Scout card (compact, non-editorial) ────────────────────────────────── */
 
-function ScoutCard({ venue, onSave, saved }: {
-  venue: Venue; onSave: () => void; saved: boolean
+function ScoutCard({ venue, cityId, onSave, saved }: {
+  venue: Venue; cityId: string; onSave: () => void; saved: boolean
 }) {
   const color = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
+  const storageUrl = venuePhotoUrl(cityId, venue.id)
+  const proxyUrl   = venue.photoRef ? `/api/places/photo?ref=${encodeURIComponent(venue.photoRef)}` : ''
   return (
     <div className="flex flex-col overflow-hidden" style={{ border: '1px solid rgba(10,10,10,0.07)' }}>
       {/* Photo block */}
       <div className="relative shrink-0 overflow-hidden" style={{ height: 120, background: color }}>
-        {venue.photoRef ? (
-          <img
-            src={`/api/places/photo?ref=${encodeURIComponent(venue.photoRef)}`}
-            alt={venue.name}
-            className="w-full h-full object-cover"
-            style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
-            onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
-            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-          />
-        ) : null}
+        <img
+          src={storageUrl}
+          data-fallback={proxyUrl}
+          alt={venue.name}
+          className="w-full h-full object-cover"
+          style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+          onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
+          onError={e => {
+            const img = e.currentTarget as HTMLImageElement
+            const fb  = img.getAttribute('data-fallback')
+            if (fb && img.src.indexOf(fb) === -1) {
+              img.src = fb
+              return
+            }
+            img.style.display = 'none'
+          }}
+        />
         <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
           style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.15)' }}>
           {venue.name.charAt(0)}
@@ -447,7 +469,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                   {filtered.slice(0, 2).map(v => {
                     const saved = (profile.spots ?? []).some(s => s.name === v.name)
                     return (
-                      <VenueCard key={v.id} venue={v} saved={saved} photoRef={venuePhotos[v.id]} lead
+                      <VenueCard key={v.id} venue={v} cityId={cityId} saved={saved} photoRef={venuePhotos[v.id]} lead
                         onSave={() => {
                           if (!user || saved) return
                           const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'
@@ -462,7 +484,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                 {filtered.slice(filtered.length >= 2 ? 2 : 0).map(v => {
                   const saved = (profile.spots ?? []).some(s => s.name === v.name)
                   return (
-                    <VenueCard key={v.id} venue={v} saved={saved} photoRef={venuePhotos[v.id]}
+                    <VenueCard key={v.id} venue={v} cityId={cityId} saved={saved} photoRef={venuePhotos[v.id]}
                       onSave={() => {
                         if (!user || saved) return
                         const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'
@@ -496,7 +518,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
                 .map(v => {
                   const saved = (profile.spots ?? []).some(s => s.name === v.name)
                   return (
-                    <ScoutCard key={v.id} venue={v} saved={saved}
+                    <ScoutCard key={v.id} venue={v} cityId={cityId} saved={saved}
                       onSave={() => {
                         if (!user || saved) return
                         const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'

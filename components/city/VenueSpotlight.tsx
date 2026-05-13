@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
+import { venuePhotoUrl } from '@/lib/photos'
 import type { Venue } from '@/lib/data/venues'
 
 interface Props {
@@ -11,19 +12,21 @@ interface Props {
 
 // Photo-led editorial moment at the top of the city hub sidebar.
 //
-// Three-stage photo resolution:
-//   1. If venue.photo is set (manually-curated direct URL), render that.
-//      Bypasses Google Places entirely — no quota burn, no API dependency.
-//   2. Else if venue.photoRef is set (filled by Places enrichment), render it
-//      through /api/places/photo proxy.
-//   3. Else try client-side /api/places/search to find a photoRef.
-//   4. If all three fail or quota is exhausted, colour-block fallback.
+// Photo source preference (highest → lowest):
+//   1. venue.photo — manually-curated direct URL. Bypasses everything.
+//   2. Supabase Storage at venue-photos/{city}/{venueId}.jpg. Cached bytes,
+//      no Google quota burn. Populated by scripts/upload-photos-to-storage.
+//   3. venue.photoRef → /api/places/photo proxy (counts against daily Places
+//      quota). Used when Storage 404s.
+//   4. Client-side /api/places/search to discover a photoRef on the fly.
+//   5. Colour-block fallback when everything fails or quota's gone.
 //
-// The venue.photo path is the quota-free escape hatch — paste a direct
-// HTTPS image URL into the venue JSON and we skip Google for that venue.
+// The cascade is implemented as <img onError> hops: try Storage, fall to
+// proxy, fall to colour. Each step is one request; failures are silent.
 export function VenueSpotlight({ venue, cityId }: Props) {
   const [photoRef, setPhotoRef]     = useState<string | null>(venue.photoRef ?? null)
   const [imgErrored, setImgErrored] = useState(false)
+  const [proxyTried, setProxyTried] = useState(false)
 
   // Direct URL takes precedence — skip everything else if present
   const directPhoto = venue.photo
@@ -70,9 +73,23 @@ export function VenueSpotlight({ venue, cityId }: Props) {
   }, [venue.id, venue.name, venue.address, cityId, photoRef, directPhoto])
 
   const label = venue.dealTag ?? 'Editor’s pick'
-  const photoUrl  = directPhoto
-    ?? (photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null)
-  const showImage = !!photoUrl && !imgErrored
+  // Cascade: direct URL > Supabase Storage > Places proxy.
+  // `proxyTried` flips after Storage 404s, switching the src to the proxy.
+  const storageUrl = venuePhotoUrl(cityId, venue.id)
+  const proxyUrl   = photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : null
+  const photoUrl   = directPhoto
+    ?? (!proxyTried ? storageUrl : proxyUrl)
+  const showImage  = !!photoUrl && !imgErrored
+
+  const handleImgError = () => {
+    // First failure: assume it was Storage; try the proxy if we have a ref.
+    if (!proxyTried && !directPhoto && proxyUrl) {
+      setProxyTried(true)
+      return
+    }
+    // Either proxy failed too, or no proxy available — give up.
+    setImgErrored(true)
+  }
 
   const fallbackBg =
     venue.broadType === 'bar'        ? '#4744C8' :
@@ -90,7 +107,7 @@ export function VenueSpotlight({ venue, cityId }: Props) {
             <img
               src={photoUrl}
               alt={venue.name}
-              onError={() => setImgErrored(true)}
+              onError={handleImgError}
               loading="eager"
               decoding="async"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
