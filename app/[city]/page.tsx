@@ -185,7 +185,35 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           {/* ── RIGHT: Sidebar ──────────────────────────────────────────── */}
           <div className="lg:pl-10 pt-7">
 
-            {/* ─ Venue spotlight — photo-led editorial moment at the very top.
+            {/* ─ SpinWheel — sidebar lead. Interactive discovery first;
+                the rest of the rail is utility + editorial below. ─ */}
+            {(venues.length > 0 || allEvents.length > 0) && (
+              <section className="mb-10">
+                <SectionLabel>Decide for me</SectionLabel>
+                <div className="pt-3 pb-2">
+                  <SpinWheel
+                    cityId={cityId}
+                    venues={venues.map(v => ({
+                      id:           v.id,
+                      name:         v.name,
+                      category:     v.category,
+                      broadType:    v.broadType,
+                      neighborhood: v.neighborhood ?? '',
+                      vibe:         (v as { vibe?: string }).vibe ?? '',
+                      website:      v.website,
+                    }))}
+                    events={allEvents.slice(0, 30).map(e => ({
+                      title: e.ev.title,
+                      date:  e.ev.date,
+                      venue: e.ev.venue,
+                      url:   e.ev.url ?? `/${cityId}`,
+                    }))}
+                  />
+                </div>
+              </section>
+            )}
+
+            {/* ─ Venue spotlight — photo-led editorial moment.
                 Always renders (component has internal colour-block fallback for
                 missing/broken photos). Prefers the featured curated venue with
                 a photoRef; falls back to any curated venue. ─ */}
@@ -272,37 +300,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </section>
             )}
 
-            {/* Interactive discovery — pairs with the Eat&Drink editorial
-                block above. Randomized pick across the curated venue and
-                event corpus, shareable result card. Keeps the sidebar from
-                being a pure-feed read; gives users a thing to do. */}
-            {(venues.length > 0 || allEvents.length > 0) && (
-              <section className="mb-10">
-                <SectionLabel>Decide for me</SectionLabel>
-                <div className="pt-3 pb-2">
-                  <SpinWheel
-                    cityId={cityId}
-                    venues={venues.map(v => ({
-                      id:           v.id,
-                      name:         v.name,
-                      category:     v.category,
-                      broadType:    v.broadType,
-                      neighborhood: v.neighborhood ?? '',
-                      vibe:         (v as { vibe?: string }).vibe ?? '',
-                      website:      v.website,
-                    }))}
-                    events={allEvents.slice(0, 30).map(e => ({
-                      title: e.ev.title,
-                      date:  e.ev.date,
-                      venue: e.ev.venue,
-                      url:   e.ev.url ?? `/${cityId}`,
-                    }))}
-                  />
-                </div>
-              </section>
-            )}
-
-            {/* Rentals moved down — practical reference, not daily-read.
+            {/* Rentals — practical reference, not daily-read.
                 Sits between Eat (discovery) and News (pulse). */}
             <Suspense fallback={<SidebarSkeleton label="Rent prices" />}>
               <RentalsWidget cityId={cityId} />
