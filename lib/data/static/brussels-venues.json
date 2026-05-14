@@ -1,5 +1,20 @@
 [
   {
+    "id": "curated-gratin",
+    "name": "Gratin",
+    "category": "Bistro & wine bar",
+    "broadType": "restaurant",
+    "neighborhood": "Ixelles / Châtelain",
+    "price": "€€",
+    "vibe": "Châtelain market-square bistro — short menu, deep wine list",
+    "why": "Right on Place du Châtelain. Outdoor seats on market day fill by noon. Plates to share, natural-leaning wine list, locals stay through the afternoon.",
+    "tags": ["wine-bar", "small-plates", "chatelain", "neighborhood", "date-night"],
+    "address": "Place du Châtelain 47",
+    "lat": 50.8249878, "lng": 4.3611946,
+    "openingHours": "",
+    "website": ""
+  },
+  {
     "id": "curated-bbp-dansaert",
     "name": "Brussels Beer Project",
     "category": "Craft brewery & taproom",
