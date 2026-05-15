@@ -62,9 +62,6 @@ const SIG_PRIORITY = ['no-reservations','cash-only','remote-work','expat-favorit
 const TYPE_COLOR: Record<string, string> = { restaurant: '#E8612A', bar: '#4744C8', cafe: '#B08800', other: '#0A0A0A' }
 type VenueType = 'all' | 'restaurant' | 'bar' | 'cafe'
 
-const FOOD_KW = ['restaurant','food','eat','bar','drink','coffee','brunch','lunch','dinner',
-  'café','cafe','recommend','pizza','vegan','beer','frites','belgian','hidden gem','best place',
-  'where to','wine','brasserie','bistro','ramen','sushi','pasta','burger','thai','italian']
 
 
 /* ── Venue card (editorial, vertical) ────────────────────────────────────── */
@@ -243,61 +240,6 @@ function ScoutCard({ venue, cityId, onSave, saved }: {
           </button>
         </div>
       </div>
-    </div>
-  )
-}
-
-/* ── Reddit food panel ───────────────────────────────────────────────────── */
-
-interface RedditRow { id: string; title: string; score: number; comments: number; permalink: string; created: number }
-
-function RedditFoodPanel({ cityId }: { cityId: string }) {
-  const [posts, setPosts] = useState<RedditRow[]>([])
-  useEffect(() => {
-    const SUB: Record<string,string> = { brussels: 'brussels', lisbon: 'portugal', berlin: 'berlin', barcelona: 'barcelona', amsterdam: 'amsterdam' }
-    const sub = SUB[cityId] ?? cityId
-    fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=60&raw_json=1`, { headers: { Accept: 'application/json' } })
-      .then(r => r.json())
-      .then(json => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rows = (json.data?.children ?? []).filter((c: any) => !c.data.over_18 && !c.data.stickied)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((c: any) => FOOD_KW.some(kw => c.data.title.toLowerCase().includes(kw)))
-          .slice(0, 8)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((c: any) => ({ id: c.data.id, title: c.data.title, score: c.data.score, comments: c.data.num_comments, permalink: `https://reddit.com${c.data.permalink}`, created: c.data.created_utc }))
-        setPosts(rows)
-      }).catch(() => {})
-  }, [cityId])
-  if (posts.length === 0) return null
-  return (
-    <div style={{ border: '1px solid rgba(10,10,10,0.08)' }}>
-      <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-black" style={{ color: '#FF4500' }}>r/{cityId}</span>
-          <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>· food & drink</span>
-        </div>
-        <a href={`https://reddit.com/r/${cityId}`} target="_blank" rel="noopener noreferrer"
-          className="text-[10px] font-black tracking-wider hover:opacity-60 transition-opacity"
-          style={{ color: 'rgba(10,10,10,0.25)' }}>OPEN ↗</a>
-      </div>
-      {posts.map((post, i) => {
-        const diff = Math.floor(Date.now() / 1000) - post.created
-        const ago  = diff < 3600 ? `${Math.floor(diff/60)}m` : diff < 86400 ? `${Math.floor(diff/3600)}h` : `${Math.floor(diff/86400)}d`
-        return (
-          <a key={post.id} href={post.permalink} target="_blank" rel="noopener noreferrer"
-            className="flex items-start gap-4 px-5 py-3.5 hover:bg-neutral-50 transition-colors"
-            style={{ borderTop: i > 0 ? '1px solid rgba(10,10,10,0.06)' : 'none' }}>
-            <span className="shrink-0 text-[10px] font-black w-7 text-right mt-0.5" style={{ color: '#FF4500' }}>
-              {post.score >= 1000 ? `${(post.score/1000).toFixed(1)}k` : post.score}
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium leading-snug line-clamp-2" style={{ color: '#0A0A0A' }}>{post.title}</p>
-              <p className="text-[10px] mt-1" style={{ color: 'rgba(10,10,10,0.3)' }}>{post.comments} comments · {ago}</p>
-            </div>
-          </a>
-        )
-      })}
     </div>
   )
 }
@@ -556,18 +498,6 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
             </div>
           </div>
         )}
-
-        {/* Reddit food signal */}
-        <div className="mb-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
-            <p className="text-[10px] font-black tracking-[0.28em] uppercase shrink-0" style={{ color: 'rgba(10,10,10,0.35)' }}>
-              What the city is eating
-            </p>
-            <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
-          </div>
-          <RedditFoodPanel cityId={cityId} />
-        </div>
 
       </div>
     </div>

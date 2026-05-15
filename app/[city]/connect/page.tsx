@@ -10,7 +10,6 @@ import { supabase } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { Post, PostCategory, Stage, PostComment, CityId } from '@/lib/types'
 import type { FeedItem } from '@/app/api/feeds/route'
-import RedditChannel from '@/components/connect/RedditChannel'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 
@@ -108,7 +107,7 @@ const PINNED: Record<string, Record<string, CuratedPin[]>> = {
 
 /* ── Channel definitions ─────────────────────────────────────────────────── */
 
-type ChannelId = 'tips' | 'questions' | 'heads-up' | 'events' | 'news' | 'reddit'
+type ChannelId = 'tips' | 'questions' | 'heads-up' | 'events' | 'news'
 type ChannelGroup = 'listen' | 'talk'
 
 interface Channel {
@@ -127,7 +126,6 @@ interface Channel {
 const CHANNELS: Channel[] = [
   // Listen
   { id: 'events',    label: 'Events',     sub: 'What\'s happening this week',     color: '#E8612A', group: 'listen'                          },
-  { id: 'reddit',    label: 'Reddit',     sub: 'What the city is talking about',  color: '#FF4500', group: 'listen'                          },
   { id: 'news',      label: 'News',       sub: 'Curated local headlines',         color: '#4744C8', group: 'listen'                          },
   // Talk
   { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',       color: '#10B981', group: 'talk',   cat: 'recommendation'   },
@@ -199,8 +197,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [authOpen,    setAuthOpen]    = useState(false)
   const [feedItems,    setFeedItems]    = useState<FeedItem[]>([])
   const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-  const [redditPosts,  setRedditPosts]  = useState<FeedItem[]>([])
-  const [redditFetch,  setRedditFetch]  = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [activeChannel,  setActiveChannel]  = useState<ChannelId>('events')
   const [activeHood,     setActiveHood]     = useState<string | null>(null)
   const [expandedPost,   setExpandedPost]   = useState<string | null>(null)
@@ -297,41 +293,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
       .catch(() => setFeedState('error'))
   }, [cityId, feedState])
 
-  // Reddit fetch via our server-side /api/reddit proxy.
-  // Direct browser fetch to reddit.com/hot.json was broken (Reddit started
-  // returning 403 to no-UA browser requests). The server route rotates UAs
-  // and falls back to old.reddit.com on failure — much more reliable.
-  useEffect(() => {
-    if (redditFetch !== 'idle') return
-    setRedditFetch('loading')
-    fetch(`/api/reddit?city=${cityId}`)
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
-      .then(json => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items: FeedItem[] = (json.posts ?? [])
-          .slice(0, 8)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((p: any) => ({
-            id:          p.id,
-            source:      'reddit' as const,
-            sourceLabel: p.subreddit ? `r/${p.subreddit}` : 'Reddit',
-            category:    'community' as const,
-            title:       p.title,
-            summary:     (p.text ?? '').slice(0, 220),
-            url:         p.permalink,
-            published:   p.created,
-            subreddit:   p.subreddit,
-            flair:       p.flair ?? undefined,
-            score:       p.score,
-            comments:    p.comments,
-            author:      p.author,
-          }))
-        setRedditPosts(items)
-        setRedditFetch(items.length > 0 ? 'done' : 'error')
-      })
-      .catch(() => setRedditFetch('error'))
-  }, [cityId, redditFetch])
-
   if (!city) return null
   if (authLoading) return <div className="min-h-screen bg-cream" />
   if (!user) return <AuthGate cityName={city.name} cityId={cityId}>{null}</AuthGate>
@@ -341,7 +302,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
   // Content per channel
   const newsItems   = feedItems.filter(i => i.category === 'news')
-  const redditItems = redditPosts
 
   const eventItems = feedItems.filter(i => i.category === 'events')
     .sort((a, b) => a.published - b.published)
@@ -353,7 +313,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     'heads-up': posts.filter(p => p.category === 'heads-up').length,
     events:     eventItems.length,
     news:       newsItems.length,
-    reddit:     redditPosts.length,
   }
 
   const activePosts = channel.cat
@@ -524,12 +483,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {eventItems.length} {eventItems.length === 1 ? 'event' : 'events'} ahead
           </span>
         )}
-        {redditItems.length > 0 && (
-          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-            style={{ color: '#FF4500' }}>
-            r/{cityId} hot
-          </span>
-        )}
       </PageMasthead>
 
       {/* ── Tab bar — Listen | Talk ──────────────────────────────────────── */}
@@ -558,7 +511,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
               const count =
                 ch.id === 'events' ? eventItems.length :
                 ch.id === 'news'   ? newsItems.length  :
-                ch.id === 'reddit' ? redditItems.length :
                 postCounts[ch.id] ?? 0
 
               return (
@@ -1061,11 +1013,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   )
                 })()}
               </>
-            )}
-
-            {/* ── Reddit channel ───────────────────────────────────────── */}
-            {channel.id === 'reddit' && (
-              <RedditChannel cityId={cityId} items={redditItems} loading={redditFetch === 'loading'} />
             )}
 
           </div>
