@@ -18,6 +18,20 @@ import { PageMasthead } from '@/components/layout/PageMasthead'
 // its slot. The component + tables remain in the repo to revive when
 // weekly actives cross ~50.
 import { WeeklyNote } from '@/components/connect/WeeklyNote'
+import { ShareRow } from '@/components/connect/ShareRow'
+import {
+  legacyPinsForChannel,
+  type CuratedKind,
+  type LegacyPin,
+} from '@/lib/data/connect/curated-brussels'
+
+// Map Connect channel ids ('tips' / 'questions' / 'heads-up') to the
+// curated module's kind type. Used to load pinned content per channel.
+const CHANNEL_TO_KIND: Record<string, CuratedKind> = {
+  'tips':      'tip',
+  'questions': 'question',
+  'heads-up':  'heads-up',
+}
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 
@@ -54,63 +68,7 @@ const RESOURCE_STYLE: Record<ResourceType, { color: string; label: string }> = {
   meetup: { color: '#E1523D', label: 'mu' },
 }
 
-/* ── Curated seed content (clearly labeled, not fake activity) ───────────── */
-
-interface CuratedPin {
-  id: string
-  text: string
-  label: string   // shown as "Roots note" — never attributed to a fake user
-}
-
-const PINNED: Record<string, Record<string, CuratedPin[]>> = {
-  brussels: {
-    tips: [
-      { id: 'bxl-tip-1',  label: 'Roots note', text: 'Register at your commune within 8 days of arriving — this unlocks your eID, mutuelle, and everything else. Ixelles and Saint-Gilles tend to have English-speaking staff.' },
-      { id: 'bxl-tip-2',  label: 'Roots note', text: 'STIB\'s monthly pass is ~€59 and covers metro, tram, and bus across the whole region. The 12-trip card is better than single tickets if you\'re not yet committed to monthly.' },
-      { id: 'bxl-tip-3',  label: 'Roots note', text: 'Mutualité Socialiste and Mutualité Chrétienne are the two dominant mutuelles, but Partenamut is the easiest for English speakers. Sign up within 90 days of arrival or you pay medical costs out of pocket.' },
-      { id: 'bxl-tip-4',  label: 'Roots note', text: 'Open a Wise or Revolut account before you arrive. You\'ll need a Belgian address and eID for a full Belgian bank, but you can receive your first salary into Wise no problem.' },
-      { id: 'bxl-tip-5',  label: 'Roots note', text: 'Place Flagey market on Saturday morning is the best food market in Brussels — get there before 11. Cheese, wine, bread, Moroccan olives, and a Belga terrace afterwards.' },
-      { id: 'bxl-tip-6',  label: 'Roots note', text: 'Villo bike share is €38 a year — cheaper than two STIB monthly passes. Phone-unlock, dock anywhere in the city, half the bikes work most days.' },
-      { id: 'bxl-tip-7',  label: 'Roots note', text: 'For an English-speaking GP without a wait, look up Brussels Medical Center (BMC) in Châtelain or House of Doctors near Schuman. Both bill via your mutuelle directly once you\'re registered.' },
-      { id: 'bxl-tip-8',  label: 'Roots note', text: 'Get an Itsme account as soon as you have an eID. It\'s the Belgian universal login for tax declarations, mutuelle paperwork, opening accounts — saves hours over time.' },
-      { id: 'bxl-tip-9',  label: 'Roots note', text: 'For groceries: Carrefour Express for late nights, Delhaize for produce quality, Lidl for everything else. The Wednesday-evening Châtelain market beats them all for a date-night dinner.' },
-      { id: 'bxl-tip-10', label: 'Roots note', text: 'If you arrive in summer, expect half the city to be closed in August. Sign anything important (lease, bank, mutuelle) before the first week of August or after the third week.' },
-    ],
-    questions: [
-      { id: 'bxl-q-1', label: 'Roots note', text: 'Common question: how long does commune registration actually take? Most communes process your dossier in 4–8 weeks, then a local police officer visits your address before the card is issued.' },
-      { id: 'bxl-q-2', label: 'Roots note', text: 'People often ask about the 3-6-9 lease. It\'s a standard Belgian residential lease — you can leave after 3, 6, or 9 years with 3 months notice. Earlier exits cost ~3 months\' rent in penalty.' },
-      { id: 'bxl-q-3', label: 'Roots note', text: 'Do I need to speak French in Brussels? In Ixelles, Saint-Gilles, the EU Quarter, Châtelain, and Dansaert — no, English is fine. In communes north and west of the canal, basic French saves a lot of friction.' },
-      { id: 'bxl-q-4', label: 'Roots note', text: 'How do I find an apartment without an agency? Immoweb is the main listing site, but the best places never make it there — check Reddit r/brussels weekly threads and ask directly in newcomer WhatsApp groups.' },
-      { id: 'bxl-q-5', label: 'Roots note', text: 'Tax residency: Belgium taxes you on worldwide income from the day you register at the commune. If you arrive late in the year, you\'ll only owe on income earned from your registration date — not the full year.' },
-      { id: 'bxl-q-6', label: 'Roots note', text: 'Best mobile operators for new arrivals: Mobile Vikings (best for English-speaking customer service), Proximus (best coverage), or BASE (cheapest). All work fine; you can switch in 30 days if you change your mind.' },
-      { id: 'bxl-q-7', label: 'Roots note', text: 'Schools for non-Belgian children: International School of Brussels (Watermael-Boitsfort) and BSB (Tervuren) for English curriculums. For a public school in French/Dutch, your commune assigns based on residence.' },
-      { id: 'bxl-q-8', label: 'Roots note', text: 'Healthcare while you wait for your mutuelle: keep all receipts. Once your mutuelle membership is backdated, you can submit them and get reimbursed retroactively. Don\'t throw any paperwork away in the first 3 months.' },
-    ],
-    'heads-up': [
-      { id: 'bxl-hu-1', label: 'Roots note', text: 'Rental guarantees in Brussels are capped at 2 months\' rent by law (or 3 months in a bank guarantee). If a landlord asks for more, that\'s illegal — push back or walk away.' },
-      { id: 'bxl-hu-2', label: 'Roots note', text: 'Belgian banks often require a Belgian address and eID to open a full current account. In the meantime, Wise or N26 cover salary, rent, and direct debits for most things.' },
-      { id: 'bxl-hu-3', label: 'Roots note', text: 'Trash collection in Brussels uses coloured bags — white (general), yellow (paper), blue (PMC: plastic, metal, cartons). Buying the wrong commune\'s bag means it won\'t be picked up. Check your commune\'s schedule, it varies street by street.' },
-      { id: 'bxl-hu-4', label: 'Roots note', text: 'The "trêve hivernale" rule that exists in France does NOT exist in Belgium — landlords can evict in winter if you\'re behind on rent. Don\'t let unpaid rent stack up beyond two months.' },
-      { id: 'bxl-hu-5', label: 'Roots note', text: 'Sundays in Brussels are properly closed. Most supermarkets shut by 13:00, many restaurants close all day. Brunch spots in Saint-Gilles and Ixelles are the exception. Plan accordingly or you\'ll be hungry.' },
-      { id: 'bxl-hu-6', label: 'Roots note', text: 'STIB strikes are common — usually announced 48 hours ahead. Follow @STIBMIVB or the STIB app for live status. On strike days, Villo bikes and Lime scooters get expensive fast; budget extra.' },
-      { id: 'bxl-hu-7', label: 'Roots note', text: 'Don\'t pay your mobile/internet contract by direct debit until you\'ve had your first bill. Operators occasionally double-charge or fail to cancel old plans, and reversing direct debits is a fight.' },
-      { id: 'bxl-hu-8', label: 'Roots note', text: 'If you sign a lease through an agency, agency fees are illegal in Belgium for the tenant — only the landlord pays. If anyone tries to charge you, refuse politely and they almost always back down.' },
-    ],
-  },
-  lisbon: {
-    tips: [
-      { id: 'lis-tip-1', label: 'Roots note', text: 'Get your NIF (tax number) before anything else — you need it to open a bank account, sign a lease, and access most services. It can be done at a Finanças office or via a fiscal representative.' },
-      { id: 'lis-tip-2', label: 'Roots note', text: 'Viva Viagem cards work across metro, bus, tram, and some suburban trains. Zapping (pay-as-you-go) is usually better value than daily passes for casual use.' },
-    ],
-    questions: [
-      { id: 'lis-q-1', label: 'Roots note', text: 'NHR (Non-Habitual Resident) tax regime gives a flat 20% tax rate on Portuguese-source income for 10 years. You must apply in the year you first become a tax resident.' },
-    ],
-    'heads-up': [
-      { id: 'lis-hu-1', label: 'Roots note', text: 'AIMA (formerly SEF) appointment wait times are long — 3 to 6 months is common. Book as early as possible; some services can be handled via the online portal.' },
-    ],
-  },
-}
-
+/* ── Curated content lives in lib/data/connect/curated-brussels.ts ──────── */
 /* ── Channel definitions ─────────────────────────────────────────────────── */
 
 type ChannelId = 'tips' | 'questions' | 'heads-up' | 'events' | 'news'
@@ -707,7 +665,11 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
       {/* ── Main layout ──────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
+        {/* Talk channels go full-width — the tip grid needs the room.
+            Listen channels (events/news) keep the 280px sidebar. */}
+        <div className={channel.cat
+          ? 'grid grid-cols-1 gap-10'
+          : 'grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10'}>
 
           {/* ── LEFT: Main channel content ───────────────────────────────── */}
           <div className="min-w-0">
@@ -718,6 +680,18 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* ── Community channels (tips / questions / heads-up) ──────── */}
             {channel.cat && (
               <>
+                {/* See-all-tips link to the public surface */}
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+                    style={{ color: 'rgba(10,10,10,0.4)' }}>
+                    Hand-written + community
+                  </p>
+                  <a href={`/${cityId}/tips`}
+                    className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                    style={{ color: '#4744C8' }}>
+                    See all tips →
+                  </a>
+                </div>
                 {/* Neighbourhood filter — only when there are posts to filter */}
                 {hoodChips.length > 0 && posts.some(p => p.category === channel.cat) && (
                   <div className="mb-6 flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1">
@@ -750,157 +724,254 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
 
-                {/* Posts */}
+                {/* Posts — hero + grid of cards */}
                 {(() => {
-                  const pins = (PINNED[cityId]?.[channel.id] ?? [])
-                  const allContent = [...activePosts]
-                  const showPins   = allContent.length === 0
+                  const kind  = CHANNEL_TO_KIND[channel.id]
+                  const pins: LegacyPin[] = kind ? legacyPinsForChannel(kind) : []
+                  const userPosts = activePosts
+
+                  // Items shown as cards. Pinned curated tips ALWAYS render
+                  // (the editorial layer is part of the experience, not just
+                  // a fallback). User posts mix into the grid below them.
+                  type CardItem =
+                    | { kind: 'pin';  pin: LegacyPin }
+                    | { kind: 'post'; post: typeof userPosts[number] }
+                  const items: CardItem[] = [
+                    ...pins.map(p => ({ kind: 'pin'  as const, pin: p })),
+                    ...userPosts.map(p => ({ kind: 'post' as const, post: p })),
+                  ]
+
+                  if (items.length === 0) {
+                    return (
+                      <div className="py-12 px-6" style={{ background: '#FAFAF7', border: '1px solid rgba(10,10,10,0.08)' }}>
+                        <p className="text-base font-semibold mb-2" style={{ color: '#0A0A0A' }}>
+                          {channel.id === 'tips'      ? 'No tips yet — yours could be the first.'
+                           : channel.id === 'questions' ? 'No questions yet — ask away.'
+                           : 'No heads-ups yet.'}
+                        </p>
+                        <p className="text-sm" style={{ color: 'rgba(10,10,10,0.55)' }}>
+                          Use the composer below — we read every post.
+                        </p>
+                      </div>
+                    )
+                  }
+
+                  // First card renders as a hero (full width, larger).
+                  const [head, ...rest] = items
+
+                  // ── Card primitive (inline to keep file changes localised) ──
+                  function PinCard({ pin, hero = false }: { pin: LegacyPin; hero?: boolean }) {
+                    const detailHref = `/${cityId}/tips/${pin.slug}`
+                    return (
+                      <article
+                        className="flex flex-col h-full"
+                        style={{ background: '#FFFFFF', border: '1px solid rgba(10,10,10,0.1)' }}>
+                        <div style={{ height: hero ? 5 : 4, background: '#4744C8' }} />
+                        <div className={hero ? 'px-6 pt-5 pb-5' : 'px-5 pt-4 pb-4'}>
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-[10px] font-black tracking-[0.22em] uppercase"
+                              style={{ color: '#4744C8' }}>
+                              Roots note
+                            </span>
+                            <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                              style={{ color: 'rgba(10,10,10,0.35)' }}>
+                              · {channel.label}
+                            </span>
+                          </div>
+                          <p className={hero
+                              ? 'text-[1.05rem] md:text-base leading-relaxed mb-3'
+                              : 'text-sm leading-relaxed mb-3'}
+                            style={{ color: 'rgba(10,10,10,0.78)' }}>
+                            {pin.text}
+                          </p>
+                          <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+                            <a href={detailHref}
+                              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                              style={{ color: '#4744C8' }}>
+                              Read full tip →
+                            </a>
+                            <button
+                              onClick={() => {
+                                const absolute = typeof window !== 'undefined'
+                                  ? `${window.location.origin}${detailHref}` : detailHref
+                                if (typeof navigator !== 'undefined' && navigator.share) {
+                                  void navigator.share({ url: absolute, text: pin.text.slice(0, 200) })
+                                } else {
+                                  void navigator.clipboard?.writeText(absolute)
+                                }
+                              }}
+                              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                              style={{ color: 'rgba(10,10,10,0.4)' }}
+                              title="Share this tip">
+                              ↗ Share
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    )
+                  }
+
+                  function PostCard({ post, hero = false }: { post: typeof userPosts[number]; hero?: boolean }) {
+                    const m  = CAT_META[post.category]
+                    const helpfulN = helpfulCounts[post.id] ?? 0
+                    const iHelped  = myHelpful.has(post.id)
+                    const cN       = commentCounts[post.id] ?? 0
+                    const expanded = expandedPost === post.id
+                    return (
+                      <article
+                        className="flex flex-col h-full"
+                        style={{ background: '#FFFFFF', border: '1px solid rgba(10,10,10,0.1)' }}>
+                        <div style={{ height: hero ? 5 : 4, background: m.color }} />
+                        <div className={hero ? 'px-6 pt-5 pb-5' : 'px-5 pt-4 pb-4'}>
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-[10px] font-black tracking-[0.22em] uppercase"
+                              style={{ color: m.color }}>
+                              {m.label}
+                            </span>
+                            {post.authorStage && (
+                              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                                · {STAGE_LABELS[post.authorStage]}
+                              </span>
+                            )}
+                            <span className="text-[10px] ml-auto" style={{ color: 'rgba(10,10,10,0.3)' }}>
+                              {post.time}
+                            </span>
+                          </div>
+                          <p className={hero
+                              ? 'text-[1.05rem] md:text-base leading-relaxed mb-3'
+                              : 'text-sm leading-relaxed mb-3'}
+                            style={{ color: 'rgba(10,10,10,0.78)' }}>
+                            {post.text}
+                          </p>
+                          {/* Action row — helpful + comments + share + report */}
+                          <div className="mt-2 flex items-center gap-3 flex-wrap">
+                            <button
+                              onClick={() => toggleHelpful(post.id)}
+                              className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] uppercase px-2 py-1 transition-all"
+                              style={{
+                                color: iHelped ? '#fff' : m.color,
+                                background: iHelped ? m.color : 'transparent',
+                                border: `1px solid ${m.color}40`,
+                              }}>
+                              {iHelped ? '✓' : '+'} Helped {helpfulN > 0 && helpfulN}
+                            </button>
+                            <button
+                              onClick={() => toggleComments(post.id)}
+                              className="text-[10px] font-bold hover:opacity-60 transition-opacity"
+                              style={{ color: 'rgba(10,10,10,0.4)' }}>
+                              {expanded ? 'Hide replies' : `${cN} ${cN === 1 ? 'reply' : 'replies'}`}
+                            </button>
+                            <button
+                              onClick={() => {
+                                const absolute = typeof window !== 'undefined'
+                                  ? `${window.location.origin}/${cityId}/connect` : ''
+                                const text = `${post.text}\n— via Roots ${city?.name ?? ''}\n${absolute}`
+                                if (typeof navigator !== 'undefined' && navigator.share) {
+                                  void navigator.share({ text })
+                                } else {
+                                  void navigator.clipboard?.writeText(text)
+                                }
+                              }}
+                              className="text-[10px] font-bold hover:opacity-60 transition-opacity"
+                              style={{ color: 'rgba(10,10,10,0.4)' }}>
+                              ↗ Share
+                            </button>
+                            <button
+                              onClick={() => reportPost(post.id)}
+                              disabled={reportedPosts.has(post.id)}
+                              className="ml-auto text-[10px] hover:opacity-100 transition-opacity disabled:opacity-100"
+                              style={{ color: reportedPosts.has(post.id) ? '#0E9B6B' : 'rgba(10,10,10,0.2)' }}
+                              title="Report this post">
+                              {reportedPosts.has(post.id) ? '✓ Thanks' : 'Report'}
+                            </button>
+                          </div>
+                          {/* Inline thread */}
+                          {expanded && (
+                            <div className="mt-3 pl-3" style={{ borderLeft: `2px solid ${m.color}40` }}>
+                              {(comments[post.id] ?? []).map(c => (
+                                <div key={c.id} className="py-1.5"
+                                  style={{ borderBottom: '1px solid rgba(10,10,10,0.05)' }}>
+                                  <span className="text-[10px] font-black mr-2" style={{ color: m.color }}>
+                                    {c.author_name ?? 'Settler'}
+                                  </span>
+                                  <span className="text-xs" style={{ color: 'rgba(10,10,10,0.65)' }}>{c.text}</span>
+                                </div>
+                              ))}
+                              {(comments[post.id] ?? []).length === 0 && (
+                                <p className="text-[10px] py-1.5" style={{ color: 'rgba(10,10,10,0.3)' }}>
+                                  No replies yet
+                                </p>
+                              )}
+                              <div className="flex gap-2 mt-2">
+                                <input
+                                  type="text"
+                                  value={commentDrafts[post.id] ?? ''}
+                                  onChange={e => setCommentDrafts(prev => ({ ...prev, [post.id]: e.target.value.slice(0, 140) }))}
+                                  onKeyDown={e => { if (e.key === 'Enter') submitComment(post.id) }}
+                                  placeholder="Reply…"
+                                  className="flex-1 text-xs focus:outline-none bg-transparent"
+                                  style={{ borderBottom: '1px solid rgba(10,10,10,0.15)', paddingBottom: 2, color: '#0A0A0A' }}
+                                />
+                                <button
+                                  onClick={() => submitComment(post.id)}
+                                  disabled={!(commentDrafts[post.id] ?? '').trim() || commentPosting}
+                                  className="text-[10px] font-black text-white px-2.5 py-1 transition-opacity disabled:opacity-25"
+                                  style={{ background: m.color }}>
+                                  ↑
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </article>
+                    )
+                  }
 
                   return (
                     <div>
-                      {/* Pinned curated content */}
-                      {showPins && pins.length > 0 && (
-                        <>
-                          <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-4"
-                            style={{ color: 'rgba(10,10,10,0.25)' }}>
-                            From Roots
-                          </p>
-                          {pins.map((pin, i) => (
-                            <div key={pin.id}
-                              className="flex gap-4 py-4"
-                              style={{ borderTop: i > 0 ? '1px solid rgba(10,10,10,0.07)' : 'none' }}>
-                              <div className="w-0.5 shrink-0 self-stretch" style={{ background: '#4744C8' }} />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[10px] font-black tracking-[0.2em] uppercase mb-1.5"
-                                  style={{ color: '#4744C8' }}>
-                                  {pin.label}
-                                </p>
-                                <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.7)' }}>
-                                  {pin.text}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                          <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
-                            <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-3"
-                              style={{ color: 'rgba(10,10,10,0.25)' }}>
-                              Community posts
-                            </p>
-                            <p className="text-sm font-semibold mb-1.5" style={{ color: '#0A0A0A' }}>
-                              {channel.id === 'tips'      ? 'A great tip is specific.' :
-                               channel.id === 'questions' ? 'Ask the question you wish someone had answered for you.' :
-                               'A heads-up saves someone a wasted afternoon.'}
-                            </p>
-                            <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.5)' }}>
-                              {channel.id === 'tips'      ? 'Mention the place, the price, the catch. "The mutuelle on Rue Vanderkindere processed mine in two days" beats "good mutuelle".' :
-                               channel.id === 'questions' ? 'Other settlers are figuring out the same thing right now. Ask in plain language — no need to caveat.' :
-                               'Recent admin gotcha? Closed office? Strike? Post it. The shorter, the better.'}
-                            </p>
-                            <button
-                              onClick={() => composerRef.current?.focus()}
-                              className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.16em] uppercase hover:opacity-60 transition-opacity"
-                              style={{ color: channel.color }}>
-                              {channel.id === 'tips' ? 'Share a tip' : channel.id === 'questions' ? 'Ask a question' : 'Post a heads-up'}
-                              <span>→</span>
-                            </button>
-                          </div>
-                        </>
+                      {/* Curated ribbon when we lead with a Roots note */}
+                      {head.kind === 'pin' && (
+                        <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-3"
+                          style={{ color: 'rgba(10,10,10,0.35)' }}>
+                          From Roots · curated
+                        </p>
                       )}
-
-                      {/* Community posts */}
-                      {allContent.map(post => {
-                        const m = CAT_META[post.category]
-                        return (
-                          <div key={post.id}
-                            className="flex gap-4 py-4"
-                            style={{ borderTop: '1px solid rgba(10,10,10,0.07)' }}>
-                            <div className="w-0.5 shrink-0 self-stretch" style={{ background: m.color }} />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1.5">
-                                {post.authorStage && (
-                                  <span className="text-[10px] font-black tracking-[0.15em] uppercase"
-                                    style={{ color: 'rgba(10,10,10,0.3)' }}>
-                                    {STAGE_LABELS[post.authorStage]}
-                                  </span>
-                                )}
-                                <span className="text-[10px] ml-auto" style={{ color: 'rgba(10,10,10,0.2)' }}>
-                                  {post.time}
-                                </span>
-                              </div>
-                              <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.75)' }}>
-                                {post.text}
-                              </p>
-                              {/* Action row — comments + report */}
-                              <div className="mt-2 flex items-center gap-4">
-                                <button
-                                  onClick={() => toggleComments(post.id)}
-                                  className="text-[10px] font-bold hover:opacity-60 transition-opacity"
-                                  style={{ color: 'rgba(10,10,10,0.3)' }}>
-                                  {expandedPost === post.id
-                                    ? 'Hide replies'
-                                    : `${commentCounts[post.id] ?? 0} ${(commentCounts[post.id] ?? 0) === 1 ? 'reply' : 'replies'}`}
-                                </button>
-                                <button
-                                  onClick={() => reportPost(post.id)}
-                                  disabled={reportedPosts.has(post.id)}
-                                  className="text-[10px] hover:opacity-100 transition-opacity disabled:opacity-100"
-                                  style={{ color: reportedPosts.has(post.id) ? '#0E9B6B' : 'rgba(10,10,10,0.2)' }}
-                                  title="Report this post">
-                                  {reportedPosts.has(post.id) ? '✓ Thanks — we\'ll review' : 'Report'}
-                                </button>
-                              </div>
-                              {/* Inline thread */}
-                              {expandedPost === post.id && (
-                                <div className="mt-3 pl-3" style={{ borderLeft: `2px solid ${m.color}40` }}>
-                                  {(comments[post.id] ?? []).map(c => (
-                                    <div key={c.id} className="py-1.5" style={{ borderBottom: '1px solid rgba(10,10,10,0.05)' }}>
-                                      <span className="text-[10px] font-black mr-2" style={{ color: m.color }}>
-                                        {c.author_name ?? 'Settler'}
-                                      </span>
-                                      <span className="text-xs" style={{ color: 'rgba(10,10,10,0.65)' }}>{c.text}</span>
-                                    </div>
-                                  ))}
-                                  {(comments[post.id] ?? []).length === 0 && (
-                                    <p className="text-[10px] py-1.5" style={{ color: 'rgba(10,10,10,0.3)' }}>No replies yet</p>
-                                  )}
-                                  <div className="flex gap-2 mt-2">
-                                    <input
-                                      type="text"
-                                      value={commentDrafts[post.id] ?? ''}
-                                      onChange={e => setCommentDrafts(prev => ({ ...prev, [post.id]: e.target.value.slice(0, 140) }))}
-                                      onKeyDown={e => { if (e.key === 'Enter') submitComment(post.id) }}
-                                      placeholder="Reply…"
-                                      className="flex-1 text-xs focus:outline-none bg-transparent"
-                                      style={{ borderBottom: '1px solid rgba(10,10,10,0.15)', paddingBottom: 2, color: '#0A0A0A' }}
-                                    />
-                                    <button
-                                      onClick={() => submitComment(post.id)}
-                                      disabled={!(commentDrafts[post.id] ?? '').trim() || commentPosting}
-                                      className="text-[10px] font-black text-white px-2.5 py-1 transition-opacity disabled:opacity-25"
-                                      style={{ background: m.color }}>
-                                      ↑
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-
-                      {/* No content (no curated pins available either) */}
-                      {showPins && pins.length === 0 && (
-                        <div className="py-10 text-center">
-                          <p className="text-sm font-semibold mb-1.5" style={{ color: '#0A0A0A' }}>
-                            {channel.id === 'tips' ? 'No tips yet — yours could be the first.'
-                             : channel.id === 'questions' ? 'No questions yet — ask away.'
-                             : 'No heads-ups yet.'}
-                          </p>
-                          <p className="text-xs" style={{ color: 'rgba(10,10,10,0.45)' }}>
-                            Use the box below — we read every post.
-                          </p>
+                      {/* Hero card */}
+                      <div className="mb-3">
+                        {head.kind === 'pin'
+                          ? <PinCard  pin={head.pin}   hero />
+                          : <PostCard post={head.post} hero />}
+                      </div>
+                      {/* Grid */}
+                      {rest.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {rest.map(item => item.kind === 'pin'
+                            ? <PinCard  key={item.pin.id}   pin={item.pin} />
+                            : <PostCard key={item.post.id}  post={item.post} />)}
                         </div>
                       )}
+                      {/* Coaching nudge below the grid */}
+                      <div className="mt-8 px-4 py-4"
+                        style={{ background: 'rgba(10,10,10,0.02)', border: '1px solid rgba(10,10,10,0.06)' }}>
+                        <p className="text-sm font-semibold mb-1" style={{ color: '#0A0A0A' }}>
+                          {channel.id === 'tips'      ? 'A great tip is specific.' :
+                           channel.id === 'questions' ? 'Ask the question you wish someone had answered for you.' :
+                           'A heads-up saves someone a wasted afternoon.'}
+                        </p>
+                        <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.5)' }}>
+                          {channel.id === 'tips'      ? 'Mention the place, the price, the catch. "The mutuelle on Rue Vanderkindere processed mine in two days" beats "good mutuelle".' :
+                           channel.id === 'questions' ? 'Other settlers are figuring out the same thing right now. Ask in plain language — no need to caveat.' :
+                           'Recent admin gotcha? Closed office? Strike? Post it. The shorter, the better.'}
+                        </p>
+                        <button
+                          onClick={() => composerRef.current?.focus()}
+                          className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.16em] uppercase hover:opacity-60 transition-opacity"
+                          style={{ color: channel.color }}>
+                          {channel.id === 'tips' ? 'Share a tip' : channel.id === 'questions' ? 'Ask a question' : 'Post a heads-up'}
+                          <span>→</span>
+                        </button>
+                      </div>
                     </div>
                   )
                 })()}
@@ -1174,7 +1245,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
           </div>
 
-          {/* ── RIGHT: Directory + groups ─────────────────────────────────── */}
+          {/* ── RIGHT: Directory + groups (only on listen channels) ──────── */}
+          {!channel.cat && (
           <aside className="hidden lg:block space-y-8">
 
             {/* Settlers */}
@@ -1223,8 +1295,10 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
               </div>
             )}
           </aside>
+          )}
 
           {/* ── Mobile-only: Settlers + Community groups (under main column) ─ */}
+          {!channel.cat && (
           <div className="lg:hidden mt-12 pt-10 space-y-8" style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
             <div>
               <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
@@ -1268,6 +1342,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
               </div>
             )}
           </div>
+          )}
 
         </div>
       </div>

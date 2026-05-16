@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { ACTIVE_CITIES } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
 import { getNeighbourhoodsForCity } from '@/lib/data/neighbourhoods/brussels'
+import { CURATED_BRUSSELS } from '@/lib/data/connect/curated-brussels'
 
 // Resolves to the configured site URL (Vercel sets VERCEL_URL automatically),
 // matching the metadataBase logic in app/layout.tsx.
@@ -81,5 +82,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return pairs
   })
 
-  return [...staticPages, ...guidePages, ...neighbourhoodPages, ...comparisonPages]
+  // Per-city tip pages — public surface for the curated Roots notes.
+  // Currently Brussels-only (26 tips/questions/heads-ups).
+  const tipPages: MetadataRoute.Sitemap = ACTIVE_CITIES.flatMap(city => {
+    const cityTips = CURATED_BRUSSELS.filter(n => n.cityId === city.id)
+    if (cityTips.length === 0) return []
+    return [
+      {
+        url: `${base}/${city.id}/tips`,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
+      },
+      ...cityTips.map(n => ({
+        url: `${base}/${city.id}/tips/${n.slug}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      })),
+    ]
+  })
+
+  return [
+    ...staticPages,
+    ...guidePages,
+    ...neighbourhoodPages,
+    ...comparisonPages,
+    ...tipPages,
+  ]
 }
