@@ -12,6 +12,7 @@ import type { Post, PostCategory, Stage, PostComment, CityId } from '@/lib/types
 import type { FeedItem } from '@/app/api/feeds/route'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
+import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 
@@ -204,6 +205,28 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [commentCounts,  setCommentCounts]  = useState<Record<string, number>>({})
   const [commentDrafts,  setCommentDrafts]  = useState<Record<string, string>>({})
   const [commentPosting, setCommentPosting] = useState(false)
+  const [reportedPosts,  setReportedPosts]  = useState<Set<string>>(new Set())
+
+  // Post a report. Quiet UX: optimistic flip to "Thanks — we'll review."
+  // The server silently dedupes via UNIQUE (post_id, reporter_id), so
+  // re-clicking is harmless and the same green state shows either way.
+  async function reportPost(postId: string) {
+    if (reportedPosts.has(postId)) return
+    setReportedPosts(prev => new Set(prev).add(postId))
+    try {
+      const sb = supabase
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (sb) {
+        const { data: { session } } = await sb.auth.getSession()
+        if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      await fetch('/api/posts/report', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ post_id: postId, reason: 'spam' }),
+      })
+    } catch { /* leave optimistic state; UX intentionally doesn't surface errors */ }
+  }
 
   useEffect(() => {
     if (!city || !supabase) return
@@ -559,6 +582,9 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           {/* ── LEFT: Main channel content ───────────────────────────────── */}
           <div className="min-w-0">
 
+            {/* ── Vrijdag / Vendredi — weekly matchup, pinned above all channels ── */}
+            <WeeklyMatchup cityId={cityId} />
+
             {/* ── Community channels (tips / questions / heads-up) ──────── */}
             {channel.cat && (
               <>
@@ -684,13 +710,14 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                                     ? 'Hide replies'
                                     : `${commentCounts[post.id] ?? 0} ${(commentCounts[post.id] ?? 0) === 1 ? 'reply' : 'replies'}`}
                                 </button>
-                                <a
-                                  href={`mailto:dmench9@gmail.com?subject=${encodeURIComponent(`Report post ${post.id} (${cityId})`)}&body=${encodeURIComponent(`Reason for reporting:\n\n\nPost ID: ${post.id}\nCategory: ${post.category}\nText: ${post.text.slice(0, 200)}`)}`}
-                                  className="text-[10px] hover:opacity-100 transition-opacity"
-                                  style={{ color: 'rgba(10,10,10,0.2)' }}
+                                <button
+                                  onClick={() => reportPost(post.id)}
+                                  disabled={reportedPosts.has(post.id)}
+                                  className="text-[10px] hover:opacity-100 transition-opacity disabled:opacity-100"
+                                  style={{ color: reportedPosts.has(post.id) ? '#0E9B6B' : 'rgba(10,10,10,0.2)' }}
                                   title="Report this post">
-                                  Report
-                                </a>
+                                  {reportedPosts.has(post.id) ? '✓ Thanks — we\'ll review' : 'Report'}
+                                </button>
                               </div>
                               {/* Inline thread */}
                               {expandedPost === post.id && (
