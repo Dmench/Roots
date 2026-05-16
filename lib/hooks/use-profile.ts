@@ -30,6 +30,7 @@ function mapSupabaseProfile(data: Record<string, unknown>): Partial<UserProfile>
     situations:       (data.situations as SituationTag[]) ?? [],
     completedTaskIds: (data.completed_task_ids as string[]) ?? [],
     savedTaskIds:     (data.saved_task_ids as string[]) ?? [],
+    savedTipSlugs:    (data.saved_tip_slugs as string[]) ?? [],
     showInDirectory:  (data.show_in_directory as boolean | null) ?? true,
     digestSubscribed: (data.digest_subscribed as boolean | null) ?? true,
     spots:            (data.spots as Spot[]) ?? [],
@@ -129,6 +130,7 @@ export function useProfile() {
           situations:         next.situations       ?? [],
           completed_task_ids: next.completedTaskIds ?? [],
           saved_task_ids:     next.savedTaskIds     ?? [],
+          saved_tip_slugs:    next.savedTipSlugs    ?? [],
           show_in_directory:  next.showInDirectory  ?? true,
           digest_subscribed:  next.digestSubscribed ?? true,
           spots:              next.spots            ?? [],
@@ -213,6 +215,15 @@ export function useProfile() {
     })
   }
 
+  const toggleSavedTip = (slug: string) => {
+    const current = profile.savedTipSlugs ?? []
+    updateProfile({
+      savedTipSlugs: current.includes(slug)
+        ? current.filter(s => s !== slug)
+        : [...current, slug],
+    })
+  }
+
   const isOnboarded = !!(profile.cityId && profile.stage)
 
   return {
@@ -228,6 +239,7 @@ export function useProfile() {
     toggleLanguage,
     toggleSituation,
     toggleTaskDone,
+    toggleSavedTip,
     isOnboarded,
     updateProfile,
     addSpot,

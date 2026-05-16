@@ -39,7 +39,7 @@ export default function AboutPage() {
         <div className="space-y-6 text-base leading-relaxed" style={{ color: 'rgba(10,10,10,0.65)' }}>
           <p>
             Moving to a new city is exciting and overwhelming in equal measure. The first few months are
-            a blur of admin, unfamiliar neighborhoods, and the slow realization that you have no idea
+            a blur of admin, unfamiliar neighbourhoods, and the slow realisation that you have no idea
             where anyone actually goes on a Saturday.
           </p>
           <p>

@@ -14,6 +14,7 @@ import type { CityId } from '@/lib/types'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 import { ShareRow } from '@/components/connect/ShareRow'
+import { SaveTipButton } from '@/components/tips/SaveTipButton'
 
 const KIND_META: Record<CuratedKind, { label: string; color: string }> = {
   'tip':      { label: 'Tip',       color: '#0E9B6B' },
@@ -111,7 +112,10 @@ export default async function TipDetailPage(
           ))}
         </section>
 
-        {/* Share row */}
+        {/* Save + Share row */}
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
+          <SaveTipButton slug={slug} title={note.title} />
+        </div>
         <ShareRow
           url={`/${cityId}/tips/${slug}`}
           title={note.title}

@@ -100,7 +100,7 @@ Wise tends to be slightly better for one-off transfers (multi-currency, very low
 
 Arrive before 11am. After 11 it gets crowded and the best things sell out. Bring cash for the smaller stalls; most accept card now but a few don\'t. Bring a tote — the plastic bags are a Brussels environmental nuisance and the cheesemonger will judge you.
 
-After: cross the square to Café Belga (the terrace institution under the Flagey radio building) for a coffee or a vermouth. Saturday morning at Flagey is one of the most consistently good two-hour experiences in Brussels, and the cheapest entry point into "I live here" energy.`,
+After: cross the square to Café Belga (the terrace institution under the Flagey radio building) for a coffee or a vermouth. Saturday morning at Flagey is one of the most consistent two-hour experiences in Brussels, and the cheapest way to feel like you live here.`,
     neighbourhood: 'flagey',
     relatedTipSlugs: ['three-anchor-cafe-walk-eat'],
   },
@@ -109,8 +109,8 @@ After: cross the square to Café Belga (the terrace institution under the Flagey
     cityId: 'brussels',
     slug:  'villo-bike-share-cheap',
     kind:  'tip',
-    title: 'Villo bike share is €38 a year — half the bikes work most days',
-    body:  'Villo bike share is €38 a year — cheaper than two STIB monthly passes. Phone-unlock, dock anywhere in the city, half the bikes work most days.',
+    title: 'Villo bike share is €38 a year — about a third are out of service on any day',
+    body:  'Villo bike share is €38 a year — cheaper than two STIB monthly passes. Phone-unlock, dock anywhere in the city. About a third of the bikes are out of service on any given day; plan a backup.',
     expansion:
 `Villo! is Brussels\' Bolloré-run bike share. Annual subscription €38, phone unlock via the Villo! app, dock anywhere in the network (about 350 stations across the 19 communes). Two STIB monthly passes cost more.
 
@@ -241,7 +241,7 @@ Dutch is rarely "needed" in Brussels itself but is genuinely useful if you commu
 
 But there\'s a quieter rental market that never hits Immoweb. Landlords who don\'t want agency fees post in Facebook groups ("Brussels Housing Expats", "Bruxelles Logement", "Apartments and Rooms Brussels"), in the r/brussels weekly housing thread (Sunday evenings), and via word-of-mouth in newcomer WhatsApp groups. About 20% of Brussels rentals go this way and the listings are often better — fairer prices, longer-term landlords, fewer agency-fee headaches.
 
-The bait: scams exist (a foreign owner abroad who can\'t meet you, asks for a deposit upfront — never pay before viewing in person). Visit every flat in person. Bring your dossier (passport, lease, 3 pay slips). The good landlords pick fast.`,
+The catch: scams exist (a foreign owner abroad who can\'t meet you, asks for a deposit upfront — never pay before viewing in person). Visit every flat in person. Bring your dossier (passport, lease, 3 pay slips). The good landlords pick fast.`,
     relatedTaskSlugs: ['find-housing'],
   },
   {
@@ -425,7 +425,7 @@ Strike-day fallbacks: Villo and Pony bike-share usage spikes (and the apps occas
 
 The fix: receive your first 1–2 bills as one-off invoices (paid by manual transfer), confirm the amounts are correct, then set up the direct debit. You can do this for Proximus (internet/mobile), Telenet, Orange, BASE, the energy providers ENGIE and Luminus, and the water utility Vivaqua.
 
-This is annoying for the first 4 weeks but saves you the experience of fighting Proximus customer support about a €120 ghost charge. Most Belgians who\'ve lived here long enough do this automatically.
+This is annoying for the first 4 weeks but saves you the experience of fighting Proximus customer support about a €120 charge for a contract you thought was closed. Most Belgians who\'ve lived here long enough do this automatically.
 
 Once you\'re confident the bill is right and the contract is the one you signed, switch to direct debit — Belgian invoices have a 15-day payment window and the late fees compound quickly.`,
     relatedTipSlugs: [],

@@ -51,7 +51,7 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     whoLivesHere:
       'A genuine mix: long-term Portuguese and Moroccan families, young Belgians priced out of Ixelles, a wave of French arrivals from Paris, freelance creatives, queer community. The neighbourhood has gentrified noticeably in the last decade but kept more texture than Ixelles — you still hear five languages at the bakery counter.',
     feels:
-      'Parvis Saint-Gilles is the heart: a triangular square ringed with terrace cafés (Moeder Lambic for beer, Café des Spores for wine, Tartine for breakfast), an open-air market three mornings a week, kids and dogs and laptops sharing the same square in equal measure. Walk five minutes in any direction and the architecture is genuinely beautiful — Hôtel Hannon, Maison Cauchie, dozens of unlisted Art Nouveau buildings most cities would put on a tour. The downside: the area between Gare du Midi and the rue de Mérode can feel rough at night; pick your block carefully.',
+      'Parvis Saint-Gilles is the heart: a triangular square ringed with terrace cafés (Moeder Lambic for beer, Café des Spores for wine, Tartine for breakfast), an open-air market three mornings a week, kids and dogs and laptops sharing the same square in equal measure. Walk five minutes in any direction and the architecture is genuinely beautiful — Hôtel Hannon, Maison Cauchie, dozens of unlisted Art Nouveau buildings most cities would put on a tour. The downside: the area between Gare du Midi and the rue de Mérode can feel edgy after dark; pick your block carefully.',
     practical:
       'French-speaking commune. Excellent for cycling (mostly flat, mostly civilised). Metro: Porte de Hal (line 2/6) or Saint-Gilles tram stop. The Gare du Midi proximity is a feature (Eurostar, Thalys, TGV) and a bug (the immediate area around the station is not its best).',
     bestFor: ['Architecture lovers', 'Trains across Europe', 'Terrace culture', 'Buying property (cheaper than Ixelles)', 'Coming from Paris/Berlin'],
@@ -67,13 +67,13 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     name: 'Dansaert',
     oneLiner: 'Brussels\' creative quarter — independent fashion, all-day cafés, and the city\'s coolest one-kilometre strip.',
     whoLivesHere:
-      'Younger, design-leaning, often working in branding, fashion, or tech. The rents are high enough to push out the original artists but low enough that creative work still happens here. Dansaert is the strip where you go to look like you have lived in Brussels for a year, whether you have or not.',
+      'Younger, design-leaning, often working in branding, fashion, or tech. The rents are high enough to push out the original artists but low enough that creative work still happens here. Dansaert is the strip where you go to look the part, settled or not.',
     feels:
-      'A 1-kilometre run of independent boutiques (Stijl, Hunting & Collecting), all-day cafés (OR coffee, Mok), bookshops, and the kind of small-plates restaurants where the menu is on a chalkboard and changes weekly. North of the strip is Sainte-Catherine — a more local square with a fish market and Belga Queen energy. South spills into the Bourse and into the slightly rougher Manneken-Pis tourist zone. Dansaert at 11am on a Saturday is one of the most consistently good walks in the city.',
+      'A 1-kilometre run of independent boutiques (Stijl, Hunting & Collecting), all-day cafés (OR coffee, Mok), bookshops, and the kind of small-plates restaurants where the menu is on a chalkboard and changes weekly. North of the strip is Sainte-Catherine — a more local square with a fish market and a Belga Queen anchor. South spills into the Bourse and into the scrappier Manneken-Pis tourist zone. Dansaert at 11am on a Saturday is one of the most consistent walks in the city.',
     practical:
       'French- and Dutch-speaking. Highly walkable. Bourse metro (line 1/5) is a 5-min walk. Limited parking, decent cycling. Lots of short-term rentals, so look carefully at lease terms.',
     bestFor: ['Working in creative fields', 'Saturday browsing', 'Easy access to Gare du Midi + airport via Centraal', 'Smaller apartments'],
-    notIdealIf: ['You want big-flat-with-garden energy', 'You want quiet', 'You\'re relocating with kids — schools further out are stronger'],
+    notIdealIf: ['You want a big flat with a garden', 'You want quiet', 'You\'re relocating with kids — schools further out are stronger'],
     rentBallpark: '€1,050–1,350 for a one-bed (May 2026)',
     transport: 'Metro: Bourse (line 1/5) and Sainte-Catherine. Centraal Station 10-min walk.',
     anchorVenueIds: ['curated-bbp-dansaert'],
@@ -85,7 +85,7 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     name: 'Flagey',
     oneLiner: 'The square that is also a neighbourhood — Brussels\' best Saturday market, the Flagey culture centre, and a ring of cafés that never stops.',
     whoLivesHere:
-      'A bit older than Ixelles average, a bit more Belgian, lots of musicians (Flagey is a concert venue), academics from ULB, families who want the Bois de la Cambre walkable from their door. This is one of the most consistently liveable pockets of Brussels — green, central, and not too noisy.',
+      'A bit older than Ixelles average, a bit more Belgian, lots of musicians (Flagey is a concert venue), academics from ULB, families who want the Bois de la Cambre walkable from their door. This is one of the most liveable pockets of Brussels — green, central, and not too noisy.',
     feels:
       'Place Flagey is a square the size of a small village green, framed on one side by the Flagey culture centre (concerts, cinema, the famous Belga café terrace), on another by the Ixelles ponds and the entrance to the Bois de la Cambre. Saturday morning the market sets up: cheese, oysters, Moroccan olives, a fish counter, the best bread in the city from Charli. Stay for an espresso at Café Belga, walk the ponds, lunch at Le Tournant. This is the recommended Saturday in Brussels.',
     practical:
@@ -105,7 +105,7 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     whoLivesHere:
       'A real mix — long-term Brussels-Brusselaers (the local dialect), Moroccan families, artists who bought in the 90s, and a small wave of newcomers who want texture over polish. The neighbourhood has stubbornly resisted full gentrification despite being two blocks from the Sablon.',
     feels:
-      'Place du Jeu de Balle hosts the daily Vieux Marché flea market — Sunday before 9am is the moment, when the dealers haven\'t picked through the best stuff yet. Chez Biquet does the best frites in the city (cash, queue outside, no apologies). Brasserie Ploegmans for a gueuze after. No menus in English on most blocks; no tourist pricing; no Instagram crowds. The streets are narrow and slightly worn, and that is exactly the point.',
+      'Place du Jeu de Balle hosts the daily Vieux Marché flea market — Sunday before 9am is the moment, when the dealers haven\'t picked through the best stuff yet. Chez Biquet does the frites people queue for (cash, queue outside, no apologies). Brasserie Ploegmans for a gueuze after. No menus in English on most blocks; no tourist pricing; no camera-phone queues. The streets are narrow and slightly worn, and that is exactly the point.',
     practical:
       'French- and Dutch-speaking with a strong Brussels-Brusselaers thread. Walkable to the Sablon (5 min), the Grand Place (8 min), the Palais (10 min). Limited parking. Cycling works but the cobbles are real.',
     bestFor: ['Sunday flea-market obsessives', 'Anyone tired of polish', 'Eating well for under €15', 'Living five minutes from the centre without paying centre prices'],
@@ -143,7 +143,7 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     whoLivesHere:
       'Turkish, Moroccan, and Belgian families who have been in the same buildings for generations, plus a growing wave of newcomers priced out of Ixelles and Saint-Gilles. Schaerbeek is large — 130,000 people across pockets that feel like five different cities. The Place Dailly / Diamant area is quiet and residential; the Gare du Nord side is dense and grittier; the upper part around Square Riga has Art Nouveau streets and high-ceilinged apartments at half Ixelles prices.',
     feels:
-      'The Hôtel Communal on Place Colignon is one of the most beautiful town halls in Belgium. Parc Josaphat is a proper city park with a lake, a deer enclosure, and tennis courts. Chaussée de Haecht runs north-south as the commercial spine — Turkish bakeries, halal butchers, fabric shops, and the best baklava in Brussels at Damascus or Ankara. Weekend markets at Place du Roi Baudouin and Place Lehon. This is what newcomers mean when they say they want to live in "real" Brussels — and the rents reflect that nobody warned them yet.',
+      'The Hôtel Communal on Place Colignon is one of the most beautiful town halls in Belgium. Parc Josaphat is a proper city park with a lake, a deer enclosure, and tennis courts. Chaussée de Haecht runs north-south as the commercial spine — Turkish bakeries, halal butchers, fabric shops, and the best baklava in Brussels at Damascus or Ankara. Weekend markets at Place du Roi Baudouin and Place Lehon. This is what newcomers mean when they say they want to live in real Brussels — and the rents are climbing accordingly.',
     practical:
       'French-speaking commune with strong Arabic and Turkish presence. Metro coverage is limited (line 3 reaches the west edge); trams 25/55/62 are the lifelines. Cycling is decent on the flat parts, brutal on the hills around Schaerbeek-Plage. Some streets are gentrifying fast; others won\'t for another decade. Walk first.',
     bestFor: ['Mixed-budget couples', 'Buyers (still affordable)', 'Anyone tired of expat bubbles', 'Big apartments with original parquet'],
@@ -161,11 +161,11 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     whoLivesHere:
       'ULB and VUB students and academics, EU staff who wanted a calmer alternative to Schuman, young couples buying their first apartment. Etterbeek punches above its weight on liveability — small enough to feel local, central enough to reach anything in 15 minutes.',
     feels:
-      'Place Jourdan technically straddles the EU Quarter, but the Etterbeek side has the actual neighbourhood centre — bakeries, hardware shops, a Sunday market. The streets around Place Jourdan, Square Marie-Louise, and the ULB campus are some of the prettiest in the city: high-ceilinged townhouses, leafy, walkable. The Cinquantenaire arch is at one edge; the ULB botanical gardens and the calm Parc Léopold are inside it. Etterbeek is what people pick when they want Ixelles energy minus 30% of the noise.',
+      'Place Jourdan technically straddles the EU Quarter, but the Etterbeek side has the actual neighbourhood centre — bakeries, hardware shops, a Sunday market. The streets around Place Jourdan, Square Marie-Louise, and the ULB campus are some of the prettiest in the city: high-ceilinged townhouses, leafy, walkable. The Cinquantenaire arch is at one edge; the ULB botanical gardens and the calm Parc Léopold are inside it. Etterbeek is what people pick when they want Ixelles without a third of the noise.',
     practical:
       'French- and Dutch-speaking. Metro: Mérode (line 1/5), Schuman (line 1/5), Thieffry (line 5). Excellent cycling — flat, civilised drivers. Rents are mid-tier Brussels.',
     bestFor: ['Working at the EU', 'Studying at ULB/VUB', 'Buyers looking for character apartments', 'Couples planning a quieter life'],
-    notIdealIf: ['You want lots of bars on your doorstep', 'You want diversity on every block — Etterbeek is more uniform than Schaerbeek or Anderlecht', 'You want big-flat-with-garden energy at a discount — you\'ll have to go further out'],
+    notIdealIf: ['You want lots of bars on your doorstep', 'You want diversity on every block — Etterbeek is more uniform than Schaerbeek or Anderlecht', 'You want a big flat with a garden at a discount — you\'ll have to go further out'],
     rentBallpark: '€1,000–1,300 for a one-bed (May 2026)',
     transport: 'Metro: Mérode + Schuman (line 1/5). Trams 7/25/81. 12-min walk to Centraal via Cinquantenaire.',
     anchorVenueIds: [],
@@ -184,7 +184,7 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     practical:
       'French-speaking commune with strong English/Dutch presence. Tram 92 is the lifeline north to the centre — 25 minutes to Place Louise. Cycling works if you\'re willing to climb. Some pockets are unwalkable without a car (Vert Chasseur, parts of Saint-Job); others are pedestrian-friendly. Rents vary wildly — a leafy villa on avenue Brugmann vs. a studio near Albert station.',
     bestFor: ['Families with kids', 'International school commute', 'Anyone wanting a garden', 'A slower Brussels'],
-    notIdealIf: ['You don\'t drive and want full city access', 'You want neighbours your age in their 20s/30s without kids', 'Your social life is in the centre — the commute eats you'],
+    notIdealIf: ['You don\'t drive and want full city access', 'You want neighbours your age in their 20s/30s without kids', 'Your social life is in the centre — the commute will wear you down'],
     rentBallpark: '€1,100–1,600 for a one-bed (May 2026)',
     transport: 'Tram 92 north-south (~25 min to Louise). Tram 3 and Tram 4 north-south alternatives. Limited metro.',
     anchorVenueIds: [],
@@ -198,11 +198,11 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     whoLivesHere:
       'Long-term Moroccan and Belgian families, a growing wave of young couples and freelancers priced out of Saint-Gilles, and people serious about getting more flat for their money. Anderlecht is huge and split into pockets — Cureghem near the slaughterhouses feels gritty; Wayez has a more polished commercial centre; the Bizet/Veeweyde area is leafier and family-oriented.',
     feels:
-      'The Sunday Abattoirs market (Cureghem) is the largest open-air market in Europe and the best place in Brussels to spend €20 on food and feel rich. RSCA (the football club) is a real local identity. New brewery and natural-wine spots are appearing along Chaussée de Mons — Brussels Beer Project moved part of its operation here. Anderlecht is what Berlin\'s Neukölln was a decade ago: real, undervalued, on the way up, and not for everyone yet.',
+      'The Sunday Abattoirs market (Cureghem) is the largest open-air market in Europe and the best place in Brussels to spend €20 on food and feel rich. RSCA (the football club) is a real local identity. New brewery and natural-wine spots are appearing along Chaussée de Mons — Brussels Beer Project moved part of its operation here. Anderlecht is what Berlin\'s Neukölln was a decade ago: real, undervalued, still finding itself.',
     practical:
       'French-speaking commune with strong Arabic presence. Metro: Saint-Guidon, Gare de l\'Ouest (line 5), Clémenceau (line 2/6). Trams 81/82/97. Cycling is decent on the flat, but parts of the commune feel cut off from the rest of the city by the canal and the rail tracks. Rents are the lowest of any "central" Brussels commune.',
     bestFor: ['Buyers (still affordable, gentrifying)', 'Renters wanting space', 'Sunday-market lovers', 'Anyone who likes a place before it gets discovered'],
-    notIdealIf: ['Your first impression of a place matters', 'You want safe-feeling streets everywhere — pick your block', 'You don\'t want to explain to family why your address sounds rough'],
+    notIdealIf: ['Your first impression of a place matters', 'You want safe-feeling streets everywhere — pick your block', 'You don\'t want to explain to family why your address has a reputation'],
     rentBallpark: '€700–1,000 for a one-bed (May 2026)',
     transport: 'Metro: Saint-Guidon + Gare de l\'Ouest (line 5). Tram 81 east-west.',
     anchorVenueIds: [],
@@ -236,7 +236,7 @@ export const BRUSSELS_NEIGHBOURHOODS: Neighbourhood[] = [
     whoLivesHere:
       'Saint-Gilles overflow: young Belgian-French-Portuguese families, freelancers, a growing creative scene around Wiels (the contemporary art centre). Forest is one of the most multilingual communes in Brussels — French, Dutch, Portuguese, Arabic, and English all in everyday use on the same street.',
     feels:
-      'Place Saint-Denis is the village-square heart — markets twice a week, a handful of bars, the kind of square where you recognise faces by month two. The Parc de Forest and Parc Duden are two beautiful linked green spaces most newcomers haven\'t found yet. Wiels (the converted brewery, now an art centre with the best café terrace south of Saint-Gilles) is the cultural anchor. Streets in Forest-Haut feel almost Parisian; Forest-Bas is rougher and cheaper.',
+      'Place Saint-Denis is the village-square heart — markets twice a week, a handful of bars, the kind of square where you recognise faces by month two. The Parc de Forest and Parc Duden are two beautiful linked green spaces most newcomers haven\'t found yet. Wiels (the converted brewery, now an art centre with the best café terrace south of Saint-Gilles) is the cultural anchor. Streets in Forest-Haut feel almost Parisian; Forest-Bas is scrappier and cheaper.',
     practical:
       'French- and Dutch-speaking. Trams 82/97 are the workhorses; bus 49 connects to Saint-Gilles. Cycling works on flats but Forest is hilly south. Rents are 15–25% below Saint-Gilles for the same size flat.',
     bestFor: ['Saint-Gilles-on-a-budget', 'Art-and-park-Sunday people', 'Buyers (still climbing)', 'Bilingual families'],

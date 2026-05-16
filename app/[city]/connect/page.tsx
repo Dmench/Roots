@@ -19,6 +19,7 @@ import { PageMasthead } from '@/components/layout/PageMasthead'
 // weekly actives cross ~50.
 import { WeeklyNote } from '@/components/connect/WeeklyNote'
 import { ShareRow } from '@/components/connect/ShareRow'
+import { SettlersNearbyRail } from '@/components/connect/SettlersNearbyRail'
 import {
   legacyPinsForChannel,
   type CuratedKind,
@@ -96,6 +97,14 @@ const CAT_META: Record<PostCategory, { color: string; label: string }> = {
   recommendation: { color: '#10B981', label: 'Tip' },
   question:       { color: '#38C0F0', label: 'Question' },
   'heads-up':     { color: '#FAB400', label: 'Heads-up' },
+  intro:          { color: '#FF3EBA', label: 'Intro' },
+}
+
+const STAGE_COLORS_INLINE: Record<Stage, string> = {
+  planning:     '#6865CC',
+  just_arrived: '#B88A00',
+  settling:     '#1A8FAD',
+  settled:      '#0E9B6B',
 }
 
 const STAGE_LABELS: Record<Stage, string> = {
@@ -168,6 +177,23 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [myHelpful,      setMyHelpful]      = useState<Set<string>>(new Set())
   const [likeCounts,     setLikeCounts]     = useState<Record<string, number>>({})
   const [myLikes,        setMyLikes]        = useState<Set<string>>(new Set())
+  const [introText,      setIntroText]      = useState('')
+  const [introSubmitted, setIntroSubmitted] = useState(false)
+  const [hasOwnIntro,    setHasOwnIntro]    = useState(false)
+  const [introDismissed, setIntroDismissed] = useState(false)
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false)
+
+  // Restore client-side dismissal state for the intro prompt and welcome
+  // ribbon. We persist these in localStorage so they stay dismissed across
+  // sessions on the same device.
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        if (localStorage.getItem('roots:intro-dismissed') === '1') setIntroDismissed(true)
+        if (localStorage.getItem('roots:welcome-dismissed') === '1') setWelcomeDismissed(true)
+      }
+    } catch { /* private mode */ }
+  }, [])
 
   // Toggle "This helped" on a tip. Optimistic + server confirms.
   // The server is also a toggle (idempotent — adds if missing, removes
@@ -320,6 +346,74 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
       })
   }, [cityId, city])
 
+  // Check whether the current user has already posted an intro for this
+  // city — drives whether we show the sticky "say hi" prompt.
+  useEffect(() => {
+    if (!supabase || !user || !city) return
+    const sb = supabase
+    sb.from('posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('city_id', cityId)
+      .eq('category', 'intro')
+      .eq('author_id', user.id)
+      .then(({ count, error }) => {
+        if (error) {
+          // category check constraint not yet updated — silently skip.
+          if (error.code === '23514' || error.code === '42703') return
+          return
+        }
+        setHasOwnIntro((count ?? 0) > 0)
+      })
+  }, [cityId, city, user])
+
+  // Submit an intro post. Inserts with category='intro'; falls back
+  // gracefully if the schema migration hasn't been run.
+  async function submitIntro() {
+    if (!introText.trim()) return
+    if (!user) { setAuthOpen(true); return }
+    if (!supabase || !city) return
+    const optimistic: Post = {
+      id: `u${Date.now()}`, cityId: city.id,
+      stage: profile.stage as Stage | undefined,
+      category: 'intro', text: introText.trim(),
+      time: 'just now', authorStage: profile.stage as Stage | undefined,
+      neighborhood: profile.neighborhood ?? undefined,
+    }
+    setPosts(prev => [optimistic, ...prev])
+    setIntroSubmitted(true)
+    setHasOwnIntro(true)
+    setIntroText('')
+    window.setTimeout(() => setIntroSubmitted(false), 3000)
+
+    const { error: insErr } = await supabase.from('posts').insert({
+      city_id: city.id, stage: profile.stage ?? null,
+      category: 'intro', text: optimistic.text,
+      author_id: user.id, author_stage: profile.stage ?? null,
+      neighborhood: profile.neighborhood ?? null,
+    })
+    if (insErr) {
+      // Migration not run — the category check still rejects 'intro'.
+      // Roll back gracefully and surface a soft message.
+      if (insErr.code === '23514') {
+        setPosts(prev => prev.filter(p => p.id !== optimistic.id))
+        setHasOwnIntro(false)
+        setIntroText(optimistic.text)
+        alert('Intros aren\'t enabled yet — run supabase/migration_intro_and_filters.sql.')
+        return
+      }
+      console.error('[intro:insert]', insErr.code, insErr.message)
+    }
+  }
+
+  function dismissIntro() {
+    setIntroDismissed(true)
+    try { localStorage.setItem('roots:intro-dismissed', '1') } catch {}
+  }
+  function dismissWelcome() {
+    setWelcomeDismissed(true)
+    try { localStorage.setItem('roots:welcome-dismissed', '1') } catch {}
+  }
+
   // Realtime subscription — appends posts + comments as they're written by
   // other settlers. Requires the `posts` and `post_comments` tables to have
   // realtime enabled in the Supabase dashboard. Falls silent on any error.
@@ -405,12 +499,18 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
         .filter(p => !activeHood || p.neighborhood === activeHood)
     : []
 
-  // Hoods to surface in the filter row: profile's hood (always first), then
-  // city's most-asked-about ones, deduped.
+  // Hoods to surface in the filter row: profile's hood (always first when
+  // set), then city's most-asked-about ones, deduped. We also augment with
+  // hoods that have at least one post (so user-contributed neighbourhoods
+  // become filterable without a manual update).
   const popularHoods = POPULAR_HOODS[cityId] ?? []
-  const hoodChips    = profile.neighborhood && !popularHoods.includes(profile.neighborhood)
-    ? [profile.neighborhood, ...popularHoods]
-    : popularHoods
+  const hoodsWithPosts = Array.from(new Set(
+    posts.map(p => p.neighborhood).filter((n): n is string => !!n)
+  ))
+  const baseHoods = Array.from(new Set([...popularHoods, ...hoodsWithPosts]))
+  const hoodChips = profile.neighborhood && !baseHoods.includes(profile.neighborhood)
+    ? [profile.neighborhood, ...baseHoods]
+    : baseHoods
 
   // Social signal: last post time for current community channel
   const lastPost = activePosts[0]
@@ -671,6 +771,127 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           {/* ── LEFT: Main channel content ───────────────────────────────── */}
           <div className="min-w-0">
 
+            {/* ── First-time joiner welcome ribbon ──────────────────────── */}
+            {user && !welcomeDismissed && profile.stage && (
+              <div className="mb-6 flex items-center gap-3 px-4 py-3"
+                style={{ background: 'rgba(255,62,186,0.05)', border: '1px solid rgba(255,62,186,0.25)' }}>
+                <span className="text-[10px] font-black tracking-[0.22em] uppercase shrink-0"
+                  style={{ color: '#FF3EBA' }}>
+                  ✦ You're in
+                </span>
+                <p className="text-sm flex-1 min-w-0" style={{ color: '#0A0A0A' }}>
+                  Welcome to {city?.name ?? 'Roots'}. Post your first thing below or read what helped others.
+                </p>
+                <button
+                  onClick={dismissWelcome}
+                  className="shrink-0 text-[10px] font-bold hover:opacity-60 transition-opacity"
+                  style={{ color: 'rgba(10,10,10,0.4)' }}
+                  title="Dismiss">
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {/* ── Settlers Nearby rail ──────────────────────────────────── */}
+            {city && (
+              <SettlersNearbyRail
+                cityId={cityId}
+                cityName={city.name}
+                viewerHood={profile.neighborhood ?? undefined}
+                viewerStage={profile.stage as Stage | undefined}
+              />
+            )}
+
+            {/* ── Intro composer (collapsible "say hi" prompt) ──────────── */}
+            {user && !hasOwnIntro && !introDismissed && channel.cat && (
+              <section className="mb-8" style={{ border: '2px solid #FF3EBA' }}>
+                <div className="px-4 pt-3 pb-1">
+                  <div className="flex items-baseline justify-between mb-2 gap-3">
+                    <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+                      style={{ color: '#FF3EBA' }}>
+                      ✦ New here? Say hi
+                    </p>
+                    <button
+                      onClick={dismissIntro}
+                      className="text-[10px] font-bold hover:opacity-60 transition-opacity"
+                      style={{ color: 'rgba(10,10,10,0.4)' }}
+                      title="Dismiss">
+                      Later
+                    </button>
+                  </div>
+                  <p className="text-xs mb-2 leading-relaxed" style={{ color: 'rgba(10,10,10,0.6)' }}>
+                    Where you moved from, one thing you're figuring out. 2 lines is plenty.
+                  </p>
+                  <textarea
+                    value={introText}
+                    onChange={e => setIntroText(e.target.value.slice(0, 280))}
+                    placeholder="Just moved from Lisbon, trying to crack the commune system…"
+                    rows={2}
+                    className="w-full text-sm focus:outline-none resize-none bg-transparent leading-relaxed"
+                    style={{ color: '#0A0A0A', fontSize: 14 }}
+                  />
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5"
+                  style={{ borderTop: '1px solid rgba(255,62,186,0.18)', background: 'rgba(255,62,186,0.04)' }}>
+                  <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.4)' }}>
+                    {introText.length}/280
+                  </span>
+                  <button
+                    onClick={submitIntro}
+                    disabled={!introText.trim()}
+                    className="px-4 py-1.5 text-[10px] font-black tracking-wide uppercase text-white transition-opacity disabled:opacity-25"
+                    style={{ background: '#FF3EBA' }}>
+                    {introSubmitted ? '✓ Posted' : 'Say hi'}
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {/* ── New settlers this week — intro posts lane ────────────── */}
+            {(() => {
+              const intros = posts.filter(p => p.category === 'intro').slice(0, 6)
+              if (intros.length === 0) return null
+              return (
+                <section className="mb-8">
+                  <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+                    style={{ color: '#FF3EBA' }}>
+                    ✦ New settlers this week
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {intros.map(intro => {
+                      const stageColor = intro.authorStage ? STAGE_COLORS_INLINE[intro.authorStage] : 'rgba(10,10,10,0.4)'
+                      return (
+                        <article key={intro.id}
+                          className="px-4 py-3"
+                          style={{ background: '#FFFFFF', border: '1px solid rgba(255,62,186,0.25)' }}>
+                          <div className="flex items-center gap-2 mb-2">
+                            {intro.authorStage && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-black tracking-[0.18em] uppercase px-1.5 py-0.5"
+                                style={{ background: stageColor, color: '#fff' }}>
+                                {intro.authorStage.replace(/_/g, ' ')}
+                              </span>
+                            )}
+                            {intro.neighborhood && (
+                              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                                {intro.neighborhood.split(' / ')[0]}
+                              </span>
+                            )}
+                            <span className="text-[10px] ml-auto" style={{ color: 'rgba(10,10,10,0.3)' }}>
+                              {intro.time}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed" style={{ color: '#0A0A0A' }}>
+                            {intro.text}
+                          </p>
+                        </article>
+                      )
+                    })}
+                  </div>
+                </section>
+              )
+            })()}
+
             {/* ── This week in Brussels — editorial note, replaces matchup ── */}
             <WeeklyNote cityId={cityId} />
 
@@ -730,7 +951,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                            : 'No heads-ups yet.'}
                         </p>
                         <p className="text-sm" style={{ color: 'rgba(10,10,10,0.55)' }}>
-                          Use the composer below — we read every post.
+                          Use the composer below. Yours could be the first.
                         </p>
                       </div>
                     )

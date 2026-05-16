@@ -91,7 +91,7 @@ export interface Task {
 }
 
 // Community
-export type PostCategory = 'recommendation' | 'question' | 'heads-up'
+export type PostCategory = 'recommendation' | 'question' | 'heads-up' | 'intro'
 
 export interface Post {
   id: string
@@ -158,6 +158,7 @@ export interface UserProfile {
   situations: SituationTag[]
   completedTaskIds: string[]
   savedTaskIds: string[]
+  savedTipSlugs: string[]
   showInDirectory?: boolean
   digestSubscribed?: boolean
   spots: Spot[]
