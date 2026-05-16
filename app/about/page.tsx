@@ -43,13 +43,15 @@ export default function AboutPage() {
             where anyone actually goes on a Saturday.
           </p>
           <p>
-            Roots is the guide we wish we'd had. A structured settle-in checklist so nothing falls through
-            the cracks. A community of people at the same stage as you. Local intelligence — events, news,
-            neighborhoods — so you can actually participate in city life, not just observe it.
+            Roots is for anyone new to a city — whether you moved from another country, another city, or
+            another neighbourhood. A structured settle-in checklist so nothing falls through the cracks.
+            A community of people at the same stage as you. Local intelligence — events, news,
+            neighbourhoods — so you can actually participate in city life, not just observe it.
           </p>
           <p>
-            We started with Brussels because it's one of the most international cities in the world and
-            one of the least navigable. More cities soon.
+            We started with Brussels because it's one of the most layered, multilingual, and least
+            navigable cities in Europe — a place where every kind of newcomer is figuring it out at
+            once. More cities soon.
           </p>
         </div>
 

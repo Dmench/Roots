@@ -36,8 +36,8 @@ const COLLECTIONS = [
 
 const HOODS: Record<string, { name: string; sub: string; desc: string; color: string }[]> = {
   brussels: [
-    { name: 'Ixelles',    sub: 'The settler heartland', desc: 'Where most expats end up. Natural wine bars, specialty coffee, the best ramen in the city, and independent restaurants on nearly every block.', color: '#4744C8' },
-    { name: 'Parvis Saint-Gilles', sub: 'The best terrace in Brussels', desc: 'The square every expat gets told about on day 2. Moeder Lambic anchor one corner, a dozen terrace cafés fill the rest. Packed on any sunny day, year-round. This is the heartbeat of the city.', color: '#FF3EBA' },
+    { name: 'Ixelles',    sub: 'The settler heartland', desc: 'Where most newcomers cluster — international and Belgian alike. Natural wine bars, specialty coffee, the best ramen in the city, and independent restaurants on nearly every block.', color: '#4744C8' },
+    { name: 'Parvis Saint-Gilles', sub: 'The best terrace in Brussels', desc: 'The square every newcomer gets told about on day 2. Moeder Lambic anchors one corner, a dozen terrace cafés fill the rest. Packed on any sunny day, year-round. This is the heartbeat of the city.', color: '#FF3EBA' },
     { name: 'Marolles',   sub: 'Old Brussels, no tourists', desc: 'Place du Jeu de Balle flea market every Sunday morning — get there before 9am. Chez Biquet does the best frites in the city (cash, queue outside, no apologies). Brasserie Ploegmans for gueuze after. No menus in English, no tourist pricing, no Instagram crowds.', color: '#E8612A' },
     { name: 'Flagey & Ixelles Square', sub: 'Market, brunch, and wine', desc: 'The Saturday morning market at Place Flagey is the best food market in Brussels — cheese, wine, bread, Moroccan olives. Surrounding the square: Belga (terrace institution), wine bars, specialty coffee. Go Saturday morning, stay for lunch.', color: '#10B981' },
     { name: 'Dansaert',   sub: 'Creative district', desc: 'Brussels Beer Project, fashion boutiques, all-day cafés. The city\'s coolest strip — come here when you want to look like you\'ve lived here a year.', color: '#38C0F0' },
@@ -51,7 +51,7 @@ const SIGNALS: Record<string, { label: string; bg: string; text: string }> = {
   'no-reservations': { label: 'Walk in',     bg: 'rgba(16,185,129,0.1)',  text: '#0E9B6B' },
   'cash-only':       { label: 'Cash only',   bg: 'rgba(250,180,0,0.12)',  text: '#A07000' },
   'remote-work':     { label: 'Laptop ok',   bg: 'rgba(56,192,240,0.12)', text: '#0F7FA0' },
-  'expat-favorite':  { label: 'Expat fave',  bg: 'rgba(71,68,200,0.1)',   text: '#4744C8' },
+  'expat-favorite':  { label: 'Settler fave', bg: 'rgba(71,68,200,0.1)',  text: '#4744C8' },
   'late-night':      { label: 'Late night',  bg: 'rgba(255,62,186,0.1)',  text: '#B8007A' },
   'institution':     { label: 'Institution', bg: 'rgba(10,10,10,0.07)',   text: 'rgba(10,10,10,0.55)' },
   'locals':          { label: 'Local fave',  bg: 'rgba(16,185,129,0.1)',  text: '#0E9B6B' },

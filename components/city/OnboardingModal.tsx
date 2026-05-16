@@ -6,22 +6,23 @@ import type { Stage, SituationTag } from '@/lib/types'
 
 
 const STAGE_META: Record<string, { color: string; sub: string }> = {
-  planning:     { color: '#6865CC', sub: 'Still abroad — researching' },
+  planning:     { color: '#6865CC', sub: 'Researching the move' },
   just_arrived: { color: '#B88A00', sub: 'Under 4 weeks in the city' },
   settling:     { color: '#1A8FAD', sub: '1–6 months — building routines' },
   settled:      { color: '#0E9B6B', sub: '6+ months — you know the city' },
 }
 
 const SITUATIONS: { id: SituationTag; label: string }[] = [
-  { id: 'local',         label: 'Local'        },
-  { id: 'student',       label: 'Student'      },
-  { id: 'employed',      label: 'Employee'     },
-  { id: 'self_employed', label: 'Freelancer'   },
-  { id: 'digital_nomad', label: 'Digital nomad'},
-  { id: 'renting',       label: 'Renting'      },
-  { id: 'family',        label: 'With family'  },
-  { id: 'eu_citizen',    label: 'EU citizen'   },
-  { id: 'non_eu',        label: 'Non-EU'       },
+  { id: 'new_to_country',      label: 'New country'        },
+  { id: 'new_to_city',         label: 'New city'           },
+  { id: 'new_to_neighborhood', label: 'New neighbourhood'  },
+  { id: 'local',               label: 'Local'              },
+  { id: 'student',             label: 'Student'            },
+  { id: 'employed',            label: 'Employee'           },
+  { id: 'self_employed',       label: 'Freelancer'         },
+  { id: 'digital_nomad',       label: 'Digital nomad'      },
+  { id: 'renting',             label: 'Renting'            },
+  { id: 'family',              label: 'With family'        },
 ]
 
 interface Props { cityName: string; onDone: () => void }

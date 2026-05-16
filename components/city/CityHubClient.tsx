@@ -9,7 +9,7 @@ import { WelcomeTour } from '@/components/onboarding/WelcomeTour'
 interface Props { cityName: string; cityId: string }
 
 // Settler Card completion — the new "settle progress" surface. Five fields,
-// each independent of the 60-task expat checklist (which is its own thing
+// each independent of the 60-task settling checklist (which is its own thing
 // at /[city]/settle). Stage + situation come from onboarding for
 // personalisation, NOT counted in card completion.
 const CARD_FIELDS = ['name', 'neighborhood', 'arrival', 'flags', 'spots'] as const
@@ -75,7 +75,7 @@ export function CityHubClient({ cityName, cityId }: Props) {
 
   // ── Settler Card completion ──────────────────────────────────────────────
   // Five fields the user fills on /profile. Drives the only nudge that shows
-  // on the hub. Independent of the 60-task expat checklist.
+  // on the hub. Independent of the 60-task settling checklist.
   const cardState = {
     name:         !!profile.displayName,
     neighborhood: !!profile.neighborhood,
@@ -92,7 +92,7 @@ export function CityHubClient({ cityName, cityId }: Props) {
   return (
     <>
       {/* Settler Card completion strip — the only persistent nudge on the hub.
-          Pushes Profile card completion, not the 60-task expat checklist. */}
+          Pushes Profile card completion, not the 60-task settling checklist. */}
       {showCardNudge && (
         <div style={{ borderBottom: '1px solid rgba(10,10,10,0.08)', background: '#FAFAF7' }}>
           <div className="max-w-5xl mx-auto px-6 md:px-12 py-3 flex items-center gap-5">
@@ -151,7 +151,7 @@ export function CityHubClient({ cityName, cityId }: Props) {
   )
 }
 
-/* The 60-task expat checklist lives at /[city]/settle and is intentionally
+/* The 60-task settling checklist lives at /[city]/settle and is intentionally
    NOT promoted here. It's a separate experience for users who want to dive
    into the admin/logistics layer. The settler-card completion above is what
    "settling in" means at first-touch — fill the card, you're set up. */

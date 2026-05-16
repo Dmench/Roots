@@ -19,6 +19,8 @@ import { WeatherWidget } from '@/components/city/WeatherWidget'
 import { TransportWidget } from '@/components/city/TransportWidget'
 import { RentalsWidget } from '@/components/city/RentalsWidget'
 import { SpinWheel } from '@/components/city/SpinWheel'
+import { FirstWeekModule } from '@/components/city/FirstWeekModule'
+import type { CityId } from '@/lib/types'
 
 export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
@@ -120,7 +122,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                     style={{ background: '#10B981' }} />
                 </span>
                 <span className="text-xs font-medium" style={{ color: 'rgba(10,10,10,0.45)' }}>
-                  <LiveSettlerCount cityId={cityId} fallback={city.settlerCount} /> settling now
+                  <LiveSettlerCount cityId={cityId} fallback={city.settlerCount} />
                 </span>
               </div>
               {allEvents.length > 0 && (
@@ -167,8 +169,10 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_400px] gap-0 pb-16">
 
-          {/* ── LEFT: Editor's Picks + Events ──────────────────────────── */}
+          {/* ── LEFT: First-Week spine + Editor's Picks + Events ──────── */}
           <div className="lg:pr-10 pt-7">
+            <FirstWeekModule cityId={cityId as CityId} />
+
             {cityId === 'brussels' && (() => {
               const pick = currentBrusselsPick()
               // Resolve the editor's-pick venue's photoRef from the

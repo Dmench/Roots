@@ -48,14 +48,14 @@ function steps(cityName: string): TourStep[] {
       headlinePart1: 'Build your',
       emphasis:      'card.',
       accent:        '#4744C8', // brand purple
-      body:          "Five things — name, neighbourhood, arrival year, places you've lived, a favourite spot. Then you've settled. The 60-task expat checklist is optional, sitting on your profile if you want admin help.",
+      body:          "Five things — name, neighbourhood, arrival year, places you've lived, a favourite spot. Then you've settled. The 60-task settling checklist is optional, sitting on your profile if you want admin help.",
     },
     {
       eyebrow:       'Community & Ask',
       headlinePart1: 'Tips, questions,',
       emphasis:      'AI.',
       accent:        '#FAB400', // amber
-      body:          "Real settlers sharing real tips. Live Reddit pulse from r/brussels. And an AI that actually knows Brussels — ask anything about admin, healthcare, neighbourhoods, the 3-6-9 lease, whatever.",
+      body:          "Real settlers sharing real tips. And an AI that actually knows Brussels — ask anything about admin, healthcare, neighbourhoods, the 3-6-9 lease, whatever. Whether you moved from across the world or across town.",
       ctaLabel:      `Enter ${cityName}`,
     },
   ]

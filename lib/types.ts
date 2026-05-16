@@ -25,6 +25,12 @@ export interface StageConfig {
 }
 
 export type SituationTag =
+  // Origin — where you're moving from (the primary axis)
+  | 'new_to_country'        // moved here from another country
+  | 'new_to_city'           // moved here from another city in the same country
+  | 'new_to_neighborhood'   // moved across town within the same city
+  | 'local'                 // grew up here / always lived here
+  // Life context
   | 'renting'
   | 'buying'
   | 'employed'
@@ -33,9 +39,9 @@ export type SituationTag =
   | 'family'
   | 'partner_visa'
   | 'digital_nomad'
+  // Admin status — only relevant for cross-border moves
   | 'eu_citizen'
   | 'non_eu'
-  | 'local'
 
 export interface SituationConfig {
   id: SituationTag

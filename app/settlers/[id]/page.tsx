@@ -13,13 +13,16 @@ import { getCountry } from '@/lib/data/countries'
 const APP_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://roots-mu.vercel.app'
 
 const SITUATION_LABELS: Partial<Record<SituationTag, string>> = {
-  local:         'Local',
-  student:       'Student',
-  employed:      'Employee',
-  self_employed: 'Freelancer',
-  digital_nomad: 'Digital nomad',
-  renting:       'Renting',
-  family:        'With family',
+  new_to_country:      'New country',
+  new_to_city:         'New city',
+  new_to_neighborhood: 'New neighbourhood',
+  local:               'Local',
+  student:             'Student',
+  employed:            'Employee',
+  self_employed:       'Freelancer',
+  digital_nomad:       'Digital nomad',
+  renting:             'Renting',
+  family:              'With family',
 }
 
 const STAGE_COLORS: Record<string, string> = {

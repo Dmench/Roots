@@ -213,10 +213,13 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Footer strip */}
+      {/* Footer strip — only show settler count when it's a real number ≥ 25.
+          Below that, claiming a count looks worse than not having one. */}
       <div className="relative px-8 md:px-12 pb-8 flex items-center justify-between">
         <p className="text-xs" style={{ color: 'rgba(245,236,215,0.2)' }}>
-          {memberCount !== null ? memberCount : 312} people settling in Brussels
+          {memberCount !== null && memberCount >= 25
+            ? `${memberCount} people settling in Brussels`
+            : 'Early access — open to everyone'}
         </p>
         <Link href="/cities"
           className="text-xs font-medium hover:opacity-70 transition-opacity"

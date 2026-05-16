@@ -3,9 +3,10 @@
 // flags row, and the Settler Receipt OG image. Codes are uppercase and
 // match the Twemoji asset naming via `flagCodepoint(code)` below.
 //
-// `popular` ranks the most-likely picks for Brussels expats first in the
-// picker. Everything else falls back to alphabetical. Adjust as data
-// suggests — these are seeded from common Brussels expat origins.
+// `popular` ranks the most-likely picks for people arriving in Brussels first
+// in the picker — including intra-EU movers, returning Belgians, and arrivals
+// from further afield. Everything else falls back to alphabetical. Adjust as
+// data suggests — these are seeded from common arrival origins.
 
 export interface Country {
   /** ISO 3166-1 alpha-2 code, uppercase. */
@@ -17,7 +18,7 @@ export interface Country {
 }
 
 export const COUNTRIES: Country[] = [
-  // Highest signal — actually live in Brussels right now or a top expat origin
+  // Highest signal — actually live in Brussels right now or a top arrival origin
   { code: 'BE', name: 'Belgium',         popular: 100 },
   { code: 'FR', name: 'France',          popular: 95  },
   { code: 'NL', name: 'Netherlands',     popular: 95  },
@@ -47,7 +48,7 @@ export const COUNTRIES: Country[] = [
   { code: 'MT', name: 'Malta',           popular: 70  },
   { code: 'CY', name: 'Cyprus',          popular: 70  },
 
-  // Major non-EU expat origins
+  // Major non-EU arrival origins
   { code: 'US', name: 'United States',   popular: 95  },
   { code: 'CA', name: 'Canada',          popular: 90  },
   { code: 'AU', name: 'Australia',       popular: 85  },

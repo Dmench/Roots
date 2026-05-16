@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { ACTIVE_CITIES } from '@/lib/data/cities'
 import { getTasksForCity } from '@/lib/data/tasks'
+import { getNeighbourhoodsForCity } from '@/lib/data/neighbourhoods/brussels'
 
 // Resolves to the configured site URL (Vercel sets VERCEL_URL automatically),
 // matching the metadataBase logic in app/layout.tsx.
@@ -41,5 +42,44 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ]
   })
 
-  return [...staticPages, ...guidePages]
+  // Per-city neighbourhood landing pages — the main programmatic SEO surface
+  const neighbourhoodPages: MetadataRoute.Sitemap = ACTIVE_CITIES.flatMap(city => {
+    const hoods = getNeighbourhoodsForCity(city.id)
+    if (hoods.length === 0) return []
+    return [
+      {
+        url: `${base}/${city.id}/neighbourhoods`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.85,
+      },
+      ...hoods.map(h => ({
+        url: `${base}/${city.id}/neighbourhoods/${h.slug}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      })),
+    ]
+  })
+
+  // Pairwise comparison pages — programmatic SEO targeting "X vs Y" long-tail.
+  // 12 Brussels neighbourhoods → 12*11 = 132 ordered comparison pages.
+  const comparisonPages: MetadataRoute.Sitemap = ACTIVE_CITIES.flatMap(city => {
+    const hoods = getNeighbourhoodsForCity(city.id)
+    const pairs: MetadataRoute.Sitemap = []
+    for (let i = 0; i < hoods.length; i++) {
+      for (let j = 0; j < hoods.length; j++) {
+        if (i === j) continue
+        pairs.push({
+          url: `${base}/${city.id}/neighbourhoods/compare/${hoods[i].slug}-vs-${hoods[j].slug}`,
+          lastModified: now,
+          changeFrequency: 'monthly' as const,
+          priority: 0.6,
+        })
+      }
+    }
+    return pairs
+  })
+
+  return [...staticPages, ...guidePages, ...neighbourhoodPages, ...comparisonPages]
 }

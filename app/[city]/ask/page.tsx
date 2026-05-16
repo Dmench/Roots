@@ -66,7 +66,7 @@ const STARTERS: Record<string, { label: string; color: string; questions: string
       questions: [
         'What is STIB and how does the monthly pass work?',
         'Which neighbourhoods are best for English speakers?',
-        'How does the Belgian schooling system work for expat children?',
+        'How do I choose between French, Dutch, and English schooling for my kids?',
       ],
     },
   ],
@@ -301,7 +301,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
         headline={`${city.name},`}
         emphasis="explained."
         emphasisColor="#38C0F0"
-        tagline={`Practical answers about admin, housing, healthcare, transport, and daily life — grounded in how ${city.name} actually works. Not generic expat advice.`}
+        tagline={`Practical answers about admin, housing, healthcare, transport, neighbourhoods, and daily life — grounded in how ${city.name} actually works. For anyone new to the city.`}
         backHref={`/${cityId}`}
         backLabel="← Back to hub"
       >
@@ -333,7 +333,7 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
                   What Roots knows about {city.name}
                 </p>
                 <p className="text-sm leading-relaxed" style={{ color: 'rgba(37,36,80,0.65)' }}>
-                  Ask anything about admin, housing, healthcare, transport, or daily life — and get answers grounded in how {city.name} actually works. Not generic expat advice. Specific, practical, current.
+                  Ask anything about admin, housing, healthcare, transport, neighbourhoods, or daily life — and get answers grounded in how {city.name} actually works. Whether you moved from across the world or across town. Specific, practical, current.
                 </p>
                 <div className="flex flex-wrap gap-2 mt-4">
                   {['Commune registration', 'Healthcare system', 'Lease contracts', 'Tax & banking', 'Transport'].map(tag => (

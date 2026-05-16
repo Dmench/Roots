@@ -6,11 +6,11 @@ export const CITIES: City[] = [
     name: 'Brussels',
     country: 'Belgium',
     tagline: 'Your Brussels roots',
-    description: 'The capital of Europe — bureaucratic, multilingual, and endlessly surprising. Where diplomats, EU workers, and locals build an unexpected home.',
+    description: 'The capital of Europe — bureaucratic, multilingual, and endlessly surprising. A city of arrivals, where everyone is figuring it out alongside you.',
     heroGradient: 'linear-gradient(140deg, #08091E 0%, #0F1438 60%, #06091A 100%)',
     accentColor: 'terracotta',
     active: true,
-    settlerCount: 312,
+    settlerCount: 0,
     timezone: 'Europe/Brussels',
   },
   {
@@ -82,7 +82,7 @@ export function getCity(id: string): City | undefined {
 }
 
 export const STAGES: StageConfig[] = [
-  { id: 'planning',     label: 'Haven\'t moved yet', sublabel: 'Researching from abroad',  months: 'Pre-move' },
+  { id: 'planning',     label: 'Haven\'t moved yet', sublabel: 'Researching the move',     months: 'Pre-move' },
   { id: 'just_arrived', label: 'First month here',   sublabel: 'Admin, keys, SIM card',    months: '0–4 weeks' },
   { id: 'settling',     label: 'Finding my feet',    sublabel: 'Routines forming',          months: '1–6 months' },
   { id: 'settled',      label: 'I live here now',    sublabel: 'Know my way around',        months: '6+ months' },
@@ -161,14 +161,20 @@ export const LANGUAGES: { code: string; label: string; flag: string }[] = [
 ]
 
 export const SITUATIONS: SituationConfig[] = [
-  { id: 'local',         label: 'Local — from here',          icon: '🏡' },
+  // Where you're moving from — the primary axis. Anyone new fits here.
+  { id: 'new_to_country',      label: 'New to the country',        icon: '🌍' },
+  { id: 'new_to_city',         label: 'New to the city',           icon: '✈️' },
+  { id: 'new_to_neighborhood', label: 'New to the neighbourhood',  icon: '🏘️' },
+  { id: 'local',               label: 'Local — from here',         icon: '🏡' },
+  // Life context
   { id: 'renting',       label: 'Renting',                    icon: '🏠' },
   { id: 'buying',        label: 'Buying property',            icon: '🔑' },
   { id: 'employed',      label: 'Employed',                   icon: '💼' },
   { id: 'self_employed', label: 'Freelance / Self-employed',  icon: '🧑‍💻' },
   { id: 'student',       label: 'Student',                    icon: '📚' },
   { id: 'family',        label: 'Moving with family',         icon: '👨‍👩‍👧' },
-  { id: 'digital_nomad', label: 'Digital nomad',              icon: '🌍' },
+  { id: 'digital_nomad', label: 'Digital nomad',              icon: '💻' },
+  // Admin status — only relevant if you ticked "new to the country"
   { id: 'eu_citizen',    label: 'EU / EEA citizen',           icon: '🇪🇺' },
   { id: 'non_eu',        label: 'Non-EU citizen',             icon: '🛂' },
 ]

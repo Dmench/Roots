@@ -8,7 +8,7 @@ export const BRUSSELS_TASKS: Task[] = [
     slug: 'register-commune',
     category: 'admin',
     stageRelevance: ['just_arrived', 'settling'],
-    situationRelevance: ['eu_citizen', 'local'],
+    situationRelevance: [],
     summary: 'Your first official step in Belgium. Registration triggers the police visit, starts your 3-month eID clock, and unlocks nearly everything else.',
     guide: `Registering at your local commune (gemeente/commune) is your first and most important administrative step. Without it, you cannot get your eID, open most Belgian bank accounts, or access public healthcare. You must register within 8 days of establishing your main residence in Belgium, though in practice most communes accept you within 3 months.
 
@@ -43,11 +43,11 @@ Your commune is determined by where you live, not where you work. Brussels has 1
 
 If you just arrived, start with a fintech account immediately: Wise or Revolut give you a functional European IBAN within hours and work everywhere while you wait for the commune process. Then open a full Belgian account once you have your eID.
 
-For full Belgian accounts, BNP Paribas Fortis and ING are the most foreigner-friendly. BNP's Hello Bank is online-first and quicker to open. KBC is the easiest for Dutch speakers.`,
+For full Belgian accounts, BNP Paribas Fortis and ING are the easiest for newcomers — strong English-language support and walk-in friendly. BNP's Hello Bank is online-first and quicker to open. KBC is the easiest for Dutch speakers.`,
     steps: [
       { step: 'Open Wise or Revolut immediately', detail: 'Get a European IBAN within 1–2 days. Use this for initial rent payments and receiving salary while you wait for your Belgian account.' },
       { step: 'Wait until you have your eID or attestation', detail: 'Traditional Belgian banks require proof of Belgian address — your commune attestation or eID.' },
-      { step: 'Compare Belgian banks', detail: 'ING and BNP are most foreigner-friendly and have English-language service. KBC is strong if you speak Dutch.' },
+      { step: 'Compare Belgian banks', detail: 'ING and BNP are the easiest for newcomers and have English-language service. KBC is strong if you speak Dutch.' },
       { step: 'Book an appointment', detail: 'Most major banks require in-branch appointments to open accounts. Bring passport, proof of address, and commune attestation.' },
       { step: 'Set up Belgian direct debits', detail: 'Rent, utilities, and phone contracts all prefer Belgian SEPA direct debit. Update your IBAN once the account is active.' },
     ],
@@ -56,6 +56,8 @@ For full Belgian accounts, BNP Paribas Fortis and ING are the most foreigner-fri
     difficulty: 'easy',
     links: [
       { label: 'Open Wise (recommended for new arrivals)', url: 'https://wise.com/invite/ah/roots?utm_source=roots&utm_medium=settle&utm_campaign=bank-account', type: 'affiliate' },
+      { label: 'Open Revolut (digital-only EU IBAN)', url: 'https://www.revolut.com/?utm_source=roots&utm_medium=settle', type: 'affiliate' },
+      { label: 'Open N26 (German neobank, EUR IBAN)', url: 'https://n26.com/en-eu?utm_source=roots&utm_medium=settle', type: 'affiliate' },
       { label: 'BNP Paribas Fortis Hello Bank', url: 'https://www.hellobank.be/en', type: 'official' },
       { label: 'ING Belgium', url: 'https://www.ing.be/en/private', type: 'official' },
     ],
@@ -75,7 +77,7 @@ There are five main mutualities. They all reimburse at the same INAMI/RIZIV rate
 
 You must affiliate within 3 months of becoming affiliated with social security (i.e., when you start work or register as self-employed). Do it immediately — retroactive coverage is possible if you act fast.`,
     steps: [
-      { step: 'Choose your mutuality', detail: 'Partenamut is most popular with expats in Brussels and has English-speaking staff. Mutualité Libérale (OZ in Flanders) is also good.' },
+      { step: 'Choose your mutuality', detail: 'Partenamut is most popular with newcomers in Brussels and has English-speaking staff. Mutualité Libérale (OZ in Flanders) is also good.' },
       { step: 'Visit their Brussels office or apply online', detail: 'Bring your eID (or attestation), your employment contract or proof of social security affiliation, and your Belgian bank account IBAN.' },
       { step: 'Fill in the affiliation form', detail: 'Declare your arrival date and employment start date. Affiliation is backdated to when you became eligible.' },
       { step: 'Receive your SIS card / eID link', detail: 'Your mutuality will link to your eID. Doctors scan your card directly to identify your coverage.' },
@@ -170,7 +172,7 @@ After registering with your mutuality, inform them of your chosen GP by name and
       { step: 'Register them as your référence doctor', detail: 'Tell your mutuality the GP\'s name and INAMI number. This can often be done online through your mutuality\'s member portal.' },
       { step: 'Get a Global Medical Record (DMG)', detail: 'Ask your GP to open a DMG (Dossier Médical Global). This gives a higher reimbursement rate on all visits.' },
     ],
-    tip: 'Expat doctor databases: The International Association of Brussels (IAB) maintains a recommended list of English-speaking doctors. Your embassy may also have a list.',
+    tip: 'English-speaking doctor lists: The International Association of Brussels (IAB) maintains a curated list of English-speaking GPs and specialists. Many embassies and consulates also keep one.',
     estimatedTime: '1–2 weeks (finding + first appointment)',
     difficulty: 'easy',
     links: [
@@ -381,7 +383,7 @@ Non-EU residents in Belgium must have either a work permit (singlepermit for emp
       { step: 'Consult an immigration lawyer if uncertain', detail: 'Belgian immigration law is not self-evident. A one-hour consultation with a Brussels immigration lawyer (€150–250) is worth it before making assumptions.' },
       { step: 'If self-employed: register before invoicing', detail: 'Register with a caisse sociale within 90 days of starting activity. Do not invoice foreign clients before you are registered.' },
       { step: 'Understand Belgian tax residency', detail: 'From the day you register at your commune, Belgium taxes your worldwide income. Notify your foreign employer — they may have payroll obligations too.' },
-      { step: 'Get cross-border tax advice', detail: 'A tax accountant familiar with Belgian expat taxation can structure your situation properly. The cost (€300–800 for initial setup) is much less than a tax penalty.' },
+      { step: 'Get cross-border tax advice', detail: 'A tax accountant familiar with Belgian cross-border taxation can structure your situation properly. The cost (€300–800 for initial setup) is much less than a tax penalty.' },
     ],
     tip: 'Belgium has tax treaties with most countries to prevent double taxation. If your home country taxes you and Belgium taxes you on the same income, the treaty usually determines who has the primary right to tax — but you must declare income in both countries and claim the treaty relief yourself.',
     estimatedTime: '1–4 weeks (legal setup)',
@@ -425,7 +427,7 @@ Once you sign a permanent lease in Brussels, notify your commune and update your
       { step: 'Book a furnished apartment or Airbnb for 1–3 months', detail: 'Search on Immoweb (under "furnished"), Spotahome, Homelike, or Airbnb for monthly rentals in Brussels. Budget €900–1,500/month for a one-bedroom.' },
       { step: 'Get a written booking confirmation', detail: 'The confirmation must show your name, the Brussels address, and the dates. Save it as a PDF — it is your proof of address for the visa application.' },
       { step: 'Submit the address with your visa application', detail: 'This is usually a required field on the visa application form. Use the short-term address — you can update it at the commune after you arrive.' },
-      { step: 'Once in Belgium: find a permanent flat', detail: 'Use Immoweb.be, Zimmo.be, and local Facebook expat groups (Expats in Brussels, Bruxelles logement). Start the search before you arrive if possible.' },
+      { step: 'Once in Belgium: find a permanent flat', detail: 'Use Immoweb.be, Zimmo.be, and local Facebook newcomer groups (Expats in Brussels, Bruxelles logement — open to anyone, not only international movers). Start the search before you arrive if possible.' },
       { step: 'Update your commune registration', detail: 'When you move to your permanent address, go back to the commune and update your registration. A new police visit will be scheduled.' },
     ],
     tip: 'Homelike and Spotahome specialise in furnished monthly rentals across Europe and have strong Brussels inventory. Both accept bookings from abroad with credit card — no Belgian bank account required.',
@@ -669,16 +671,16 @@ Even if exchange is possible, some Belgian communes are slow on this. The Ixelle
 The largest system. Schools are categorised as communal (municipal), provincial, or libre (Catholic-affiliated). Quality varies significantly by school. Registration for primary school happens through a centralised enrolment system (EUDONET / Inscriptions.be) in spring for September entry. Secondary school places are also highly competitive in desirable neighbourhoods.
 
 **2. Dutch-speaking (Gemeenschapsonderwijs / GO!):**
-Smaller but often praised for quality and integration of expat children. Most lessons are in Dutch — intensive Dutch classes (OKAN programme) for non-Dutch speaking children. Schools in Ixelles, Etterbeek, and the EU Quarter often have waiting lists.
+Smaller but often praised for quality and integration of non-Dutch-speaking children. Intensive Dutch classes (OKAN programme) bring new arrivals up to speed within a year. Schools in Ixelles, Etterbeek, and the EU Quarter often have waiting lists.
 
 **3. International schools:**
-Brussels has more international schools per capita than almost any city in Europe, reflecting the EU/NATO expat population. ISB (International School of Brussels), St John's, BSB, and the European Schools are the main ones. The European Schools are free for EU institution employees. Private international schools cost €15,000–30,000/year.
+Brussels has more international schools per capita than almost any city in Europe, reflecting the EU/NATO presence and the wider international community. ISB (International School of Brussels), St John's, BSB, and the European Schools are the main ones. The European Schools are free for EU institution employees. Private international schools cost €15,000–30,000/year.
 
 **Key timing:**
 Applications for the following September typically open in January–February. For international schools, apply 6–12 months in advance. Some popular communal schools have multi-year waiting lists.`,
     steps: [
       { step: 'Decide on school system', detail: 'French, Dutch, or international. Consider your family\'s languages, budget, and how long you plan to stay in Brussels.' },
-      { step: 'Research schools in your neighbourhood', detail: 'Visit school websites and read reviews on expat forums. Ask in Brussels expat Facebook groups and Roots community for recommendations.' },
+      { step: 'Research schools in your neighbourhood', detail: 'Visit school websites and read reviews on community forums. Ask in Brussels parent Facebook groups and the Roots community for recommendations.' },
       { step: 'Apply through the correct channel', detail: 'French system: through Inscriptions.be (opens January). Dutch system: directly to the school. International schools: directly with admissions. European Schools: through your EU institution HR.' },
       { step: 'Join waiting lists as backup', detail: 'Apply to multiple schools simultaneously. Brussels popular schools fill up fast and waiting lists move slowly.' },
       { step: 'Register at school once a place is confirmed', detail: 'Bring your child\'s birth certificate (with sworn translation if not in French/Dutch), immunisation records, and your Belgian address proof.' },
@@ -742,10 +744,10 @@ JUMP is simpler and recommended for most adults. Your eID card (once received fr
 **What actually helps:**
 
 **Light therapy:**
-A SAD (Seasonal Affective Disorder) lamp used for 20–30 minutes each morning makes a measurable difference. Brands: Philips HF3520, Lumie Arabica. Available at Bol.com (Belgian equivalent of Amazon), MediaMarkt, or Amazon.de. €40–80. This is the single most recommended thing by long-term Brussels expats.
+A SAD (Seasonal Affective Disorder) lamp used for 20–30 minutes each morning makes a measurable difference. Brands: Philips HF3520, Lumie Arabica. Available at Bol.com (Belgian equivalent of Amazon), MediaMarkt, or Amazon.de. €40–80. This is the single most recommended thing by long-term Brussels residents.
 
 **Build an indoor community early:**
-Winter isolates people who haven\'t yet built a social network. Join something before October — a language class, a running club, a board game café (Bruxelles Les Bains, Jeux d\'Aujourd\'hui). The expat communities are very active indoors in winter.
+Winter isolates people who haven\'t yet built a social network. Join something before October — a language class, a running club, a board game café (Bruxelles Les Bains, Jeux d\'Aujourd\'hui). Brussels newcomer communities are very active indoors in winter.
 
 **Vitamin D:**
 Belgium has high rates of Vitamin D deficiency due to low sunlight. A supplement (1000–2000 IU/day) is recommended by most Belgian GPs for residents during winter months. Available at pharmacies without prescription.
@@ -768,6 +770,134 @@ Villo! bikes have covered stations so you can cycle even in light rain. Indoor s
     links: [
       { label: 'SAD lamps at Bol.com Belgium', url: 'https://www.bol.com/be/en/l/sad-lamps/', type: 'helpful' },
       { label: 'Villo! bike share', url: 'https://www.villo.be/en', type: 'official' },
+    ],
+  },
+
+  // ── Neighbourhood orientation ───────────────────────────────────────────
+  // Belonging tasks for anyone new to Brussels — whether you moved from
+  // another country, another Belgian city, or just across the canal.
+
+  {
+    id: 'bru-walk-your-neighbourhood',
+    cityId: 'brussels',
+    title: 'Walk your neighbourhood end to end',
+    slug: 'walk-your-neighbourhood',
+    category: 'community',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: ['new_to_country', 'new_to_city', 'new_to_neighborhood'],
+    summary: 'Before anything else, walk where you live. A 60–90 minute loop turns an address into a place — and you spot the things Google Maps will never tell you.',
+    guide: `The single most overlooked move-in task. Most newcomers spend their first weeks shuttling between their flat, their commune, and the metro — and end up living in a neighbourhood they have never actually seen.
+
+Block off a Saturday or Sunday morning and walk a 60–90 minute loop around your address. No phone navigation, no podcast in your ears. Just attention.
+
+**What you are looking for:**
+
+- The closest **boulangerie** that opens early. (Note their hours — many close Mondays.)
+- The nearest **night shop / superette** for the 23:00 emergency.
+- A **pharmacie de garde** sign — pharmacies rotate the after-hours duty.
+- Your **commune's recycling/glass drop-off** points.
+- The closest **Villo!** docking station (or two — one is often full when you need it).
+- Any **playground or green space** within a 10-min walk.
+- A **café you would actually come back to**.
+- Where the **weekly market** sets up (most communes have at least one).
+- A **route to the metro/tram that avoids the main road**.
+
+**Why this matters more than it sounds:**
+Belonging to a place is almost always built bottom-up from the 400 metres around your front door. Doing this once — properly, on foot, with attention — collapses two months of slow accidental discovery into a single morning.
+
+**For intra-Brussels movers:**
+If you have moved across town within Brussels (Ixelles to Schaerbeek, say), do this anyway. Brussels neighbourhoods are remarkably different — the things you knew in your old commune (which night shop is honest, which bakery is good) reset completely.`,
+    steps: [
+      { step: 'Block 90 minutes on a weekend morning', detail: 'Saturday before 11:00 or Sunday before 13:00 is best — shops are open, streets are alive, but not yet busy.' },
+      { step: 'Walk a loop, not a destination', detail: 'Roughly 400m radius from your front door. Take different streets in each direction. No phone.' },
+      { step: 'Note the bakery, night shop, and pharmacy', detail: 'Save them as Google contacts or in Roots. These three places solve 80% of small daily problems.' },
+      { step: 'Pick one café to come back to', detail: 'Visit it the next morning. Three visits in two weeks and the barista will start to recognise you. That is the start of belonging.' },
+      { step: 'Find the recycling drop and Villo! stations', detail: 'Glass goes to coloured bubbles around the commune. Villo! station map is on the Villo app.' },
+    ],
+    tip: 'If you moved during winter, do the same walk again in May. Brussels neighbourhoods transform completely once terraces, markets, and trees come back — places you wrote off in January often become your favourite spots.',
+    estimatedTime: '60–90 minutes',
+    difficulty: 'easy',
+    links: [
+      { label: 'Villo! station map', url: 'https://www.villo.be/en/stations', type: 'official' },
+      { label: 'Brussels markets by commune', url: 'https://visit.brussels/en/visitors/agenda/markets', type: 'official' },
+    ],
+  },
+
+  {
+    id: 'bru-three-anchor-spots',
+    cityId: 'brussels',
+    title: 'Save your three anchor spots',
+    slug: 'three-anchor-spots',
+    category: 'community',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: ['new_to_country', 'new_to_city', 'new_to_neighborhood'],
+    summary: 'Three places — a café, a place to eat, a place to walk — that you return to often enough to be recognised. Belonging is built on repetition, not novelty.',
+    guide: `When people who have been here a long time talk about feeling at home in Brussels, they almost never describe a place they "discovered." They describe a place they kept going back to.
+
+Three anchor spots is the minimum: one café, one place to eat, one place to walk. The bar is not "amazing" — it is "I will be here again next week."
+
+**Why three:**
+One is a habit. Three is a life. Three anchors gives you a place for a quiet morning, a place to meet a friend, and a place to clear your head when the city feels too much.
+
+**Choosing them:**
+
+- **The café** should be within 10 minutes of where you live or work. The threshold for "I will swing by" is brutally short. If it is more than 10 minutes, you will not go.
+- **The place to eat** can be further — a Sunday brunch spot or a low-key restaurant where you can walk in alone on a Wednesday. Look for places that recognise regulars.
+- **The walk** is the most underrated. Bois de la Cambre at sunset, the Parc du Cinquantenaire at 7am, the canal from Sainte-Catherine to Saint-Géry. A regular walk is what stops a city from feeling like a hotel.
+
+**The Roots map:**
+Save your three anchors in your Roots profile under "favourite spots." Once you have three, your settler card is closer to complete and the directory shows new arrivals where Brussels people actually go.`,
+    steps: [
+      { step: 'Pick a café within 10 minutes of home', detail: 'Try three over a fortnight. Whichever you find yourself thinking about — that one. Save it.' },
+      { step: 'Find a Sunday spot', detail: 'A place to eat alone or with one person on a quiet Sunday. The test: would you go there in the rain? If yes, it counts.' },
+      { step: 'Walk a regular loop', detail: 'Pick a 30–45 minute loop you can do without thinking. Bois de la Cambre, Forest park, the canal towpath, Tervueren forest if you are out east. Do it once a week.' },
+      { step: 'Save them in your profile', detail: 'Roots saves anchor spots under your settler card. Three saved spots = the card progresses, and other settlers can see where the city actually lives.' },
+    ],
+    tip: 'The barista, the waiter, the dog walker who nods at you on your loop — those are the people who will make you feel like you live here. Repetition over novelty. Always.',
+    estimatedTime: '2–3 weeks (to find the right three)',
+    difficulty: 'easy',
+    links: [
+      { label: 'Roots eat guide — Brussels', url: '/brussels/eat', type: 'helpful' },
+    ],
+  },
+
+  {
+    id: 'bru-meet-one-neighbour',
+    cityId: 'brussels',
+    title: 'Meet one neighbour by name',
+    slug: 'meet-one-neighbour',
+    category: 'community',
+    stageRelevance: ['just_arrived', 'settling'],
+    situationRelevance: ['new_to_country', 'new_to_city', 'new_to_neighborhood'],
+    summary: 'Knowing one neighbour by name changes the felt size of a city. It does not happen by accident — most Brussels buildings keep to themselves unless you make the first move.',
+    guide: `Brussels is, on average, a polite-but-private city. People do not introduce themselves in lifts. Buildings have shared courtyards where nobody talks. This is not unfriendliness — it is the local default, and the only way around it is to break it yourself.
+
+**Why this is on the checklist:**
+The single biggest predictor of whether a newcomer stays past their first winter is whether they know at least one person on their street by name. Not a friend — just a name, a face, a person who will nod when you pass them at the bakery.
+
+**The actual move:**
+
+- When you see your neighbour in the hallway or by the post boxes, introduce yourself by first name. "Hi, I'm Sam — I just moved in upstairs." That is enough. Five seconds.
+- Bring a small thing the first time you see them after moving in: a coffee, a bag of clementines, anything. This is not a Belgian custom, but it is a universal one and it lands well.
+- If your building has a syndic meeting (annual building meeting), go. You will meet half the building in an hour. They are usually held in February or September.
+
+**The Brussels-specific bit:**
+Most Brussels buildings have a **fête des voisins** (neighbours' day) in late May. If yours does not, you can start one — print a paper invitation, slip it under doors, suggest a Sunday-afternoon drink in the courtyard. People say yes far more often than newcomers expect.
+
+**For people moving across the canal:**
+Schaerbeek, Molenbeek, Anderlecht, and Laeken have stronger neighbourhood social fabric than Ixelles or the EU quarter. If you moved north or west, lean into it — the local cafés and butchers actually know their regulars.`,
+    steps: [
+      { step: 'Introduce yourself in the hallway', detail: 'Next time you see someone — neighbour, syndic, concierge — give them your name and floor. Five seconds. Repeat until your neighbours know who you are.' },
+      { step: 'Go to the building meeting if there is one', detail: 'The annual syndic meeting is the fastest possible way to meet half the building. Usually in French or Dutch; bring Google Translate if needed.' },
+      { step: 'Join one local thing within the first month', detail: 'A language exchange, a running club, a class at the commune\'s academy of music or art. Anything that meets weekly within walking distance.' },
+      { step: 'Show up at the fête des voisins', detail: 'Late May, organised by communes. If your building does not do one, ask the syndic — or organise it yourself with a paper invitation and a bottle of cava.' },
+    ],
+    tip: 'The Brussels small talk script: "Vous habitez ici depuis longtemps?" / "Are you a long-time resident?" People love being asked. They will tell you everything about the building, the area, and the best bakery within three minutes.',
+    estimatedTime: '1–4 weeks',
+    difficulty: 'medium',
+    links: [
+      { label: 'Fête des voisins — Brussels', url: 'https://www.fetedesvoisins.be', type: 'official' },
+      { label: 'Roots community — find people on your street', url: '/brussels/connect', type: 'helpful' },
     ],
   },
 ]

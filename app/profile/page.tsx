@@ -32,13 +32,16 @@ function fmtMonth(val: string): string {
 }
 
 const SITUATION_OPTIONS: { id: SituationTag; label: string }[] = [
-  { id: 'local',         label: 'Local' },
-  { id: 'student',       label: 'Student' },
-  { id: 'employed',      label: 'Employee' },
-  { id: 'self_employed', label: 'Freelancer' },
-  { id: 'digital_nomad', label: 'Digital nomad' },
-  { id: 'renting',       label: 'Renting' },
-  { id: 'family',        label: 'With family' },
+  { id: 'new_to_country',      label: 'New country' },
+  { id: 'new_to_city',         label: 'New city' },
+  { id: 'new_to_neighborhood', label: 'New neighbourhood' },
+  { id: 'local',               label: 'Local' },
+  { id: 'student',             label: 'Student' },
+  { id: 'employed',            label: 'Employee' },
+  { id: 'self_employed',       label: 'Freelancer' },
+  { id: 'digital_nomad',       label: 'Digital nomad' },
+  { id: 'renting',             label: 'Renting' },
+  { id: 'family',              label: 'With family' },
 ]
 
 /* ── Row primitives ──────────────────────────────────────────────────────── */
@@ -176,7 +179,7 @@ export default function ProfilePage() {
     : null
 
   // Settler Card completion — five fields, the actual "settle progress" metric
-  // for the first-touch experience. Independent of the 60-task expat checklist
+  // for the first-touch experience. Independent of the 60-task settling checklist
   // (which lives at /[city]/settle and is its own thing).
   const cardFields = {
     name:         !!profile.displayName,
@@ -623,7 +626,7 @@ export default function ProfilePage() {
 
         {/* Hero right column — stat bento.
             "Card X/5" is the primary settle metric (5 identity fields). The
-            60-task expat checklist progress lives below as its own opt-in
+            60-task settling checklist progress lives below as its own opt-in
             section. */}
         <div className="flex flex-col">
           <StatBento
@@ -650,7 +653,7 @@ export default function ProfilePage() {
         {/* ── Saved events — full-width below the hero ─────────────────────── */}
         {city && <SavedEvents cityId={city.id} />}
 
-        {/* ── Expat checklist — secondary, explicitly separated from the
+        {/* ── Settling checklist — secondary, explicitly separated from the
               Card progress above. Lives here as an opt-in for users who want
               the admin/logistics layer; not promoted on the hub. ────────── */}
         {city && allTasks.length > 0 && (
@@ -659,7 +662,7 @@ export default function ProfilePage() {
               style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
               <p className="text-[10px] font-black tracking-[0.22em] uppercase"
                 style={{ color: 'rgba(10,10,10,0.4)' }}>
-                Expat checklist
+                Settling checklist
               </p>
               <p className="text-[10px] font-bold" style={{ color: 'rgba(10,10,10,0.4)' }}>
                 {doneCount}/{allTasks.length}

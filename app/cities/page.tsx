@@ -107,7 +107,7 @@ function CitiesInner() {
                   <div className="flex items-center justify-between mt-8">
                     <span className="flex items-center gap-2 text-xs font-medium" style={{ color: 'rgba(37,36,80,0.35)' }}>
                       <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: cfg.color }} />
-                      <LiveSettlerCount cityId={city.id} fallback={city.settlerCount} /> settling now
+                      <LiveSettlerCount cityId={city.id} fallback={city.settlerCount} />
                     </span>
                     <span className="text-sm font-bold opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0"
                       style={{ color: cfg.color }}>

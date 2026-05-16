@@ -12,7 +12,12 @@ import type { Post, PostCategory, Stage, PostComment, CityId } from '@/lib/types
 import type { FeedItem } from '@/app/api/feeds/route'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
-import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
+// import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
+// Soft-killed (2026-05-16) per status-review council — matchup needs scale
+// we don't have at ~10 contributors. Editorial WeeklyNote (below) takes
+// its slot. The component + tables remain in the repo to revive when
+// weekly actives cross ~50.
+import { WeeklyNote } from '@/components/connect/WeeklyNote'
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 
@@ -33,14 +38,14 @@ const RESOURCES: Resource[] = [
   { id: 'bxl-r1', cityId: 'brussels', name: 'r/brussels',                  type: 'reddit', desc: 'Local news, tips, recs.',         url: 'https://www.reddit.com/r/brussels' },
   { id: 'bxl-r2', cityId: 'brussels', name: 'r/belgium',                   type: 'reddit', desc: 'National subreddit.',             url: 'https://www.reddit.com/r/belgium' },
   // Brussels — Meetup (search URLs land on filtered, current results)
-  { id: 'bxl-m1', cityId: 'brussels', name: 'Brussels expat meetups',      type: 'meetup', desc: 'Active in-person groups.',        url: meetupSearch('expats',           'be--Brussels') },
+  { id: 'bxl-m1', cityId: 'brussels', name: 'Brussels newcomer meetups',   type: 'meetup', desc: 'Active in-person groups.',        url: meetupSearch('newcomers',        'be--Brussels') },
   { id: 'bxl-m2', cityId: 'brussels', name: 'English-speaking groups',     type: 'meetup', desc: 'Social events in English.',       url: meetupSearch('english speaking', 'be--Brussels') },
   { id: 'bxl-m3', cityId: 'brussels', name: 'Brussels tech meetups',       type: 'meetup', desc: 'Engineering, AI, startups.',      url: meetupSearch('tech',             'be--Brussels') },
   // Lisbon — Reddit
   { id: 'lis-r1', cityId: 'lisbon',   name: 'r/lisbon',                    type: 'reddit', desc: 'Local subreddit.',                url: 'https://www.reddit.com/r/lisbon' },
   { id: 'lis-r2', cityId: 'lisbon',   name: 'r/PortugalExpats',            type: 'reddit', desc: 'Visas, NHR, housing.',            url: 'https://www.reddit.com/r/PortugalExpats' },
   // Lisbon — Meetup
-  { id: 'lis-m1', cityId: 'lisbon',   name: 'Lisbon expat meetups',        type: 'meetup', desc: 'Most active expat groups.',       url: meetupSearch('expats',           'pt--Lisbon')   },
+  { id: 'lis-m1', cityId: 'lisbon',   name: 'Lisbon newcomer meetups',     type: 'meetup', desc: 'Most active newcomer groups.',    url: meetupSearch('newcomers',        'pt--Lisbon')   },
   { id: 'lis-m2', cityId: 'lisbon',   name: 'English-speaking groups',     type: 'meetup', desc: 'Social events in English.',       url: meetupSearch('english speaking', 'pt--Lisbon')   },
 ]
 
@@ -75,7 +80,7 @@ const PINNED: Record<string, Record<string, CuratedPin[]>> = {
       { id: 'bxl-q-1', label: 'Roots note', text: 'Common question: how long does commune registration actually take? Most communes process your dossier in 4–8 weeks, then a local police officer visits your address before the card is issued.' },
       { id: 'bxl-q-2', label: 'Roots note', text: 'People often ask about the 3-6-9 lease. It\'s a standard Belgian residential lease — you can leave after 3, 6, or 9 years with 3 months notice. Earlier exits cost ~3 months\' rent in penalty.' },
       { id: 'bxl-q-3', label: 'Roots note', text: 'Do I need to speak French in Brussels? In Ixelles, Saint-Gilles, the EU Quarter, Châtelain, and Dansaert — no, English is fine. In communes north and west of the canal, basic French saves a lot of friction.' },
-      { id: 'bxl-q-4', label: 'Roots note', text: 'How do I find an apartment without an agency? Immoweb is the main listing site, but the best places never make it there — check Reddit r/brussels weekly threads and ask directly in expat WhatsApp groups.' },
+      { id: 'bxl-q-4', label: 'Roots note', text: 'How do I find an apartment without an agency? Immoweb is the main listing site, but the best places never make it there — check Reddit r/brussels weekly threads and ask directly in newcomer WhatsApp groups.' },
       { id: 'bxl-q-5', label: 'Roots note', text: 'Tax residency: Belgium taxes you on worldwide income from the day you register at the commune. If you arrive late in the year, you\'ll only owe on income earned from your registration date — not the full year.' },
       { id: 'bxl-q-6', label: 'Roots note', text: 'Best mobile operators for new arrivals: Mobile Vikings (best for English-speaking customer service), Proximus (best coverage), or BASE (cheapest). All work fine; you can switch in 30 days if you change your mind.' },
       { id: 'bxl-q-7', label: 'Roots note', text: 'Schools for non-Belgian children: International School of Brussels (Watermael-Boitsfort) and BSB (Tervuren) for English curriculums. For a public school in French/Dutch, your commune assigns based on residence.' },
@@ -125,13 +130,11 @@ interface Channel {
 //   Talk   — settler-generated posts (you write here)
 // Order within each group reflects current Brussels signal density.
 const CHANNELS: Channel[] = [
-  // Listen
-  { id: 'events',    label: 'Events',     sub: 'What\'s happening this week',     color: '#E8612A', group: 'listen'                          },
-  { id: 'news',      label: 'News',       sub: 'Curated local headlines',         color: '#4744C8', group: 'listen'                          },
-  // Talk
+  // Two channels only — Tips is the beauty, Questions catches the
+  // "I'm trying to figure out X" moments. Heads-up / Events / News
+  // hidden until volume justifies them (events + news already on hub).
   { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',       color: '#10B981', group: 'talk',   cat: 'recommendation'   },
   { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', group: 'talk',   cat: 'question'         },
-  { id: 'heads-up',  label: 'Heads-up',   sub: 'Warnings & things to know',       color: '#FAB400', group: 'talk',   cat: 'heads-up'         },
 ]
 
 const CAT_META: Record<PostCategory, { color: string; label: string }> = {
@@ -198,7 +201,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [authOpen,    setAuthOpen]    = useState(false)
   const [feedItems,    setFeedItems]    = useState<FeedItem[]>([])
   const [feedState,    setFeedState]    = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-  const [activeChannel,  setActiveChannel]  = useState<ChannelId>('events')
+  const [activeChannel,  setActiveChannel]  = useState<ChannelId>('tips')
   const [activeHood,     setActiveHood]     = useState<string | null>(null)
   const [expandedPost,   setExpandedPost]   = useState<string | null>(null)
   const [comments,       setComments]       = useState<Record<string, PostComment[]>>({})
@@ -206,6 +209,90 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
   const [commentDrafts,  setCommentDrafts]  = useState<Record<string, string>>({})
   const [commentPosting, setCommentPosting] = useState(false)
   const [reportedPosts,  setReportedPosts]  = useState<Set<string>>(new Set())
+  const [helpfulCounts,  setHelpfulCounts]  = useState<Record<string, number>>({})
+  const [myHelpful,      setMyHelpful]      = useState<Set<string>>(new Set())
+  const [likeCounts,     setLikeCounts]     = useState<Record<string, number>>({})
+  const [myLikes,        setMyLikes]        = useState<Set<string>>(new Set())
+
+  // Toggle "This helped" on a tip. Optimistic + server confirms.
+  // The server is also a toggle (idempotent — adds if missing, removes
+  // if present), so the client doesn't need to know prior state.
+  async function toggleHelpful(postId: string) {
+    const wasHelpful = myHelpful.has(postId)
+    // Optimistic state
+    setMyHelpful(prev => {
+      const next = new Set(prev)
+      wasHelpful ? next.delete(postId) : next.add(postId)
+      return next
+    })
+    setHelpfulCounts(prev => ({
+      ...prev,
+      [postId]: Math.max(0, (prev[postId] ?? 0) + (wasHelpful ? -1 : 1)),
+    }))
+
+    try {
+      const sb = supabase
+      if (!sb) return
+      const { data: { session } } = await sb.auth.getSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/posts/helpful', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({ post_id: postId }),
+      })
+      if (res.ok) {
+        const json = await res.json() as { helpful: boolean; count: number }
+        // Sync with server truth in case of optimistic drift
+        setHelpfulCounts(prev => ({ ...prev, [postId]: json.count }))
+        setMyHelpful(prev => {
+          const next = new Set(prev)
+          json.helpful ? next.add(postId) : next.delete(postId)
+          return next
+        })
+      }
+    } catch { /* leave optimistic state */ }
+  }
+
+  // Toggle like on a comment. Same pattern.
+  async function toggleCommentLike(commentId: string) {
+    const wasLiked = myLikes.has(commentId)
+    setMyLikes(prev => {
+      const next = new Set(prev)
+      wasLiked ? next.delete(commentId) : next.add(commentId)
+      return next
+    })
+    setLikeCounts(prev => ({
+      ...prev,
+      [commentId]: Math.max(0, (prev[commentId] ?? 0) + (wasLiked ? -1 : 1)),
+    }))
+
+    try {
+      const sb = supabase
+      if (!sb) return
+      const { data: { session } } = await sb.auth.getSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/comments/like', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({ comment_id: commentId }),
+      })
+      if (res.ok) {
+        const json = await res.json() as { liked: boolean; count: number }
+        setLikeCounts(prev => ({ ...prev, [commentId]: json.count }))
+        setMyLikes(prev => {
+          const next = new Set(prev)
+          json.liked ? next.add(commentId) : next.delete(commentId)
+          return next
+        })
+      }
+    } catch { /* leave optimistic state */ }
+  }
 
   // Post a report. Quiet UX: optimistic flip to "Thanks — we'll review."
   // The server silently dedupes via UNIQUE (post_id, reporter_id), so
@@ -255,6 +342,25 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             tally[row.post_id] = (tally[row.post_id] ?? 0) + 1
           }
           setCommentCounts(tally)
+        }
+
+        // Helpful counts + the current user's own helpful state, one
+        // query each. Cheap aggregations — the table is just (post_id,
+        // user_id) so a SELECT pulls only what we need.
+        const { data: hRows } = await sb
+          .from('post_helpful')
+          .select('post_id, user_id')
+          .in('post_id', ids)
+        if (hRows) {
+          const tally: Record<string, number> = {}
+          const mine: Set<string> = new Set()
+          const uid = (await sb.auth.getSession()).data.session?.user.id
+          for (const row of hRows) {
+            tally[row.post_id] = (tally[row.post_id] ?? 0) + 1
+            if (uid && row.user_id === uid) mine.add(row.post_id)
+          }
+          setHelpfulCounts(tally)
+          setMyHelpful(mine)
         }
       })
   }, [cityId, city])
@@ -433,6 +539,30 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
         })),
       }))
       setCommentCounts(prev => ({ ...prev, [postId]: data.length }))
+
+      // Pull like counts + own-state for these comments. One query each.
+      const commentIds = data.map(r => r.id as string)
+      if (commentIds.length > 0) {
+        const { data: likeRows } = await supabase
+          .from('comment_likes')
+          .select('comment_id, user_id')
+          .in('comment_id', commentIds)
+        if (likeRows) {
+          const tally: Record<string, number> = {}
+          const mine: Set<string> = new Set()
+          const uid = (await supabase.auth.getSession()).data.session?.user.id
+          for (const row of likeRows) {
+            tally[row.comment_id] = (tally[row.comment_id] ?? 0) + 1
+            if (uid && row.user_id === uid) mine.add(row.comment_id)
+          }
+          setLikeCounts(prev => ({ ...prev, ...tally }))
+          setMyLikes(prev => {
+            const next = new Set(prev)
+            for (const id of mine) next.add(id)
+            return next
+          })
+        }
+      }
     }
   }
 
@@ -582,8 +712,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           {/* ── LEFT: Main channel content ───────────────────────────────── */}
           <div className="min-w-0">
 
-            {/* ── Vrijdag / Vendredi — weekly matchup, pinned above all channels ── */}
-            <WeeklyMatchup cityId={cityId} />
+            {/* ── This week in Brussels — editorial note, replaces matchup ── */}
+            <WeeklyNote cityId={cityId} />
 
             {/* ── Community channels (tips / questions / heads-up) ──────── */}
             {channel.cat && (

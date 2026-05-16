@@ -41,7 +41,7 @@ interface SourceResult {
 
 /* ── Config ────────────────────────────────────────────────────────────────── */
 
-// Meetup group URL slugs — community/expat/social groups per city.
+// Meetup group URL slugs — community/newcomer/social groups per city.
 // Audited May 2026: every slug we previously listed had been rebranded or
 // deleted, returning 404 on both /events/rss and the group page itself.
 // Disabled until we have a reliable way to discover live slugs (Meetup

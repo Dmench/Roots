@@ -6,6 +6,7 @@ import { getTasksForCity, getTask } from '@/lib/data/tasks'
 import type { CityId } from '@/lib/types'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { ShareButtons } from '@/components/guide/ShareButtons'
+import { trackedUrl, resolvePartner } from '@/lib/affiliates'
 
 /* ── Static params + metadata ────────────────────────────────────────────── */
 
@@ -197,18 +198,40 @@ export default async function GuideTaskPage(
             <h2 className="font-display font-black text-lg mb-4" style={{ color: '#0A0A0A' }}>
               Useful links
             </h2>
-            <div className="space-y-2 mb-12">
-              {task.links.map(link => (
-                <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center justify-between px-4 py-3 group transition-colors"
-                  style={{ border: '1px solid rgba(10,10,10,0.1)', color: '#0A0A0A' }}>
-                  <span className="text-sm font-medium group-hover:opacity-60 transition-opacity">
-                    {link.label}
-                  </span>
-                  <span className="text-xs" style={{ color: 'rgba(10,10,10,0.3)' }}>↗</span>
-                </a>
-              ))}
+            <div className="space-y-2 mb-4">
+              {task.links.map(link => {
+                const isAffiliate = link.type === 'affiliate'
+                const partner = isAffiliate ? resolvePartner(link.url) : null
+                const href = isAffiliate ? trackedUrl(link.url, task.slug) : link.url
+                return (
+                  <a key={link.url} href={href} target="_blank" rel="noopener noreferrer sponsored"
+                    className="flex items-center justify-between px-4 py-3 group transition-colors"
+                    style={{ border: '1px solid rgba(10,10,10,0.1)', color: '#0A0A0A' }}>
+                    <span className="flex-1 min-w-0">
+                      <span className="text-sm font-medium group-hover:opacity-60 transition-opacity">
+                        {link.label}
+                      </span>
+                      {isAffiliate && (
+                        <span className="ml-2 text-[9px] font-black tracking-[0.18em] uppercase"
+                          style={{ color: 'rgba(10,10,10,0.35)' }}>
+                          · Partner{partner ? ` · ${partner.name}` : ''}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-xs shrink-0" style={{ color: 'rgba(10,10,10,0.3)' }}>↗</span>
+                  </a>
+                )
+              })}
             </div>
+            {task.links.some(l => l.type === 'affiliate') && (
+              <p className="text-[10px] mb-12 leading-relaxed"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                Links marked &laquo; Partner &raquo; are referral links — if Roots has a partnership
+                with that company, we may earn a small fee when you sign up. Roots earns nothing on
+                most of them today. Editorial choices come first, partnerships second.
+              </p>
+            )}
+            {!task.links.some(l => l.type === 'affiliate') && <div className="mb-12" />}
           </>
         )}
 
