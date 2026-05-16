@@ -724,24 +724,19 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   </div>
                 )}
 
-                {/* Posts — hero + grid of cards */}
+                {/* Posts — user posts lead, Roots notes follow as a curated section */}
                 {(() => {
                   const kind  = CHANNEL_TO_KIND[channel.id]
                   const pins: LegacyPin[] = kind ? legacyPinsForChannel(kind) : []
-                  const userPosts = activePosts
+                  // Rank user posts: most-helpful first, then newest
+                  const userPosts = [...activePosts].sort((a, b) => {
+                    const ha = helpfulCounts[a.id] ?? 0
+                    const hb = helpfulCounts[b.id] ?? 0
+                    if (ha !== hb) return hb - ha
+                    return 0
+                  })
 
-                  // Items shown as cards. Pinned curated tips ALWAYS render
-                  // (the editorial layer is part of the experience, not just
-                  // a fallback). User posts mix into the grid below them.
-                  type CardItem =
-                    | { kind: 'pin';  pin: LegacyPin }
-                    | { kind: 'post'; post: typeof userPosts[number] }
-                  const items: CardItem[] = [
-                    ...pins.map(p => ({ kind: 'pin'  as const, pin: p })),
-                    ...userPosts.map(p => ({ kind: 'post' as const, post: p })),
-                  ]
-
-                  if (items.length === 0) {
+                  if (userPosts.length === 0 && pins.length === 0) {
                     return (
                       <div className="py-12 px-6" style={{ background: '#FAFAF7', border: '1px solid rgba(10,10,10,0.08)' }}>
                         <p className="text-base font-semibold mb-2" style={{ color: '#0A0A0A' }}>
@@ -756,103 +751,66 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     )
                   }
 
-                  // First card renders as a hero (full width, larger).
-                  const [head, ...rest] = items
-
-                  // ── Card primitive (inline to keep file changes localised) ──
-                  function PinCard({ pin, hero = false }: { pin: LegacyPin; hero?: boolean }) {
-                    const detailHref = `/${cityId}/tips/${pin.slug}`
-                    return (
-                      <article
-                        className="flex flex-col h-full"
-                        style={{ background: '#FFFFFF', border: '1px solid rgba(10,10,10,0.1)' }}>
-                        <div style={{ height: hero ? 5 : 4, background: '#4744C8' }} />
-                        <div className={hero ? 'px-6 pt-5 pb-5' : 'px-5 pt-4 pb-4'}>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="text-[10px] font-black tracking-[0.22em] uppercase"
-                              style={{ color: '#4744C8' }}>
-                              Roots note
-                            </span>
-                            <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                              style={{ color: 'rgba(10,10,10,0.35)' }}>
-                              · {channel.label}
-                            </span>
-                          </div>
-                          <p className={hero
-                              ? 'text-[1.05rem] md:text-base leading-relaxed mb-3'
-                              : 'text-sm leading-relaxed mb-3'}
-                            style={{ color: 'rgba(10,10,10,0.78)' }}>
-                            {pin.text}
-                          </p>
-                          <div className="mt-auto flex items-center justify-between gap-3 pt-2">
-                            <a href={detailHref}
-                              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
-                              style={{ color: '#4744C8' }}>
-                              Read full tip →
-                            </a>
-                            <button
-                              onClick={() => {
-                                const absolute = typeof window !== 'undefined'
-                                  ? `${window.location.origin}${detailHref}` : detailHref
-                                if (typeof navigator !== 'undefined' && navigator.share) {
-                                  void navigator.share({ url: absolute, text: pin.text.slice(0, 200) })
-                                } else {
-                                  void navigator.clipboard?.writeText(absolute)
-                                }
-                              }}
-                              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
-                              style={{ color: 'rgba(10,10,10,0.4)' }}
-                              title="Share this tip">
-                              ↗ Share
-                            </button>
-                          </div>
-                        </div>
-                      </article>
-                    )
+                  // Stage chip colors — make user authorship visible
+                  const STAGE_COLORS: Record<Stage, string> = {
+                    planning:     '#6865CC',
+                    just_arrived: '#B88A00',
+                    settling:     '#1A8FAD',
+                    settled:      '#0E9B6B',
                   }
 
+                  // ── User Post card — bold, personal, color-rich ─────────────
                   function PostCard({ post, hero = false }: { post: typeof userPosts[number]; hero?: boolean }) {
                     const m  = CAT_META[post.category]
                     const helpfulN = helpfulCounts[post.id] ?? 0
                     const iHelped  = myHelpful.has(post.id)
                     const cN       = commentCounts[post.id] ?? 0
                     const expanded = expandedPost === post.id
+                    const stageColor = post.authorStage ? STAGE_COLORS[post.authorStage] : 'rgba(10,10,10,0.4)'
                     return (
                       <article
                         className="flex flex-col h-full"
-                        style={{ background: '#FFFFFF', border: '1px solid rgba(10,10,10,0.1)' }}>
-                        <div style={{ height: hero ? 5 : 4, background: m.color }} />
+                        style={{ background: '#FFFFFF', border: `2px solid ${m.color}` }}>
                         <div className={hero ? 'px-6 pt-5 pb-5' : 'px-5 pt-4 pb-4'}>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="text-[10px] font-black tracking-[0.22em] uppercase"
+                          {/* Author chip — the dominant signal */}
+                          <div className="flex items-center gap-2 mb-3">
+                            {post.authorStage && (
+                              <span className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] uppercase px-2 py-1"
+                                style={{
+                                  background: stageColor,
+                                  color: '#fff',
+                                }}>
+                                <span className="w-1 h-1 rounded-full" style={{ background: '#fff' }} />
+                                {STAGE_LABELS[post.authorStage]}
+                              </span>
+                            )}
+                            <span className="text-[10px] font-black tracking-[0.18em] uppercase"
                               style={{ color: m.color }}>
                               {m.label}
                             </span>
-                            {post.authorStage && (
-                              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                                style={{ color: 'rgba(10,10,10,0.4)' }}>
-                                · {STAGE_LABELS[post.authorStage]}
-                              </span>
-                            )}
                             <span className="text-[10px] ml-auto" style={{ color: 'rgba(10,10,10,0.3)' }}>
                               {post.time}
                             </span>
                           </div>
                           <p className={hero
-                              ? 'text-[1.05rem] md:text-base leading-relaxed mb-3'
-                              : 'text-sm leading-relaxed mb-3'}
-                            style={{ color: 'rgba(10,10,10,0.78)' }}>
+                              ? 'font-display text-xl md:text-2xl leading-snug mb-4'
+                              : 'text-[15px] leading-relaxed mb-3'}
+                            style={{
+                              color: '#0A0A0A',
+                              fontWeight: hero ? 700 : 500,
+                              letterSpacing: hero ? '-0.01em' : 'normal',
+                            }}>
                             {post.text}
                           </p>
-                          {/* Action row — helpful + comments + share + report */}
+                          {/* Action row */}
                           <div className="mt-2 flex items-center gap-3 flex-wrap">
                             <button
                               onClick={() => toggleHelpful(post.id)}
-                              className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] uppercase px-2 py-1 transition-all"
+                              className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] uppercase px-2.5 py-1.5 transition-all"
                               style={{
                                 color: iHelped ? '#fff' : m.color,
                                 background: iHelped ? m.color : 'transparent',
-                                border: `1px solid ${m.color}40`,
+                                border: `1.5px solid ${m.color}`,
                               }}>
                               {iHelped ? '✓' : '+'} Helped {helpfulN > 0 && helpfulN}
                             </button>
@@ -928,31 +886,145 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     )
                   }
 
+                  // ── Pin card — editorial, varies by index for visual rhythm ──
+                  // Variant cycles every 4 cards so a long pin grid doesn't read flat.
+                  function PinCard({ pin, index = 0, hero = false }: { pin: LegacyPin; index?: number; hero?: boolean }) {
+                    const detailHref = `/${cityId}/tips/${pin.slug}`
+                    // 4-way visual variation:
+                    //   0 — clean white card, standard body
+                    //   1 — cream tinted background
+                    //   2 — pull-quote (italic, serif-feel, larger)
+                    //   3 — soft purple tinted background
+                    const variant = index % 4
+                    const isPullQuote = variant === 2 || (pin.text.length < 110 && !hero)
+                    const bg =
+                      variant === 1 ? '#FAF6EE' :
+                      variant === 3 ? 'rgba(71,68,200,0.04)' :
+                      '#FFFFFF'
+                    return (
+                      <article
+                        className="flex flex-col h-full"
+                        style={{ background: bg, border: '1px solid rgba(10,10,10,0.1)' }}>
+                        <div style={{ height: hero ? 4 : 3, background: '#4744C8', opacity: 0.7 }} />
+                        <div className={hero ? 'px-6 pt-5 pb-5' : 'px-5 pt-4 pb-4'}>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-[9px] font-black tracking-[0.24em] uppercase"
+                              style={{ color: '#4744C8' }}>
+                              ✦ Roots note
+                            </span>
+                            {pin.neighbourhood && (
+                              <span className="text-[9px] font-black tracking-[0.18em] uppercase px-1.5 py-0.5"
+                                style={{ color: '#4744C8', background: 'rgba(71,68,200,0.1)' }}>
+                                {pin.neighbourhood.replace(/-/g, ' ')}
+                              </span>
+                            )}
+                          </div>
+                          {isPullQuote ? (
+                            <p className={hero
+                                ? 'font-display text-xl md:text-2xl leading-snug mb-3'
+                                : 'font-display text-base md:text-lg leading-snug mb-3'}
+                              style={{
+                                color: 'rgba(10,10,10,0.85)',
+                                fontStyle: 'italic',
+                                fontWeight: 600,
+                                letterSpacing: '-0.005em',
+                              }}>
+                              &ldquo;{pin.text}&rdquo;
+                            </p>
+                          ) : (
+                            <p className={hero
+                                ? 'text-[1.05rem] md:text-base leading-relaxed mb-3'
+                                : 'text-sm leading-relaxed mb-3'}
+                              style={{ color: 'rgba(10,10,10,0.72)' }}>
+                              {pin.text}
+                            </p>
+                          )}
+                          <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+                            <a href={detailHref}
+                              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                              style={{ color: '#4744C8' }}>
+                              Read full tip →
+                            </a>
+                            <button
+                              onClick={() => {
+                                const absolute = typeof window !== 'undefined'
+                                  ? `${window.location.origin}${detailHref}` : detailHref
+                                if (typeof navigator !== 'undefined' && navigator.share) {
+                                  void navigator.share({ url: absolute, text: pin.text.slice(0, 200) })
+                                } else {
+                                  void navigator.clipboard?.writeText(absolute)
+                                }
+                              }}
+                              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                              style={{ color: 'rgba(10,10,10,0.4)' }}
+                              title="Share this tip">
+                              ↗ Share
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    )
+                  }
+
                   return (
                     <div>
-                      {/* Curated ribbon when we lead with a Roots note */}
-                      {head.kind === 'pin' && (
-                        <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-3"
-                          style={{ color: 'rgba(10,10,10,0.35)' }}>
-                          From Roots · curated
-                        </p>
+                      {/* ── User posts section (priority) ───────────────── */}
+                      {userPosts.length > 0 && (
+                        <>
+                          <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-3"
+                            style={{ color: channel.color }}>
+                            From settlers
+                          </p>
+                          {/* Hero — first user post */}
+                          <div className="mb-3">
+                            <PostCard post={userPosts[0]} hero />
+                          </div>
+                          {userPosts.length > 1 && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {userPosts.slice(1).map(p => <PostCard key={p.id} post={p} />)}
+                            </div>
+                          )}
+                        </>
                       )}
-                      {/* Hero card */}
-                      <div className="mb-3">
-                        {head.kind === 'pin'
-                          ? <PinCard  pin={head.pin}   hero />
-                          : <PostCard post={head.post} hero />}
-                      </div>
-                      {/* Grid */}
-                      {rest.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {rest.map(item => item.kind === 'pin'
-                            ? <PinCard  key={item.pin.id}   pin={item.pin} />
-                            : <PostCard key={item.post.id}  post={item.post} />)}
+
+                      {/* ── Roots notes section — labeled, secondary ─────── */}
+                      {pins.length > 0 && (
+                        <div className={userPosts.length > 0 ? 'mt-10 pt-8' : ''}
+                          style={userPosts.length > 0 ? { borderTop: '1px solid rgba(10,10,10,0.1)' } : undefined}>
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <p className="text-[10px] font-black uppercase tracking-[0.22em]"
+                              style={{ color: '#4744C8' }}>
+                              ✦ From Roots · curated
+                            </p>
+                            <a href={`/${cityId}/tips`}
+                              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                              style={{ color: '#4744C8' }}>
+                              See all {pins.length} →
+                            </a>
+                          </div>
+                          {/* Hero pin only when there are no user posts.
+                              Otherwise pins stay uniformly in the grid below settlers. */}
+                          {userPosts.length === 0 ? (
+                            <>
+                              <div className="mb-3">
+                                <PinCard pin={pins[0]} hero />
+                              </div>
+                              {pins.length > 1 && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {pins.slice(1).map((p, i) => <PinCard key={p.id} pin={p} index={i + 1} />)}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {pins.map((p, i) => <PinCard key={p.id} pin={p} index={i} />)}
+                            </div>
+                          )}
                         </div>
                       )}
-                      {/* Coaching nudge below the grid */}
-                      <div className="mt-8 px-4 py-4"
+
+                      {/* Coaching nudge below everything */}
+                      <div className="mt-10 px-4 py-4"
                         style={{ background: 'rgba(10,10,10,0.02)', border: '1px solid rgba(10,10,10,0.06)' }}>
                         <p className="text-sm font-semibold mb-1" style={{ color: '#0A0A0A' }}>
                           {channel.id === 'tips'      ? 'A great tip is specific.' :

@@ -458,14 +458,24 @@ export function getCuratedForChannel(kind: CuratedKind): CuratedNote[] {
 }
 
 // Legacy shape — Connect feed renders these as the curated pin list.
-// Keep this in sync with the feed's expected `CuratedPin` interface.
-export interface LegacyPin { id: string; text: string; label: string; slug: string }
+// Includes a few extra fields (neighbourhood, title) so the feed can vary
+// card treatment per pin instead of rendering 10 identical cards.
+export interface LegacyPin {
+  id:            string
+  text:          string
+  label:         string
+  slug:          string
+  neighbourhood: string | null
+  title:         string
+}
 
 export function legacyPinsForChannel(kind: CuratedKind): LegacyPin[] {
   return getCuratedForChannel(kind).map(n => ({
-    id:    n.id,
-    text:  n.body,
-    label: 'Roots note',
-    slug:  n.slug,
+    id:            n.id,
+    text:          n.body,
+    label:         'Roots note',
+    slug:          n.slug,
+    neighbourhood: n.neighbourhood ?? null,
+    title:         n.title,
   }))
 }
