@@ -89,6 +89,27 @@ export default async function GuideIndex(
 
       <div className="max-w-3xl mx-auto px-6 md:px-12 pt-10 pb-20">
 
+        {/* Cross-link to the neighbourhood guide — the other half of the
+            public/SEO surface. Putting this above the editorial intro so
+            cold visitors discover both arms of the playbook. */}
+        <Link href={`/${cityId}/neighbourhoods`}
+          className="flex items-center justify-between gap-4 mb-10 px-5 py-4 hover:opacity-80 transition-opacity"
+          style={{ background: 'rgba(71,68,200,0.06)', border: '1px solid rgba(71,68,200,0.2)' }}>
+          <div className="min-w-0">
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1"
+              style={{ color: '#4744C8' }}>
+              Where to live in {city.name}
+            </p>
+            <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
+              Neighbourhood guide — 12 profiles + side-by-side comparisons
+            </p>
+          </div>
+          <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{ color: '#4744C8' }}>
+            Open →
+          </span>
+        </Link>
+
         {/* Editorial intro */}
         <p className="text-base leading-relaxed mb-12 max-w-2xl" style={{ color: 'rgba(10,10,10,0.7)' }}>
           Settling into a new city is sixty things, and almost no one tells you the order they need to happen in.

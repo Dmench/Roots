@@ -137,11 +137,12 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <nav className="flex flex-wrap gap-x-1 gap-y-1 mt-2"
             style={{ borderTop: '1px solid rgba(10,10,10,0.08)', paddingTop: 14 }}>
             {[
-              { href: `/${cityId}/settle`,  label: 'Settle',      color: '#FAB400' },
-              { href: `/${cityId}/eat`,     label: 'Eat & Drink', color: '#E8612A' },
-              { href: `/${cityId}/connect`, label: 'Community',   color: '#FF3EBA' },
-              { href: `/${cityId}/ask`,     label: 'Ask',         color: '#38C0F0' },
-              { href: `/${cityId}/people`,  label: 'People',      color: '#4744C8' },
+              { href: `/${cityId}/settle`,         label: 'Settle',        color: '#FAB400' },
+              { href: `/${cityId}/neighbourhoods`, label: 'Neighbourhoods', color: '#4744C8' },
+              { href: `/${cityId}/eat`,            label: 'Eat & Drink',   color: '#E8612A' },
+              { href: `/${cityId}/connect`,        label: 'Community',     color: '#FF3EBA' },
+              { href: `/${cityId}/ask`,            label: 'Ask',           color: '#38C0F0' },
+              { href: `/${cityId}/people`,         label: 'People',        color: '#0E9B6B' },
             ].map(p => (
               <Link key={p.href} href={p.href}
                 className="text-[10px] font-black tracking-[0.14em] uppercase px-3 py-2 hover:opacity-70 transition-opacity"
