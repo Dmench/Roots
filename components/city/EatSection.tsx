@@ -27,7 +27,7 @@ const TAG_LABELS: Record<string, string> = {
   'no-reservations': 'No reservations',
   'cash-only':       'Cash only',
   'late-night':      'Late night',
-  'expat-favorite':  'Settler favourite',
+  'newcomers':       'Settler favourite',
   'locals':          'Local favourite',
   'institution':     'Institution',
   'all-day':         'All day',

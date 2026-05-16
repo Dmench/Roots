@@ -16,19 +16,25 @@ export interface AffiliatePartner {
   status:       'live' | 'pending' | 'placeholder'
 }
 
+// Status reflects whether Roots has a signed agreement with that partner.
+//   'live'        — agreement signed, commission accruing
+//   'pending'     — programme exists, we have not yet applied / been approved
+//   'placeholder' — programme does not exist; direct partnership would be needed
+// As of launch, ALL partners are 'pending' or 'placeholder'. No commission
+// flows back to Roots yet. The disclosure copy reflects this honestly.
 export const AFFILIATE_PARTNERS: AffiliatePartner[] = [
   // Banking / transfers
-  { id: 'wise',          name: 'Wise',         hosts: ['wise.com'],            category: 'transfer', commission: '€60 per funded customer', status: 'live' },
-  { id: 'revolut',       name: 'Revolut',      hosts: ['revolut.com'],         category: 'banking',  commission: '€30 per activated account', status: 'pending' },
-  { id: 'n26',           name: 'N26',          hosts: ['n26.com'],             category: 'banking',  commission: '€40 per funded account', status: 'pending' },
-  { id: 'bnp-hello',     name: 'Hello bank!',  hosts: ['hellobank.be'],        category: 'banking',  commission: 'TBD — direct partnership', status: 'placeholder' },
+  { id: 'wise',          name: 'Wise',         hosts: ['wise.com'],            category: 'transfer', commission: '~€60 per funded customer (when approved)', status: 'pending' },
+  { id: 'revolut',       name: 'Revolut',      hosts: ['revolut.com'],         category: 'banking',  commission: '~€30 per activated account (when approved)', status: 'pending' },
+  { id: 'n26',           name: 'N26',          hosts: ['n26.com'],             category: 'banking',  commission: '~€40 per funded account (when approved)', status: 'pending' },
+  { id: 'bnp-hello',     name: 'Hello bank!',  hosts: ['hellobank.be'],        category: 'banking',  commission: 'direct partnership only', status: 'placeholder' },
   // Mobile
-  { id: 'mobile-vikings', name: 'Mobile Vikings', hosts: ['mobilevikings.be'], category: 'mobile', commission: '€15 per SIM activation', status: 'pending' },
+  { id: 'mobile-vikings', name: 'Mobile Vikings', hosts: ['mobilevikings.be'], category: 'mobile',  commission: 'direct partnership only', status: 'placeholder' },
   // Housing (short-term)
-  { id: 'spotahome',     name: 'Spotahome',    hosts: ['spotahome.com'],       category: 'housing',  commission: '40% of platform fee', status: 'pending' },
-  { id: 'homelike',      name: 'Homelike',     hosts: ['thehomelike.com'],     category: 'housing',  commission: 'CPA', status: 'pending' },
+  { id: 'spotahome',     name: 'Spotahome',    hosts: ['spotahome.com'],       category: 'housing',  commission: '~40% of platform fee (when approved)', status: 'pending' },
+  { id: 'homelike',      name: 'Homelike',     hosts: ['thehomelike.com'],     category: 'housing',  commission: 'CPA (when approved)', status: 'pending' },
   // Tax / NIF
-  { id: 'bordr',         name: 'Bordr',        hosts: ['bordr.io'],            category: 'other',    commission: '$20 per NIF order', status: 'live' },
+  { id: 'bordr',         name: 'Bordr',        hosts: ['bordr.io'],            category: 'other',    commission: '~$20 per NIF order (when approved)', status: 'pending' },
 ]
 
 /**

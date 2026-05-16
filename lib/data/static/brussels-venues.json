@@ -53,7 +53,7 @@
     "price": "€€",
     "vibe": "Communal tables, chalkboard menu, zero pretension. Cash only.",
     "why": "No menu printed, no reservations taken, always packed. The most authentic Belgian dinner in the city.",
-    "tags": ["belgian-classic", "no-reservations", "cash-only", "locals", "expat-favorite", "cozy", "friends-visiting"],
+    "tags": ["belgian-classic", "no-reservations", "cash-only", "locals", "newcomers", "cozy", "friends-visiting"],
     "address": "9 Rue des Chartreux",
     "lat": 50.8496, "lng": 4.3476,
     "openingHours": "Mo-Sa 12:00-15:00, 18:00-23:30"
@@ -109,7 +109,7 @@
     "price": "€€",
     "vibe": "Fresh-baked focaccia, counter dining, Mediterranean-forward. Lunch hotspot.",
     "why": "Opened and immediately became a neighbourhood staple. Fresh, fast, not a tourist in sight.",
-    "tags": ["lunch", "mediterranean", "counter-dining", "expat-favorite", "trendy", "wholesome"],
+    "tags": ["lunch", "mediterranean", "counter-dining", "newcomers", "trendy", "wholesome"],
     "lat": 50.8240, "lng": 4.3571,
     "openingHours": "Mo-Fr 09:00-17:00; Sa 10:00-17:00"
   },
@@ -179,7 +179,7 @@
     "price": "€",
     "vibe": "Calm, plugs at every table, specialty coffee that doesn't disappoint.",
     "why": "The remote worker's secret weapon. Not on every list, consistently good coffee, reliable wifi.",
-    "tags": ["remote-work", "specialty-coffee", "wifi", "quiet", "expat-favorite", "wholesome"],
+    "tags": ["remote-work", "specialty-coffee", "wifi", "quiet", "newcomers", "wholesome"],
     "lat": 50.8268, "lng": 4.3685
   },
   {
@@ -262,7 +262,7 @@
     "price": "€",
     "vibe": "Blue-green interiors near Tenbosch Park, NY-style bagels, precise espresso.",
     "why": "The specialty coffee shop that doesn't feel like it's trying. Artisan roasters, seasonal bagels, proper baristas — and a room you'll want to come back to.",
-    "tags": ["specialty-coffee", "remote-work", "bagels", "expat-favorite", "quiet", "wholesome", "brunch"],
+    "tags": ["specialty-coffee", "remote-work", "bagels", "newcomers", "quiet", "wholesome", "brunch"],
     "address": "Chaussée de Waterloo 586",
     "lat": 50.8044, "lng": 4.3648,
     "featured": true,
@@ -292,7 +292,7 @@
     "price": "€€",
     "vibe": "Counter seating, no reservations, queues out the door. Worth every minute.",
     "why": "Homemade tonkotsu broth, chicken oil, the real thing. Opens twice daily for short windows — if you can get a seat, you'll be back.",
-    "tags": ["japanese", "ramen", "no-reservations", "counter-dining", "expat-favorite", "trendy"],
+    "tags": ["japanese", "ramen", "no-reservations", "counter-dining", "newcomers", "trendy"],
     "address": "Rue Saint-Boniface 11",
     "lat": 50.8280, "lng": 4.3697,
     "openingHours": "Dinner from 19:00 (limited service windows, call ahead)"
@@ -306,7 +306,7 @@
     "price": "€€",
     "vibe": "Enormous terrace on Flagey square, coffee at noon, gin at midnight. Brussels' most-loved institution.",
     "why": "The beating heart of Ixelles. On a sunny day, the square belongs to Café Belga. Every neighbourhood needs one — Brussels only has one.",
-    "tags": ["terrace", "all-day", "locals", "expat-favorite", "flagey", "no-reservations", "friends-visiting", "wholesome", "brunch"],
+    "tags": ["terrace", "all-day", "locals", "newcomers", "flagey", "no-reservations", "friends-visiting", "wholesome", "brunch"],
     "address": "Place Eugène Flagey 18",
     "lat": 50.8240, "lng": 4.3737,
     "openingHours": "Daily 08:00-02:00",
@@ -350,7 +350,7 @@
     "price": "€",
     "vibe": "Brussels' favourite independent roaster. Single-origins, filter coffee, no fuss.",
     "why": "MOK supplies half the specialty cafés in Brussels — coming here is the source. Rotating pour-overs, excellent espresso, bread.",
-    "tags": ["specialty-coffee", "remote-work", "roastery", "expat-favorite", "quiet", "wholesome", "trendy"],
+    "tags": ["specialty-coffee", "remote-work", "roastery", "newcomers", "quiet", "wholesome", "trendy"],
     "address": "Chaussée de Waterloo 176",
     "lat": 50.8260, "lng": 4.3610,
     "openingHours": "Mo-Fr 08:00-18:00; Sa-Su 09:00-18:00",
@@ -523,7 +523,7 @@
     "price": "€€",
     "vibe": "Eggs benedict, pancakes the size of a plate, queues every weekend.",
     "why": "Brussels' brunch destination since the early 2010s. Australian-style café food done well — the kind of breakfast that fixes a Sunday.",
-    "tags": ["wholesome", "brunch", "trendy", "expat-favorite", "no-reservations", "lunch"],
+    "tags": ["wholesome", "brunch", "trendy", "newcomers", "no-reservations", "lunch"],
     "address": "Rue du Marché aux Poulets 47",
     "lat": 50.8493, "lng": 4.3517,
     "openingHours": "Mo-Fr 09:00-15:00; Sa-Su 09:00-16:00"
@@ -565,7 +565,7 @@
     "price": "€€",
     "vibe": "Nordic minimalism in Brussels. Open-faced sandwiches at lunch, small plates and natural wine at dinner, cocktails late.",
     "why": "Brunch crowd by day, dinner crowd by night, the same crew either way. Scandi-leaning food in a city full of brasseries — a different register that lands.",
-    "tags": ["trendy", "wholesome", "brunch", "natural-wine", "small-plates", "all-day", "expat-favorite", "date-night"],
+    "tags": ["trendy", "wholesome", "brunch", "natural-wine", "small-plates", "all-day", "newcomers", "date-night"],
     "neighborhood": "Châtelain",
     "lat": 50.8278, "lng": 4.3585
   },
@@ -607,7 +607,7 @@
     "price": "€€€",
     "vibe": "Gourmet Chinese, sharp and modern. The opposite of the city's old-school Chinese spots.",
     "why": "A precise modern Chinese kitchen — refined dishes, careful sourcing, the kind of meal where every plate is the point. Reservations essential.",
-    "tags": ["chinese", "trendy", "chef-driven", "dinner", "fancy", "date-night", "expat-favorite"],
+    "tags": ["chinese", "trendy", "chef-driven", "dinner", "fancy", "date-night", "newcomers"],
     "lat": 50.8285, "lng": 4.3680
   },
   {
@@ -871,7 +871,7 @@
     "price": "€€",
     "vibe": "Modern Irish pub at Flagey. Guinness, sports on the screens, weekend brunch, big-table energy.",
     "why": "Where the expat Flagey crowd ends up for the football, the Guinness, and the bigger casual group. Reliable, friendly, no pretensions.",
-    "tags": ["expat-favorite", "groups", "friends-visiting", "sports", "late-night", "no-reservations"],
+    "tags": ["newcomers", "groups", "friends-visiting", "sports", "late-night", "no-reservations"],
     "lat": 50.8240, "lng": 4.3725
   },
   {

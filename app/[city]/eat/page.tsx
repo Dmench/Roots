@@ -51,13 +51,13 @@ const SIGNALS: Record<string, { label: string; bg: string; text: string }> = {
   'no-reservations': { label: 'Walk in',     bg: 'rgba(16,185,129,0.1)',  text: '#0E9B6B' },
   'cash-only':       { label: 'Cash only',   bg: 'rgba(250,180,0,0.12)',  text: '#A07000' },
   'remote-work':     { label: 'Laptop ok',   bg: 'rgba(56,192,240,0.12)', text: '#0F7FA0' },
-  'expat-favorite':  { label: 'Settler fave', bg: 'rgba(71,68,200,0.1)',  text: '#4744C8' },
+  'newcomers':       { label: 'Settler fave', bg: 'rgba(71,68,200,0.1)',  text: '#4744C8' },
   'late-night':      { label: 'Late night',  bg: 'rgba(255,62,186,0.1)',  text: '#B8007A' },
   'institution':     { label: 'Institution', bg: 'rgba(10,10,10,0.07)',   text: 'rgba(10,10,10,0.55)' },
   'locals':          { label: 'Local fave',  bg: 'rgba(16,185,129,0.1)',  text: '#0E9B6B' },
   'terrace':         { label: 'Terrace',     bg: 'rgba(250,180,0,0.1)',   text: '#A07000' },
 }
-const SIG_PRIORITY = ['no-reservations','cash-only','remote-work','expat-favorite','late-night','locals','institution','terrace']
+const SIG_PRIORITY = ['no-reservations','cash-only','remote-work','newcomers','late-night','locals','institution','terrace']
 
 const TYPE_COLOR: Record<string, string> = { restaurant: '#E8612A', bar: '#4744C8', cafe: '#B08800', other: '#0A0A0A' }
 type VenueType = 'all' | 'restaurant' | 'bar' | 'cafe'

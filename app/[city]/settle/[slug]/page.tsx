@@ -188,9 +188,9 @@ export default async function TaskPage(
             {task.links.some(l => l.type === 'affiliate') && (
               <p className="text-[10px] mb-10 leading-relaxed"
                 style={{ color: 'rgba(10,10,10,0.4)' }}>
-                Links marked &laquo; Partner &raquo; are referral links — if Roots has a partnership
-                with that company, we may earn a small fee when you sign up. Roots earns nothing on
-                most of them today. Editorial choices come first.
+                Links marked &laquo; Partner &raquo; are companies we may form a referral
+                partnership with as Roots grows. <strong>As of launch, Roots earns nothing from
+                any of these links.</strong> Editorial choices come first.
               </p>
             )}
             {!task.links.some(l => l.type === 'affiliate') && <div className="mb-10" />}

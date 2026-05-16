@@ -226,9 +226,11 @@ export default async function GuideTaskPage(
             {task.links.some(l => l.type === 'affiliate') && (
               <p className="text-[10px] mb-12 leading-relaxed"
                 style={{ color: 'rgba(10,10,10,0.4)' }}>
-                Links marked &laquo; Partner &raquo; are referral links — if Roots has a partnership
-                with that company, we may earn a small fee when you sign up. Roots earns nothing on
-                most of them today. Editorial choices come first, partnerships second.
+                Links marked &laquo; Partner &raquo; are companies we may form a referral
+                partnership with as Roots grows. <strong>As of launch, Roots earns nothing from
+                any of these links</strong> — we mark them to be transparent about the kinds of
+                companies we'd accept commission from. Editorial choices come first; we'd never
+                add a partner that wasn't already the right recommendation.
               </p>
             )}
             {!task.links.some(l => l.type === 'affiliate') && <div className="mb-12" />}

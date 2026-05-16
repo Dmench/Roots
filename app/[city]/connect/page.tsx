@@ -55,12 +55,9 @@ const RESOURCES: Resource[] = [
   { id: 'bxl-m1', cityId: 'brussels', name: 'Brussels newcomer meetups',   type: 'meetup', desc: 'Active in-person groups.',        url: meetupSearch('newcomers',        'be--Brussels') },
   { id: 'bxl-m2', cityId: 'brussels', name: 'English-speaking groups',     type: 'meetup', desc: 'Social events in English.',       url: meetupSearch('english speaking', 'be--Brussels') },
   { id: 'bxl-m3', cityId: 'brussels', name: 'Brussels tech meetups',       type: 'meetup', desc: 'Engineering, AI, startups.',      url: meetupSearch('tech',             'be--Brussels') },
-  // Lisbon — Reddit
-  { id: 'lis-r1', cityId: 'lisbon',   name: 'r/lisbon',                    type: 'reddit', desc: 'Local subreddit.',                url: 'https://www.reddit.com/r/lisbon' },
-  { id: 'lis-r2', cityId: 'lisbon',   name: 'r/PortugalExpats',            type: 'reddit', desc: 'Visas, NHR, housing.',            url: 'https://www.reddit.com/r/PortugalExpats' },
-  // Lisbon — Meetup
-  { id: 'lis-m1', cityId: 'lisbon',   name: 'Lisbon newcomer meetups',     type: 'meetup', desc: 'Most active newcomer groups.',    url: meetupSearch('newcomers',        'pt--Lisbon')   },
-  { id: 'lis-m2', cityId: 'lisbon',   name: 'English-speaking groups',     type: 'meetup', desc: 'Social events in English.',       url: meetupSearch('english speaking', 'pt--Lisbon')   },
+  // Lisbon resources removed pre-launch — Lisbon is a stub city, not yet
+  // active, and shipping these confused cold visitors. Restore when
+  // Lisbon flips active in lib/data/cities.ts.
 ]
 
 const RESOURCE_STYLE: Record<ResourceType, { color: string; label: string }> = {
@@ -680,18 +677,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* ── Community channels (tips / questions / heads-up) ──────── */}
             {channel.cat && (
               <>
-                {/* See-all-tips link to the public surface */}
-                <div className="mb-5 flex items-center justify-between gap-3">
-                  <p className="text-[10px] font-black tracking-[0.22em] uppercase"
-                    style={{ color: 'rgba(10,10,10,0.4)' }}>
-                    Hand-written + community
-                  </p>
-                  <a href={`/${cityId}/tips`}
-                    className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
-                    style={{ color: '#4744C8' }}>
-                    See all tips →
-                  </a>
-                </div>
                 {/* Neighbourhood filter — only when there are posts to filter */}
                 {hoodChips.length > 0 && posts.some(p => p.category === channel.cat) && (
                   <div className="mb-6 flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1">
@@ -897,9 +882,12 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     //   3 — soft purple tinted background
                     const variant = index % 4
                     const isPullQuote = variant === 2 || (pin.text.length < 110 && !hero)
+                    // Tints are slightly stronger than ideal-on-desktop so the
+                    // variation is still visible on mobile, where you only see
+                    // one card at a time.
                     const bg =
-                      variant === 1 ? '#FAF6EE' :
-                      variant === 3 ? 'rgba(71,68,200,0.04)' :
+                      variant === 1 ? '#F7F0DF' :
+                      variant === 3 ? 'rgba(71,68,200,0.07)' :
                       '#FFFFFF'
                     return (
                       <article
