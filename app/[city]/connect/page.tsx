@@ -1143,13 +1143,13 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                       style={{ color: 'rgba(10,10,10,0.4)' }}>
                       Elsewhere on Roots
                     </p>
-                    <a href={`/${cityId}/housing`}
+                    <a href={`/${cityId}/listings?tab=housing`}
                       className="group text-[11px] font-bold tracking-wide inline-flex items-center gap-1 hover:opacity-100 transition-opacity"
                       style={{ color: '#FAB400' }}>
                       {housingCount > 0 ? `Housing · ${housingCount} live` : 'Housing — be the first listing'}
                       <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
                     </a>
-                    <a href={`/${cityId}/events`}
+                    <a href={`/${cityId}/listings?tab=events`}
                       className="group text-[11px] font-bold tracking-wide inline-flex items-center gap-1 hover:opacity-100 transition-opacity"
                       style={{ color: '#E8612A' }}>
                       Events — host or browse

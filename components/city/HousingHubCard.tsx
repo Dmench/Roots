@@ -39,7 +39,7 @@ export async function HousingHubCard({ cityId }: Props) {
     : 'Rooms, studios, wanted ads. No agencies, no scrapers.'
 
   return (
-    <Link href={`/${cityId}/housing`}
+    <Link href={`/${cityId}/listings?tab=housing`}
       className="block group relative transition-all overflow-hidden"
       style={{ background: '#FFFFFF', border: '2px solid #FAB400' }}>
       {/* Dynamic accent bar — slides full-width on hover, idle as a thin stub */}

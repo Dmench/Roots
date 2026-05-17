@@ -42,7 +42,7 @@ export async function EventsHubCard({ cityId }: Props) {
     : 'Gigs, dinners, classes, meetups. Nothing scraped — only settlers.'
 
   return (
-    <Link href={`/${cityId}/events`}
+    <Link href={`/${cityId}/listings?tab=events`}
       className="block group relative transition-all overflow-hidden"
       style={{ background: '#FFFFFF', border: '2px solid #E8612A' }}>
       {/* Dynamic accent bar — slides full-width on hover, idle as a thin stub */}

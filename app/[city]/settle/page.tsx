@@ -81,10 +81,16 @@ export default function SettlePage({ params }: { params: Promise<{ city: string 
               <button
                 key={stage.id}
                 onClick={() => setStage(stage.id as Stage)}
-                className="group text-left px-7 py-8 bg-white hover:bg-neutral-50 transition-colors"
-                style={{ borderTop: `4px solid ${STAGE_COLORS[i]}` }}
+                className="group relative text-left px-7 py-8 bg-white hover:bg-neutral-50 transition-colors overflow-hidden"
               >
-                <p className="text-[10px] font-black tracking-widest uppercase mb-3"
+                {/* Top accent — 4px stub, grows to a thicker 6px slab on hover */}
+                <span aria-hidden
+                  className="absolute left-0 right-0 top-0 transition-all duration-300 ease-out"
+                  style={{ background: STAGE_COLORS[i], height: '4px' }} />
+                <span aria-hidden
+                  className="absolute left-0 top-0 h-1 w-12 group-hover:w-full transition-[width] duration-500 ease-out"
+                  style={{ background: STAGE_COLORS[i] }} />
+                <p className="text-[10px] font-black tracking-widest uppercase mb-3 mt-1"
                   style={{ color: STAGE_COLORS[i] }}>
                   {stage.months}
                 </p>

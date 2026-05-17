@@ -7,8 +7,11 @@ import { AuthModal } from '@/components/auth/AuthModal'
 import type { Post, PostCategory, Stage, CityId } from '@/lib/types'
 
 interface Props {
-  cityId:   CityId
-  cityName: string
+  cityId:        CityId
+  cityName:      string
+  /** Hide the back-link + editorial masthead when rendered inside the
+   *  combined Listings page. */
+  hideMasthead?: boolean
 }
 
 function formatRelative(dateStr: string): string {
@@ -25,7 +28,7 @@ function formatRelative(dateStr: string): string {
 // Dedicated Events page — mirrors the Housing pattern. Settler-posted
 // events live here; scraped visitbrussels events live on the Hub feed.
 // Two surfaces, two registers — supply (here) vs city signal (Hub).
-export function EventsPageClient({ cityId, cityName }: Props) {
+export function EventsPageClient({ cityId, cityName, hideMasthead = false }: Props) {
   const [posts,    setPosts]    = useState<Post[]>([])
   const [loaded,   setLoaded]   = useState(false)
   const [filter,   setFilter]   = useState<'all' | 'thisweek' | 'later'>('all')
@@ -152,9 +155,10 @@ export function EventsPageClient({ cityId, cityName }: Props) {
   })()
 
   return (
-    <div className="max-w-5xl mx-auto px-6 md:px-12 py-10 md:py-14">
+    <div className={hideMasthead ? '' : 'max-w-5xl mx-auto px-6 md:px-12 py-10 md:py-14'}>
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
+      {!hideMasthead && <>
       {/* Back to hub */}
       <a href={`/${cityId}`}
         className="inline-block mb-6 text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
@@ -186,6 +190,7 @@ export function EventsPageClient({ cityId, cityName }: Props) {
           settler side.
         </p>
       </header>
+      </>}
 
       {/* Composer */}
       <div className="mb-8">

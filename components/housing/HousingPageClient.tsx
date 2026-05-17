@@ -7,8 +7,11 @@ import { AuthModal } from '@/components/auth/AuthModal'
 import type { Post, PostCategory, Stage, CityId } from '@/lib/types'
 
 interface Props {
-  cityId:   CityId
-  cityName: string
+  cityId:        CityId
+  cityName:      string
+  /** Hide the back-link + editorial masthead when rendered inside the
+   *  combined Listings page (parent supplies its own masthead + tabs). */
+  hideMasthead?: boolean
 }
 
 function formatRelative(dateStr: string): string {
@@ -28,7 +31,7 @@ const HOUSING_CATS: PostCategory[] = ['housing-offer', 'housing-wanted']
 // Voted unanimously by the design council (brand / growth / IA) as the
 // right home for structured Housing listings: shareable URL, magazine
 // register, decoupled from the Connect feed identity.
-export function HousingPageClient({ cityId, cityName }: Props) {
+export function HousingPageClient({ cityId, cityName, hideMasthead = false }: Props) {
   const [posts,      setPosts]      = useState<Post[]>([])
   const [loaded,     setLoaded]     = useState(false)
   const [filter,     setFilter]     = useState<'all' | 'offer' | 'wanted'>('all')
@@ -137,39 +140,43 @@ export function HousingPageClient({ cityId, cityName }: Props) {
   ).length
 
   return (
-    <div className="max-w-5xl mx-auto px-6 md:px-12 py-10 md:py-14">
+    <div className={hideMasthead ? '' : 'max-w-5xl mx-auto px-6 md:px-12 py-10 md:py-14'}>
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
-      {/* Back to hub */}
-      <a href={`/${cityId}`}
-        className="inline-block mb-6 text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
-        style={{ color: 'rgba(10,10,10,0.45)' }}>
-        ← Back to hub
-      </a>
+      {!hideMasthead && (
+        <>
+          {/* Back to hub */}
+          <a href={`/${cityId}`}
+            className="inline-block mb-6 text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+            style={{ color: 'rgba(10,10,10,0.45)' }}>
+            ← Back to hub
+          </a>
 
-      {/* Masthead */}
-      <header className="mb-8 pb-6"
-        style={{ borderBottom: '2px solid #FAB400' }}>
-        <div className="flex items-baseline gap-3 mb-2">
-          <span className="inline-block shrink-0"
-            style={{ width: 10, height: 10, borderRadius: '50%', background: '#FAB400' }} />
-          <span className="text-[10px] font-black tracking-[0.22em] uppercase"
-            style={{ color: '#FAB400' }}>
-            Vol. 01 · {cityName} · Housing
-          </span>
-        </div>
-        <h1 className="font-display font-black text-3xl md:text-5xl leading-[0.95] mb-3"
-          style={{ color: '#0A0A0A', letterSpacing: '-0.02em' }}>
-          Settler listings.
-          <br />
-          <span style={{ color: '#FAB400' }}>No agencies.</span>
-        </h1>
-        <p className="text-sm md:text-base max-w-2xl"
-          style={{ color: 'rgba(10,10,10,0.6)' }}>
-          Rooms, studios, and wanted ads — posted by people who live here.
-          DM the lister via their profile.
-        </p>
-      </header>
+          {/* Masthead */}
+          <header className="mb-8 pb-6"
+            style={{ borderBottom: '2px solid #FAB400' }}>
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="inline-block shrink-0"
+                style={{ width: 10, height: 10, borderRadius: '50%', background: '#FAB400' }} />
+              <span className="text-[10px] font-black tracking-[0.22em] uppercase"
+                style={{ color: '#FAB400' }}>
+                Vol. 01 · {cityName} · Housing
+              </span>
+            </div>
+            <h1 className="font-display font-black text-3xl md:text-5xl leading-[0.95] mb-3"
+              style={{ color: '#0A0A0A', letterSpacing: '-0.02em' }}>
+              Settler listings.
+              <br />
+              <span style={{ color: '#FAB400' }}>No agencies.</span>
+            </h1>
+            <p className="text-sm md:text-base max-w-2xl"
+              style={{ color: 'rgba(10,10,10,0.6)' }}>
+              Rooms, studios, and wanted ads — posted by people who live here.
+              DM the lister via their profile.
+            </p>
+          </header>
+        </>
+      )}
 
       {/* Composer */}
       <div className="mb-8">

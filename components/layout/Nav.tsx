@@ -34,17 +34,18 @@ export function Nav() {
     ? getCity(pathCityId) : undefined
   const profileCity = profile.cityId ? getCity(profile.cityId) : undefined
 
-  // Top nav order — Housing + Events promoted alongside Community per
-  // founder direction (supply-side pages are the wedge metric).
+  // Top nav order — Housing + Events combined into Listings (IA council
+  // unanimous). Ask AI moved to the right cluster as a cyan pill (UX
+  // council: AI is a flagship surface, not a destination in the city
+  // walk). People kept in main nav for now — founder hasn't asked to
+  // demote it; can move to overflow if crowding returns.
   const cityNav = pathCity ? [
-    { href: `/${pathCity.id}`,         label: pathCity.name,  color: '#10B981', home: true },
-    { href: `/${pathCity.id}/housing`, label: 'Housing',      color: '#FAB400' },
-    { href: `/${pathCity.id}/events`,  label: 'Events',       color: '#E8612A' },
-    { href: `/${pathCity.id}/connect`, label: 'Community',    color: '#FF3EBA' },
-    { href: `/${pathCity.id}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
-    { href: `/${pathCity.id}/settle`,  label: 'Settle in',    color: '#FAB400' },
-    { href: `/${pathCity.id}/ask`,     label: 'Ask AI',       color: '#38C0F0' },
-    { href: `/${pathCity.id}/people`,  label: 'People',       color: '#4744C8' },
+    { href: `/${pathCity.id}`,          label: pathCity.name,  color: '#10B981', home: true },
+    { href: `/${pathCity.id}/listings`, label: 'Listings',     color: '#FAB400' },
+    { href: `/${pathCity.id}/connect`,  label: 'Community',    color: '#FF3EBA' },
+    { href: `/${pathCity.id}/eat`,      label: 'Eat & Drink',  color: '#E8612A' },
+    { href: `/${pathCity.id}/settle`,   label: 'Settle in',    color: '#4744C8' },
+    { href: `/${pathCity.id}/people`,   label: 'People',       color: '#3D3CAC' },
   ] : []
 
   const isActive = (href: string) => pathname.startsWith(href)
@@ -110,7 +111,21 @@ export function Nav() {
           )}
 
           {/* Right */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
+            {/* Ask AI — pill in cyan border. Sits LEFT of profile per UX
+                council. Hover fills the pill faintly. */}
+            {pathCity && (
+              <Link href={`/${pathCity.id}/ask`}
+                className="group hidden md:inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold tracking-wide transition-colors"
+                style={{
+                  color: pathname.startsWith(`/${pathCity.id}/ask`) ? '#FFFFFF' : '#38C0F0',
+                  background: pathname.startsWith(`/${pathCity.id}/ask`) ? '#38C0F0' : 'transparent',
+                  border: '1.5px solid #38C0F0',
+                }}>
+                <span className="text-sm leading-none">✦</span>
+                Ask AI
+              </Link>
+            )}
             {!pathCity && profileCity && (
               <Link
                 href={`/${profileCity.id}`}
@@ -232,33 +247,33 @@ export function Nav() {
             backdropFilter: 'blur(12px)',
             paddingBottom: 'env(safe-area-inset-bottom)',
           }}>
-          {/* Mobile bottom — 5 tabs max. Housing + Events promoted as
-              supply-wedge surfaces; Settle + Ask remain in overlay menu
-              and on Hub section nav. */}
+          {/* Mobile bottom — 5 tabs. Listings (combined) frees a slot so
+              Settle can return alongside Community + Eat. Ask AI lives in
+              the right-cluster pill (top of screen) and overlay menu. */}
           {[
-            { href: `/${pathCity.id}`,         label: 'Home',      color: '#10B981', icon: (
+            { href: `/${pathCity.id}`,          label: 'Home',      color: '#10B981', icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             ), exact: true },
-            { href: `/${pathCity.id}/housing`, label: 'Housing',   color: '#FAB400', icon: (
+            { href: `/${pathCity.id}/listings`, label: 'Listings',  color: '#FAB400', icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 21h16"/><path d="M6 21V4a2 2 0 012-2h8a2 2 0 012 2v17"/><circle cx="15" cy="12" r="0.6" fill="currentColor"/>
               </svg>
             ), exact: false },
-            { href: `/${pathCity.id}/events`,  label: 'Events',    color: '#E8612A', icon: (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="0"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            ), exact: false },
-            { href: `/${pathCity.id}/connect`, label: 'Community', color: '#FF3EBA', icon: (
+            { href: `/${pathCity.id}/connect`,  label: 'Community', color: '#FF3EBA', icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
               </svg>
             ), exact: false },
-            { href: `/${pathCity.id}/eat`,     label: 'Eat',       color: '#E8612A', icon: (
+            { href: `/${pathCity.id}/eat`,      label: 'Eat',       color: '#E8612A', icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+            ), exact: false },
+            { href: `/${pathCity.id}/settle`,   label: 'Settle',    color: '#4744C8', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
               </svg>
             ), exact: false },
           ].map(tab => {
