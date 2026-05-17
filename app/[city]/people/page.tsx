@@ -10,6 +10,8 @@ import { FollowButton } from '@/components/social/FollowButton'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 import { Flag } from '@/components/ui/Flag'
+import { IntroLane } from '@/components/people/IntroLane'
+import { AuthModal } from '@/components/auth/AuthModal'
 
 interface Member {
   id: string
@@ -47,6 +49,7 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState<Stage | 'all'>('all')
   const [selected, setSelected] = useState<Member | null>(null)
+  const [authOpen, setAuthOpen] = useState(false)
 
   useEffect(() => {
     if (!supabase || !city) { setLoading(false); return }
@@ -106,7 +109,13 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
         </span>
       </PageMasthead>
 
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+
       <div className="max-w-3xl mx-auto px-6 md:px-8 py-10 md:py-14">
+
+        {/* Intros — the "say hi" first beat of the directory.
+            Moved here from /connect per IA council (identity, not feed). */}
+        <IntroLane cityId={cityId} onNeedsAuth={() => setAuthOpen(true)} />
 
         {/* Stage filter — underline tabs */}
         <div className="flex flex-wrap gap-x-5 gap-y-2 mb-8">

@@ -22,6 +22,8 @@ import { SpinWheel } from '@/components/city/SpinWheel'
 import { FirstWeekModule } from '@/components/city/FirstWeekModule'
 import { HousingHubCard } from '@/components/city/HousingHubCard'
 import { EventsHubCard } from '@/components/city/EventsHubCard'
+import { WeeklyNote } from '@/components/connect/WeeklyNote'
+import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
 import { ResumeStateHero } from '@/components/city/ResumeStateHero'
 import type { CityId } from '@/lib/types'
 
@@ -178,6 +180,15 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <HousingHubCard cityId={cityId} />
           <EventsHubCard  cityId={cityId} />
         </div>
+      </div>
+
+      {/* ── City signals — moved from Connect (IA council unanimous): the
+          weekly editorial note and the Vrijdag matchup are CITY signals,
+          not community conversation. They belong on the Hub next to
+          weather / transport / events, not inside the talk page.        */}
+      <div className="px-6 sm:px-10 md:px-14 pt-8 pb-2">
+        <WeeklyNote cityId={cityId} />
+        <WeeklyMatchup cityId={cityId} />
       </div>
 
 
