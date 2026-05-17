@@ -832,13 +832,21 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                   if (userPosts.length === 0 && pins.length === 0) {
                     return (
                       <div className="py-12 px-6" style={{ background: '#FAFAF7', border: '1px solid rgba(10,10,10,0.08)' }}>
-                        <p className="text-base font-semibold mb-2" style={{ color: '#0A0A0A' }}>
+                        <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+                          style={{ color: channel.color }}>
+                          Editor&apos;s note
+                        </p>
+                        <p className="text-base font-semibold mb-2 leading-snug" style={{ color: '#0A0A0A' }}>
                           {channel.id === 'tips'      ? 'No tips yet — yours could be the first.'
                            : channel.id === 'questions' ? 'No questions yet — ask away.'
                            : 'No heads-ups yet.'}
                         </p>
-                        <p className="text-sm" style={{ color: 'rgba(10,10,10,0.55)' }}>
-                          Use the composer below. Yours could be the first.
+                        <p className="text-sm leading-relaxed" style={{ color: 'rgba(10,10,10,0.6)' }}>
+                          {channel.id === 'tips'
+                            ? 'A great tip is specific. Mention the place, the price, the catch. Compose above.'
+                            : channel.id === 'questions'
+                            ? 'Other settlers are figuring out the same thing right now. Ask in plain language — compose above.'
+                            : 'Recent admin gotcha? Closed office? Strike? Post it above — shorter is better.'}
                         </p>
                       </div>
                     )

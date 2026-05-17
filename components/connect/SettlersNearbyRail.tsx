@@ -33,11 +33,11 @@ function firstInitial(name: string | null): string {
   return c ? c.toUpperCase() : '·'
 }
 
-// Settlers Nearby — a thin rail of 3 real avatars + a count, shown above
-// the WeeklyNote on Connect. Honest at 10-user scale because everything
-// rendered is real `profiles` data (show_in_directory = true). No fake
-// presence indicators, no inflated counts. If we can't find ≥1 settler,
-// the rail self-hides.
+// Settlers Nearby — a thin rail of 3 real avatars + a count, shown on
+// /people above the IntroLane + directory list. Honest at 10-user scale
+// because everything rendered is real `profiles` data
+// (show_in_directory = true). No fake presence indicators, no inflated
+// counts. If we can't find ≥1 settler, the rail self-hides.
 export function SettlersNearbyRail({ cityId, cityName, viewerHood, viewerStage }: Props) {
   const [settlers, setSettlers] = useState<Settler[]>([])
   const [total, setTotal] = useState<number>(0)
@@ -120,11 +120,9 @@ export function SettlersNearbyRail({ cityId, cityName, viewerHood, viewerStage }
         </p>
       </div>
 
-      <Link href={`/${cityId}/people`}
-        className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
-        style={{ color: '#4744C8' }}>
-        See all →
-      </Link>
+      {/* "See all →" link removed — the rail lives on /[city]/people now,
+          so a link to /people is a no-op. The full directory list is
+          directly below this rail on the same page. */}
     </section>
   )
 }

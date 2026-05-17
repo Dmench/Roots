@@ -170,19 +170,23 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty state — editorial register */}
         {!loading && filtered.length === 0 && (
-          <div className="py-20" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-            <p className="text-sm font-medium mb-1.5" style={{ color: '#0A0A0A' }}>
-              {filter === 'all' ? 'No members yet' : `No ${stageLabel(filter as Stage).toLowerCase()} members`}
+          <div className="py-12 px-6" style={{ background: '#FAFAF7', border: '1px solid rgba(10,10,10,0.08)' }}>
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+              style={{ color: '#4744C8' }}>
+              Editor&apos;s note
             </p>
-            <p className="text-xs mb-6" style={{ color: 'rgba(10,10,10,0.4)' }}>
-              Members who opt in to the directory will appear here.
+            <p className="text-base font-semibold mb-2 leading-snug" style={{ color: '#0A0A0A' }}>
+              {filter === 'all' ? 'No members in the directory yet.' : `No ${stageLabel(filter as Stage).toLowerCase()} members yet.`}
+            </p>
+            <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(10,10,10,0.6)' }}>
+              Settlers who opt into the directory appear here. Opt in from your profile to be visible to other newcomers.
             </p>
             <Link href="/profile"
-              className="text-xs font-semibold underline underline-offset-4 hover:opacity-60 transition-opacity"
-              style={{ color: '#0A0A0A' }}>
-              Update your visibility settings →
+              className="inline-block text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+              style={{ color: '#4744C8' }}>
+              Update visibility →
             </Link>
           </div>
         )}
