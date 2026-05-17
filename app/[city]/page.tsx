@@ -185,22 +185,22 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               return <EditorsPicks pick={pick} cityId={cityId} photoRef={pickVenue?.photoRef ?? null} />
             })()}
 
-            {/* Full-bleed running head — № 01 What's on, in brand pink */}
-            <div className="flex items-baseline justify-between gap-3 mb-5 px-4 py-3"
-              style={{ background: '#FF3EBA', color: '#FFFFFF' }}>
+            {/* Running head — colored type + 2px colored bottom rule */}
+            <div className="flex items-baseline justify-between gap-3 mb-5 pb-2.5"
+              style={{ borderBottom: '2px solid #FF3EBA' }}>
               <span className="flex items-baseline gap-2.5">
                 <span className="text-[9px] font-black tracking-[0.32em] uppercase"
-                  style={{ color: 'rgba(255,255,255,0.75)' }}>
+                  style={{ color: '#FF3EBA' }}>
                   № 01
                 </span>
                 <span className="text-xs font-black tracking-[0.16em] uppercase"
-                  style={{ color: '#FFFFFF' }}>
+                  style={{ color: '#FF3EBA' }}>
                   What&apos;s on in {city.name}
                 </span>
               </span>
               {allEvents.length > 0 && (
                 <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                  style={{ color: 'rgba(255,255,255,0.8)' }}>
+                  style={{ color: 'rgba(10,10,10,0.4)' }}>
                   {allEvents.length} ahead
                 </span>
               )}
@@ -421,27 +421,28 @@ function SidebarSkeleton({ label }: { label: string }) {
   )
 }
 
-// Magazine running-head: a colored block carrying section identity.
-// Used for sidebar/inline sections — solid colored background, white type.
+// Magazine running-head: colored typography on a clean field with a
+// matching colored bottom-rule. Brings section identity through type
+// and a single horizontal stroke — no full-bleed colored backgrounds.
 function SectionLabel({ children, right, number, color = '#252450' }: {
   children: React.ReactNode
   right?: React.ReactNode
   number?: string
-  /** Background color of the band. White ink is used on top. */
+  /** Identity color used for the № number, the title type, and the 2px bottom rule. */
   color?: string
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 mb-4 px-3 py-2.5"
-      style={{ background: color, color: '#FFFFFF' }}>
+    <div className="flex items-baseline justify-between gap-3 mb-4 pb-2.5"
+      style={{ borderBottom: `2px solid ${color}` }}>
       <span className="flex items-baseline gap-2.5 min-w-0">
         {number && (
           <span className="text-[9px] font-black tracking-[0.32em] uppercase shrink-0"
-            style={{ color: 'rgba(255,255,255,0.75)' }}>
+            style={{ color }}>
             № {number}
           </span>
         )}
         <span className="text-xs font-black tracking-[0.16em] uppercase truncate"
-          style={{ color: '#FFFFFF' }}>
+          style={{ color }}>
           {children}
         </span>
       </span>
