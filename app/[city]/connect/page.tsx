@@ -800,26 +800,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           {/* ── LEFT: Main channel content ───────────────────────────────── */}
           <div className="min-w-0">
 
-            {/* ── First-time joiner welcome ribbon ──────────────────────── */}
-            {user && !welcomeDismissed && profile.stage && (
-              <div className="mb-6 flex items-center gap-3 px-4 py-3"
-                style={{ background: 'rgba(255,62,186,0.05)', border: '1px solid rgba(255,62,186,0.25)' }}>
-                <span className="text-[10px] font-black tracking-[0.22em] uppercase shrink-0"
-                  style={{ color: '#FF3EBA' }}>
-                  ✦ You're in
-                </span>
-                <p className="text-sm flex-1 min-w-0" style={{ color: '#0A0A0A' }}>
-                  Welcome to {city?.name ?? 'Roots'}. Post your first thing below or read what helped others.
-                </p>
-                <button
-                  onClick={dismissWelcome}
-                  className="shrink-0 text-[10px] font-bold hover:opacity-60 transition-opacity"
-                  style={{ color: 'rgba(10,10,10,0.4)' }}
-                  title="Dismiss">
-                  Dismiss
-                </button>
-              </div>
-            )}
+            {/* Welcome ribbon removed (design council, unanimous) — redundant
+                with the masthead's eyebrow + headline. */}
 
             {/* ── Settlers Nearby rail ──────────────────────────────────── */}
             {city && (
@@ -927,57 +909,63 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* ── Vrijdag matchup — vote all week, results reveal Friday ── */}
             {channel.id === 'tips' && <WeeklyMatchup cityId={cityId} />}
 
-            {/* ── Housing cross-link (Housing lives on /[city]/housing now) ── */}
-            {channel.id === 'tips' && (
-              <a href={`/${cityId}/housing`}
-                className="block mb-6 group hover:opacity-90 transition-opacity"
-                style={{ background: '#FFFFFF', border: '2px solid #FAB400' }}>
-                <div className="flex items-center justify-between gap-4 px-5 py-4">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1"
-                      style={{ color: '#FAB400' }}>
-                      Looking for a flat?
-                    </p>
-                    <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
-                      {housingCount > 0
-                        ? `${housingCount} settler listing${housingCount === 1 ? '' : 's'} live — no agencies, no scrapers.`
-                        : 'Settler-posted listings — no agencies. Yours could be the first.'}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
-                    style={{ color: '#FAB400' }}>
-                    Housing →
-                  </span>
-                </div>
-              </a>
-            )}
-
-            {/* ── Events cross-link (Events lives on /[city]/events now) ── */}
-            {channel.id === 'tips' && (
-              <a href={`/${cityId}/events`}
-                className="block mb-6 group hover:opacity-90 transition-opacity"
-                style={{ background: '#FFFFFF', border: '2px solid #E8612A' }}>
-                <div className="flex items-center justify-between gap-4 px-5 py-4">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1"
-                      style={{ color: '#E8612A' }}>
-                      Hosting something?
-                    </p>
-                    <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
-                      Settler-posted events — gigs, dinners, classes. Post yours.
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
-                    style={{ color: '#E8612A' }}>
-                    Events →
-                  </span>
-                </div>
-              </a>
-            )}
+            {/* Cross-link cards demoted to footer rail below the feed
+                per unanimous design council — they were marketplace-y
+                stealing hero real estate. Single text-rail at the bottom. */}
 
             {/* ── Community channels (tips / questions / heads-up) ───────── */}
             {channel.cat && (
               <>
+                {/* Composer — promoted to top of channel content per
+                    unanimous design council. The buried-composer was the
+                    #1 growth-critical fix flagged on this surface. */}
+                <div className="mb-8" style={{ border: `1.5px solid ${channel.color}25` }}>
+                  <div className="px-4 pt-3 pb-1">
+                    <div className="flex items-baseline justify-between mb-2.5 gap-3">
+                      <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+                        style={{ color: channel.color }}>
+                        {channel.id === 'tips'      ? 'Share a tip' :
+                         channel.id === 'questions' ? 'Ask the community' :
+                         'Post a heads-up'}
+                      </p>
+                      {profile.neighborhood && (
+                        <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.35)' }}>
+                          Posting from <span className="font-bold" style={{ color: channel.color }}>{profile.neighborhood.split(' / ')[0]}</span>
+                        </p>
+                      )}
+                    </div>
+                    <textarea
+                      ref={composerRef}
+                      value={newPost.text}
+                      onChange={e => setNewPost({ text: e.target.value.slice(0, 280) })}
+                      placeholder={
+                        channel.id === 'tips'      ? 'Share something that made settling easier…' :
+                        channel.id === 'questions' ? 'What are you trying to figure out?' :
+                        'Something other settlers should know…'
+                      }
+                      rows={3}
+                      className="w-full text-sm focus:outline-none resize-none bg-transparent leading-relaxed"
+                      style={{ color: '#0A0A0A', fontSize: 14 }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between px-4 py-2.5"
+                    style={{ borderTop: `1px solid ${channel.color}18`, background: `${channel.color}06` }}>
+                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.25)' }}>
+                      {newPost.text.length}/280
+                      {!user && <button onClick={() => setAuthOpen(true)}
+                        className="ml-3 font-bold hover:opacity-60 transition-opacity"
+                        style={{ color: '#4744C8' }}>· Sign in to post</button>}
+                    </span>
+                    <button
+                      onClick={submit}
+                      disabled={!newPost.text.trim()}
+                      className="px-4 py-1.5 text-[10px] font-black tracking-wide uppercase text-white transition-opacity disabled:opacity-25"
+                      style={{ background: channel.color }}>
+                      {submitted ? '✓ Posted' : 'Post'}
+                    </button>
+                  </div>
+                </div>
+
                 {/* Neighbourhood filter — only when there are posts to filter */}
                 {hoodChips.length > 0 && posts.some(p => p.category === channel.cat) && (
                   <div className="mb-6 flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1">
@@ -1312,78 +1300,34 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                         </div>
                       )}
 
-                      {/* Coaching nudge below everything */}
-                      <div className="mt-10 px-4 py-4"
-                        style={{ background: 'rgba(10,10,10,0.02)', border: '1px solid rgba(10,10,10,0.06)' }}>
-                        <p className="text-sm font-semibold mb-1" style={{ color: '#0A0A0A' }}>
-                          {channel.id === 'tips'      ? 'A great tip is specific.' :
-                           channel.id === 'questions' ? 'Ask the question you wish someone had answered for you.' :
-                           'A heads-up saves someone a wasted afternoon.'}
-                        </p>
-                        <p className="text-xs leading-relaxed" style={{ color: 'rgba(10,10,10,0.5)' }}>
-                          {channel.id === 'tips'      ? 'Mention the place, the price, the catch. "The mutuelle on Rue Vanderkindere processed mine in two days" beats "good mutuelle".' :
-                           channel.id === 'questions' ? 'Other settlers are figuring out the same thing right now. Ask in plain language — no need to caveat.' :
-                           'Recent admin gotcha? Closed office? Strike? Post it. The shorter, the better.'}
-                        </p>
-                        <button
-                          onClick={() => composerRef.current?.focus()}
-                          className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.16em] uppercase hover:opacity-60 transition-opacity"
-                          style={{ color: channel.color }}>
-                          {channel.id === 'tips' ? 'Share a tip' : channel.id === 'questions' ? 'Ask a question' : 'Post a heads-up'}
-                          <span>→</span>
-                        </button>
-                      </div>
                     </div>
                   )
                 })()}
+                {/* Bottom composer + coaching nudge removed — composer is
+                    now at top of channel.cat block (design council). */}
 
-                {/* Composer */}
-                <div className="mt-8" style={{ border: `1.5px solid ${channel.color}25` }}>
-                  <div className="px-4 pt-3 pb-1">
-                    <div className="flex items-baseline justify-between mb-2.5 gap-3">
-                      <p className="text-[10px] font-black tracking-[0.22em] uppercase"
-                        style={{ color: channel.color }}>
-                        {channel.id === 'tips'      ? 'Share a tip' :
-                         channel.id === 'questions' ? 'Ask the community' :
-                         'Post a heads-up'}
-                      </p>
-                      {profile.neighborhood && (
-                        <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.35)' }}>
-                          Posting from <span className="font-bold" style={{ color: channel.color }}>{profile.neighborhood.split(' / ')[0]}</span>
-                        </p>
-                      )}
-                    </div>
-                    <textarea
-                      ref={composerRef}
-                      value={newPost.text}
-                      onChange={e => setNewPost({ text: e.target.value.slice(0, 280) })}
-                      placeholder={
-                        channel.id === 'tips'      ? 'Share something that made settling easier…' :
-                        channel.id === 'questions' ? 'What are you trying to figure out?' :
-                        'Something other settlers should know…'
-                      }
-                      rows={3}
-                      className="w-full text-sm focus:outline-none resize-none bg-transparent leading-relaxed"
-                      style={{ color: '#0A0A0A', fontSize: 14 }}
-                    />
+                {/* ── Elsewhere on Roots — thin text-link footer rail ───────
+                    Replaces the two large bordered cross-link cards. Magazine
+                    section break, not a marketplace billboard. */}
+                {channel.id === 'tips' && (
+                  <div className="mt-12 pt-6 flex flex-wrap gap-x-8 gap-y-3"
+                    style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}>
+                    <p className="text-[10px] font-black tracking-[0.22em] uppercase shrink-0"
+                      style={{ color: 'rgba(10,10,10,0.4)' }}>
+                      Elsewhere on Roots
+                    </p>
+                    <a href={`/${cityId}/housing`}
+                      className="text-[11px] font-bold tracking-wide hover:opacity-60 transition-opacity"
+                      style={{ color: '#FAB400' }}>
+                      {housingCount > 0 ? `Housing · ${housingCount} live →` : 'Housing — be the first listing →'}
+                    </a>
+                    <a href={`/${cityId}/events`}
+                      className="text-[11px] font-bold tracking-wide hover:opacity-60 transition-opacity"
+                      style={{ color: '#E8612A' }}>
+                      Events — host or browse →
+                    </a>
                   </div>
-                  <div className="flex items-center justify-between px-4 py-2.5"
-                    style={{ borderTop: `1px solid ${channel.color}18`, background: `${channel.color}06` }}>
-                    <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.25)' }}>
-                      {newPost.text.length}/280
-                      {!user && <button onClick={() => setAuthOpen(true)}
-                        className="ml-3 font-bold hover:opacity-60 transition-opacity"
-                        style={{ color: '#4744C8' }}>· Sign in to post</button>}
-                    </span>
-                    <button
-                      onClick={submit}
-                      disabled={!newPost.text.trim()}
-                      className="px-4 py-1.5 text-[10px] font-black tracking-wide uppercase text-white transition-opacity disabled:opacity-25"
-                      style={{ background: channel.color }}>
-                      {submitted ? '✓ Posted' : 'Post'}
-                    </button>
-                  </div>
-                </div>
+                )}
               </>
             )}
 
