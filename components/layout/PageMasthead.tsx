@@ -72,6 +72,16 @@ export function PageMasthead({
         <div className="mb-5" style={{ borderTop: '1px solid #252450' }} />
         <div className="mb-7" style={{ borderTop: '1px solid #FAB400' }} />
 
+        {/* Confident colored geometric ornament next to the headline */}
+        <div className="flex items-center gap-3 mb-3">
+          <span className="inline-block"
+            style={{ width: 14, height: 14, background: emphasisColor }} />
+          <span className="inline-block"
+            style={{ width: 14, height: 14, background: '#FAB400', transform: 'rotate(45deg)' }} />
+          <span className="inline-block"
+            style={{ width: 14, height: 14, background: '#252450', borderRadius: '50%' }} />
+        </div>
+
         <h1 className="font-display font-black leading-[0.92] mb-4"
           style={{
             fontSize: 'clamp(2.5rem, 8vw, 5.25rem)',

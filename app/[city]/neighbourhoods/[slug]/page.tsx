@@ -9,6 +9,7 @@ import type { CityId } from '@/lib/types'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 import { HoodGlyph } from '@/components/neighbourhoods/HoodGlyph'
+import { GeometricOrnament } from '@/components/layout/GeometricOrnament'
 
 interface VenueRow {
   id: string
@@ -161,6 +162,8 @@ export default async function NeighbourhoodPage(
           </p>
         </section>
 
+        <GeometricOrnament accent="#FF3EBA" />
+
         {/* Who lives here */}
         <section className="mb-12">
           <p className="flex items-baseline gap-2.5 text-[10px] font-black tracking-[0.22em] uppercase mb-3"
@@ -174,6 +177,8 @@ export default async function NeighbourhoodPage(
         </section>
 
         {/* Practical */}
+        <GeometricOrnament accent="#10B981" />
+
         <section className="mb-12">
           <p className="flex items-baseline gap-2.5 text-[10px] font-black tracking-[0.22em] uppercase mb-3"
             style={{ color: '#10B981' }}>

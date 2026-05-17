@@ -16,6 +16,7 @@ import { PageMasthead } from '@/components/layout/PageMasthead'
 import { ShareRow } from '@/components/connect/ShareRow'
 import { SaveTipButton } from '@/components/tips/SaveTipButton'
 import { PersonalisedListCTA } from '@/components/tips/PersonalisedListCTA'
+import { GeometricOrnament } from '@/components/layout/GeometricOrnament'
 
 const KIND_META: Record<CuratedKind, { label: string; color: string }> = {
   'tip':      { label: 'Tip',       color: '#0E9B6B' },
@@ -170,6 +171,9 @@ export default async function TipDetailPage(
             </section>
           )
         })()}
+
+        {/* Geometric ornament — colour-via-shape section break */}
+        <GeometricOrnament accent={meta.color} />
 
         {/* Save + Share row */}
         <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
