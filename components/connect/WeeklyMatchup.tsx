@@ -22,10 +22,11 @@ interface Props {
 
 // Pinned weekly matchup card. Sits above the tips channel feed on /connect.
 //
-// Mechanic: two large tappable tiles. Before vote, both glow equally —
-// labels + photos visible. After vote, reveal the % split as a bar between
-// the tiles (loss-aversion: you HAVE to commit to see how Brussels feels).
-// Revoting flips your choice; counts re-fetch optimistically.
+// Mechanic (revised 2026-05-17):
+//   - Voting is open all week. You can vote / re-vote any day.
+//   - Percentages stay HIDDEN until Friday (day === 5, Europe/Brussels).
+//   - Before Friday: voting tiles + "Locked in — results Friday" hint.
+//   - From Friday onwards: full reveal — bars, percentages, winner crown.
 //
 // Renders nothing when there's no active matchup for the city, so the page
 // degrades cleanly during the gap between weeks.
@@ -109,15 +110,37 @@ export default function WeeklyMatchup({ cityId }: Props) {
   const aSelected  = matchup.userVote === 'a'
   const bSelected  = matchup.userVote === 'b'
 
+  // Friday reveal — JS day numbering: 0=Sun, 5=Fri, 6=Sat. Once Friday
+  // hits we show full results, and they stay revealed through Sat/Sun
+  // until the curator deactivates the matchup. Voting also stays open
+  // during the reveal window — late voters affect the live tally.
+  const today      = new Date().getDay()
+  const isFriday   = today === 5 || today === 6 || today === 0
+  const showCounts = isFriday
+  const winner     = isFriday && total > 0
+    ? (aPct === bPct ? 'tie' : aPct > bPct ? 'a' : 'b')
+    : null
+
+  // Days until Friday, for the "Reveals in N days" hint pre-Friday
+  const daysUntilFriday = (5 - today + 7) % 7 || 0
+
   return (
     <section className="mb-10">
       <div className="flex items-baseline justify-between pb-3 mb-5"
         style={{ borderBottom: '2px solid #0A0A0A' }}>
-        <p className="text-[10px] font-black tracking-[0.25em] uppercase"
-          style={{ color: '#FF3EBA' }}>
-          Vrijdag / Vendredi · This week
-        </p>
-        {hasVoted && (
+        <div className="flex items-baseline gap-2">
+          <p className="text-[10px] font-black tracking-[0.25em] uppercase"
+            style={{ color: '#FF3EBA' }}>
+            Vrijdag / Vendredi · This week
+          </p>
+          {showCounts && (
+            <span className="text-[9px] font-black tracking-[0.18em] uppercase"
+              style={{ color: '#FF3EBA' }}>
+              · Results
+            </span>
+          )}
+        </div>
+        {showCounts && (
           <p className="text-[10px] font-black tracking-[0.18em] uppercase"
             style={{ color: 'rgba(10,10,10,0.4)' }}>
             {total} {total === 1 ? 'vote' : 'votes'}
@@ -138,9 +161,10 @@ export default function WeeklyMatchup({ cityId }: Props) {
           cityId={cityId}
           accent="#E8612A"
           selected={aSelected}
-          dimmed={hasVoted && !aSelected}
-          pct={hasVoted ? aPct : null}
+          dimmed={showCounts && hasVoted && !aSelected}
+          pct={showCounts ? aPct : null}
           count={matchup.counts.a}
+          isWinner={winner === 'a'}
           disabled={voting}
           onTap={() => castVote('a')}
         />
@@ -150,26 +174,31 @@ export default function WeeklyMatchup({ cityId }: Props) {
           cityId={cityId}
           accent="#4744C8"
           selected={bSelected}
-          dimmed={hasVoted && !bSelected}
-          pct={hasVoted ? bPct : null}
+          dimmed={showCounts && hasVoted && !bSelected}
+          pct={showCounts ? bPct : null}
           count={matchup.counts.b}
+          isWinner={winner === 'b'}
           disabled={voting}
           onTap={() => castVote('b')}
         />
       </div>
 
-      {!hasVoted && (
-        <p className="text-[10px] font-black tracking-[0.22em] uppercase mt-4 text-center"
-          style={{ color: 'rgba(10,10,10,0.35)' }}>
-          Tap to vote — results revealed after
-        </p>
-      )}
+      {/* Footer hint — varies by week phase */}
+      <p className="text-[10px] font-black tracking-[0.22em] uppercase mt-4 text-center"
+        style={{ color: 'rgba(10,10,10,0.35)' }}>
+        {showCounts
+          ? hasVoted ? 'Voting still open — tap to switch' : 'Tap to add your vote'
+          : hasVoted ? `✓ Locked in — results reveal Friday`
+          : daysUntilFriday === 1
+            ? 'Tap to vote — results reveal tomorrow'
+            : `Tap to vote — results reveal Friday (${daysUntilFriday} days)`}
+      </p>
     </section>
   )
 }
 
 function MatchupTile({
-  label, venueId, cityId, accent, selected, dimmed, pct, count, disabled, onTap,
+  label, venueId, cityId, accent, selected, dimmed, pct, count, isWinner, disabled, onTap,
 }: {
   label:    string
   venueId:  string | null
@@ -177,8 +206,9 @@ function MatchupTile({
   accent:   string
   selected: boolean
   dimmed:   boolean
-  pct:      number | null   // null before vote, percentage 0–100 after
+  pct:      number | null   // null before Friday, 0–100 from Friday on
   count:    number
+  isWinner: boolean
   disabled: boolean
   onTap:    () => void
 }) {
@@ -211,6 +241,16 @@ function MatchupTile({
       <div className="absolute inset-0 pointer-events-none"
         style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.78) 100%)' }} />
       <div className="absolute top-0 left-0 right-0 h-1" style={{ background: accent }} />
+
+      {/* Winner crown — Friday reveal */}
+      {isWinner && (
+        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 z-10"
+          style={{ background: '#FAB400', color: '#0A0A0A' }}>
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase">
+            Winner
+          </span>
+        </div>
+      )}
 
       {/* Label + pct */}
       <div className="absolute left-0 right-0 bottom-0 p-4 text-white">

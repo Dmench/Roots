@@ -12,11 +12,11 @@ import type { Post, PostCategory, Stage, PostComment, CityId } from '@/lib/types
 import type { FeedItem } from '@/app/api/feeds/route'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
-// import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
-// Soft-killed (2026-05-16) per status-review council — matchup needs scale
-// we don't have at ~10 contributors. Editorial WeeklyNote (below) takes
-// its slot. The component + tables remain in the repo to revive when
-// weekly actives cross ~50.
+import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
+// Re-enabled 2026-05-17 with vote-all-week / reveal-Friday mechanic.
+// The previous "vote-then-immediately-see-results" loss-aversion design
+// needed scale; the Friday reveal design works at any scale because the
+// suspense is the engagement, not the count.
 import { WeeklyNote } from '@/components/connect/WeeklyNote'
 import { ShareRow } from '@/components/connect/ShareRow'
 import { SettlersNearbyRail } from '@/components/connect/SettlersNearbyRail'
@@ -926,8 +926,11 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
               )
             })()}
 
-            {/* ── This week in Brussels — editorial note, replaces matchup ── */}
+            {/* ── This week in Brussels — editorial note ─────────────────── */}
             {channel.id !== 'events' && <WeeklyNote cityId={cityId} />}
+
+            {/* ── Vrijdag matchup — vote all week, results reveal Friday ── */}
+            {channel.id === 'tips' && <WeeklyMatchup cityId={cityId} />}
 
             {/* ── Housing cross-link (Housing lives on /[city]/housing now) ── */}
             {channel.id === 'tips' && (
