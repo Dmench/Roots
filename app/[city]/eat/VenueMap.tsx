@@ -157,7 +157,21 @@ export default function VenueMap({ venues, venuePhotos, selected, onSelect }: Pr
               <p className="font-bold text-sm leading-snug mb-0.5" style={{ color: '#0A0A0A' }}>{selectedVenue.name}</p>
             )}
             <p className="text-[10px] mb-1.5" style={{ color: 'rgba(10,10,10,0.4)' }}>{selectedVenue.category}</p>
-            <p className="text-[11px] italic leading-snug" style={{ color: 'rgba(10,10,10,0.55)' }}>{selectedVenue.vibe}</p>
+            <p className="text-[11px] italic leading-snug mb-3" style={{ color: 'rgba(10,10,10,0.55)' }}>{selectedVenue.vibe}</p>
+            {/* Open in Google Maps — primary action on the map's selected-venue card */}
+            <a
+              href={
+                selectedVenue.address && selectedVenue.name
+                  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${selectedVenue.name}, ${selectedVenue.address}, Brussels`)}`
+                  : selectedVenue.lat && selectedVenue.lng
+                    ? `https://www.google.com/maps/search/?api=1&query=${selectedVenue.lat},${selectedVenue.lng}`
+                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${selectedVenue.name} Brussels`)}`
+              }
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+              style={{ color: TYPE_COLOR[selectedVenue.broadType] ?? '#0A0A0A' }}>
+              ↗ Open in Google Maps
+            </a>
           </div>
         </div>
       )}

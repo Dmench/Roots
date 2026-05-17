@@ -88,6 +88,20 @@ const SIG_PRIORITY = ['no-reservations','cash-only','remote-work','newcomers','l
 const TYPE_COLOR: Record<string, string> = { restaurant: '#E8612A', bar: '#4744C8', cafe: '#B08800', other: '#0A0A0A' }
 type VenueType = 'all' | 'restaurant' | 'bar' | 'cafe'
 
+// Build a Google Maps URL for a venue. Prefer name+address (Maps shows the
+// full place card with hours, photos, reviews). Falls back to lat/lng if
+// no address. Always opens to Google Maps' universal place search so the
+// user can get directions, save, or share.
+function googleMapsUrl(venue: Venue): string {
+  if (venue.address && venue.name) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name}, ${venue.address}, Brussels`)}`
+  }
+  if (venue.lat && venue.lng) {
+    return `https://www.google.com/maps/search/?api=1&query=${venue.lat},${venue.lng}`
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name} Brussels`)}`
+}
+
 
 
 /* ── Venue card (editorial, vertical) ────────────────────────────────────── */
@@ -106,16 +120,21 @@ function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, l
   const storageUrl = venuePhotoUrl(cityId, venue.id)
   const proxyUrl   = photoRef ? `/api/places/photo?ref=${encodeURIComponent(photoRef)}` : ''
 
+  const mapsHref = googleMapsUrl(venue)
+
   return (
     <div className="flex flex-col overflow-hidden h-full" style={{ border: '1px solid rgba(10,10,10,0.08)' }}>
-      {/* Photo / color block — full card width */}
-      <div className="relative shrink-0 overflow-hidden" style={{ height: photoH, background: color }}>
+      {/* Photo / color block — full card width — TAP opens Google Maps */}
+      <a href={mapsHref} target="_blank" rel="noopener noreferrer"
+        className="relative shrink-0 overflow-hidden block group"
+        style={{ height: photoH, background: color }}
+        title={`Open ${venue.name} in Google Maps`}>
         <img
           src={storageUrl}
           data-fallback={proxyUrl}
           alt={venue.name}
-          className="w-full h-full object-cover"
-          style={{ opacity: 0, transition: 'opacity 0.4s ease' }}
+          className="w-full h-full object-cover transition-transform group-hover:scale-[1.02]"
+          style={{ opacity: 0, transition: 'opacity 0.4s ease, transform 0.4s ease' }}
           onLoad={e => { (e.currentTarget as HTMLImageElement).style.opacity = '1' }}
           onError={e => {
             const img = e.currentTarget as HTMLImageElement
@@ -128,18 +147,18 @@ function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, l
           }}
         />
         {/* Fallback initial — always rendered behind photo */}
-        <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
+        <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none pointer-events-none"
           style={{ fontSize: lead ? '5rem' : '4rem', color: 'rgba(255,255,255,0.18)', lineHeight: 1 }}>
           {venue.name.charAt(0)}
         </span>
         {/* Price badge */}
-        <span className="absolute top-2 right-2 text-[10px] font-black px-1.5 py-0.5"
+        <span className="absolute top-2 right-2 text-[10px] font-black px-1.5 py-0.5 pointer-events-none"
           style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
           {venue.price}
         </span>
         {/* Rating badge — only on curated venues with confirmed Google data */}
         {venue.rating != null && venue.source === 'curated' && (
-          <span className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5"
+          <span className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 pointer-events-none"
             style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
             ★ {venue.rating.toFixed(1)}
             {venue.reviewCount != null && (
@@ -149,9 +168,14 @@ function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, l
             )}
           </span>
         )}
+        {/* Hover hint — small "Open in Maps" pill that appears on hover */}
+        <span className="absolute top-2 left-2 text-[10px] font-black px-1.5 py-0.5 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.65)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+          ↗ Maps
+        </span>
         {/* Type accent bar at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: color }} />
-      </div>
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 pointer-events-none" style={{ background: color }} />
+      </a>
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-3">
@@ -193,6 +217,12 @@ function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, l
             {saved ? '✓ Saved' : '+ Spots'}
           </button>
         </div>
+        {/* Directions row — always visible, opens Google Maps in a new tab */}
+        <a href={mapsHref} target="_blank" rel="noopener noreferrer"
+          className="mt-2 inline-flex items-center gap-1 text-[9px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+          style={{ color }}>
+          ↗ Directions
+        </a>
       </div>
     </div>
   )
@@ -206,10 +236,14 @@ function ScoutCard({ venue, cityId, onSave, saved }: {
   const color = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   const storageUrl = venuePhotoUrl(cityId, venue.id)
   const proxyUrl   = venue.photoRef ? `/api/places/photo?ref=${encodeURIComponent(venue.photoRef)}` : ''
+  const mapsHref   = googleMapsUrl(venue)
   return (
     <div className="flex flex-col overflow-hidden" style={{ border: '1px solid rgba(10,10,10,0.07)' }}>
-      {/* Photo block */}
-      <div className="relative shrink-0 overflow-hidden" style={{ height: 120, background: color }}>
+      {/* Photo block — TAP opens Google Maps */}
+      <a href={mapsHref} target="_blank" rel="noopener noreferrer"
+        className="relative shrink-0 overflow-hidden block"
+        style={{ height: 120, background: color }}
+        title={`Open ${venue.name} in Google Maps`}>
         <img
           src={storageUrl}
           data-fallback={proxyUrl}
@@ -227,22 +261,22 @@ function ScoutCard({ venue, cityId, onSave, saved }: {
             img.style.display = 'none'
           }}
         />
-        <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none"
+        <span className="absolute inset-0 flex items-center justify-center font-display font-black select-none pointer-events-none"
           style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.15)' }}>
           {venue.name.charAt(0)}
         </span>
         {/* Rating */}
         {venue.rating != null && (
-          <span className="absolute bottom-1.5 left-1.5 text-[9px] font-black px-1 py-0.5"
+          <span className="absolute bottom-1.5 left-1.5 text-[9px] font-black px-1 py-0.5 pointer-events-none"
             style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', backdropFilter: 'blur(4px)' }}>
             ★ {venue.rating.toFixed(1)}
           </span>
         )}
-        <span className="absolute top-1.5 right-1.5 text-[9px] font-black px-1 py-0.5"
+        <span className="absolute top-1.5 right-1.5 text-[9px] font-black px-1 py-0.5 pointer-events-none"
           style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', backdropFilter: 'blur(4px)' }}>
           {venue.price}
         </span>
-      </div>
+      </a>
       {/* Content */}
       <div className="p-2.5 flex flex-col flex-1">
         <span className="text-[8px] font-black tracking-[0.18em] uppercase mb-0.5" style={{ color }}>{venue.neighborhood}</span>
