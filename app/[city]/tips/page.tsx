@@ -44,7 +44,7 @@ function TipCard({ note, cityId, hero = false }: { note: CuratedNote; cityId: st
   return (
     <Link
       href={`/${cityId}/tips/${note.slug}`}
-      className="block group transition-opacity hover:opacity-90"
+      className="block group transition-all"
       style={{
         background: '#FFFFFF',
         border: `1px solid rgba(10,10,10,0.1)`,
@@ -84,7 +84,8 @@ function TipCard({ note, cityId, hero = false }: { note: CuratedNote; cityId: st
       </p>
       <p className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] uppercase opacity-0 group-hover:opacity-100 transition-opacity"
         style={{ color: meta.color }}>
-        Read full tip →
+        Read full tip
+        <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
       </p>
     </Link>
   )

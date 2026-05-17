@@ -74,10 +74,10 @@ export default async function NeighbourhoodsIndex(
           style={{ background: 'rgba(10,10,10,0.1)' }}>
           {hoods.map(h => (
             <Link key={h.slug} href={`/${cityId}/neighbourhoods/${h.slug}`}
-              className="block px-6 py-7 hover:opacity-80 transition-opacity relative"
+              className="block px-6 py-7 group transition-all relative"
               style={{ background: '#fff' }}>
               {/* Placeholder geometric glyph — replaceable with commissioned art */}
-              <div className="absolute top-5 right-5 opacity-50">
+              <div className="absolute top-5 right-5 opacity-50 transition-opacity group-hover:opacity-100">
                 <HoodGlyph slug={h.slug} size={44} color="#4744C8" />
               </div>
               <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2"
@@ -91,9 +91,14 @@ export default async function NeighbourhoodsIndex(
               <p className="text-sm leading-snug mb-4 pr-12" style={{ color: 'rgba(10,10,10,0.65)' }}>
                 {h.oneLiner}
               </p>
-              <div className="flex items-center gap-3 text-[10px] font-bold tracking-wide"
+              <div className="flex items-center justify-between gap-3 text-[10px] font-bold tracking-wide"
                 style={{ color: 'rgba(10,10,10,0.4)' }}>
                 <span>{h.rentBallpark}</span>
+                <span className="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: '#4744C8' }}>
+                  Explore
+                  <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                </span>
               </div>
             </Link>
           ))}
