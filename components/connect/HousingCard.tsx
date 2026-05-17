@@ -24,27 +24,31 @@ export function HousingCard({ post, onReport, reported }: Props) {
       {/* Top accent bar */}
       <div style={{ height: 4, background: accent }} />
 
-      {/* Photo / colour block — offers only; wanted posts are text-led */}
-      {isOffer && safePhotoUrl ? (
+      {/* Photo / colour block — offers only, uniform 200px height for
+          grid rhythm. Editorial council: mixed 200/80 read as "broken,
+          not editorial." Now either a real photo or a typographic plate
+          at the same height, like Apartamento's "photo coming" device. */}
+      {isOffer && (
         <div className="relative w-full" style={{ height: 200, background: '#FAF6EE' }}>
-          {/* Using <img> for arbitrary external URLs — Next/Image needs domain
-              allowlist in next.config which is too narrow for user-pasted hosts. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={safePhotoUrl}
-            alt={post.title ?? 'Listing photo'}
-            className="w-full h-full object-cover"
-            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+          {safePhotoUrl ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={safePhotoUrl}
+                alt={post.title ?? 'Listing photo'}
+                className="w-full h-full object-cover"
+                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+            </>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="font-display font-black text-2xl tracking-tight"
+                style={{ color: 'rgba(250,180,0,0.35)' }}>
+                Photo to come
+              </span>
+            </div>
+          )}
         </div>
-      ) : isOffer ? (
-        <div className="w-full flex items-center justify-center"
-          style={{ height: 80, background: '#FAF6EE' }}>
-          <span className="text-[10px] font-black tracking-[0.22em] uppercase"
-            style={{ color: 'rgba(250,180,0,0.7)' }}>
-            No photo
-          </span>
-        </div>
-      ) : null}
+      )}
 
       <div className="px-5 pt-4 pb-4 flex flex-col flex-1">
         {/* Type + neighbourhood — typographic eyebrow (no filled chip) */}

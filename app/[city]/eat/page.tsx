@@ -513,7 +513,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         )}
       </PageMasthead>
 
-      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-6 pb-16">
+      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-10 md:pt-14 pb-20">
 
         {/* ── Three-axis filter: Cuisine / Vibe / Neighbourhood ─────────── */}
         {/* Default state = all venues shown. Each chip you tap NARROWS the

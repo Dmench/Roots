@@ -137,8 +137,15 @@ export function HousingPageClient({ cityId, cityName }: Props) {
   ).length
 
   return (
-    <div className="max-w-5xl mx-auto px-6 md:px-12 py-8 md:py-12">
+    <div className="max-w-5xl mx-auto px-6 md:px-12 py-10 md:py-14">
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+
+      {/* Back to hub */}
+      <a href={`/${cityId}`}
+        className="inline-block mb-6 text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+        style={{ color: 'rgba(10,10,10,0.45)' }}>
+        ← Back to hub
+      </a>
 
       {/* Masthead */}
       <header className="mb-8 pb-6"
