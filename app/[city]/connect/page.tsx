@@ -15,8 +15,6 @@ import { PageMasthead } from '@/components/layout/PageMasthead'
 // WeeklyMatchup + WeeklyNote moved to the Hub (/[city]/page.tsx). They're
 // city signals — not community conversation — and the IA council was
 // unanimous that they belong next to weather/transport/events on Hub.
-import { ShareRow } from '@/components/connect/ShareRow'
-import { SettlersNearbyRail } from '@/components/connect/SettlersNearbyRail'
 import {
   legacyPinsForChannel,
   type CuratedKind,
@@ -723,20 +721,11 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           {/* ── LEFT: Main channel content ───────────────────────────────── */}
           <div className="min-w-0">
 
-            {/* Welcome ribbon removed (design council, unanimous) — redundant
-                with the masthead's eyebrow + headline. */}
+            {/* SettlersNearby rail + intro composer + intros lane all moved
+                to /[city]/people per IA council. Connect = the talk page,
+                /people = identity. One primitive per surface.
 
-            {/* ── Settlers Nearby rail ──────────────────────────────────── */}
-            {city && (
-              <SettlersNearbyRail
-                cityId={cityId}
-                cityName={city.name}
-                viewerHood={profile.neighborhood ?? undefined}
-                viewerStage={profile.stage as Stage | undefined}
-              />
-            )}
-
-            {/* Intros (composer + "new settlers this week" lane) moved to
+                Intros (composer + "new settlers this week" lane) moved to
                 /[city]/people per IA council — they're identity, not feed. */}
 
             {/* WeeklyNote + WeeklyMatchup moved to /[city] Hub per IA

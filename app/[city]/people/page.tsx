@@ -11,7 +11,9 @@ import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 import { Flag } from '@/components/ui/Flag'
 import { IntroLane } from '@/components/people/IntroLane'
+import { SettlersNearbyRail } from '@/components/connect/SettlersNearbyRail'
 import { AuthModal } from '@/components/auth/AuthModal'
+import { useProfile } from '@/lib/hooks/use-profile'
 
 interface Member {
   id: string
@@ -44,6 +46,7 @@ const STAGE_COLORS: Record<Stage, { bg: string; text: string }> = {
 export default function PeoplePage({ params }: { params: Promise<{ city: string }> }) {
   const { city: cityId } = use(params)
   const city = getCity(cityId)
+  const { profile } = useProfile()
 
   const [members,  setMembers]  = useState<Member[]>([])
   const [loading,  setLoading]  = useState(true)
@@ -112,6 +115,17 @@ export default function PeoplePage({ params }: { params: Promise<{ city: string 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
       <div className="max-w-3xl mx-auto px-6 md:px-8 py-10 md:py-14">
+
+        {/* Settlers nearby — relocated from /connect (IA council). Sits
+            above the directory list as a "people near you" priority lane. */}
+        {city && (
+          <SettlersNearbyRail
+            cityId={cityId}
+            cityName={city.name}
+            viewerHood={profile.neighborhood ?? undefined}
+            viewerStage={profile.stage as Stage | undefined}
+          />
+        )}
 
         {/* Intros — the "say hi" first beat of the directory.
             Moved here from /connect per IA council (identity, not feed). */}
