@@ -20,6 +20,7 @@ import { TransportWidget } from '@/components/city/TransportWidget'
 import { RentalsWidget } from '@/components/city/RentalsWidget'
 import { SpinWheel } from '@/components/city/SpinWheel'
 import { FirstWeekModule } from '@/components/city/FirstWeekModule'
+import { HousingHubCard } from '@/components/city/HousingHubCard'
 import { ResumeStateHero } from '@/components/city/ResumeStateHero'
 import type { CityId } from '@/lib/types'
 
@@ -154,6 +155,11 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           </nav>
 
           <SettlersStrip cityId={cityId} />
+        </div>
+
+        {/* Housing Hub card — above the fold on mobile, per design council */}
+        <div className="px-6 sm:px-10 md:px-14 pb-6">
+          <HousingHubCard cityId={cityId} />
         </div>
       </div>
 

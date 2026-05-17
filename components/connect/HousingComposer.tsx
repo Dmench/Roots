@@ -1,9 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { housingNudges, isSafeUrl } from '@/lib/listings/quality'
+import { uploadListingPhoto } from '@/lib/listings/upload'
 import type { Post, Stage, CityId } from '@/lib/types'
 
 interface Props {
@@ -33,9 +34,29 @@ export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
   const [dates,    setDates]    = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
   const [body,     setBody]     = useState('')
-  const [busy,     setBusy]     = useState(false)
-  const [posted,   setPosted]   = useState(false)
-  const [error,    setError]    = useState<string | null>(null)
+  const [busy,      setBusy]      = useState(false)
+  const [posted,    setPosted]    = useState(false)
+  const [error,     setError]     = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [photoErr,  setPhotoErr]  = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement | null>(null)
+
+  async function onPickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!user) { onNeedsAuth?.(); return }
+    setPhotoErr(null)
+    setUploading(true)
+    try {
+      const { url } = await uploadListingPhoto(file, user.id)
+      setPhotoUrl(url)
+    } catch (err) {
+      setPhotoErr(err instanceof Error ? err.message : 'Upload failed.')
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
 
   const titleOk = title.trim().length > 0 && title.trim().length <= 100
   const hoodOk  = hood.trim().length > 0
@@ -196,15 +217,49 @@ export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
           className="w-full text-sm focus:outline-none mb-2"
           style={{ color: '#0A0A0A', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 4 }} />
 
-        {/* Optional photo URL */}
+        {/* Photo — file picker + preview. Offers only. */}
         {type === 'offer' && (
-          <input
-            type="url"
-            value={photoUrl}
-            onChange={e => setPhotoUrl(e.target.value.slice(0, 500))}
-            placeholder="Photo URL — strongly recommended"
-            className="w-full text-sm focus:outline-none mb-2"
-            style={{ color: '#0A0A0A', borderBottom: '1px solid rgba(10,10,10,0.1)', paddingBottom: 4 }} />
+          <div className="mb-3">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={onPickPhoto}
+              className="hidden" />
+            {photoUrl ? (
+              <div className="relative inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photoUrl} alt="Listing preview"
+                  className="w-32 h-32 object-cover"
+                  style={{ border: '1px solid rgba(250,180,0,0.4)' }} />
+                <button
+                  type="button"
+                  onClick={() => setPhotoUrl('')}
+                  className="absolute -top-2 -right-2 w-6 h-6 text-[12px] font-black flex items-center justify-center"
+                  style={{ background: '#FFFFFF', border: '1px solid rgba(10,10,10,0.2)', color: '#0A0A0A' }}
+                  title="Remove photo">
+                  ×
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="text-[10px] font-black tracking-[0.18em] uppercase px-3 py-2 transition-opacity disabled:opacity-40"
+                style={{ background: 'rgba(250,180,0,0.08)', border: '1px dashed #FAB400', color: '#FAB400' }}>
+                {uploading ? 'Uploading…' : '+ Add a photo'}
+              </button>
+            )}
+            {photoErr && (
+              <p className="text-[11px] mt-1" style={{ color: '#C0392B' }}>{photoErr}</p>
+            )}
+            {!photoUrl && !photoErr && (
+              <p className="text-[10px] mt-1" style={{ color: 'rgba(10,10,10,0.4)' }}>
+                JPG / PNG / WebP, up to 5 MB. Listings with a photo get far more replies.
+              </p>
+            )}
+          </div>
         )}
 
         {/* Description */}
