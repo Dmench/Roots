@@ -48,7 +48,17 @@ export function Nav() {
     { href: `/${pathCity.id}/people`,   label: 'People',       color: '#3D3CAC' },
   ] : []
 
-  const isActive = (href: string) => pathname.startsWith(href)
+  const isActive = (href: string) => {
+    // Listings nav slot stays active for legacy deep links /housing
+    // and /events (both still route directly to their respective
+    // standalone pages).
+    if (pathCity && href === `/${pathCity.id}/listings`) {
+      return pathname.startsWith(`/${pathCity.id}/listings`)
+          || pathname.startsWith(`/${pathCity.id}/housing`)
+          || pathname.startsWith(`/${pathCity.id}/events`)
+    }
+    return pathname.startsWith(href)
+  }
 
   return (
     <>
@@ -277,9 +287,18 @@ export function Nav() {
               </svg>
             ), exact: false },
           ].map(tab => {
+            const isListings = tab.href === `/${pathCity.id}/listings`
             const isActive = tab.exact
               ? pathname === tab.href
-              : tab.href !== `/${pathCity.id}` && pathname.startsWith(tab.href)
+              : tab.href !== `/${pathCity.id}` && (
+                  pathname.startsWith(tab.href) ||
+                  // Listings tab in bottom bar lights up for legacy
+                  // /housing and /events deep links too.
+                  (isListings && (
+                    pathname.startsWith(`/${pathCity.id}/housing`) ||
+                    pathname.startsWith(`/${pathCity.id}/events`)
+                  ))
+                )
             return (
               <Link key={tab.href} href={tab.href}
                 className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-opacity"
