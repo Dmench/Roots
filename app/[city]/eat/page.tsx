@@ -637,16 +637,16 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
           </section>
         )}
 
-        {/* Active-filter summary + reset */}
+        {/* Active-filter summary + reset — solid colored band, not a ghost tint */}
         {anyFilterActive && (
-          <div className="mb-6 flex items-center justify-between gap-3 px-3 py-2"
-            style={{ background: 'rgba(71,68,200,0.04)', border: '1px solid rgba(71,68,200,0.15)' }}>
-            <p className="text-xs" style={{ color: 'rgba(10,10,10,0.6)' }}>
-              Showing <strong style={{ color: '#0A0A0A' }}>{filtered.length}</strong> of {regular.length} venues
+          <div className="mb-6 flex items-center justify-between gap-3 px-4 py-2.5"
+            style={{ background: '#4744C8' }}>
+            <p className="text-xs" style={{ color: '#FFFFFF' }}>
+              Showing <strong>{filtered.length}</strong> of {regular.length} venues
             </p>
             <button onClick={resetAll}
-              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
-              style={{ color: '#4744C8' }}>
+              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-90 transition-opacity"
+              style={{ color: '#FFFFFF' }}>
               Clear all →
             </button>
           </div>

@@ -185,18 +185,25 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               return <EditorsPicks pick={pick} cityId={cityId} photoRef={pickVenue?.photoRef ?? null} />
             })()}
 
-            <div className="flex items-baseline justify-between pb-3 mb-5 gap-3"
-              style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
+            {/* Full-bleed running head — № 01 What's on, in brand pink */}
+            <div className="flex items-baseline justify-between gap-3 mb-5 px-4 py-3"
+              style={{ background: '#FF3EBA', color: '#FFFFFF' }}>
               <span className="flex items-baseline gap-2.5">
                 <span className="text-[9px] font-black tracking-[0.32em] uppercase"
-                  style={{ color: '#252450' }}>
+                  style={{ color: 'rgba(255,255,255,0.75)' }}>
                   № 01
                 </span>
                 <span className="text-xs font-black tracking-[0.16em] uppercase"
-                  style={{ color: 'rgba(10,10,10,0.5)' }}>
+                  style={{ color: '#FFFFFF' }}>
                   What&apos;s on in {city.name}
                 </span>
               </span>
+              {allEvents.length > 0 && (
+                <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                  style={{ color: 'rgba(255,255,255,0.8)' }}>
+                  {allEvents.length} ahead
+                </span>
+              )}
             </div>
             <EventsSection allEvents={allEvents} cityId={cityId} />
           </div>
@@ -211,7 +218,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 the rest of the rail is utility + editorial below. ─ */}
             {(venues.length > 0 || allEvents.length > 0) && (
               <section className="mb-10">
-                <SectionLabel number="02">Decide for me</SectionLabel>
+                <SectionLabel number="02" color="#9B4DCA">Decide for me</SectionLabel>
                 <div className="pt-3 pb-2">
                   <SpinWheel
                     cityId={cityId}
@@ -259,10 +266,10 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {/* ─ Eat & Drink ─ */}
             {venues.length > 0 && (
               <section className="mb-10">
-                <SectionLabel number="03" right={
+                <SectionLabel number="03" color="#E8612A" right={
                   <Link href={`/${cityId}/eat`}
-                    className="text-[10px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
-                    style={{ color: '#E8612A' }}>
+                    className="text-[10px] font-black tracking-widest uppercase hover:opacity-90 transition-opacity"
+                    style={{ color: 'rgba(255,255,255,0.95)' }}>
                     See all →
                   </Link>
                 }>
@@ -331,7 +338,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {/* In the news */}
             {featuredNews && (
               <section className="mb-10">
-                <SectionLabel number="04">In the news</SectionLabel>
+                <SectionLabel number="04" color="#252450">In the news</SectionLabel>
 
                 <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
                   className="group block pt-4 pb-5 hover:opacity-70 transition-opacity"
@@ -369,7 +376,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
             {/* Explore links */}
             <section>
-              <SectionLabel number="05">Explore</SectionLabel>
+              <SectionLabel number="05" color="#4744C8">Explore</SectionLabel>
               {[
                 { href: `/${cityId}/ask`,    label: 'Ask anything', sub: 'AI that knows the city', dot: '#38C0F0' },
                 { href: `/${cityId}/settle`, label: 'Settle in',    sub: 'Admin, commune, bank',   dot: '#FAB400' },
@@ -414,27 +421,31 @@ function SidebarSkeleton({ label }: { label: string }) {
   )
 }
 
-function SectionLabel({ children, right, number }: {
+// Magazine running-head: a colored block carrying section identity.
+// Used for sidebar/inline sections — solid colored background, white type.
+function SectionLabel({ children, right, number, color = '#252450' }: {
   children: React.ReactNode
   right?: React.ReactNode
   number?: string
+  /** Background color of the band. White ink is used on top. */
+  color?: string
 }) {
   return (
-    <div className="flex items-baseline justify-between pb-3 mb-1 gap-3"
-      style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
+    <div className="flex items-baseline justify-between gap-3 mb-4 px-3 py-2.5"
+      style={{ background: color, color: '#FFFFFF' }}>
       <span className="flex items-baseline gap-2.5 min-w-0">
         {number && (
           <span className="text-[9px] font-black tracking-[0.32em] uppercase shrink-0"
-            style={{ color: '#252450' }}>
+            style={{ color: 'rgba(255,255,255,0.75)' }}>
             № {number}
           </span>
         )}
         <span className="text-xs font-black tracking-[0.16em] uppercase truncate"
-          style={{ color: 'rgba(10,10,10,0.5)' }}>
+          style={{ color: '#FFFFFF' }}>
           {children}
         </span>
       </span>
-      {right}
+      {right && <span className="shrink-0">{right}</span>}
     </div>
   )
 }
