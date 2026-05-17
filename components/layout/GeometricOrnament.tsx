@@ -1,43 +1,56 @@
-// Geometric ornament — a small inline run of coloured shapes used as a
-// section break or article-spread divider. Picks up the section accent
-// for the centerpiece, with brand-anchor pieces on either side.
+// Inline section-break ornament — extends the landing page motif
+// (circles + half-dome, in the four brand colours) into article body
+// copy. Used between major sections on tip detail and neighbourhood
+// pages as a magazine-page section divider.
 //
-// Adds confident color without ever filling a field. Magazine printers
-// have done this since the 1920s.
+// Five elements, all from the motif vocabulary — circles + a half-dome.
+// Picks up the section accent for the centerpiece.
 
 interface Props {
-  /** Accent colour for the centerpiece shape. */
+  /** Accent colour for the centerpiece circle. */
   accent?: string
-  /** Alignment of the ornament row. */
-  align?: 'left' | 'center'
   /** Render scale — 'sm' for between-paragraph, 'md' for section break. */
   size?: 'sm' | 'md'
 }
 
-export function GeometricOrnament({ accent = '#FF3EBA', align = 'center', size = 'md' }: Props = {}) {
-  const dim = size === 'sm' ? 10 : 14
-  const gap = size === 'sm' ? 'gap-2'  : 'gap-3'
-  const just = align === 'center' ? 'justify-center' : 'justify-start'
+export function GeometricOrnament({ accent = '#FF3EBA', size = 'md' }: Props = {}) {
+  const dot   = size === 'sm' ? 8  : 12
+  const lead  = size === 'sm' ? 14 : 20    // centerpiece, larger
+  const dome  = size === 'sm' ? 16 : 24    // half-dome width
 
   return (
-    <div className={`flex items-center ${just} ${gap} my-8 select-none`}
+    <div className="flex items-center justify-center gap-3 my-10 select-none"
       aria-hidden="true">
-      {/* Navy circle */}
-      <span style={{ width: dim, height: dim, borderRadius: '50%', background: '#252450' }} />
-      {/* Amber diamond */}
-      <span style={{ width: dim, height: dim, background: '#FAB400', transform: 'rotate(45deg)' }} />
-      {/* Accent square — centerpiece, larger */}
-      <span style={{ width: dim + 4, height: dim + 4, background: accent }} />
-      {/* Pink circle */}
-      <span style={{ width: dim, height: dim, borderRadius: '50%', background: '#FF3EBA' }} />
-      {/* Sky triangle */}
+      {/* Purple small circle — brand anchor */}
+      <span style={{ width: dot, height: dot, borderRadius: '50%', background: '#4744C8' }} />
+
+      {/* Sky circle — small */}
+      <span style={{ width: dot, height: dot, borderRadius: '50%', background: '#38C0F0' }} />
+
+      {/* Accent circle — centerpiece, larger */}
+      <span style={{ width: lead, height: lead, borderRadius: '50%', background: accent }} />
+
+      {/* Amber half-dome — the landing page's setting sun, miniaturised */}
       <span style={{
-        width: 0,
-        height: 0,
-        borderLeft:   `${dim / 2}px solid transparent`,
-        borderRight:  `${dim / 2}px solid transparent`,
-        borderBottom: `${dim}px solid #38C0F0`,
-      }} />
+        width: dome,
+        height: dome / 2,
+        overflow: 'hidden',
+        display: 'inline-block',
+        position: 'relative',
+      }}>
+        <span style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: dome,
+          height: dome,
+          borderRadius: '50%',
+          background: '#FAB400',
+        }} />
+      </span>
+
+      {/* Pink circle — small */}
+      <span style={{ width: dot, height: dot, borderRadius: '50%', background: '#FF3EBA' }} />
     </div>
   )
 }

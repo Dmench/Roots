@@ -221,7 +221,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 the rest of the rail is utility + editorial below. ─ */}
             {(venues.length > 0 || allEvents.length > 0) && (
               <section className="mb-10">
-                <SectionLabel number="02" color="#9B4DCA" shape="circle">Decide for me</SectionLabel>
+                <SectionLabel number="02" color="#9B4DCA">Decide for me</SectionLabel>
                 <div className="pt-3 pb-2">
                   <SpinWheel
                     cityId={cityId}
@@ -269,7 +269,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {/* ─ Eat & Drink ─ */}
             {venues.length > 0 && (
               <section className="mb-10">
-                <SectionLabel number="03" color="#E8612A" shape="diamond" right={
+                <SectionLabel number="03" color="#E8612A" right={
                   <Link href={`/${cityId}/eat`}
                     className="text-[10px] font-black tracking-widest uppercase hover:opacity-90 transition-opacity"
                     style={{ color: 'rgba(255,255,255,0.95)' }}>
@@ -341,7 +341,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {/* In the news */}
             {featuredNews && (
               <section className="mb-10">
-                <SectionLabel number="04" color="#252450" shape="triangle">In the news</SectionLabel>
+                <SectionLabel number="04" color="#252450">In the news</SectionLabel>
 
                 <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
                   className="group block pt-4 pb-5 hover:opacity-70 transition-opacity"
@@ -379,7 +379,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
             {/* Explore links */}
             <section>
-              <SectionLabel number="05" color="#4744C8" shape="square">Explore</SectionLabel>
+              <SectionLabel number="05" color="#4744C8">Explore</SectionLabel>
               {[
                 { href: `/${cityId}/ask`,    label: 'Ask anything', sub: 'AI that knows the city', dot: '#38C0F0' },
                 { href: `/${cityId}/settle`, label: 'Settle in',    sub: 'Admin, commune, bank',   dot: '#FAB400' },
@@ -424,43 +424,23 @@ function SidebarSkeleton({ label }: { label: string }) {
   )
 }
 
-// Magazine running-head: colored typography on a clean field with a
-// matching colored bottom-rule + a small filled geometric puck on the
-// left. Brings section identity through type, geometry, and a single
-// horizontal stroke — no full-bleed colored backgrounds.
-function SectionLabel({ children, right, number, color = '#252450', shape = 'square' }: {
+// Magazine running-head: colored typography + a filled CIRCLE in the
+// section accent (matches the landing-page geometric motif: circles).
+// 2px colored bottom-rule completes the identity. No invented shapes.
+function SectionLabel({ children, right, number, color = '#252450' }: {
   children: React.ReactNode
   right?: React.ReactNode
   number?: string
-  /** Identity color used for the puck, the № number, the title type, and the 2px bottom rule. */
+  /** Identity color used for the dot, the № number, the title type, and the 2px bottom rule. */
   color?: string
-  /** Geometric puck shape — different sections get different primitives for visual rhythm. */
-  shape?: 'square' | 'circle' | 'diamond' | 'triangle'
 }) {
-  // Inline geometric "ornament" — small filled shape carrying section
-  // identity color confidently (not at 10% opacity).
-  const puck = (() => {
-    const common = { background: color, width: 10, height: 10 } as const
-    if (shape === 'circle')   return <span style={{ ...common, borderRadius: '50%' }} />
-    if (shape === 'diamond')  return <span style={{ ...common, transform: 'rotate(45deg)' }} />
-    if (shape === 'triangle') return (
-      <span style={{
-        width: 0, height: 0,
-        borderLeft:  '6px solid transparent',
-        borderRight: '6px solid transparent',
-        borderBottom: `10px solid ${color}`,
-      }} />
-    )
-    return <span style={common} />  // default: square
-  })()
-
   return (
     <div className="flex items-baseline justify-between gap-3 mb-4 pb-2.5"
       style={{ borderBottom: `2px solid ${color}` }}>
       <span className="flex items-center gap-2.5 min-w-0">
-        <span className="shrink-0 inline-flex items-center justify-center" style={{ width: 12, height: 12 }}>
-          {puck}
-        </span>
+        {/* Circle puck — the motif's primitive */}
+        <span className="shrink-0 inline-block"
+          style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
         {number && (
           <span className="text-[9px] font-black tracking-[0.32em] uppercase shrink-0"
             style={{ color }}>
