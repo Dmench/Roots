@@ -407,18 +407,28 @@ async function enrichCurated(venues: Venue[], cityId: string): Promise<Venue[]> 
 // in an emergency, set GOOGLE_PLACES_ENABLED=false in Vercel env vars.
 const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED !== 'false'
 
+// Editorial policy: the site only ever shows venues with a real photo.
+// A venue qualifies if it has EITHER a direct `photo` URL (manually set)
+// OR a non-null `photoRef` from Google Places (cached in Supabase).
+// Anything without resolves to a colour-block in the UI, which dilutes
+// the editorial quality — so we filter it out at the loader level.
+function hasUsablePhoto(v: Venue): boolean {
+  return !!v.photo || !!v.photoRef
+}
+
 export async function getVenues(cityId: string): Promise<Venue[]> {
   const curated = STATIC[cityId] ?? []
 
-  // Places paused → return static venues as-is. Photos come from the
-  // optional `photo` field on each venue, OR fall back to colour blocks
-  // in the UI. No Google calls. Zero quota burn.
+  // Places paused → return static venues that have a hand-set `photo` only.
+  // photoRef-only venues can't be served without Google, so they're hidden
+  // for the duration of the pause.
   if (!PLACES_ENABLED) {
-    return curated
+    return curated.filter(hasUsablePhoto)
   }
 
   if (cityId !== 'brussels') {
-    return enrichCurated(curated, cityId)
+    const enriched = await enrichCurated(curated, cityId)
+    return enriched.filter(hasUsablePhoto)
   }
 
   const curatedNames = new Set(curated.map(v => normName(v.name)))
@@ -428,5 +438,5 @@ export async function getVenues(cityId: string): Promise<Venue[]> {
     scoutVenues(cityId, curatedNames),
   ])
 
-  return [...enriched, ...scouted]
+  return [...enriched, ...scouted].filter(hasUsablePhoto)
 }

@@ -1781,10 +1781,10 @@
     "name": "Nom Pow",
     "category": "Korean fried chicken",
     "broadType": "restaurant",
-    "neighborhood": "Dansaert",
+    "neighborhood": "City Centre",
     "price": "€€",
-    "vibe": "Crisp, double-fried Korean chicken — go for the soy-garlic.",
-    "why": "Brussels has been catching up on Korean fried chicken; Nom Pow is one of the spots people actually queue for. Better as takeaway than a sit-down dinner.",
+    "vibe": "Korean fried chicken in the historic centre — counter-style, casual, good with a beer.",
+    "why": "Crispy double-fried wings in soy-garlic or hot-honey style sauces. Small space near Grand Place, mostly takeaway with a couple of stools. The casual stop when you don't want a sit-down dinner.",
     "tags": [
       "korean",
       "fried-chicken",
@@ -1804,15 +1804,14 @@
     "name": "Kafei",
     "category": "Café & fluffy pancakes",
     "broadType": "cafe",
-    "neighborhood": "City Centre",
+    "neighborhood": "Dansaert",
     "price": "€€",
-    "vibe": "Japanese-style soufflé pancakes — wobbly, tall, and worth the 20-minute wait.",
-    "why": "The fluffy pancakes are the headline; the matcha lattes are the right side order. Small, busy, and best on a weekday morning before the weekend queue forms.",
+    "vibe": "Japanese-style soufflé pancakes on the Dansaert strip.",
+    "why": "Specialty café known for tall, wobbly Japanese soufflé pancakes — sweet and savoury versions. Small space; weekend mornings fill up.",
     "tags": [
       "brunch",
       "dessert",
       "japanese",
-      "weekend-treat",
       "date-night",
       "trendy"
     ],
@@ -1827,17 +1826,17 @@
     "name": "Xing Fu Tang",
     "category": "Taiwanese bubble tea",
     "broadType": "cafe",
-    "neighborhood": "Dansaert",
+    "neighborhood": "City Centre",
     "price": "€",
-    "vibe": "Taiwanese chain doing brown-sugar boba properly — the tiger-stripe glass is the real thing.",
-    "why": "It's a chain, but the brown sugar bubble milk tea genuinely is the benchmark. Order it warm in winter. Skip the toppings — the pearls are the point.",
+    "vibe": "Taiwanese chain known for brown-sugar bubble milk tea.",
+    "why": "International chain out of Taiwan; the tiger-stripe brown-sugar boba is the signature. A quick stop near Grand Place when you want a real bubble tea, not a generic one.",
     "tags": [
       "bubble-tea",
       "taiwanese",
       "casual",
       "takeaway",
       "dessert",
-      "trendy"
+      "chain"
     ],
     "address": "Rue de l'Étuve 6, 1000 Bruxelles",
     "openingHours": "",
@@ -1852,14 +1851,13 @@
     "broadType": "restaurant",
     "neighborhood": "Ixelles",
     "price": "€€",
-    "vibe": "Counter-service Korean fried chicken from the FastGoodCuisine brand — fast, loud, late.",
-    "why": "Not subtle, not editorial — a hot-sauce-and-loaded-fries spot when the brief is comfort food after a long week. Useful to have in the rotation; not where you take visitors.",
+    "vibe": "Counter-service Korean-style fried chicken from the FastGoodCuisine brand.",
+    "why": "A French chain by the YouTuber FastGoodCuisine (Charles Gilles-Compagnon). Counter format, Korean-style sauced chicken, fries, soft drinks. Casual and quick.",
     "tags": [
       "korean",
       "fried-chicken",
       "casual",
       "takeaway",
-      "late-night",
       "comfort-food",
       "chain"
     ],
@@ -1868,28 +1866,5 @@
     "website": "",
     "lat": 50.83024260000001,
     "lng": 4.362983
-  },
-  {
-    "id": "curated-gaufres-waffles",
-    "name": "Gaufres & Waffles",
-    "category": "Waffle counter",
-    "broadType": "cafe",
-    "neighborhood": "Saint-Géry",
-    "price": "€",
-    "vibe": "Tourist-adjacent waffle counter near Grand Place — proper Liège waffles, not the soft American kind.",
-    "why": "Most locals walk past it, but if visitors are in town and they want a Brussels waffle right now, it does the job. For the real article, Maison Dandoy in Sablon; for the quick one near the centre, this works.",
-    "tags": [
-      "dessert",
-      "waffle",
-      "casual",
-      "takeaway",
-      "friends-visiting",
-      "newcomers"
-    ],
-    "address": "Galerie du Roi 6, 1000 Bruxelles",
-    "openingHours": "",
-    "website": "",
-    "lat": 50.8479881,
-    "lng": 4.3550381
   }
 ]
