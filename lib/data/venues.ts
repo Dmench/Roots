@@ -407,28 +407,31 @@ async function enrichCurated(venues: Venue[], cityId: string): Promise<Venue[]> 
 // in an emergency, set GOOGLE_PLACES_ENABLED=false in Vercel env vars.
 const PLACES_ENABLED = process.env.GOOGLE_PLACES_ENABLED !== 'false'
 
-// Editorial policy: the site only ever shows venues with a real photo.
-// A venue qualifies if it has EITHER a direct `photo` URL (manually set)
-// OR a non-null `photoRef` from Google Places (cached in Supabase).
-// Anything without resolves to a colour-block in the UI, which dilutes
-// the editorial quality — so we filter it out at the loader level.
-function hasUsablePhoto(v: Venue): boolean {
-  return !!v.photo || !!v.photoRef
-}
+// Editorial "only photos" policy is enforced at the data-ingest stage:
+//   1. Every curated venue in brussels-venues.json has been backfilled into
+//      venue_photo_cache via scripts/backfill-photo-cache.mjs.
+//   2. Every photoRef has its JPEG uploaded to Supabase Storage via
+//      scripts/upload-photos-to-storage.mjs at venue-photos/{city}/{id}.jpg.
+//   3. The eat page renders Storage URL first; only falls back to the
+//      /api/places/photo proxy if Storage 404s.
+//
+// Earlier this file filtered runtime-loaded venues by `!!v.photoRef`. That
+// broke /eat when the Supabase cache lookup failed (env var missing in a
+// runtime, cold start, RLS hiccup), because v.photoRef stayed undefined
+// and EVERY venue was dropped. The Storage fallback handles the no-photo
+// case in the UI; runtime filtering was redundant and dangerous.
 
 export async function getVenues(cityId: string): Promise<Venue[]> {
   const curated = STATIC[cityId] ?? []
 
-  // Places paused → return static venues that have a hand-set `photo` only.
-  // photoRef-only venues can't be served without Google, so they're hidden
-  // for the duration of the pause.
+  // Places paused → return static venues as-is. Photos come from the
+  // `photo` field OR Storage fallback in the UI. No Google calls.
   if (!PLACES_ENABLED) {
-    return curated.filter(hasUsablePhoto)
+    return curated
   }
 
   if (cityId !== 'brussels') {
-    const enriched = await enrichCurated(curated, cityId)
-    return enriched.filter(hasUsablePhoto)
+    return enrichCurated(curated, cityId)
   }
 
   const curatedNames = new Set(curated.map(v => normName(v.name)))
@@ -438,5 +441,5 @@ export async function getVenues(cityId: string): Promise<Venue[]> {
     scoutVenues(cityId, curatedNames),
   ])
 
-  return [...enriched, ...scouted].filter(hasUsablePhoto)
+  return [...enriched, ...scouted]
 }
