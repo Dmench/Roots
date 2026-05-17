@@ -43,7 +43,7 @@ export async function EventsHubCard({ cityId }: Props) {
 
   return (
     <Link href={`/${cityId}/events`}
-      className="block group hover:opacity-90 transition-opacity"
+      className="block group transition-all"
       style={{ background: '#FFFFFF', border: '2px solid #E8612A' }}>
       <div className="flex items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5">
         <div className="min-w-0 flex items-center gap-4">
@@ -66,9 +66,10 @@ export async function EventsHubCard({ cityId }: Props) {
             </p>
           </div>
         </div>
-        <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
+        <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase inline-flex items-center gap-1"
           style={{ color: '#E8612A' }}>
-          Open →
+          Open
+          <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
         </span>
       </div>
     </Link>

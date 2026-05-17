@@ -40,7 +40,7 @@ export async function HousingHubCard({ cityId }: Props) {
 
   return (
     <Link href={`/${cityId}/housing`}
-      className="block group hover:opacity-90 transition-opacity"
+      className="block group transition-all"
       style={{ background: '#FFFFFF', border: '2px solid #FAB400' }}>
       <div className="flex items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5">
         <div className="min-w-0 flex items-center gap-4">
@@ -63,9 +63,10 @@ export async function HousingHubCard({ cityId }: Props) {
             </p>
           </div>
         </div>
-        <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
+        <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase inline-flex items-center gap-1"
           style={{ color: '#FAB400' }}>
-          Open →
+          Open
+          <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
         </span>
       </div>
     </Link>
