@@ -136,9 +136,12 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             </div>
           </div>
 
-          {/* ── Section nav ────────────────────────────────────────────────── */}
-          <nav className="flex flex-wrap gap-x-1 gap-y-1 mt-2"
-            style={{ borderTop: '1px solid rgba(10,10,10,0.08)', paddingTop: 14 }}>
+          {/* ── Section nav — typographic, colored, magazine-grade ──────────
+              Color lives in the typography + a 2px top rule per button.
+              No bordered pills — the editorial council called those "tag
+              cloud, not navigation." Hover state slides the rule on full. */}
+          <nav className="flex flex-wrap mt-2"
+            style={{ borderTop: '1px solid rgba(10,10,10,0.08)', paddingTop: 18 }}>
             {[
               { href: `/${cityId}/settle`,         label: 'Settle',        color: '#FAB400' },
               { href: `/${cityId}/neighbourhoods`, label: 'Neighbourhoods', color: '#4744C8' },
@@ -148,8 +151,13 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               { href: `/${cityId}/people`,         label: 'People',        color: '#0E9B6B' },
             ].map(p => (
               <Link key={p.href} href={p.href}
-                className="text-[10px] font-black tracking-[0.14em] uppercase px-3 py-2 hover:opacity-70 transition-opacity"
-                style={{ color: p.color, border: `1px solid ${p.color}30` }}>
+                className="group text-[11px] font-black tracking-[0.18em] uppercase pr-6 py-2 relative"
+                style={{ color: p.color }}>
+                {/* Top accent rule — 2px when idle, full-bar slide on hover */}
+                <span className="absolute left-0 right-6 top-0 h-[2px] transition-all"
+                  style={{ background: p.color, opacity: 0.25 }} />
+                <span className="absolute left-0 top-0 h-[2px] w-3 group-hover:w-[calc(100%-1.5rem)] transition-all duration-300"
+                  style={{ background: p.color }} />
                 {p.label}
               </Link>
             ))}

@@ -790,7 +790,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
       )}
 
       {/* ── Main layout ──────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 md:px-12 py-8">
+      <div className="max-w-5xl mx-auto px-6 md:px-12 py-10 md:py-14">
         {/* Talk channels go full-width — the tip grid needs the room.
             Listen channels (events/news) keep the 280px sidebar. */}
         <div className={channel.cat
