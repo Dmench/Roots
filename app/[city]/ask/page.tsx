@@ -216,6 +216,18 @@ export default function AskPage({ params }: { params: Promise<{ city: string }> 
     setHistory(loadHistory(cityId))
   }, [cityId])
 
+  // Preload the input from ?prompt= when arriving from a tip page's
+  // "Have a follow-up? Ask the AI →" link. The user can edit before submitting.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const p = new URLSearchParams(window.location.search).get('prompt')
+    if (p) {
+      setInput(p.slice(0, 600))
+      // Focus the textarea so submit is one tap away
+      window.setTimeout(() => inputRef.current?.focus(), 100)
+    }
+  }, [])
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])

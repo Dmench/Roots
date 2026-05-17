@@ -243,27 +243,65 @@ export default async function TipDetailPage(
           </section>
         )}
 
-        {/* More of this kind */}
-        {moreOfKind.length > 0 && (
-          <section className="mt-12 mb-12">
-            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-4"
-              style={{ color: meta.color }}>
-              More {meta.label.toLowerCase()}s
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {moreOfKind.map(n => (
-                <Link key={n.slug} href={`/${cityId}/tips/${n.slug}`}
-                  className="block px-4 py-4 hover:opacity-80 transition-opacity"
-                  style={{ background: '#fff', border: '1px solid rgba(10,10,10,0.1)' }}>
-                  <div style={{ height: 3, background: meta.color, marginTop: -16, marginLeft: -16, marginRight: -16, marginBottom: 10 }} />
-                  <p className="text-sm font-bold leading-snug" style={{ color: '#0A0A0A' }}>
-                    {n.title}
+        {/* Read next — one hand-picked next read, not a buffet.
+            Picks the first curated relatedTipSlug; falls back to the first
+            moreOfKind if no curation. A magazine never ends a feature with
+            a four-card grid — it ends with one editorial line and a single
+            next piece. */}
+        {(() => {
+          const readNext = relatedTips[0] ?? moreOfKind[0]
+          if (!readNext) return null
+          const nm = KIND_META[readNext.kind]
+          return (
+            <section className="mt-12 mb-12">
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+                style={{ color: meta.color }}>
+                Read next
+              </p>
+              <Link href={`/${cityId}/tips/${readNext.slug}`}
+                className="block group transition-opacity hover:opacity-90"
+                style={{ background: '#FFFFFF', border: '1px solid rgba(10,10,10,0.12)' }}>
+                {/* Colored top bar (same idiom as tips index hero cards) */}
+                <div style={{ height: 5, background: nm.color }} />
+                <div className="px-6 pt-5 pb-5">
+                  <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2"
+                    style={{ color: nm.color }}>
+                    {nm.label}
                   </p>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+                  <h3 className="font-display font-black text-xl md:text-2xl leading-tight mb-2"
+                    style={{ color: '#0A0A0A', letterSpacing: '-0.01em' }}>
+                    {readNext.title}
+                  </h3>
+                  <p className="text-sm leading-snug mb-3" style={{ color: 'rgba(10,10,10,0.6)' }}>
+                    {readNext.body}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] uppercase"
+                    style={{ color: nm.color }}>
+                    Read this next →
+                  </span>
+                </div>
+              </Link>
+            </section>
+          )
+        })()}
+
+        {/* Ask AI — natural next move after reading a how-to */}
+        <section className="mb-12 px-5 py-4"
+          style={{
+            background: 'rgba(56,192,240,0.06)',
+            borderTop: '1px solid rgba(56,192,240,0.25)',
+            borderBottom: '1px solid rgba(56,192,240,0.25)',
+          }}>
+          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1.5"
+            style={{ color: '#38C0F0' }}>
+            Have a follow-up?
+          </p>
+          <Link href={`/${cityId}/ask?prompt=${encodeURIComponent(note.title)}`}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-70 transition-opacity"
+            style={{ color: '#0A0A0A' }}>
+            Ask the {city.name}-aware AI about this →
+          </Link>
+        </section>
 
         {/* CTA */}
         <div className="mt-16 px-6 md:px-8 py-7 md:py-9" style={{ background: '#252450' }}>

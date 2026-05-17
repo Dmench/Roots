@@ -20,6 +20,7 @@ import { TransportWidget } from '@/components/city/TransportWidget'
 import { RentalsWidget } from '@/components/city/RentalsWidget'
 import { SpinWheel } from '@/components/city/SpinWheel'
 import { FirstWeekModule } from '@/components/city/FirstWeekModule'
+import { ResumeStateHero } from '@/components/city/ResumeStateHero'
 import type { CityId } from '@/lib/types'
 
 export function generateStaticParams() {
@@ -170,8 +171,9 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_400px] gap-0 pb-16">
 
-          {/* ── LEFT: First-Week spine + Editor's Picks + Events ──────── */}
+          {/* ── LEFT: Resume hero (returning users) → First-Week spine + Editor's Picks + Events ──────── */}
           <div className="lg:pr-10 pt-7">
+            <ResumeStateHero cityId={cityId as CityId} cityName={city.name} />
             <FirstWeekModule cityId={cityId as CityId} />
 
             {cityId === 'brussels' && (() => {

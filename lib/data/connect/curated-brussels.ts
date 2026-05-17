@@ -42,6 +42,7 @@ In practice you have a bit of slack: every commune accepts late registrations, a
 
 Bring: your passport, a signed lease or accommodation declaration, two passport photos, and €25 in cash for the eID. Ixelles, Saint-Gilles, and the City of Brussels communes generally have English-speaking staff; Schaerbeek, Anderlecht, and Molenbeek prefer French. The Bureau de la Population in your commune is the office you want — appointments via the commune website, walk-ins accepted at some.`,
     relatedTaskSlugs: ['register-commune', 'eid'],
+    relatedTipSlugs: ['3-6-9-lease-explained', 'finding-apartment-without-agency'],
   },
   {
     id:    'bxl-tip-2',
@@ -57,6 +58,7 @@ If you\'re new and unsure how much you\'ll travel, start with the 12-trip card (
 
 The pass loads onto either a MOBIB physical card (€5 one-off), your eID directly (free, but you need the eID first), or the STIB JUMP app. JUMP is the easiest — you scan the QR code in stations and on board with your phone. Note that the JUMP app needs a Belgian phone number to register; if you only have a foreign one, use MOBIB until your SIM arrives.`,
     relatedTaskSlugs: ['phone-sim'],
+    relatedTipSlugs: ['villo-bike-share-cheap', 'stib-strikes-announced-48-hours-ahead'],
   },
   {
     id:    'bxl-tip-3',
@@ -72,6 +74,7 @@ Mutualité Socialiste (Solidaris) and Mutualité Chrétienne are the two largest
 
 Joining is one form + ID + proof of commune registration. They\'ll backdate to your arrival date if you sign up within the 90-day window. Miss the window and you pay full medical costs until you re-qualify — which can take months. Don\'t miss the window.`,
     relatedTaskSlugs: ['mutuelle'],
+    relatedTipSlugs: ['english-speaking-gp-bmc-house-of-doctors', 'healthcare-while-waiting-mutuelle'],
   },
   {
     id:    'bxl-tip-4',
@@ -87,6 +90,7 @@ Wise and Revolut both issue European IBANs and accept Belgian salary payments wi
 
 Wise tends to be slightly better for one-off transfers (multi-currency, very low FX fees). Revolut tends to be slightly better for daily spending and budgeting. Either works. Most Brussels newcomers open both, use them as bridge accounts for 1–3 months, then keep one as a secondary alongside their Belgian bank.`,
     relatedTaskSlugs: ['bank-account'],
+    relatedTipSlugs: ['belgian-banks-need-eid-bridge-with-wise'],
   },
   {
     id:    'bxl-tip-5',
@@ -102,7 +106,7 @@ Arrive before 11am. After 11 it gets crowded and the best things sell out. Bring
 
 After: cross the square to Café Belga (the terrace institution under the Flagey radio building) for a coffee or a vermouth. Saturday morning at Flagey is one of the most consistent two-hour experiences in Brussels, and the cheapest way to feel like you live here.`,
     neighbourhood: 'flagey',
-    relatedTipSlugs: ['three-anchor-cafe-walk-eat'],
+    relatedTipSlugs: ['groceries-carrefour-delhaize-lidl', 'sundays-brussels-properly-closed'],
   },
   {
     id:    'bxl-tip-6',
@@ -117,7 +121,7 @@ After: cross the square to Café Belga (the terrace institution under the Flagey
 The honest caveat: about a third of the bikes are out of order at any given time, station rebalancing is unreliable, and central stations empty out at rush hour. Plan for the occasional 5-minute walk to the next station. The newer e-bike-only Pony scheme (separate app) is the backup when Villo! fails.
 
 Brussels is hillier than most cycle cities — pick routes via the canal or the rue du Trône / Avenue Louise spine to avoid the worst climbs. Bike paths are decent in Ixelles, Saint-Gilles, the EU Quarter, and along the canal; basically non-existent in Schaerbeek and parts of Anderlecht. A helmet is not required by law but nobody who cycles regularly skips one.`,
-    relatedTipSlugs: ['stib-monthly-pass'],
+    relatedTipSlugs: ['stib-monthly-pass', 'stib-strikes-announced-48-hours-ahead'],
   },
   {
     id:    'bxl-tip-7',
@@ -133,6 +137,7 @@ Brussels Medical Center (BMC) on rue Vilain XIIII in Ixelles/Châtelain is one o
 
 Both bill via tiers payant — meaning your mutuelle pays directly, you pay only the patient-share (typically €5–15 per visit). You must be registered with a mutuelle first. If you\'re still in your 90-day window, keep all receipts and submit them once your mutuelle is active.`,
     relatedTaskSlugs: ['register-gp', 'mutuelle'],
+    relatedTipSlugs: ['mutuelle-partenamut-english', 'healthcare-while-waiting-mutuelle'],
   },
   {
     id:    'bxl-tip-8',
@@ -148,6 +153,7 @@ Without Itsme you\'re back to passwords plus eID card-reader logins, which are p
 
 The tax declaration deadline (June for paper, mid-July for online) is the moment most newcomers wish they\'d set up Itsme earlier. Do it the same week you collect your eID.`,
     relatedTaskSlugs: ['eid'],
+    relatedTipSlugs: ['register-commune-8-days', 'commune-registration-how-long'],
   },
   {
     id:    'bxl-tip-9',
@@ -163,7 +169,7 @@ Belgians switch between them without loyalty. The €40-saving-per-week move is 
 
 The Wednesday-afternoon Châtelain market (15h–20h, Place du Châtelain in Ixelles) beats them all when you want to actually cook something good. Cheese, fish, charcuterie, oysters, flowers, wine, and the only properly serious bread stall outside of Flagey. Bring cash and a tote.`,
     neighbourhood: 'ixelles',
-    relatedTipSlugs: ['place-flagey-saturday-market'],
+    relatedTipSlugs: ['place-flagey-saturday-market', 'sundays-brussels-properly-closed'],
   },
   {
     id:    'bxl-tip-10',
@@ -179,6 +185,7 @@ If you can choose your arrival date, avoid the first 3 weeks of August. The 9-da
 
 If you must arrive in August, do as much as possible online: book commune appointments in advance via the website, use Itsme to handle anything you can from your phone, and accept that some processes will simply pause until September. Use the time to walk neighbourhoods — the city is empty and lovely.`,
     relatedTaskSlugs: ['register-commune'],
+    relatedTipSlugs: ['register-commune-8-days', 'sundays-brussels-properly-closed'],
   },
 
   // ── Questions ────────────────────────────────────────────────────────────
@@ -196,6 +203,7 @@ The dossier opens immediately when you walk in with your passport, lease, and ph
 
 Total: 4–8 weeks in most cases, longer if the officer keeps missing you. If you\'re not home when they ring, they leave a paper note in the letterbox with a callback number — call back the same day. Two missed visits and your dossier risks being suspended.`,
     relatedTaskSlugs: ['register-commune'],
+    relatedTipSlugs: ['register-commune-8-days'],
   },
   {
     id:    'bxl-q-2',
@@ -211,6 +219,7 @@ Breaking the lease earlier — i.e. before year 3 — costs a penalty. Year 1: 3
 
 Short-term leases exist too (bail de courte durée, 3 years or less), and student/furnished leases have their own rules. If your lease isn\'t labelled "bail de résidence principale" or "9 ans," read it carefully — the protections differ.`,
     relatedTaskSlugs: ['find-housing'],
+    relatedTipSlugs: ['finding-apartment-without-agency', 'rental-guarantee-capped-2-months'],
   },
   {
     id:    'bxl-q-3',
@@ -228,6 +237,7 @@ North and west of the canal — Schaerbeek, Molenbeek, Anderlecht, parts of Sain
 
 Dutch is rarely "needed" in Brussels itself but is genuinely useful if you commute to Flanders for work.`,
     relatedTaskSlugs: ['register-commune'],
+    relatedTipSlugs: ['register-commune-8-days'],
   },
   {
     id:    'bxl-q-4',
@@ -243,6 +253,7 @@ But there\'s a quieter rental market that never hits Immoweb. Landlords who don\
 
 The catch: scams exist (a foreign owner abroad who can\'t meet you, asks for a deposit upfront — never pay before viewing in person). Visit every flat in person. Bring your dossier (passport, lease, 3 pay slips). The good landlords pick fast.`,
     relatedTaskSlugs: ['find-housing'],
+    relatedTipSlugs: ['3-6-9-lease-explained', 'rental-guarantee-capped-2-months'],
   },
   {
     id:    'bxl-q-5',
@@ -260,6 +271,7 @@ Belgium uses progressive rates — roughly 25% on the first €15k, 40% on €15
 
 If your situation is complicated (foreign employer, freelance, multiple residences), get advice from a Belgian tax advisor in your first year. The cost (€300–500) is much less than getting it wrong.`,
     relatedTaskSlugs: ['register-commune'],
+    relatedTipSlugs: ['register-commune-8-days'],
   },
   {
     id:    'bxl-q-6',
@@ -277,6 +289,7 @@ If signal matters more than price (you\'re heading to rural Wallonia for work or
 
 You can port your Belgian number between operators within 24–48 hours if you change your mind. Porting an international number to Belgium is rarely worth it — it\'s slow, error-prone, and most newcomers prefer to keep their old number on Wise/WhatsApp anyway.`,
     relatedTaskSlugs: ['phone-sim'],
+    relatedTipSlugs: ['direct-debit-first-bill-only'],
   },
   {
     id:    'bxl-q-7',
@@ -294,6 +307,7 @@ The local public system is genuinely good — Belgian schools rank high in OECD 
 
 If your kids will stay in Belgium past primary school, integrating them into a Belgian school (French or Dutch) is the durable choice. Bilingual immersion gives them an asset for life.`,
     relatedTaskSlugs: ['school-children'],
+    relatedTipSlugs: ['register-commune-8-days'],
   },
   {
     id:    'bxl-q-8',
@@ -311,6 +325,7 @@ In a real emergency, go to A&E (urgences) at any Brussels hospital — Saint-Pie
 
 If you have private international health insurance from a previous employer, keep it active through the first 6 months as belt-and-braces. The day your mutuelle is fully bedded in, you can drop it.`,
     relatedTaskSlugs: ['mutuelle', 'register-gp'],
+    relatedTipSlugs: ['mutuelle-partenamut-english', 'english-speaking-gp-bmc-house-of-doctors'],
   },
 
   // ── Heads-up ─────────────────────────────────────────────────────────────
@@ -330,6 +345,7 @@ What to do: politely point to the law (Code Civil, article 1762ter). If the land
 
 The bank guarantee option (garantie locative bancaire) is your friend: your money stays in your name, you earn (a little) interest, and the landlord can\'t touch it without going to court.`,
     relatedTaskSlugs: ['find-housing'],
+    relatedTipSlugs: ['3-6-9-lease-explained', 'no-winter-eviction-protection-belgium', 'agency-fees-illegal-for-tenants'],
   },
   {
     id:    'bxl-hu-2',
@@ -345,6 +361,7 @@ In the gap, Wise and N26 both issue European IBANs (BE-prefixed for Belgian Wise
 
 The friction: a few specific institutions still insist on a BE-prefixed Belgian-bank IBAN. The energy providers ENGIE and Luminus historically rejected DE IBANs for direct debit; some Belgian mutuelles want a BE IBAN for reimbursements. Wise issues BE IBANs to Belgian residents (after KYC), which closes most of the gap. N26 does not. If you can only pick one, Wise > N26 for Brussels-specific compatibility.`,
     relatedTaskSlugs: ['bank-account'],
+    relatedTipSlugs: ['wise-revolut-first-salary'],
   },
   {
     id:    'bxl-hu-3',
@@ -362,6 +379,7 @@ Put bags out the evening before pickup, after 6pm. Putting them out earlier risk
 
 Glass goes to communal glass bubbles (the green/white bell-shaped containers around every commune), not in your bag. Garden waste, electronics, and large items go to the local Recypark.`,
     relatedTaskSlugs: [],
+    relatedTipSlugs: ['sundays-brussels-properly-closed'],
   },
   {
     id:    'bxl-hu-4',
@@ -379,6 +397,7 @@ If you\'re struggling with rent, do not let it stack up. Two months in arrears a
 
 The same lack of winter protection applies to utility cutoffs in theory, though in practice ENGIE and Luminus rarely cut off gas/electricity in winter — there\'s a Brussels regional rule against it for households with children or vulnerable adults.`,
     relatedTaskSlugs: ['find-housing'],
+    relatedTipSlugs: ['rental-guarantee-capped-2-months', 'agency-fees-illegal-for-tenants'],
   },
   {
     id:    'bxl-hu-5',
@@ -394,7 +413,7 @@ The exception: the brunch and weekend-cafe scene in Ixelles, Saint-Gilles, Chât
 
 Plan your weekly shop for Saturday before 19h, or use the Albert Heijn To Go in Schuman / Carrefour Express which keep slightly longer Sunday hours but are pricier. The Night & Day chain stays open until 22h or later — useful for emergency basics.`,
     neighbourhood: 'ixelles',
-    relatedTipSlugs: ['groceries-carrefour-delhaize-lidl'],
+    relatedTipSlugs: ['groceries-carrefour-delhaize-lidl', 'arrive-summer-august-closed'],
   },
   {
     id:    'bxl-hu-6',
@@ -411,7 +430,7 @@ Full strike days mean no metro, no trams, and reduced buses. Partial strikes (sp
 Your real-time sources: @STIBMIVB on Twitter/X for live updates, the STIB app for line-by-line status, and the STIB website for the formal grève (strike) notice. The Bruxelles Mobilité Twitter account aggregates strike news across STIB, SNCB rail, and De Lijn.
 
 Strike-day fallbacks: Villo and Pony bike-share usage spikes (and the apps occasionally crash from demand). Lime and Bolt scooters work but are pricier than a normal day. Uber and Heetch ride-share work but with 2–3× surge pricing. If you have a long commute, working from home on strike days is the standard Brussels move.`,
-    relatedTipSlugs: ['villo-bike-share-cheap'],
+    relatedTipSlugs: ['villo-bike-share-cheap', 'stib-monthly-pass'],
   },
   {
     id:    'bxl-hu-7',
@@ -428,7 +447,7 @@ The fix: receive your first 1–2 bills as one-off invoices (paid by manual tran
 This is annoying for the first 4 weeks but saves you the experience of fighting Proximus customer support about a €120 charge for a contract you thought was closed. Most Belgians who\'ve lived here long enough do this automatically.
 
 Once you\'re confident the bill is right and the contract is the one you signed, switch to direct debit — Belgian invoices have a 15-day payment window and the late fees compound quickly.`,
-    relatedTipSlugs: [],
+    relatedTipSlugs: ['mobile-vikings-proximus-base'],
   },
   {
     id:    'bxl-hu-8',
