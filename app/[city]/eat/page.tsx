@@ -49,8 +49,8 @@ const TASTE_CHIPS: { id: string; label: string; color: string; matchTags: string
   { id: 'wine',         label: 'Natural wine',  color: '#9B4DCA', matchTags: ['natural-wine', 'wine'] },
   { id: 'cocktails',    label: 'Cocktails',     color: '#252450', matchTags: ['cocktails'] },
   { id: 'craft-beer',   label: 'Craft beer',    color: '#A07000', matchTags: ['craft-beer', 'lambic', 'gueuze'] },
-  { id: 'coffee',       label: 'Coffee',        color: '#B08800', matchTags: ['specialty-coffee'] },
-  { id: 'late-night',   label: 'Late night',    color: '#FF3EBA', matchTags: ['late-night'] },
+  { id: 'coffee',       label: 'Coffee',        color: '#5C4033', matchTags: ['specialty-coffee'] },
+  { id: 'late-night',   label: 'Late night',    color: '#6865CC', matchTags: ['late-night'] },
   { id: 'fine-dining',  label: 'Fine dining',   color: '#4744C8', matchTags: ['michelin', 'fancy'] },
   { id: 'club',         label: 'Club',          color: '#0A0A0A', matchTags: ['nightclub'] },
   { id: 'cheap-eats',   label: 'Cheap eats',    color: '#1A8FAD', matchTags: ['cheap', 'frites', 'fried-chicken', 'casual', 'comfort-food'] },
@@ -389,11 +389,11 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
       <GeometricThread accent="#E8612A" />
 
       <PageMasthead
-        eyebrow={`${city.name} · Eat & Drink · Local, on purpose.`}
+        eyebrow={`${city.name} · Eat & Drink`}
         headline={`${city.name},`}
         emphasis="hungry."
         emphasisColor="#E8612A"
-        tagline={`Where actual locals eat. Curated neighbourhood by neighbourhood — no tourist traps, no paid rankings.`}
+        tagline={`Local, on purpose. Where actual locals eat — neighbourhood by neighbourhood, no tourist traps, no paid rankings.`}
         backHref={`/${cityId}`}
         backLabel="← Back to hub"
       >
@@ -434,22 +434,28 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
               </button>
             )}
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
-            {TASTE_CHIPS.map(chip => {
-              const active = activeTastes.includes(chip.id)
-              return (
-                <button key={chip.id}
-                  onClick={() => toggleTaste(chip.id)}
-                  className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
-                  style={{
-                    color: active ? '#FFFFFF' : chip.color,
-                    background: active ? chip.color : 'transparent',
-                    border: `1px solid ${active ? chip.color : `${chip.color}40`}`,
-                  }}>
-                  {chip.label}
-                </button>
-              )
-            })}
+          {/* relative wrapper holds a right-edge fade overlay so mobile users
+              can tell the rail scrolls further — design council fix */}
+          <div className="relative">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+              {TASTE_CHIPS.map(chip => {
+                const active = activeTastes.includes(chip.id)
+                return (
+                  <button key={chip.id}
+                    onClick={() => toggleTaste(chip.id)}
+                    className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
+                    style={{
+                      color: active ? '#FFFFFF' : chip.color,
+                      background: active ? chip.color : 'transparent',
+                      border: `1px solid ${active ? chip.color : `${chip.color}40`}`,
+                    }}>
+                    {chip.label}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="pointer-events-none absolute top-0 right-0 bottom-1 w-8 md:hidden"
+              style={{ background: 'linear-gradient(to right, transparent, #FFFFFF)' }} />
           </div>
         </section>
 
@@ -468,22 +474,26 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
               </button>
             )}
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
-            {COLLECTIONS.map(col => {
-              const active = activeCol === col.id
-              return (
-                <button key={col.id}
-                  onClick={() => setActiveCol(active ? null : col.id)}
-                  className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
-                  style={{
-                    color: active ? '#FFFFFF' : col.color,
-                    background: active ? col.color : 'transparent',
-                    border: `1px solid ${active ? col.color : `${col.color}40`}`,
-                  }}>
-                  {col.label}
-                </button>
-              )
-            })}
+          <div className="relative">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+              {COLLECTIONS.map(col => {
+                const active = activeCol === col.id
+                return (
+                  <button key={col.id}
+                    onClick={() => setActiveCol(active ? null : col.id)}
+                    className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
+                    style={{
+                      color: active ? '#FFFFFF' : col.color,
+                      background: active ? col.color : 'transparent',
+                      border: `1px solid ${active ? col.color : `${col.color}40`}`,
+                    }}>
+                    {col.label}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="pointer-events-none absolute top-0 right-0 bottom-1 w-8 md:hidden"
+              style={{ background: 'linear-gradient(to right, transparent, #FFFFFF)' }} />
           </div>
         </section>
 
