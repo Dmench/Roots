@@ -37,20 +37,44 @@ export function PageMasthead({
       {/* 4px brand rule */}
       <div style={{ height: 4, background: '#252450' }} />
 
-      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-8 md:pt-10 pb-7 md:pb-9">
-        <div className="flex items-baseline justify-between gap-4 mb-5">
-          <p className="text-[10px] font-black tracking-[0.28em] uppercase"
+      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-6 md:pt-8 pb-7 md:pb-9">
+
+        {/* Publication slug — turns every section page into "an edition".
+            Left = brand + volume. Center = section eyebrow. Right = back link
+            on mobile, issue date on desktop. */}
+        <div className="grid grid-cols-3 items-baseline gap-3 mb-3">
+          <p className="text-[9px] font-black tracking-[0.32em] uppercase"
+            style={{ color: '#252450' }}>
+            Vol. 01 · Brussels
+          </p>
+          <p className="text-[9px] font-black tracking-[0.32em] uppercase text-center hidden sm:block"
             style={{ color: 'rgba(10,10,10,0.4)' }}>
             {eyebrow}
           </p>
-          {backHref && (
-            <Link href={backHref}
-              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity hidden sm:block"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
-              {backLabel ?? '← Back'}
-            </Link>
-          )}
+          <p className="text-[9px] font-black tracking-[0.32em] uppercase text-right"
+            style={{ color: 'rgba(10,10,10,0.4)' }}>
+            {backHref ? (
+              <Link href={backHref}
+                className="hover:opacity-60 transition-opacity"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                {backLabel ?? '← Back'}
+              </Link>
+            ) : (
+              <span className="hidden sm:inline">Local, on purpose.</span>
+            )}
+          </p>
         </div>
+
+        {/* Mobile-only section eyebrow row (since the slug grid hides the centre on small) */}
+        <p className="text-[9px] font-black tracking-[0.32em] uppercase mb-3 sm:hidden"
+          style={{ color: 'rgba(10,10,10,0.4)' }}>
+          {eyebrow}
+        </p>
+
+        {/* Double-rule divider — navy hairline + amber hairline, 3px apart.
+            The publication-nameplate move; readable as "this is a printed thing". */}
+        <div className="mb-5" style={{ borderTop: '1px solid #252450' }} />
+        <div className="mb-7" style={{ borderTop: '1px solid #FAB400' }} />
 
         <h1 className="font-display font-black leading-[0.92] mb-4"
           style={{

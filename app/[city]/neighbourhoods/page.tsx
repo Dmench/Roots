@@ -6,6 +6,7 @@ import { getNeighbourhoodsForCity } from '@/lib/data/neighbourhoods/brussels'
 import type { CityId } from '@/lib/types'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
+import { HoodGlyph } from '@/components/neighbourhoods/HoodGlyph'
 
 export function generateStaticParams() {
   return ACTIVE_CITIES.map(c => ({ city: c.id }))
@@ -73,8 +74,12 @@ export default async function NeighbourhoodsIndex(
           style={{ background: 'rgba(10,10,10,0.1)' }}>
           {hoods.map(h => (
             <Link key={h.slug} href={`/${cityId}/neighbourhoods/${h.slug}`}
-              className="block px-6 py-7 hover:opacity-80 transition-opacity"
+              className="block px-6 py-7 hover:opacity-80 transition-opacity relative"
               style={{ background: '#fff' }}>
+              {/* Placeholder geometric glyph — replaceable with commissioned art */}
+              <div className="absolute top-5 right-5 opacity-50">
+                <HoodGlyph slug={h.slug} size={44} color="#4744C8" />
+              </div>
               <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-2"
                 style={{ color: '#4744C8' }}>
                 {h.aka ?? h.name}
@@ -83,7 +88,7 @@ export default async function NeighbourhoodsIndex(
                 style={{ color: '#0A0A0A' }}>
                 {h.name}
               </h2>
-              <p className="text-sm leading-snug mb-4" style={{ color: 'rgba(10,10,10,0.65)' }}>
+              <p className="text-sm leading-snug mb-4 pr-12" style={{ color: 'rgba(10,10,10,0.65)' }}>
                 {h.oneLiner}
               </p>
               <div className="flex items-center gap-3 text-[10px] font-bold tracking-wide"

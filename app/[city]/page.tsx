@@ -185,10 +185,19 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               return <EditorsPicks pick={pick} cityId={cityId} photoRef={pickVenue?.photoRef ?? null} />
             })()}
 
-            <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-5"
-              style={{ color: 'rgba(10,10,10,0.3)' }}>
-              What&apos;s on in {city.name}
-            </p>
+            <div className="flex items-baseline justify-between pb-3 mb-5 gap-3"
+              style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
+              <span className="flex items-baseline gap-2.5">
+                <span className="text-[9px] font-black tracking-[0.32em] uppercase"
+                  style={{ color: '#252450' }}>
+                  № 01
+                </span>
+                <span className="text-xs font-black tracking-[0.16em] uppercase"
+                  style={{ color: 'rgba(10,10,10,0.5)' }}>
+                  What&apos;s on in {city.name}
+                </span>
+              </span>
+            </div>
             <EventsSection allEvents={allEvents} cityId={cityId} />
           </div>
 
@@ -202,7 +211,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 the rest of the rail is utility + editorial below. ─ */}
             {(venues.length > 0 || allEvents.length > 0) && (
               <section className="mb-10">
-                <SectionLabel>Decide for me</SectionLabel>
+                <SectionLabel number="02">Decide for me</SectionLabel>
                 <div className="pt-3 pb-2">
                   <SpinWheel
                     cityId={cityId}
@@ -250,7 +259,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {/* ─ Eat & Drink ─ */}
             {venues.length > 0 && (
               <section className="mb-10">
-                <SectionLabel right={
+                <SectionLabel number="03" right={
                   <Link href={`/${cityId}/eat`}
                     className="text-[10px] font-black tracking-widest uppercase hover:opacity-50 transition-opacity"
                     style={{ color: '#E8612A' }}>
@@ -322,7 +331,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             {/* In the news */}
             {featuredNews && (
               <section className="mb-10">
-                <SectionLabel>In the news</SectionLabel>
+                <SectionLabel number="04">In the news</SectionLabel>
 
                 <a href={featuredNews.url} target="_blank" rel="noopener noreferrer"
                   className="group block pt-4 pb-5 hover:opacity-70 transition-opacity"
@@ -360,7 +369,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
             {/* Explore links */}
             <section>
-              <SectionLabel>Explore</SectionLabel>
+              <SectionLabel number="05">Explore</SectionLabel>
               {[
                 { href: `/${cityId}/ask`,    label: 'Ask anything', sub: 'AI that knows the city', dot: '#38C0F0' },
                 { href: `/${cityId}/settle`, label: 'Settle in',    sub: 'Admin, commune, bank',   dot: '#FAB400' },
@@ -405,13 +414,25 @@ function SidebarSkeleton({ label }: { label: string }) {
   )
 }
 
-function SectionLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+function SectionLabel({ children, right, number }: {
+  children: React.ReactNode
+  right?: React.ReactNode
+  number?: string
+}) {
   return (
-    <div className="flex items-center justify-between pb-3 mb-1"
+    <div className="flex items-baseline justify-between pb-3 mb-1 gap-3"
       style={{ borderBottom: '1px solid rgba(10,10,10,0.12)' }}>
-      <span className="text-xs font-black tracking-[0.16em] uppercase"
-        style={{ color: 'rgba(10,10,10,0.5)' }}>
-        {children}
+      <span className="flex items-baseline gap-2.5 min-w-0">
+        {number && (
+          <span className="text-[9px] font-black tracking-[0.32em] uppercase shrink-0"
+            style={{ color: '#252450' }}>
+            № {number}
+          </span>
+        )}
+        <span className="text-xs font-black tracking-[0.16em] uppercase truncate"
+          style={{ color: 'rgba(10,10,10,0.5)' }}>
+          {children}
+        </span>
       </span>
       {right}
     </div>

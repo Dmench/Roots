@@ -106,8 +106,11 @@ function googleMapsUrl(venue: Venue): string {
 
 /* ── Venue card (editorial, vertical) ────────────────────────────────────── */
 
-function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, lead = false }: {
-  venue: Venue; cityId: string; onSave: () => void; saved: boolean; photoRef?: string | null; lead?: boolean
+function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, lead = false, leadNumber }: {
+  venue: Venue; cityId: string; onSave: () => void; saved: boolean
+  photoRef?: string | null; lead?: boolean
+  /** When set on a lead card, renders a giant "№ 01"-style overlay on the photo (mag flatplan move). */
+  leadNumber?: string
 }) {
   const color    = TYPE_COLOR[venue.broadType] ?? '#0A0A0A'
   const signals  = SIG_PRIORITY.filter(t => venue.tags?.includes(t)).slice(0, 2)
@@ -173,13 +176,37 @@ function VenueCard({ venue, cityId, onSave, saved, photoRef: photoRefOverride, l
           style={{ background: 'rgba(0,0,0,0.65)', color: '#fff', backdropFilter: 'blur(4px)' }}>
           ↗ Maps
         </span>
+        {/* Mag-flatplan running head — only on lead cards */}
+        {leadNumber && (
+          <span className="absolute top-2 left-2 pointer-events-none font-display font-black select-none"
+            style={{
+              fontSize: lead ? '4.5rem' : '3rem',
+              lineHeight: 0.85,
+              color: 'rgba(255,255,255,0.85)',
+              mixBlendMode: 'difference',
+            }}>
+            № {leadNumber}
+          </span>
+        )}
         {/* Type accent bar at bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-0.5 pointer-events-none" style={{ background: color }} />
       </a>
+      {/* Caption strip — magazine-style photo caption */}
+      <div className="flex items-baseline justify-between gap-2 px-3 py-1.5"
+        style={{ borderBottom: '1px solid rgba(10,10,10,0.06)' }}>
+        <span className="text-[9px] font-black tracking-[0.22em] uppercase truncate"
+          style={{ color: 'rgba(10,10,10,0.45)' }}>
+          {venue.neighborhood} · {(venue as { vibe?: string }).vibe?.split('—')[0]?.split(',')[0]?.trim() ?? venue.category}
+        </span>
+        <span className="text-[9px] font-black tracking-[0.22em] uppercase shrink-0"
+          style={{ color: 'rgba(10,10,10,0.25)' }}>
+          Roots Vol. 01
+        </span>
+      </div>
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-3">
-        <span className="text-[8px] font-black tracking-[0.2em] uppercase mb-1" style={{ color }}>{venue.neighborhood}</span>
+        {/* Neighbourhood now lives in the caption strip above the content — no duplicate here */}
         {venue.website ? (
           <a href={venue.website} target="_blank" rel="noopener noreferrer"
             className="font-bold text-sm leading-snug hover:opacity-50 transition-opacity mb-0.5 block"
@@ -683,18 +710,23 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
           ) : (
             /* ── FT-style editorial grid ───────────────────────────────── */
             <div>
-              {/* Lead row: first 2 venues large */}
+              {/* Lead row: asymmetric — first venue spans 2 cols of 3,
+                  second venue takes 1 col. Mag flatplan move. */}
               {filtered.length >= 2 && (
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  {filtered.slice(0, 2).map(v => {
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                  {filtered.slice(0, 2).map((v, i) => {
                     const saved = (profile.spots ?? []).some(s => s.name === v.name)
                     return (
-                      <VenueCard key={v.id} venue={v} cityId={cityId} saved={saved} photoRef={venuePhotos[v.id]} lead
-                        onSave={() => {
-                          if (!user || saved) return
-                          const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'
-                          addSpot({ name: v.name, category: cat })
-                        }} />
+                      <div key={v.id} className={i === 0 ? 'md:col-span-2' : ''}>
+                        <VenueCard venue={v} cityId={cityId} saved={saved}
+                          photoRef={venuePhotos[v.id]} lead
+                          leadNumber={i === 0 ? '01' : '02'}
+                          onSave={() => {
+                            if (!user || saved) return
+                            const cat = v.broadType === 'restaurant' ? 'restaurant' : v.broadType === 'bar' ? 'bar' : v.broadType === 'cafe' ? 'cafe' : 'shop'
+                            addSpot({ name: v.name, category: cat })
+                          }} />
+                      </div>
                     )
                   })}
                 </div>

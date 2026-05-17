@@ -103,15 +103,73 @@ export default async function TipDetailPage(
 
       <article className="max-w-2xl mx-auto px-6 md:px-12 pt-10 pb-20">
 
-        {/* Expansion — the real content for SEO */}
-        <section className="mb-10">
-          {note.expansion.split('\n\n').map((para, i) => (
-            <p key={i} className="text-base leading-relaxed mb-5"
-              style={{ color: 'rgba(10,10,10,0.78)' }}>
-              {para}
-            </p>
-          ))}
-        </section>
+        {/* Expansion — the real content for SEO.
+            Editorial moves:
+              - First paragraph gets a drop cap in the section colour (magazine
+                opening style)
+              - After the second paragraph, a wide outdent pull quote breaks
+                the column (uses the first sentence of paragraph 3 — fall back
+                to the body if expansion is short) */}
+        {(() => {
+          const paras = note.expansion.split('\n\n')
+          const pullQuoteText = paras[2]
+            ? paras[2].split(/(?<=[.!?])\s+/)[0]
+            : note.body
+          return (
+            <section className="mb-10">
+              {paras.map((para, i) => {
+                const isFirst = i === 0
+                return (
+                  <p key={i}
+                    className={isFirst
+                      ? 'text-base leading-relaxed mb-5 first-letter:font-display first-letter:font-black first-letter:text-[5.5rem] first-letter:leading-[0.85] first-letter:float-left first-letter:mr-3 first-letter:mt-1.5'
+                      : 'text-base leading-relaxed mb-5'}
+                    style={{
+                      color: 'rgba(10,10,10,0.78)',
+                      ...(isFirst ? ({ ['--tw-first-letter-color' as never]: meta.color }) : {}),
+                    }}>
+                    {isFirst ? (
+                      <>
+                        <span style={{
+                          fontFamily: 'var(--font-display)',
+                          fontWeight: 900,
+                          fontSize: '5.5rem',
+                          lineHeight: 0.85,
+                          float: 'left',
+                          marginRight: '0.5rem',
+                          marginTop: '0.4rem',
+                          color: meta.color,
+                        }}>{para.charAt(0)}</span>
+                        {para.slice(1)}
+                      </>
+                    ) : para}
+                  </p>
+                )
+              })}
+              {paras.length >= 3 && pullQuoteText && (
+                <aside className="-mx-6 md:-mx-16 my-10 py-7 px-6 md:px-12"
+                  style={{
+                    borderTop:    `2px solid #0A0A0A`,
+                    borderBottom: `2px solid #0A0A0A`,
+                  }}>
+                  <span style={{
+                    color: meta.color,
+                    fontSize: '4.5rem',
+                    lineHeight: 0.6,
+                    float: 'left',
+                    marginRight: '0.75rem',
+                    marginTop: '0.4rem',
+                    fontWeight: 900,
+                  }}>&ldquo;</span>
+                  <p className="font-display font-black text-2xl md:text-3xl leading-[1.1]"
+                    style={{ color: '#0A0A0A', letterSpacing: '-0.015em' }}>
+                    {pullQuoteText}
+                  </p>
+                </aside>
+              )}
+            </section>
+          )
+        })()}
 
         {/* Save + Share row */}
         <div className="flex items-start justify-between gap-4 flex-wrap mb-2">

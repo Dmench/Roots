@@ -8,6 +8,7 @@ import brusselsVenues from '@/lib/data/static/brussels-venues.json'
 import type { CityId } from '@/lib/types'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
+import { HoodGlyph } from '@/components/neighbourhoods/HoodGlyph'
 
 interface VenueRow {
   id: string
@@ -130,21 +131,41 @@ export default async function NeighbourhoodPage(
 
       <article className="max-w-3xl mx-auto px-6 md:px-12 pt-10 pb-20">
 
-        {/* The feel */}
+        {/* Neighbourhood glyph — placeholder geometric mark per hood.
+            Replaceable with commissioned illustrator art (see HoodGlyph.tsx). */}
+        <div className="mb-8 flex justify-center">
+          <HoodGlyph slug={slug} size={96} color="#4744C8" />
+        </div>
+
+        {/* The feel — drop cap opens the article like a magazine feature */}
         <section className="mb-12">
-          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+          <p className="flex items-baseline gap-2.5 text-[10px] font-black tracking-[0.22em] uppercase mb-3"
             style={{ color: '#4744C8' }}>
+            <span className="text-[9px] tracking-[0.32em]" style={{ color: '#252450' }}>№ 01</span>
             What it feels like
           </p>
-          <p className="text-base leading-relaxed" style={{ color: 'rgba(10,10,10,0.75)' }}>
-            {hood.feels}
+          <p className="text-base leading-relaxed" style={{ color: 'rgba(10,10,10,0.78)' }}>
+            <span style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 900,
+              fontSize: '5.5rem',
+              lineHeight: 0.85,
+              float: 'left',
+              marginRight: '0.5rem',
+              marginTop: '0.4rem',
+              color: '#4744C8',
+            }}>
+              {hood.feels.charAt(0)}
+            </span>
+            {hood.feels.slice(1)}
           </p>
         </section>
 
         {/* Who lives here */}
         <section className="mb-12">
-          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+          <p className="flex items-baseline gap-2.5 text-[10px] font-black tracking-[0.22em] uppercase mb-3"
             style={{ color: '#FF3EBA' }}>
+            <span className="text-[9px] tracking-[0.32em]" style={{ color: '#252450' }}>№ 02</span>
             Who lives here
           </p>
           <p className="text-base leading-relaxed" style={{ color: 'rgba(10,10,10,0.75)' }}>
@@ -154,8 +175,9 @@ export default async function NeighbourhoodPage(
 
         {/* Practical */}
         <section className="mb-12">
-          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-3"
+          <p className="flex items-baseline gap-2.5 text-[10px] font-black tracking-[0.22em] uppercase mb-3"
             style={{ color: '#10B981' }}>
+            <span className="text-[9px] tracking-[0.32em]" style={{ color: '#252450' }}>№ 03</span>
             The practical bit
           </p>
           <p className="text-base leading-relaxed mb-4" style={{ color: 'rgba(10,10,10,0.75)' }}>
