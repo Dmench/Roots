@@ -15,6 +15,7 @@ import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
 import { ShareRow } from '@/components/connect/ShareRow'
 import { SaveTipButton } from '@/components/tips/SaveTipButton'
+import { PersonalisedListCTA } from '@/components/tips/PersonalisedListCTA'
 
 const KIND_META: Record<CuratedKind, { label: string; color: string }> = {
   'tip':      { label: 'Tip',       color: '#0E9B6B' },
@@ -121,6 +122,9 @@ export default async function TipDetailPage(
           title={note.title}
           summary={note.body}
         />
+
+        {/* Personalised list — friction-free signup wedge */}
+        <PersonalisedListCTA cityId={cityId} cityName={city.name} />
 
         {/* Cross-links */}
         {(hood || relatedTasks.length > 0 || relatedTips.length > 0) && (

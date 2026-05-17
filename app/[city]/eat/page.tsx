@@ -32,6 +32,32 @@ const COLLECTIONS = [
   { id: 'remote',    label: 'Work from here',    sub: 'Wifi, plugs, and no rush',         color: '#1A8FAD', matchTag: 'remote-work'      },
 ]
 
+/* ── Taste chips (multi-select, identity-leaning) ────────────────────────── */
+//
+// Cuisine + format-led tags. Multi-select; OR logic across selected chips
+// (a venue passes if its tags overlap ANY selected chip's matchTags).
+// Persisted to localStorage so users keep their picks across sessions.
+//
+// Each chip's matchTags is an array — some are aliases (asian wraps japanese
+// / korean / chinese / vietnamese / taiwanese / hotpot / ramen / sushi).
+
+const TASTE_CHIPS: { id: string; label: string; color: string; matchTags: string[] }[] = [
+  { id: 'belgian',      label: 'Belgian',       color: '#FAB400', matchTags: ['belgian-classic'] },
+  { id: 'italian',      label: 'Italian',       color: '#E8612A', matchTags: ['italian', 'pasta'] },
+  { id: 'asian',        label: 'Asian',         color: '#FF3EBA', matchTags: ['japanese', 'korean', 'chinese', 'vietnamese', 'taiwanese', 'ramen', 'sushi', 'hotpot'] },
+  { id: 'brunch',       label: 'Brunch',        color: '#0E9B6B', matchTags: ['brunch'] },
+  { id: 'wine',         label: 'Natural wine',  color: '#9B4DCA', matchTags: ['natural-wine', 'wine'] },
+  { id: 'cocktails',    label: 'Cocktails',     color: '#252450', matchTags: ['cocktails'] },
+  { id: 'craft-beer',   label: 'Craft beer',    color: '#A07000', matchTags: ['craft-beer', 'lambic', 'gueuze'] },
+  { id: 'coffee',       label: 'Coffee',        color: '#B08800', matchTags: ['specialty-coffee'] },
+  { id: 'late-night',   label: 'Late night',    color: '#FF3EBA', matchTags: ['late-night'] },
+  { id: 'fine-dining',  label: 'Fine dining',   color: '#4744C8', matchTags: ['michelin', 'fancy'] },
+  { id: 'club',         label: 'Club',          color: '#0A0A0A', matchTags: ['nightclub'] },
+  { id: 'cheap-eats',   label: 'Cheap eats',    color: '#1A8FAD', matchTags: ['cheap', 'frites', 'fried-chicken', 'casual', 'comfort-food'] },
+]
+
+const TASTE_STORAGE_KEY = 'roots.eat.tastes.v1'
+
 /* ── Neighbourhood primer ────────────────────────────────────────────────── */
 
 const HOODS: Record<string, { name: string; sub: string; desc: string; color: string }[]> = {
@@ -255,9 +281,47 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   const [venues,        setVenues]        = useState<Venue[]>([])
   const [typeFilter,    setTypeFilter]    = useState<VenueType>('all')
   const [activeCol,     setActiveCol]     = useState<string | null>(null)
+  const [activeTastes,  setActiveTastes]  = useState<string[]>([])
   const [venuePhotos,   setVenuePhotos]   = useState<Record<string, string | null>>({})
   const [view,          setView]          = useState<'grid' | 'map'>('grid')
   const [selectedVenue, setSelectedVenue] = useState<string | null>(null)
+
+  // Hydrate tastes from localStorage on first mount + watch URL param
+  // (?taste=pizza,sushi) so links from /tips pages preselect them.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const fromUrl = new URLSearchParams(window.location.search).get('taste')
+    if (fromUrl) {
+      const ids = fromUrl.split(',').filter(t => TASTE_CHIPS.some(c => c.id === t))
+      if (ids.length > 0) {
+        setActiveTastes(ids)
+        try { localStorage.setItem(TASTE_STORAGE_KEY, JSON.stringify(ids)) } catch {}
+        return
+      }
+    }
+    try {
+      const stored = localStorage.getItem(TASTE_STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored) as unknown
+        if (Array.isArray(parsed)) {
+          setActiveTastes(parsed.filter((t): t is string =>
+            typeof t === 'string' && TASTE_CHIPS.some(c => c.id === t)))
+        }
+      }
+    } catch { /* private mode */ }
+  }, [])
+
+  // Persist taste changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem(TASTE_STORAGE_KEY, JSON.stringify(activeTastes))
+    } catch { /* private mode */ }
+  }, [activeTastes])
+
+  function toggleTaste(id: string) {
+    setActiveTastes(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
+  }
 
   useEffect(() => {
     if (city) getVenues(city.id).then(setVenues)
@@ -302,12 +366,22 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   // regular = curated (non-featured) for the editorial grid
   const regular = curated
 
+  // Filter chain: type → collection (single-select mood) → tastes (multi-select).
+  // Each layer ANDs with the previous, so picking "Asian" + "Date night" gives
+  // you Asian-and-date-night venues.
   let filtered = regular
+  if (typeFilter !== 'all') {
+    filtered = filtered.filter(v => v.broadType === typeFilter)
+  }
   if (activeCol) {
     const col = COLLECTIONS.find(c => c.id === activeCol)
-    if (col) filtered = regular.filter(v => v.tags?.includes(col.matchTag))
-  } else if (typeFilter !== 'all') {
-    filtered = regular.filter(v => v.broadType === typeFilter)
+    if (col) filtered = filtered.filter(v => v.tags?.includes(col.matchTag))
+  }
+  if (activeTastes.length > 0) {
+    const tasteTagSet = new Set(
+      activeTastes.flatMap(id => TASTE_CHIPS.find(c => c.id === id)?.matchTags ?? []),
+    )
+    filtered = filtered.filter(v => v.tags?.some(t => tasteTagSet.has(t)))
   }
 
   return (
@@ -315,7 +389,7 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
       <GeometricThread accent="#E8612A" />
 
       <PageMasthead
-        eyebrow={`${city.name} · Eat & Drink`}
+        eyebrow={`${city.name} · Eat & Drink · Local, on purpose.`}
         headline={`${city.name},`}
         emphasis="hungry."
         emphasisColor="#E8612A"
@@ -344,6 +418,74 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
       </PageMasthead>
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 pt-6 pb-16">
+
+        {/* ── WHAT YOU'RE INTO — multi-select taste/identity chips ────── */}
+        <section className="mb-6">
+          <div className="flex items-baseline justify-between gap-3 mb-2.5">
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+              style={{ color: 'rgba(10,10,10,0.4)' }}>
+              What you&apos;re into
+            </p>
+            {activeTastes.length > 0 && (
+              <button onClick={() => setActiveTastes([])}
+                className="text-[10px] font-bold hover:opacity-60 transition-opacity"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                Reset
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+            {TASTE_CHIPS.map(chip => {
+              const active = activeTastes.includes(chip.id)
+              return (
+                <button key={chip.id}
+                  onClick={() => toggleTaste(chip.id)}
+                  className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
+                  style={{
+                    color: active ? '#FFFFFF' : chip.color,
+                    background: active ? chip.color : 'transparent',
+                    border: `1px solid ${active ? chip.color : `${chip.color}40`}`,
+                  }}>
+                  {chip.label}
+                </button>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* ── How do you feel today? — single-select mood chips ────── */}
+        <section className="mb-8">
+          <div className="flex items-baseline justify-between gap-3 mb-2.5">
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+              style={{ color: 'rgba(10,10,10,0.4)' }}>
+              How do you feel today?
+            </p>
+            {activeCol && (
+              <button onClick={() => setActiveCol(null)}
+                className="text-[10px] font-bold hover:opacity-60 transition-opacity"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+            {COLLECTIONS.map(col => {
+              const active = activeCol === col.id
+              return (
+                <button key={col.id}
+                  onClick={() => setActiveCol(active ? null : col.id)}
+                  className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
+                  style={{
+                    color: active ? '#FFFFFF' : col.color,
+                    background: active ? col.color : 'transparent',
+                    border: `1px solid ${active ? col.color : `${col.color}40`}`,
+                  }}>
+                  {col.label}
+                </button>
+              )
+            })}
+          </div>
+        </section>
 
         {/* Browse */}
         <div className="mb-14">
