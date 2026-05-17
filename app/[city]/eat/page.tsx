@@ -280,8 +280,9 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
 
   const [venues,        setVenues]        = useState<Venue[]>([])
   const [typeFilter,    setTypeFilter]    = useState<VenueType>('all')
-  const [activeCol,     setActiveCol]     = useState<string | null>(null)
+  const [activeMoods,   setActiveMoods]   = useState<string[]>([])
   const [activeTastes,  setActiveTastes]  = useState<string[]>([])
+  const [activeHoods,   setActiveHoods]   = useState<string[]>([])
   const [venuePhotos,   setVenuePhotos]   = useState<Record<string, string | null>>({})
   const [view,          setView]          = useState<'grid' | 'map'>('grid')
   const [selectedVenue, setSelectedVenue] = useState<string | null>(null)
@@ -321,6 +322,12 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
 
   function toggleTaste(id: string) {
     setActiveTastes(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
+  }
+  function toggleMood(id: string) {
+    setActiveMoods(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
+  }
+  function toggleHood(name: string) {
+    setActiveHoods(prev => prev.includes(name) ? prev.filter(t => t !== name) : [...prev, name])
   }
 
   useEffect(() => {
@@ -366,22 +373,50 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
   // regular = curated (non-featured) for the editorial grid
   const regular = curated
 
-  // Filter chain: type → collection (single-select mood) → tastes (multi-select).
-  // Each layer ANDs with the previous, so picking "Asian" + "Date night" gives
-  // you Asian-and-date-night venues.
+  // Unique neighbourhoods present in the loaded venues — sorted by venue count
+  // (most-populous first). Drives the Neighbourhood chip rail.
+  const hoodCounts = new Map<string, number>()
+  for (const v of regular) {
+    if (v.neighborhood) hoodCounts.set(v.neighborhood, (hoodCounts.get(v.neighborhood) ?? 0) + 1)
+  }
+  const HOOD_CHIPS = [...hoodCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => name)
+
+  // Filter chain: default = ALL venues. Each axis is multi-select with
+  // OR-within-axis (any picked chip matches), AND-across-axes (all axes
+  // must independently match). Empty axis = no filter applied for that axis.
+  //
+  //   Cuisine  : tastes picked → venue.tags ∩ (union of chip matchTags) ≠ ∅
+  //   Vibe     : moods picked  → venue.tags ∩ (union of mood matchTags)  ≠ ∅
+  //   Hood     : hoods picked  → venue.neighborhood in selected
+  //   Type     : type picked   → venue.broadType === type (legacy tab)
   let filtered = regular
   if (typeFilter !== 'all') {
     filtered = filtered.filter(v => v.broadType === typeFilter)
-  }
-  if (activeCol) {
-    const col = COLLECTIONS.find(c => c.id === activeCol)
-    if (col) filtered = filtered.filter(v => v.tags?.includes(col.matchTag))
   }
   if (activeTastes.length > 0) {
     const tasteTagSet = new Set(
       activeTastes.flatMap(id => TASTE_CHIPS.find(c => c.id === id)?.matchTags ?? []),
     )
     filtered = filtered.filter(v => v.tags?.some(t => tasteTagSet.has(t)))
+  }
+  if (activeMoods.length > 0) {
+    const moodTagSet = new Set(
+      activeMoods.flatMap(id => COLLECTIONS.find(c => c.id === id)?.matchTag).filter((t): t is string => !!t),
+    )
+    filtered = filtered.filter(v => v.tags?.some(t => moodTagSet.has(t)))
+  }
+  if (activeHoods.length > 0) {
+    filtered = filtered.filter(v => v.neighborhood && activeHoods.includes(v.neighborhood))
+  }
+
+  const anyFilterActive = typeFilter !== 'all' || activeTastes.length > 0 || activeMoods.length > 0 || activeHoods.length > 0
+  function resetAll() {
+    setTypeFilter('all')
+    setActiveTastes([])
+    setActiveMoods([])
+    setActiveHoods([])
   }
 
   return (
@@ -419,12 +454,16 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 pt-6 pb-16">
 
-        {/* ── WHAT YOU'RE INTO — multi-select taste/identity chips ────── */}
-        <section className="mb-6">
+        {/* ── Three-axis filter: Cuisine / Vibe / Neighbourhood ─────────── */}
+        {/* Default state = all venues shown. Each chip you tap NARROWS the
+            list. Tap a chip again to remove it. Reset all = show everything. */}
+
+        {/* CUISINE — multi-select, persisted */}
+        <section className="mb-4">
           <div className="flex items-baseline justify-between gap-3 mb-2.5">
             <p className="text-[10px] font-black tracking-[0.22em] uppercase"
               style={{ color: 'rgba(10,10,10,0.4)' }}>
-              What you&apos;re into
+              Cuisine
             </p>
             {activeTastes.length > 0 && (
               <button onClick={() => setActiveTastes([])}
@@ -434,8 +473,6 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
               </button>
             )}
           </div>
-          {/* relative wrapper holds a right-edge fade overlay so mobile users
-              can tell the rail scrolls further — design council fix */}
           <div className="relative">
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
               {TASTE_CHIPS.map(chip => {
@@ -459,28 +496,28 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
           </div>
         </section>
 
-        {/* ── How do you feel today? — single-select mood chips ────── */}
-        <section className="mb-8">
+        {/* VIBE — multi-select */}
+        <section className="mb-4">
           <div className="flex items-baseline justify-between gap-3 mb-2.5">
             <p className="text-[10px] font-black tracking-[0.22em] uppercase"
               style={{ color: 'rgba(10,10,10,0.4)' }}>
-              How do you feel today?
+              Vibe
             </p>
-            {activeCol && (
-              <button onClick={() => setActiveCol(null)}
+            {activeMoods.length > 0 && (
+              <button onClick={() => setActiveMoods([])}
                 className="text-[10px] font-bold hover:opacity-60 transition-opacity"
                 style={{ color: 'rgba(10,10,10,0.4)' }}>
-                Clear
+                Reset
               </button>
             )}
           </div>
           <div className="relative">
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
               {COLLECTIONS.map(col => {
-                const active = activeCol === col.id
+                const active = activeMoods.includes(col.id)
                 return (
                   <button key={col.id}
-                    onClick={() => setActiveCol(active ? null : col.id)}
+                    onClick={() => toggleMood(col.id)}
                     className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
                     style={{
                       color: active ? '#FFFFFF' : col.color,
@@ -497,33 +534,88 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
           </div>
         </section>
 
-        {/* Browse */}
-        <div className="mb-14">
-          {/* Header row: label + type tabs + view toggle */}
-          <div className="flex items-center gap-4 mb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)', paddingBottom: '0.75rem' }}>
-            <p className="text-[10px] font-black tracking-[0.22em] uppercase flex-1" style={{ color: 'rgba(10,10,10,0.4)' }}>
-              {activeCol ? COLLECTIONS.find(c => c.id === activeCol)?.label : 'Browse all'}
-              <span className="ml-2 font-medium" style={{ opacity: 0.5 }}>{filtered.length}</span>
-            </p>
-
-            {/* Type tabs — only when no collection active */}
-            {!activeCol && (
-              <div className="flex items-center gap-4">
-                {(['all','restaurant','bar','cafe'] as VenueType[]).map(t => {
-                  const count  = t === 'all' ? regular.length : regular.filter(v => v.broadType === t).length
-                  const active = typeFilter === t
-                  if (count === 0 && t !== 'all') return null
-                  const label = t === 'all' ? 'All' : t === 'restaurant' ? 'Restaurants' : t === 'bar' ? 'Bars' : 'Cafés'
+        {/* NEIGHBOURHOOD — multi-select, derived from venue corpus */}
+        {HOOD_CHIPS.length > 0 && (
+          <section className="mb-6">
+            <div className="flex items-baseline justify-between gap-3 mb-2.5">
+              <p className="text-[10px] font-black tracking-[0.22em] uppercase"
+                style={{ color: 'rgba(10,10,10,0.4)' }}>
+                Neighbourhood
+              </p>
+              {activeHoods.length > 0 && (
+                <button onClick={() => setActiveHoods([])}
+                  className="text-[10px] font-bold hover:opacity-60 transition-opacity"
+                  style={{ color: 'rgba(10,10,10,0.4)' }}>
+                  Reset
+                </button>
+              )}
+            </div>
+            <div className="relative">
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+                {HOOD_CHIPS.map(name => {
+                  const active = activeHoods.includes(name)
+                  // Strip dual-language suffix for chip display ("Ixelles / Elsene" → "Ixelles")
+                  const label = name.split(' / ')[0]
                   return (
-                    <button key={t} onClick={() => setTypeFilter(t)}
-                      className="text-[10px] font-black tracking-widest uppercase transition-colors"
-                      style={{ color: active ? '#0A0A0A' : 'rgba(10,10,10,0.28)' }}>
+                    <button key={name}
+                      onClick={() => toggleHood(name)}
+                      className="shrink-0 text-[10px] font-black tracking-[0.14em] uppercase px-3 py-1.5 transition-all"
+                      style={{
+                        color: active ? '#FFFFFF' : '#4744C8',
+                        background: active ? '#4744C8' : 'transparent',
+                        border: `1px solid ${active ? '#4744C8' : 'rgba(71,68,200,0.25)'}`,
+                      }}>
                       {label}
                     </button>
                   )
                 })}
               </div>
-            )}
+              <div className="pointer-events-none absolute top-0 right-0 bottom-1 w-8 md:hidden"
+                style={{ background: 'linear-gradient(to right, transparent, #FFFFFF)' }} />
+            </div>
+          </section>
+        )}
+
+        {/* Active-filter summary + reset */}
+        {anyFilterActive && (
+          <div className="mb-6 flex items-center justify-between gap-3 px-3 py-2"
+            style={{ background: 'rgba(71,68,200,0.04)', border: '1px solid rgba(71,68,200,0.15)' }}>
+            <p className="text-xs" style={{ color: 'rgba(10,10,10,0.6)' }}>
+              Showing <strong style={{ color: '#0A0A0A' }}>{filtered.length}</strong> of {regular.length} venues
+            </p>
+            <button onClick={resetAll}
+              className="text-[10px] font-black tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+              style={{ color: '#4744C8' }}>
+              Clear all →
+            </button>
+          </div>
+        )}
+
+        {/* Browse */}
+        <div className="mb-14">
+          {/* Header row: label + type tabs + view toggle */}
+          <div className="flex items-center gap-4 mb-4" style={{ borderBottom: '1px solid rgba(10,10,10,0.08)', paddingBottom: '0.75rem' }}>
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase flex-1" style={{ color: 'rgba(10,10,10,0.4)' }}>
+              {anyFilterActive ? 'Matches' : 'Browse all'}
+              <span className="ml-2 font-medium" style={{ opacity: 0.5 }}>{filtered.length}</span>
+            </p>
+
+            {/* Type tabs — always visible; they intersect with the chip filters */}
+            <div className="flex items-center gap-4">
+              {(['all','restaurant','bar','cafe'] as VenueType[]).map(t => {
+                const count  = t === 'all' ? regular.length : regular.filter(v => v.broadType === t).length
+                const active = typeFilter === t
+                if (count === 0 && t !== 'all') return null
+                const label = t === 'all' ? 'All' : t === 'restaurant' ? 'Restaurants' : t === 'bar' ? 'Bars' : 'Cafés'
+                return (
+                  <button key={t} onClick={() => setTypeFilter(t)}
+                    className="text-[10px] font-black tracking-widest uppercase transition-colors"
+                    style={{ color: active ? '#0A0A0A' : 'rgba(10,10,10,0.28)' }}>
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
 
             {/* View toggle */}
             <div className="flex items-center shrink-0" style={{ border: '1px solid rgba(10,10,10,0.12)' }}>
@@ -592,7 +684,9 @@ export default function EatPage({ params }: { params: Promise<{ city: string }> 
         </div>
 
         {/* ── Spotted around Brussels ─────────────────────────────────────── */}
-        {scouted.length > 0 && !activeCol && (
+        {/* Scouted section hides when ANY chip filter is active — the user
+            is clearly looking for something specific in the curated set. */}
+        {scouted.length > 0 && !anyFilterActive && (
           <div className="mb-14">
             <div className="flex items-center gap-4 mb-5">
               <div className="flex-1 h-px" style={{ background: 'rgba(10,10,10,0.1)' }} />
