@@ -131,21 +131,32 @@ export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
   if (!open) {
     return (
       <button onClick={() => { if (!user) { onNeedsAuth?.(); return } setOpen(true) }}
-        className="w-full text-left flex items-center justify-between gap-4 px-5 py-4 group hover:opacity-90 transition-opacity"
+        className="w-full text-left group hover:opacity-90 transition-opacity"
         style={{ background: '#FFFFFF', border: '2px solid #FAB400' }}>
-        <div className="min-w-0">
-          <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1"
+        <div className="flex items-center justify-between gap-4 px-5 py-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1"
+              style={{ color: '#FAB400' }}>
+              Post a listing
+            </p>
+            <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
+              Got a room or looking for one?
+            </p>
+          </div>
+          <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
             style={{ color: '#FAB400' }}>
-            Post a listing
-          </p>
-          <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
-            Got a room or looking for one? Settler listings — vetted, 14 days fresh.
-          </p>
+            Compose →
+          </span>
         </div>
-        <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
-          style={{ color: '#FAB400' }}>
-          Compose →
-        </span>
+        {/* Trust strip — restates the contract right where the action lives */}
+        <div className="flex items-center gap-3 px-5 py-2 text-[10px] font-black tracking-[0.18em] uppercase flex-wrap"
+          style={{ background: 'rgba(250,180,0,0.08)', borderTop: '1px solid rgba(250,180,0,0.25)', color: 'rgba(10,10,10,0.55)' }}>
+          <span>No agency fees</span>
+          <span style={{ color: 'rgba(10,10,10,0.2)' }}>·</span>
+          <span>Settler-only</span>
+          <span style={{ color: 'rgba(10,10,10,0.2)' }}>·</span>
+          <span>14-day expiry</span>
+        </div>
       </button>
     )
   }

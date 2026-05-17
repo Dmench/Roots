@@ -20,8 +20,6 @@ import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
 import { WeeklyNote } from '@/components/connect/WeeklyNote'
 import { ShareRow } from '@/components/connect/ShareRow'
 import { SettlersNearbyRail } from '@/components/connect/SettlersNearbyRail'
-import { EventComposer }   from '@/components/connect/EventComposer'
-import { EventCard }       from '@/components/connect/EventCard'
 import {
   legacyPinsForChannel,
   type CuratedKind,
@@ -88,17 +86,15 @@ interface Channel {
 // Order within each group reflects current Brussels signal density.
 type ChannelId =
   | 'tips' | 'questions' | 'heads-up'
-  | 'events'
   | 'news'
 
-// Housing is no longer a Connect sub-tab — design council voted unanimously
-// for a dedicated /[city]/housing route + Hub-card promotion. Cross-link is
-// surfaced as a Connect footer module instead.
+// Housing AND Events both moved to their own routes (Growth + IA council).
+// Connect now is conversation: Tips, Questions, Heads-up, plus the scraped
+// news rail. Structured user-supply (housing, events) lives on dedicated
+// routes with Hub-card promotion + Connect cross-links.
 const CHANNELS: Channel[] = [
   { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',       color: '#10B981', group: 'talk',   cat: 'recommendation'   },
   { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', group: 'talk',   cat: 'question'         },
-  // Events channel — user-submitted, complementing the scraped Hub feed.
-  { id: 'events',    label: 'Events',     sub: 'What\'s on, posted by settlers',  color: '#E8612A', group: 'talk',   cat: 'event'            },
 ]
 
 const CAT_META: Record<PostCategory, { color: string; label: string }> = {
@@ -751,8 +747,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
               const groupBoundary = prev && prev.group !== ch.group
 
               const count =
-                ch.id === 'events' ? eventItems.length :
-                ch.id === 'news'   ? newsItems.length  :
+                ch.id === 'news' ? newsItems.length :
                 postCounts[ch.id] ?? 0
 
               return (
@@ -837,7 +832,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             )}
 
             {/* ── Intro composer (collapsible "say hi" prompt) ──────────── */}
-            {user && !hasOwnIntro && !introDismissed && channel.cat && channel.id !== 'events' && (
+            {user && !hasOwnIntro && !introDismissed && channel.cat && (
               <section className="mb-8" style={{ border: '2px solid #FF3EBA' }}>
                 <div className="px-4 pt-3 pb-1">
                   <div className="flex items-baseline justify-between mb-2 gap-3">
@@ -882,7 +877,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             )}
 
             {/* ── New settlers this week — intro posts lane ────────────── */}
-            {channel.id !== 'events' && (() => {
+            {(() => {
               const intros = posts.filter(p => p.category === 'intro').slice(0, 6)
               if (intros.length === 0) return null
               return (
@@ -927,7 +922,7 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             })()}
 
             {/* ── This week in Brussels — editorial note ─────────────────── */}
-            {channel.id !== 'events' && <WeeklyNote cityId={cityId} />}
+            <WeeklyNote cityId={cityId} />
 
             {/* ── Vrijdag matchup — vote all week, results reveal Friday ── */}
             {channel.id === 'tips' && <WeeklyMatchup cityId={cityId} />}
@@ -957,64 +952,31 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
               </a>
             )}
 
-            {/* ── Events channel — user-submitted ──────────────────────── */}
-            {channel.id === 'events' && (
-              <section>
-                <div className="flex items-baseline justify-between gap-3 mb-3 pb-2.5"
-                  style={{ borderBottom: '2px solid #E8612A' }}>
-                  <span className="flex items-center gap-2.5">
-                    <span className="shrink-0 inline-block"
-                      style={{ width: 10, height: 10, borderRadius: '50%', background: '#E8612A' }} />
-                    <span className="text-xs font-black tracking-[0.16em] uppercase" style={{ color: '#E8612A' }}>
-                      Settler-posted events
-                    </span>
-                  </span>
-                  <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                    style={{ color: 'rgba(10,10,10,0.4)' }}>
-                    {activePosts.length} upcoming
-                  </span>
-                </div>
-
-                <div className="mb-6">
-                  <EventComposer
-                    cityId={cityId as CityId}
-                    onNeedsAuth={() => setAuthOpen(true)}
-                    onSubmitted={(p) => setPosts(prev => [p, ...prev])} />
-                </div>
-
-                {activePosts.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[...activePosts]
-                      .sort((a, b) => {
-                        const ad = a.eventDate ? new Date(a.eventDate).getTime() : 0
-                        const bd = b.eventDate ? new Date(b.eventDate).getTime() : 0
-                        return ad - bd
-                      })
-                      .map(p => (
-                        <EventCard
-                          key={p.id}
-                          post={p}
-                          reported={reportedPosts.has(p.id)}
-                          onReport={() => reportPost(p.id)} />
-                      ))}
-                  </div>
-                ) : (
-                  <div className="py-12 px-6"
-                    style={{ background: '#FAFAF7', border: '1px solid rgba(10,10,10,0.08)' }}>
-                    <p className="text-base font-semibold mb-2" style={{ color: '#0A0A0A' }}>
-                      Hosting a gig, class, meetup, party?
+            {/* ── Events cross-link (Events lives on /[city]/events now) ── */}
+            {channel.id === 'tips' && (
+              <a href={`/${cityId}/events`}
+                className="block mb-6 group hover:opacity-90 transition-opacity"
+                style={{ background: '#FFFFFF', border: '2px solid #E8612A' }}>
+                <div className="flex items-center justify-between gap-4 px-5 py-4">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1"
+                      style={{ color: '#E8612A' }}>
+                      Hosting something?
                     </p>
-                    <p className="text-sm mb-3" style={{ color: 'rgba(10,10,10,0.55)' }}>
-                      Tell settlers what&apos;s on. We also pull events from visit.brussels
-                      on the hub — your post sits alongside.
+                    <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
+                      Settler-posted events — gigs, dinners, classes. Post yours.
                     </p>
                   </div>
-                )}
-              </section>
+                  <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
+                    style={{ color: '#E8612A' }}>
+                    Events →
+                  </span>
+                </div>
+              </a>
             )}
 
             {/* ── Community channels (tips / questions / heads-up) ───────── */}
-            {channel.cat && channel.id !== 'events' && (
+            {channel.cat && (
               <>
                 {/* Neighbourhood filter — only when there are posts to filter */}
                 {hoodChips.length > 0 && posts.some(p => p.category === channel.cat) && (
@@ -1422,115 +1384,6 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     </button>
                   </div>
                 </div>
-              </>
-            )}
-
-            {/* ── Events channel ───────────────────────────────────────── */}
-            {channel.id === 'events' && (
-              <>
-                {feedState === 'loading' && (
-                  <div>
-                    {[1,2,3,4,5].map(i => (
-                      <div key={i} className="flex gap-4 py-4 animate-pulse"
-                        style={{ borderBottom: '1px solid rgba(10,10,10,0.07)' }}>
-                        <div className="w-12 h-12 bg-sand/40 shrink-0" />
-                        <div className="flex-1 pt-1">
-                          <div className="h-2.5 bg-sand/40 rounded w-1/4 mb-2" />
-                          <div className="h-3.5 bg-sand/40 rounded w-full mb-1.5" />
-                          <div className="h-2.5 bg-sand/30 rounded w-1/2" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {feedState !== 'loading' && eventItems.length === 0 && (
-                  <div className="py-16">
-                    <p className="text-sm" style={{ color: 'rgba(10,10,10,0.35)' }}>No events found right now</p>
-                  </div>
-                )}
-                {eventItems.length > 0 && (
-                  <div>
-                    {eventItems.map((fi, idx) => {
-                      const diff = fi.published - Date.now() / 1000
-                      const when = diff < 86400  ? 'Today'
-                               : diff < 172800  ? 'Tomorrow'
-                               : new Date(fi.published * 1000).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
-                      const dotColor = SOURCE_COLOR[fi.source] ?? '#E8612A'
-                      const isLead   = idx === 0
-
-                      return isLead ? (
-                        /* Lead — full-bleed dark cinematic card, no border-radius on image */
-                        <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="block mb-2 group"
-                          style={{ background: '#0F0E1E', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
-                          {fi.image && (
-                            <div className="relative h-48 overflow-hidden">
-                              <Image
-                                src={fi.image}
-                                alt=""
-                                fill
-                                sizes="(max-width: 1024px) 100vw, 50vw"
-                                className="object-cover opacity-60 group-hover:opacity-70 transition-opacity"
-                              />
-                              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 20%, #0F0E1E 100%)' }} />
-                            </div>
-                          )}
-                          <div className="px-5 pt-3 pb-5">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-[10px] font-black tracking-[0.22em] uppercase"
-                                style={{ color: dotColor }}>
-                                {fi.sourceLabel}
-                              </span>
-                              <span className="text-[10px]" style={{ color: 'rgba(245,244,240,0.3)' }}>·</span>
-                              <span className="text-[10px] font-semibold" style={{ color: 'rgba(245,244,240,0.4)' }}>{when}</span>
-                            </div>
-                            <p className="text-base font-bold leading-snug group-hover:opacity-70 transition-opacity"
-                              style={{ color: '#F5F4F0' }}>
-                              {fi.title}
-                            </p>
-                            {fi.summary && (
-                              <p className="text-xs mt-1 line-clamp-1" style={{ color: 'rgba(245,244,240,0.35)' }}>
-                                {fi.summary}
-                              </p>
-                            )}
-                          </div>
-                        </a>
-                      ) : (
-                        /* Secondary — editorial row with image thumb, divider */
-                        <a key={fi.id} href={fi.url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-start gap-4 py-3.5 group hover:opacity-70 transition-opacity"
-                          style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}>
-                          {fi.image ? (
-                            <Image src={fi.image} alt="" width={56} height={56} sizes="56px" className="w-14 h-14 object-cover shrink-0" />
-                          ) : (
-                            <div className="w-14 h-14 shrink-0 flex items-center justify-center"
-                              style={{ background: `${dotColor}12` }}>
-                              <div className="w-1.5 h-1.5 rounded-full" style={{ background: dotColor }} />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0 pt-0.5">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                                style={{ color: dotColor }}>
-                                {fi.sourceLabel}
-                              </span>
-                              <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.3)' }}>{when}</span>
-                            </div>
-                            <p className="text-sm font-semibold leading-snug truncate"
-                              style={{ color: '#0A0A0A' }}>
-                              {fi.title}
-                            </p>
-                            {fi.summary && (
-                              <p className="text-[10px] mt-0.5 truncate" style={{ color: 'rgba(10,10,10,0.4)' }}>
-                                {fi.summary}
-                              </p>
-                            )}
-                          </div>
-                        </a>
-                      )
-                    })}
-                  </div>
-                )}
               </>
             )}
 

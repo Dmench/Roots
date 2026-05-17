@@ -21,6 +21,7 @@ import { RentalsWidget } from '@/components/city/RentalsWidget'
 import { SpinWheel } from '@/components/city/SpinWheel'
 import { FirstWeekModule } from '@/components/city/FirstWeekModule'
 import { HousingHubCard } from '@/components/city/HousingHubCard'
+import { EventsHubCard } from '@/components/city/EventsHubCard'
 import { ResumeStateHero } from '@/components/city/ResumeStateHero'
 import type { CityId } from '@/lib/types'
 
@@ -110,8 +111,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 {city.name}
               </h1>
               <p className="text-[10px] font-black tracking-[0.28em] uppercase mt-1"
-                style={{ color: 'rgba(10,10,10,0.25)' }}>
-                {city.country} · Updated today
+                style={{ color: 'rgba(10,10,10,0.35)' }}>
+                Local, on purpose · Your first 90 days in {city.country}
               </p>
             </div>
 
@@ -156,10 +157,18 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
           <SettlersStrip cityId={cityId} />
         </div>
+      </div>
 
-        {/* Housing Hub card — above the fold on mobile, per design council */}
-        <div className="px-6 sm:px-10 md:px-14 pb-6">
+
+      {/* ── Settler-supply cards: Housing + Events ─────────────────────────
+          Sit between masthead and editorial body — the "seam" placement
+          (editorial council). On white, not in the cream masthead block,
+          so they read as deliberate handoff to user-action, not as a
+          fifth masthead element. Above-the-fold on mobile.            */}
+      <div className="px-6 sm:px-10 md:px-14 pt-6 pb-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <HousingHubCard cityId={cityId} />
+          <EventsHubCard  cityId={cityId} />
         </div>
       </div>
 
