@@ -43,8 +43,12 @@ export async function EventsHubCard({ cityId }: Props) {
 
   return (
     <Link href={`/${cityId}/events`}
-      className="block group transition-all"
+      className="block group relative transition-all overflow-hidden"
       style={{ background: '#FFFFFF', border: '2px solid #E8612A' }}>
+      {/* Dynamic accent bar — slides full-width on hover, idle as a thin stub */}
+      <span aria-hidden
+        className="absolute left-0 bottom-0 h-[3px] w-3 group-hover:w-full transition-[width] duration-500 ease-out"
+        style={{ background: '#E8612A' }} />
       <div className="flex items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5">
         <div className="min-w-0 flex items-center gap-4">
           <span className="shrink-0 inline-flex items-center justify-center"

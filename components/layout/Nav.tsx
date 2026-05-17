@@ -34,8 +34,12 @@ export function Nav() {
     ? getCity(pathCityId) : undefined
   const profileCity = profile.cityId ? getCity(profile.cityId) : undefined
 
+  // Top nav order — Housing + Events promoted alongside Community per
+  // founder direction (supply-side pages are the wedge metric).
   const cityNav = pathCity ? [
     { href: `/${pathCity.id}`,         label: pathCity.name,  color: '#10B981', home: true },
+    { href: `/${pathCity.id}/housing`, label: 'Housing',      color: '#FAB400' },
+    { href: `/${pathCity.id}/events`,  label: 'Events',       color: '#E8612A' },
     { href: `/${pathCity.id}/connect`, label: 'Community',    color: '#FF3EBA' },
     { href: `/${pathCity.id}/eat`,     label: 'Eat & Drink',  color: '#E8612A' },
     { href: `/${pathCity.id}/settle`,  label: 'Settle in',    color: '#FAB400' },
@@ -67,7 +71,8 @@ export function Nav() {
             Roots
           </Link>
 
-          {/* City tabs — stretch to nav height so underline touches bottom */}
+          {/* City tabs — stretch to nav height; dynamic color-bar slides
+              up from below on hover and stays full when active. */}
           {cityNav.length > 0 && (
             <nav className="hidden md:flex items-stretch gap-0">
               {cityNav.map((link) => {
@@ -77,15 +82,10 @@ export function Nav() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      'flex items-center gap-1.5 px-3 text-sm font-medium transition-colors',
-                      active
-                        ? 'font-semibold'
-                        : 'text-neutral-500 hover:text-neutral-900'
+                      'group relative flex items-center gap-1.5 px-3 text-sm font-medium transition-colors',
+                      active ? 'font-semibold' : 'text-neutral-500 hover:text-neutral-900'
                     )}
-                    style={active ? {
-                      color: link.color,
-                      boxShadow: `inset 0 -2px 0 ${link.color}`,
-                    } : {}}
+                    style={active ? { color: link.color } : {}}
                   >
                     {link.home && (
                       <span className="relative flex h-1.5 w-1.5 shrink-0">
@@ -94,6 +94,15 @@ export function Nav() {
                       </span>
                     )}
                     {link.label}
+                    {/* Color-bar — slides up from below on hover, fully painted when active */}
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'absolute left-0 right-0 bottom-0 h-[2px] origin-bottom transition-transform duration-300 ease-out',
+                        active ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-100'
+                      )}
+                      style={{ background: link.color }}
+                    />
                   </Link>
                 )
               })}
@@ -223,12 +232,25 @@ export function Nav() {
             backdropFilter: 'blur(12px)',
             paddingBottom: 'env(safe-area-inset-bottom)',
           }}>
+          {/* Mobile bottom — 5 tabs max. Housing + Events promoted as
+              supply-wedge surfaces; Settle + Ask remain in overlay menu
+              and on Hub section nav. */}
           {[
             { href: `/${pathCity.id}`,         label: 'Home',      color: '#10B981', icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             ), exact: true },
+            { href: `/${pathCity.id}/housing`, label: 'Housing',   color: '#FAB400', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 21h16"/><path d="M6 21V4a2 2 0 012-2h8a2 2 0 012 2v17"/><circle cx="15" cy="12" r="0.6" fill="currentColor"/>
+              </svg>
+            ), exact: false },
+            { href: `/${pathCity.id}/events`,  label: 'Events',    color: '#E8612A', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="0"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            ), exact: false },
             { href: `/${pathCity.id}/connect`, label: 'Community', color: '#FF3EBA', icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
@@ -237,16 +259,6 @@ export function Nav() {
             { href: `/${pathCity.id}/eat`,     label: 'Eat',       color: '#E8612A', icon: (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
-              </svg>
-            ), exact: false },
-            { href: `/${pathCity.id}/settle`,  label: 'Settle',    color: '#FAB400', icon: (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-              </svg>
-            ), exact: false },
-            { href: `/${pathCity.id}/ask`,     label: 'Ask',       color: '#38C0F0', icon: (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             ), exact: false },
           ].map(tab => {
