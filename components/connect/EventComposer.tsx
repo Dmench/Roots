@@ -125,7 +125,7 @@ export function EventComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
   if (!open) {
     return (
       <button onClick={() => { if (!user) { onNeedsAuth?.(); return } setOpen(true) }}
-        className="w-full text-left flex items-center justify-between gap-4 px-5 py-4 group hover:opacity-90 transition-opacity"
+        className="w-full text-left flex items-center justify-between gap-4 px-5 py-4 group transition-all"
         style={{ background: '#FFFFFF', border: '2px solid #E8612A' }}>
         <div className="min-w-0">
           <p className="text-[10px] font-black tracking-[0.22em] uppercase mb-1"
@@ -136,9 +136,10 @@ export function EventComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
             Hosting a gig, a class, a kitchen-table dinner? Tell settlers what&apos;s on.
           </p>
         </div>
-        <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
+        <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase inline-flex items-center gap-1"
           style={{ color: '#E8612A' }}>
-          Compose →
+          Compose
+          <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
         </span>
       </button>
     )

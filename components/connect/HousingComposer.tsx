@@ -130,7 +130,7 @@ export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
   if (!open) {
     return (
       <button onClick={() => { if (!user) { onNeedsAuth?.(); return } setOpen(true) }}
-        className="w-full text-left group hover:opacity-90 transition-opacity"
+        className="w-full text-left group transition-all"
         style={{ background: '#FFFFFF', border: '2px solid #FAB400' }}>
         <div className="flex items-center justify-between gap-4 px-5 py-4">
           <div className="min-w-0">
@@ -142,9 +142,10 @@ export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
               Got a room or looking for one?
             </p>
           </div>
-          <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"
+          <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase inline-flex items-center gap-1"
             style={{ color: '#FAB400' }}>
-            Compose →
+            Compose
+            <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
           </span>
         </div>
         {/* Trust strip — restates the contract right where the action lives */}
