@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export const metadata = {
   title: 'Housing — Settler listings | Roots',
   description:
-    'Vetted housing listings posted by settlers — rooms, studios, and wanted ads, 14 days fresh. Brussels.',
+    'Settler-posted housing listings — rooms, studios, and wanted ads in Brussels. No agencies.',
 }
 
 export default async function HousingPage({

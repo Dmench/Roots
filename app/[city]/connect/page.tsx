@@ -940,8 +940,8 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
                     </p>
                     <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
                       {housingCount > 0
-                        ? `${housingCount} settler listing${housingCount === 1 ? '' : 's'} live — vetted, 14 days fresh.`
-                        : 'Settler listings — vetted, 14 days fresh. Yours could be the first.'}
+                        ? `${housingCount} settler listing${housingCount === 1 ? '' : 's'} live — no agencies, no scrapers.`
+                        : 'Settler-posted listings — no agencies. Yours could be the first.'}
                     </p>
                   </div>
                   <span className="shrink-0 text-[10px] font-black tracking-[0.18em] uppercase"

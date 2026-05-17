@@ -22,7 +22,6 @@ interface Props {
 //   - Type required (offer | wanted)
 //   - Neighbourhood required
 //   - Photo URL strongly encouraged (offer only)
-//   - 14-day auto-expire is a server-side concern; flagged in copy here
 export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
   const { user } = useAuth()
   const { profile } = useProfile()
@@ -155,7 +154,7 @@ export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
           <span style={{ color: 'rgba(10,10,10,0.2)' }}>·</span>
           <span>Settler-only</span>
           <span style={{ color: 'rgba(10,10,10,0.2)' }}>·</span>
-          <span>14-day expiry</span>
+          <span>No scrapers</span>
         </div>
       </button>
     )
@@ -306,7 +305,7 @@ export function HousingComposer({ cityId, onSubmitted, onNeedsAuth }: Props) {
             ? <span style={{ color: '#C0392B' }}>{error}</span>
             : !photoOk
               ? <span style={{ color: '#C0392B' }}>Photo URL must start with http:// or https://</span>
-              : `${body.length}/600 · auto-expires in 14 days`}
+              : `${body.length}/600`}
         </span>
         <button onClick={submit} disabled={!ready}
           className="px-4 py-2 text-[10px] font-black tracking-wide uppercase text-white transition-opacity disabled:opacity-25"

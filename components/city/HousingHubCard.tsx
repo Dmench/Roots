@@ -16,17 +16,12 @@ export async function HousingHubCard({ cityId }: Props) {
 
   try {
     const sb = createAnonClient()
-    // Live count of housing posts in the last 14 days (matches the
-    // "14-day expiry" copy elsewhere). Two HEAD queries is cheap.
-    const since = new Date(Date.now() - 14 * 86_400_000).toISOString()
-
+    // Live count of all active housing posts. Two HEAD queries is cheap.
     const [{ count: oc }, { count: wc }] = await Promise.all([
       sb.from('posts').select('id', { count: 'exact', head: true })
-        .eq('city_id', cityId).eq('category', 'housing-offer')
-        .gte('created_at', since),
+        .eq('city_id', cityId).eq('category', 'housing-offer'),
       sb.from('posts').select('id', { count: 'exact', head: true })
-        .eq('city_id', cityId).eq('category', 'housing-wanted')
-        .gte('created_at', since),
+        .eq('city_id', cityId).eq('category', 'housing-wanted'),
     ])
     offers = oc ?? 0
     wanted = wc ?? 0
@@ -36,12 +31,12 @@ export async function HousingHubCard({ cityId }: Props) {
   }
 
   const headline = total > 0
-    ? `${total} settler listing${total === 1 ? '' : 's'} live`
+    ? `${total} settler listing${total === 1 ? '' : 's'}`
     : 'Settler listings — yours could be the first'
 
   const sub = total > 0
-    ? `${offers} for rent · ${wanted} wanted · 14 days fresh`
-    : 'Rooms, studios, and wanted ads. No agency fees, no scams.'
+    ? `${offers} for rent · ${wanted} wanted`
+    : 'Rooms, studios, wanted ads. No agencies, no scrapers.'
 
   return (
     <Link href={`/${cityId}/housing`}

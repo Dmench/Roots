@@ -103,7 +103,7 @@ export function HousingCard({ post, onReport, reported }: Props) {
         <div className="mt-auto pt-2 flex items-center justify-between gap-2 relative"
           style={{ borderTop: '1px solid rgba(10,10,10,0.06)' }}>
           <span className="text-[10px]" style={{ color: 'rgba(10,10,10,0.35)' }}>
-            14-day listing · DM the lister via their profile
+            DM the lister via their profile
           </span>
           <details className="relative">
             <summary

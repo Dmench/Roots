@@ -129,21 +129,12 @@ export function HousingPageClient({ cityId, cityName }: Props) {
   const offerCount  = posts.filter(p => p.category === 'housing-offer').length
   const wantedCount = posts.filter(p => p.category === 'housing-wanted').length
 
-  // Dateline — magazine register: "Issue · 11 May → 24 May" (rolling 14-day
-  // window matching the auto-expiry copy). Gives the page issue-rhythm
-  // even when listings are sparse.
-  const issueRange = (() => {
-    const start = new Date(Date.now() - 14 * 86_400_000)
-    const end   = new Date()
-    const fmt   = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-    return `${fmt(start)} → ${fmt(end)}`
-  })()
-  const sinceWeek = Date.now() - 7 * 86_400_000
-  const newThisWeek = posts.filter(p => {
-    const t = Number((p.id ?? '').slice(1)) // optimistic ids start "u<ts>"
-    // Optimistic ids encode timestamp; real ids don't — fall back to 'time' field heuristic
-    return !Number.isNaN(t) ? t >= sinceWeek : p.time?.includes('h ago') || p.time === 'just now' || p.time?.includes('m ago')
-  }).length
+  // Count posts that arrived in the last 7 days — used for the "X new
+  // this week" badge. Heuristic on the formatted 'time' string handles
+  // both optimistic and loaded posts uniformly.
+  const newThisWeek = posts.filter(p =>
+    p.time === 'just now' || p.time?.endsWith('m ago') || p.time?.endsWith('h ago')
+  ).length
 
   return (
     <div className="max-w-5xl mx-auto px-6 md:px-12 py-8 md:py-12">
@@ -164,12 +155,12 @@ export function HousingPageClient({ cityId, cityName }: Props) {
           style={{ color: '#0A0A0A', letterSpacing: '-0.02em' }}>
           Settler listings.
           <br />
-          <span style={{ color: '#FAB400' }}>Vetted, 14 days fresh.</span>
+          <span style={{ color: '#FAB400' }}>No agencies.</span>
         </h1>
         <p className="text-sm md:text-base max-w-2xl"
           style={{ color: 'rgba(10,10,10,0.6)' }}>
-          Rooms, studios, and wanted ads — posted by settlers, no agency fees,
-          no listing scams. DM the lister via their profile.
+          Rooms, studios, and wanted ads — posted by people who live here.
+          DM the lister via their profile.
         </p>
       </header>
 
@@ -179,20 +170,6 @@ export function HousingPageClient({ cityId, cityName }: Props) {
           cityId={cityId}
           onNeedsAuth={() => setAuthOpen(true)}
           onSubmitted={(p) => setPosts(prev => [p, ...prev])} />
-      </div>
-
-      {/* Dateline — issue rhythm, not feed rhythm */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-black tracking-[0.22em] uppercase"
-          style={{ color: '#FAB400' }}>
-          Current issue · {issueRange}
-        </span>
-        {newThisWeek > 0 && (
-          <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-            style={{ color: 'rgba(10,10,10,0.45)' }}>
-            {newThisWeek} new this week
-          </span>
-        )}
       </div>
 
       {/* Filter pills */}
@@ -214,10 +191,12 @@ export function HousingPageClient({ cityId, cityName }: Props) {
             </button>
           ))}
         </div>
-        <span className="text-[10px] font-black tracking-[0.18em] uppercase hidden sm:inline"
-          style={{ color: 'rgba(10,10,10,0.35)' }}>
-          14-day expiry
-        </span>
+        {newThisWeek > 0 && (
+          <span className="text-[10px] font-black tracking-[0.18em] uppercase hidden sm:inline"
+            style={{ color: 'rgba(10,10,10,0.35)' }}>
+            {newThisWeek} new this week
+          </span>
+        )}
       </div>
 
       {/* Grid */}
