@@ -114,8 +114,8 @@ export default async function GuideIndex(
         <p className="text-base leading-relaxed mb-12 max-w-2xl" style={{ color: 'rgba(10,10,10,0.7)' }}>
           Settling into a new city is sixty things, and almost no one tells you the order they need to happen in.
           We did it the hard way and wrote it all down for {city.name} — every form, every office, every gotcha,
-          every "everyone else figured this out except you" moment. Read here for free.
-          Sign up when you want to tick them off and filter by your stage and situation.
+          every &quot;everyone else figured this out except you&quot; moment. The interactive checklist — with stage
+          and situation filters — lives in Settle.
         </p>
 
         {/* Categories */}

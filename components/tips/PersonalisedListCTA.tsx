@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useAuth } from '@/lib/hooks/use-auth'
 
 interface Props {
   cityId:   string
@@ -28,6 +29,7 @@ const TASTES = [
 // on a tip page → picks tastes → gets a personalised /eat link IMMEDIATELY,
 // no email or signup gate. The signup ask only appears AFTER value lands.
 export function PersonalisedListCTA({ cityId, cityName }: Props) {
+  const { user } = useAuth()
   const [open,     setOpen]     = useState(false)
   const [picked,   setPicked]   = useState<string[]>([])
   const [delivered, setDelivered] = useState(false)
@@ -61,15 +63,18 @@ export function PersonalisedListCTA({ cityId, cityName }: Props) {
             style={{ background: '#0A0A0A', color: '#fff' }}>
             See your venues →
           </Link>
-          <Link href={`/${cityId}/settle`}
-            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium hover:opacity-70 transition-opacity"
-            style={{ color: '#4744C8', border: '1px solid #4744C8' }}>
-            Save it to a Roots account
-          </Link>
+          {!user && (
+            <Link href={`/${cityId}/settle`}
+              className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium hover:opacity-70 transition-opacity"
+              style={{ color: '#4744C8', border: '1px solid #4744C8' }}>
+              Save it to a Roots account
+            </Link>
+          )}
         </div>
         <p className="text-[10px] mt-4 leading-relaxed" style={{ color: 'rgba(10,10,10,0.45)' }}>
-          No signup needed to see the list — the picks persist on this device. Sign in if you want
-          them synced + a weekly note about new spots in your tastes.
+          {user
+            ? 'Your picks are saved to your account.'
+            : 'No signup needed to see the list — the picks persist on this device. Sign in if you want them synced + a weekly note about new spots in your tastes.'}
         </p>
       </section>
     )

@@ -92,7 +92,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         {/* Brand rule */}
         <div style={{ height: 4, background: '#252450' }} />
 
-        <div className="px-6 sm:px-10 md:px-14 py-7 md:py-10">
+        <div className="px-6 sm:px-10 md:px-14 py-10 md:py-14">
 
           {/* City nameplate */}
           <div className="flex items-center justify-between gap-4 mb-10">

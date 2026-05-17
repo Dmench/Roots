@@ -6,6 +6,7 @@ import { getCity, STAGES } from '@/lib/data/cities'
 import type { Stage, SituationTag, Spot } from '@/lib/types'
 import { SPOT_CATEGORIES } from '@/lib/types'
 import { CopyButton } from './CopyButton'
+import { SettlerCardCTA, SettlerCardCTAPitch } from './SettlerCardCTA'
 import { Footer } from '@/components/layout/Footer'
 import { Flag } from '@/components/ui/Flag'
 import { getCountry } from '@/lib/data/countries'
@@ -266,17 +267,10 @@ export default async function SettlerCardPage(
         <CopyButton url={publicUrl} />
       </div>
 
-      {/* ── CTA ───────────────────────────────────────────────────────────── */}
+      {/* ── CTA — auth-aware (no more "Join Roots" for logged-in viewers) ── */}
       <div className="w-full max-w-sm mt-10 pt-8" style={{ borderTop: '1px solid rgba(10,10,10,0.08)' }}>
-        <p className="text-[11px] mb-4 text-center" style={{ color: 'rgba(10,10,10,0.4)' }}>
-          Settling in {city?.name ?? 'a new city'}? Build your settler card.
-        </p>
-        <Link
-          href={city ? `/${cityId}` : '/cities'}
-          className="block text-center py-3 text-[11px] font-black tracking-[0.18em] uppercase text-white hover:opacity-90 transition-opacity"
-          style={{ background: '#4744C8' }}>
-          Join Roots →
-        </Link>
+        <SettlerCardCTAPitch cityName={city?.name} settlerId={id} />
+        <SettlerCardCTA cityId={cityId ?? undefined} cityName={city?.name} settlerId={id} />
       </div>
 
       <div className="w-full max-w-5xl mt-16">
