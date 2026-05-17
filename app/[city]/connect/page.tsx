@@ -20,6 +20,10 @@ import { PageMasthead } from '@/components/layout/PageMasthead'
 import { WeeklyNote } from '@/components/connect/WeeklyNote'
 import { ShareRow } from '@/components/connect/ShareRow'
 import { SettlersNearbyRail } from '@/components/connect/SettlersNearbyRail'
+import { HousingComposer } from '@/components/connect/HousingComposer'
+import { HousingCard }     from '@/components/connect/HousingCard'
+import { EventComposer }   from '@/components/connect/EventComposer'
+import { EventCard }       from '@/components/connect/EventCard'
 import {
   legacyPinsForChannel,
   type CuratedKind,
@@ -69,7 +73,6 @@ const RESOURCE_STYLE: Record<ResourceType, { color: string; label: string }> = {
 /* ── Curated content lives in lib/data/connect/curated-brussels.ts ──────── */
 /* ── Channel definitions ─────────────────────────────────────────────────── */
 
-type ChannelId = 'tips' | 'questions' | 'heads-up' | 'events' | 'news'
 type ChannelGroup = 'listen' | 'talk'
 
 interface Channel {
@@ -85,19 +88,28 @@ interface Channel {
 //   Listen — aggregated city signal (read-only, always populated)
 //   Talk   — settler-generated posts (you write here)
 // Order within each group reflects current Brussels signal density.
+type ChannelId =
+  | 'tips' | 'questions' | 'heads-up'
+  | 'housing' | 'events'
+  | 'news'
+
 const CHANNELS: Channel[] = [
-  // Two channels only — Tips is the beauty, Questions catches the
-  // "I'm trying to figure out X" moments. Heads-up / Events / News
-  // hidden until volume justifies them (events + news already on hub).
   { id: 'tips',      label: 'Tips',       sub: 'Locals sharing what works',       color: '#10B981', group: 'talk',   cat: 'recommendation'   },
   { id: 'questions', label: 'Questions',  sub: 'Ask the community anything',      color: '#38C0F0', group: 'talk',   cat: 'question'         },
+  // Housing channel — both offer + wanted posts. Type is a per-post tag.
+  { id: 'housing',   label: 'Housing',    sub: 'Settler listings — vetted',       color: '#FAB400', group: 'talk',   cat: 'housing-offer'    },
+  // Events channel — user-submitted, complementing the scraped Hub feed.
+  { id: 'events',    label: 'Events',     sub: 'What\'s on, posted by settlers',  color: '#E8612A', group: 'talk',   cat: 'event'            },
 ]
 
 const CAT_META: Record<PostCategory, { color: string; label: string }> = {
-  recommendation: { color: '#10B981', label: 'Tip' },
-  question:       { color: '#38C0F0', label: 'Question' },
-  'heads-up':     { color: '#FAB400', label: 'Heads-up' },
-  intro:          { color: '#FF3EBA', label: 'Intro' },
+  recommendation:  { color: '#10B981', label: 'Tip' },
+  question:        { color: '#38C0F0', label: 'Question' },
+  'heads-up':      { color: '#FAB400', label: 'Heads-up' },
+  intro:           { color: '#FF3EBA', label: 'Intro' },
+  'housing-offer': { color: '#FAB400', label: 'For rent' },
+  'housing-wanted':{ color: '#FAB400', label: 'Wanted' },
+  event:           { color: '#E8612A', label: 'Event' },
 }
 
 const STAGE_COLORS_INLINE: Record<Stage, string> = {
@@ -308,6 +320,14 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           category: p.category as PostCategory, text: p.text,
           time: formatRelative(p.created_at), authorStage: p.author_stage ?? undefined,
           neighborhood: p.neighborhood ?? undefined,
+          // Structured fields for housing/event posts
+          title:      p.title       ?? undefined,
+          price:      p.price       ?? undefined,
+          dates:      p.dates       ?? undefined,
+          photoUrl:   p.photo_url   ?? undefined,
+          eventDate:  p.event_date  ?? undefined,
+          eventVenue: p.event_venue ?? undefined,
+          eventUrl:   p.event_url   ?? undefined,
         }))
         setPosts(mapped)
 
@@ -428,7 +448,10 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
           const p = payload.new as {
             id: string; city_id: string; stage: string | null; category: string;
             text: string; created_at: string; author_id: string;
-            author_stage: string | null; neighborhood: string | null
+            author_stage: string | null; neighborhood: string | null;
+            title: string | null; price: string | null; dates: string | null;
+            photo_url: string | null; event_date: string | null;
+            event_venue: string | null; event_url: string | null;
           }
           // Skip my own inserts — already in state via optimistic update
           if (p.author_id === myId) return
@@ -439,6 +462,13 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             text: p.text, time: 'just now',
             authorStage: (p.author_stage ?? undefined) as Stage | undefined,
             neighborhood: p.neighborhood ?? undefined,
+            title:      p.title       ?? undefined,
+            price:      p.price       ?? undefined,
+            dates:      p.dates       ?? undefined,
+            photoUrl:   p.photo_url   ?? undefined,
+            eventDate:  p.event_date  ?? undefined,
+            eventVenue: p.event_venue ?? undefined,
+            eventUrl:   p.event_url   ?? undefined,
           }
           setPosts(prev => prev.some(x => x.id === incoming.id) ? prev : [incoming, ...prev])
         })
@@ -489,13 +519,22 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
     tips:       posts.filter(p => p.category === 'recommendation').length,
     questions:  posts.filter(p => p.category === 'question').length,
     'heads-up': posts.filter(p => p.category === 'heads-up').length,
-    events:     eventItems.length,
+    housing:    posts.filter(p => p.category === 'housing-offer' || p.category === 'housing-wanted').length,
+    events:     posts.filter(p => p.category === 'event').length + eventItems.length,
     news:       newsItems.length,
   }
 
+  // Housing channel groups BOTH offer + wanted posts (offer/wanted is a
+  // per-card chip, not a separate channel). Other channels use strict cat
+  // equality. The match() helper centralises this for the lastPost +
+  // postCounts logic too.
+  function matchesChannel(p: Post): boolean {
+    if (channel.id === 'housing') return p.category === 'housing-offer' || p.category === 'housing-wanted'
+    return p.category === channel.cat
+  }
   const activePosts = channel.cat
     ? posts
-        .filter(p => p.category === channel.cat)
+        .filter(matchesChannel)
         .filter(p => !activeHood || p.neighborhood === activeHood)
     : []
 
@@ -895,8 +934,116 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
             {/* ── This week in Brussels — editorial note, replaces matchup ── */}
             <WeeklyNote cityId={cityId} />
 
-            {/* ── Community channels (tips / questions / heads-up) ──────── */}
-            {channel.cat && (
+            {/* ── Housing channel — structured listings ─────────────────── */}
+            {channel.id === 'housing' && (
+              <section>
+                {/* Editorial masthead */}
+                <div className="flex items-baseline justify-between gap-3 mb-3 pb-2.5"
+                  style={{ borderBottom: '2px solid #FAB400' }}>
+                  <span className="flex items-center gap-2.5">
+                    <span className="shrink-0 inline-block"
+                      style={{ width: 10, height: 10, borderRadius: '50%', background: '#FAB400' }} />
+                    <span className="text-xs font-black tracking-[0.16em] uppercase" style={{ color: '#FAB400' }}>
+                      Settler listings
+                    </span>
+                  </span>
+                  <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                    style={{ color: 'rgba(10,10,10,0.4)' }}>
+                    {activePosts.length} fresh · 14-day expiry
+                  </span>
+                </div>
+
+                {/* Composer */}
+                <div className="mb-6">
+                  <HousingComposer
+                    cityId={cityId as CityId}
+                    onNeedsAuth={() => setAuthOpen(true)}
+                    onSubmitted={(p) => setPosts(prev => [p, ...prev])} />
+                </div>
+
+                {/* Grid of listings */}
+                {activePosts.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {activePosts.map(p => (
+                      <HousingCard
+                        key={p.id}
+                        post={p}
+                        reported={reportedPosts.has(p.id)}
+                        onReport={() => reportPost(p.id)} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 px-6"
+                    style={{ background: '#FAFAF7', border: '1px solid rgba(10,10,10,0.08)' }}>
+                    <p className="text-base font-semibold mb-2" style={{ color: '#0A0A0A' }}>
+                      No listings yet — yours could be the first.
+                    </p>
+                    <p className="text-sm" style={{ color: 'rgba(10,10,10,0.55)' }}>
+                      Settler-only, vetted, no agency fees. Post a room or a wanted-ad above.
+                    </p>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* ── Events channel — user-submitted ──────────────────────── */}
+            {channel.id === 'events' && (
+              <section>
+                <div className="flex items-baseline justify-between gap-3 mb-3 pb-2.5"
+                  style={{ borderBottom: '2px solid #E8612A' }}>
+                  <span className="flex items-center gap-2.5">
+                    <span className="shrink-0 inline-block"
+                      style={{ width: 10, height: 10, borderRadius: '50%', background: '#E8612A' }} />
+                    <span className="text-xs font-black tracking-[0.16em] uppercase" style={{ color: '#E8612A' }}>
+                      Settler-posted events
+                    </span>
+                  </span>
+                  <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+                    style={{ color: 'rgba(10,10,10,0.4)' }}>
+                    {activePosts.length} upcoming
+                  </span>
+                </div>
+
+                <div className="mb-6">
+                  <EventComposer
+                    cityId={cityId as CityId}
+                    onNeedsAuth={() => setAuthOpen(true)}
+                    onSubmitted={(p) => setPosts(prev => [p, ...prev])} />
+                </div>
+
+                {activePosts.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[...activePosts]
+                      .sort((a, b) => {
+                        const ad = a.eventDate ? new Date(a.eventDate).getTime() : 0
+                        const bd = b.eventDate ? new Date(b.eventDate).getTime() : 0
+                        return ad - bd
+                      })
+                      .map(p => (
+                        <EventCard
+                          key={p.id}
+                          post={p}
+                          reported={reportedPosts.has(p.id)}
+                          onReport={() => reportPost(p.id)} />
+                      ))}
+                  </div>
+                ) : (
+                  <div className="py-12 px-6"
+                    style={{ background: '#FAFAF7', border: '1px solid rgba(10,10,10,0.08)' }}>
+                    <p className="text-base font-semibold mb-2" style={{ color: '#0A0A0A' }}>
+                      Hosting a gig, class, meetup, party?
+                    </p>
+                    <p className="text-sm mb-3" style={{ color: 'rgba(10,10,10,0.55)' }}>
+                      Tell settlers what&apos;s on. We also pull events from visit.brussels
+                      on the hub — your post sits alongside.
+                    </p>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* ── Community channels (tips / questions) ──────────────────── */}
+            {channel.cat && channel.id !== 'housing' && channel.id !== 'events' && (
               <>
                 {/* Neighbourhood filter — only when there are posts to filter */}
                 {hoodChips.length > 0 && posts.some(p => p.category === channel.cat) && (

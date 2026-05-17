@@ -91,7 +91,14 @@ export interface Task {
 }
 
 // Community
-export type PostCategory = 'recommendation' | 'question' | 'heads-up' | 'intro'
+export type PostCategory =
+  | 'recommendation'
+  | 'question'
+  | 'heads-up'
+  | 'intro'
+  | 'housing-offer'
+  | 'housing-wanted'
+  | 'event'
 
 export interface Post {
   id: string
@@ -102,6 +109,14 @@ export interface Post {
   time: string
   authorStage?: Stage
   neighborhood?: string
+  // Structured fields populated by Housing / Event composers; null elsewhere.
+  title?:      string
+  price?:      string
+  dates?:      string
+  photoUrl?:   string
+  eventDate?:  string   // ISO timestamp
+  eventVenue?: string
+  eventUrl?:   string
 }
 
 // Spots — user's favourite places
