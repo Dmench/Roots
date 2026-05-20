@@ -7,7 +7,7 @@ import { getNews } from '@/lib/data/news'
 import { buildDigestEmail } from '@/lib/email/digest-template'
 import { getCity } from '@/lib/data/cities'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://roots.so'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://roots-mu.vercel.app'
 // Default to Resend's built-in verified sender so cron works out of the box.
 // Override with RESEND_FROM_EMAIL once a custom domain is verified in Resend
 // (e.g. "digest@roots.so", "hello@mail.roots.so").
