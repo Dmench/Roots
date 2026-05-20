@@ -8,6 +8,10 @@ import { buildDigestEmail } from '@/lib/email/digest-template'
 import { getCity } from '@/lib/data/cities'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://roots.so'
+// Default to Resend's built-in verified sender so cron works out of the box.
+// Override with RESEND_FROM_EMAIL once a custom domain is verified in Resend
+// (e.g. "digest@roots.so", "hello@mail.roots.so").
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'
 
 /**
  * GET /api/digest/send
@@ -136,7 +140,7 @@ export async function GET(req: NextRequest) {
       })
 
       const { error: sendErr } = await resend.emails.send({
-        from:    `${city.name} Digest <digest@roots.so>`,
+        from:    `${city.name} Digest <${FROM_EMAIL}>`,
         to:      user.email,
         subject,
         html,
