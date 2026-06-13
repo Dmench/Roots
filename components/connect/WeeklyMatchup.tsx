@@ -18,6 +18,9 @@ interface Matchup {
 
 interface Props {
   cityId: string
+  /** Compact rail variant: square tiles sized to sit beside the pick-for-me
+   *  wheel, smaller labels, no standfirst context line. */
+  compact?: boolean
 }
 
 // Pinned weekly matchup card. Sits above the tips channel feed on /connect.
@@ -30,7 +33,7 @@ interface Props {
 //
 // Renders nothing when there's no active matchup for the city, so the page
 // degrades cleanly during the gap between weeks.
-export default function WeeklyMatchup({ cityId }: Props) {
+export default function WeeklyMatchup({ cityId, compact = false }: Props) {
   const [matchup, setMatchup] = useState<Matchup | null>(null)
   const [status,  setStatus]  = useState<'loading' | 'ready' | 'none' | 'error'>('loading')
   const [voting,  setVoting]  = useState(false)
@@ -148,7 +151,7 @@ export default function WeeklyMatchup({ cityId }: Props) {
         )}
       </div>
 
-      {matchup.context && (
+      {!compact && matchup.context && (
         <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(10,10,10,0.7)', maxWidth: '54ch' }}>
           {matchup.context}
         </p>
@@ -166,6 +169,7 @@ export default function WeeklyMatchup({ cityId }: Props) {
           count={matchup.counts.a}
           isWinner={winner === 'a'}
           disabled={voting}
+          compact={compact}
           onTap={() => castVote('a')}
         />
         <MatchupTile
@@ -179,6 +183,7 @@ export default function WeeklyMatchup({ cityId }: Props) {
           count={matchup.counts.b}
           isWinner={winner === 'b'}
           disabled={voting}
+          compact={compact}
           onTap={() => castVote('b')}
         />
       </div>
@@ -198,7 +203,7 @@ export default function WeeklyMatchup({ cityId }: Props) {
 }
 
 function MatchupTile({
-  label, venueId, cityId, accent, selected, dimmed, pct, count, isWinner, disabled, onTap,
+  label, venueId, cityId, accent, selected, dimmed, pct, count, isWinner, disabled, compact, onTap,
 }: {
   label:    string
   venueId:  string | null
@@ -210,6 +215,7 @@ function MatchupTile({
   count:    number
   isWinner: boolean
   disabled: boolean
+  compact:  boolean
   onTap:    () => void
 }) {
   const photoUrl = venueId ? venuePhotoUrl(cityId, venueId) : null
@@ -220,7 +226,7 @@ function MatchupTile({
       disabled={disabled}
       className="relative overflow-hidden text-left group transition-all"
       style={{
-        aspectRatio: '4 / 5',
+        aspectRatio: compact ? '1 / 1' : '4 / 5',
         border:      selected ? `3px solid ${accent}` : '1.5px solid rgba(10,10,10,0.12)',
         opacity:     dimmed ? 0.55 : 1,
         background:  '#0A0A0A',
@@ -253,9 +259,9 @@ function MatchupTile({
       )}
 
       {/* Label + pct */}
-      <div className="absolute left-0 right-0 bottom-0 p-4 text-white">
+      <div className={`absolute left-0 right-0 bottom-0 text-white ${compact ? 'p-2.5' : 'p-4'}`}>
         <p className="font-display font-black leading-[1.05]"
-          style={{ fontSize: 'clamp(1.1rem, 2.6vw, 1.5rem)', letterSpacing: '-0.015em' }}>
+          style={{ fontSize: compact ? 'clamp(0.8rem, 4vw, 1rem)' : 'clamp(1.1rem, 2.6vw, 1.5rem)', letterSpacing: '-0.015em' }}>
           {label}
         </p>
         {pct !== null && (

@@ -22,7 +22,6 @@ import { SpinWheel } from '@/components/city/SpinWheel'
 import { FirstWeekModule } from '@/components/city/FirstWeekModule'
 import { HousingHubCard } from '@/components/city/HousingHubCard'
 import { EventsHubCard } from '@/components/city/EventsHubCard'
-import { WeeklyNote } from '@/components/connect/WeeklyNote'
 import WeeklyMatchup from '@/components/connect/WeeklyMatchup'
 import { ResumeStateHero } from '@/components/city/ResumeStateHero'
 import type { CityId } from '@/lib/types'
@@ -182,14 +181,20 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         </div>
       </div>
 
-      {/* ── City signals — moved from Connect (IA council unanimous): the
-          weekly editorial note and the Vrijdag matchup are CITY signals,
-          not community conversation. They belong on the Hub next to
-          weather / transport / events, not inside the talk page.        */}
-      <div className="px-6 sm:px-10 md:px-14 pt-8 pb-2">
-        <WeeklyNote cityId={cityId} />
-        <WeeklyMatchup cityId={cityId} />
-      </div>
+      {/* ── This week's picks — Editor's Picks promoted to a full-width upper
+          section (replaces the old "This week in Brussels" note). The Vrijdag
+          matchup moves down into the right rail next to the pick-for-me wheel. */}
+      {cityId === 'brussels' && (() => {
+        const pick = currentBrusselsPick()
+        const pickVenue = pick.venue.venueId
+          ? venues.find(v => v.id === pick.venue.venueId)
+          : null
+        return (
+          <div className="px-6 sm:px-10 md:px-14 pt-8 pb-2">
+            <EditorsPicks pick={pick} cityId={cityId} photoRef={pickVenue?.photoRef ?? null} />
+          </div>
+        )
+      })()}
 
 
       {/* ── Editorial body ───────────────────────────────────────────────── */}
@@ -205,21 +210,10 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_400px] gap-0 pb-16">
 
-          {/* ── LEFT: Resume hero (returning users) → First-Week spine + Editor's Picks + Events ──────── */}
+          {/* ── LEFT: Resume hero (returning users) → First-Week spine + Events ──────── */}
           <div className="lg:pr-10 pt-7">
             <ResumeStateHero cityId={cityId as CityId} cityName={city.name} />
             <FirstWeekModule cityId={cityId as CityId} />
-
-            {cityId === 'brussels' && (() => {
-              const pick = currentBrusselsPick()
-              // Resolve the editor's-pick venue's photoRef from the
-              // already-enriched venue list. Falls back to `null` and the
-              // component renders the text-only hero variant.
-              const pickVenue = pick.venue.venueId
-                ? venues.find(v => v.id === pick.venue.venueId)
-                : null
-              return <EditorsPicks pick={pick} cityId={cityId} photoRef={pickVenue?.photoRef ?? null} />
-            })()}
 
             {/* Running head — colored type + colored puck + 2px colored bottom rule */}
             <div className="flex items-baseline justify-between gap-3 mb-5 pb-2.5"
@@ -280,6 +274,11 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 </div>
               </section>
             )}
+
+            {/* ─ Vrijdag matchup — compact vote, sized to sit next to the
+                pick-for-me wheel above it. Moved here from the old city-
+                signals band. ─ */}
+            <WeeklyMatchup cityId={cityId} compact />
 
             {/* ─ Venue spotlight — photo-led editorial moment.
                 Always renders (component has internal colour-block fallback for
