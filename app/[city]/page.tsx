@@ -113,7 +113,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </h1>
               <p className="text-[10px] font-black tracking-[0.28em] uppercase mt-1"
                 style={{ color: 'rgba(10,10,10,0.35)' }}>
-                Local, on purpose · Your first 90 days in {city.country}
+                Local, on purpose · Your way into {city.name}
               </p>
             </div>
 
@@ -212,6 +212,31 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         </div>
       )}
 
+      {/* ── Venue of the week — wide editorial moment ──────────────────────
+          Pulled up out of the sidebar rail into a full-width photo band:
+          the single best place to eat/drink this week, sized to entice.
+          Bar/resto discovery as a beautiful lead, not a buried rail card. */}
+      {(() => {
+        const spotlight = venues.find(v => v.featured && v.photoRef)
+                        ?? venues.find(v => v.featured)
+                        ?? venues.find(v => v.photoRef)
+                        ?? venues[0]
+        return spotlight ? (
+          <div className="px-6 sm:px-10 md:px-14 pt-10">
+            <SectionLabel color="#E8612A" right={
+              <Link href={`/${cityId}/eat`}
+                className="text-[10px] font-black tracking-widest uppercase hover:opacity-60 transition-opacity"
+                style={{ color: '#E8612A' }}>
+                See all →
+              </Link>
+            }>
+              Venue of the week
+            </SectionLabel>
+            <VenueSpotlight venue={spotlight} cityId={cityId} variant="feature" />
+          </div>
+        ) : null
+      })()}
+
       {/* ── What the city's choosing this week ─────────────────────────────
           WeeklyMatchup sits right after What's on — "what the city is
           picking" reads as peopled discovery (live vote counts) adjacent to
@@ -296,17 +321,8 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </section>
             )}
 
-            {/* ─ Venue spotlight — photo-led editorial moment.
-                Always renders (component has internal colour-block fallback for
-                missing/broken photos). Prefers the featured curated venue with
-                a photoRef; falls back to any curated venue. ─ */}
-            {(() => {
-              const spotlight = venues.find(v => v.featured && v.photoRef)
-                              ?? venues.find(v => v.featured)
-                              ?? venues.find(v => v.photoRef)
-                              ?? venues[0]
-              return spotlight ? <VenueSpotlight venue={spotlight} cityId={cityId} /> : null
-            })()}
+            {/* Venue of the week moved up to a full-width editorial band
+                above the two-column body — no longer a rail card. */}
 
             {/* ─ Daily context ─ */}
             <Suspense fallback={<SidebarSkeleton label="Weather" />}>

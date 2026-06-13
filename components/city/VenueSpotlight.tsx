@@ -8,6 +8,9 @@ import type { Venue } from '@/lib/data/venues'
 interface Props {
   venue:  Venue
   cityId: string
+  /** 'feature' renders a wide, full-width editorial photo band (homepage lead);
+   *  'sidebar' (default) is the tall rail card. */
+  variant?: 'sidebar' | 'feature'
 }
 
 // Photo-led editorial moment at the top of the city hub sidebar.
@@ -23,7 +26,7 @@ interface Props {
 //
 // The cascade is implemented as <img onError> hops: try Storage, fall to
 // proxy, fall to colour. Each step is one request; failures are silent.
-export function VenueSpotlight({ venue, cityId }: Props) {
+export function VenueSpotlight({ venue, cityId, variant = 'sidebar' }: Props) {
   const [photoRef, setPhotoRef]     = useState<string | null>(venue.photoRef ?? null)
   const [imgErrored, setImgErrored] = useState(false)
   const [proxyTried, setProxyTried] = useState(false)
@@ -95,6 +98,53 @@ export function VenueSpotlight({ venue, cityId }: Props) {
     venue.broadType === 'bar'        ? '#4744C8' :
     venue.broadType === 'cafe'       ? '#B08800' :
     venue.broadType === 'restaurant' ? '#E8612A' : '#252450'
+
+  // ── Feature variant — wide full-width editorial band ──────────────────
+  // The homepage "venue of the week" lead. Mirrors the EventsSection hero:
+  // tall photo, bottom gradient, big display name overlaid. Sized to entice.
+  if (variant === 'feature') {
+    return (
+      <Link href={`/${cityId}/eat`}
+        className="group block relative w-full overflow-hidden"
+        style={{ height: 'clamp(300px, 42vw, 480px)', background: fallbackBg }}>
+
+        {showImage && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={venue.name}
+            onError={handleImgError}
+            loading="eager"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
+          />
+        )}
+
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0.35) 45%, transparent 72%)' }} />
+
+        <span className="absolute top-5 left-5 text-[10px] font-black tracking-[0.28em] uppercase px-2.5 py-1"
+          style={{ background: '#FF3EBA', color: '#FFFFFF' }}>
+          {label === 'Editor’s pick' ? 'Venue of the week' : label}
+        </span>
+
+        <div className="absolute left-5 right-5 sm:left-8 sm:right-8 bottom-6 text-white">
+          <p className="font-display font-black leading-[1.02]"
+            style={{ fontSize: 'clamp(1.9rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
+            {venue.name}
+          </p>
+          <p className="text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase mt-2 opacity-85">
+            {venue.neighborhood} &middot; {venue.category}
+          </p>
+          {venue.why && (
+            <p className="text-sm leading-relaxed mt-3 max-w-xl" style={{ color: 'rgba(255,255,255,0.8)' }}>
+              {venue.why}
+            </p>
+          )}
+        </div>
+      </Link>
+    )
+  }
 
   return (
     <section className="mb-10">
