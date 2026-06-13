@@ -3,6 +3,9 @@ import { BRUSSELS_WAYS_IN, WAYS_IN_INTRO, type WayIn } from '@/lib/data/connect/
 // "Ways in" — pinned, curated list of how people actually meet others in the
 // city. Renders only where we have a curated list (Brussels for now); returns
 // null elsewhere so the page degrades cleanly.
+//
+// Every link is a group's own free, no-login channel — deliberately never
+// Meetup, which now paywalls the very thing newcomers come for.
 export function WaysIn({ cityId }: { cityId: string }) {
   if (cityId !== 'brussels') return null
   const ways = BRUSSELS_WAYS_IN
@@ -25,6 +28,10 @@ export function WaysIn({ cityId }: { cityId: string }) {
             · where people actually meet
           </span>
         </span>
+        <span className="text-[10px] font-black tracking-[0.18em] uppercase shrink-0"
+          style={{ color: '#0E9B6B' }}>
+          Free · no login
+        </span>
       </div>
 
       {/* The one insight that ties it together */}
@@ -41,8 +48,8 @@ export function WaysIn({ cityId }: { cityId: string }) {
 }
 
 function WayRow({ way, first }: { way: WayIn; first: boolean }) {
-  const inner = (
-    <>
+  return (
+    <div className="py-4" style={{ borderTop: first ? 'none' : '1px solid rgba(10,10,10,0.08)' }}>
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
         <span className="flex items-baseline gap-2.5 min-w-0">
           <span className="text-sm font-black" style={{ color: '#0A0A0A' }}>{way.name}</span>
@@ -56,28 +63,24 @@ function WayRow({ way, first }: { way: WayIn; first: boolean }) {
           {way.cadence}{way.area ? ` · ${way.area}` : ''}
         </span>
       </div>
+
       <p className="text-xs leading-relaxed mt-1.5" style={{ color: 'rgba(10,10,10,0.55)', maxWidth: '64ch' }}>
         {way.why}
       </p>
-    </>
+
+      {/* Specific groups — each a free, no-login link */}
+      {way.links && way.links.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {way.links.map(l => (
+            <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer"
+              className="group inline-flex items-center gap-1 text-[10px] font-black tracking-[0.1em] uppercase px-2.5 py-1.5 transition-colors"
+              style={{ border: '1px solid rgba(10,10,10,0.14)', color: '#0A0A0A' }}>
+              {l.label}
+              <span className="transition-transform group-hover:translate-x-0.5" style={{ color: '#FF3EBA' }}>→</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   )
-
-  const cls = 'block py-4'
-  const style = { borderTop: first ? 'none' : '1px solid rgba(10,10,10,0.08)' }
-
-  if (way.href) {
-    return (
-      <a href={way.href} target="_blank" rel="noopener noreferrer"
-        className={`group ${cls} hover:bg-neutral-50 -mx-3 px-3 transition-colors`} style={style}>
-        {inner}
-        <span className="inline-flex items-center gap-1 text-[10px] font-black tracking-[0.16em] uppercase mt-2"
-          style={{ color: '#FF3EBA' }}>
-          Find one
-          <span className="transition-transform group-hover:translate-x-0.5">→</span>
-        </span>
-      </a>
-    )
-  }
-
-  return <div className={cls} style={style}>{inner}</div>
 }

@@ -9,72 +9,87 @@
 // make friends through *repeated shared activity*, not in bars — so the trick
 // isn't the place, it's going back a few times.
 //
-// Links use SEARCH urls, not direct group pages: Meetup groups rebrand and
-// 404 constantly (same reasoning as RESOURCES in the connect page), so a
-// keyword search stays alive where a single group link rots.
-
-function meetupSearch(keywords: string) {
-  return `https://www.meetup.com/find/?keywords=${encodeURIComponent(keywords)}&source=GROUPS&location=be--Brussels`
-}
+// THE EDGE: Meetup (bought by Bending Spoons, Jan 2024) now blurs member
+// names/photos and locks groups behind a paid "Meetup+" subscription. So we
+// deliberately DO NOT link to Meetup. Every link here goes to a group's own
+// free, no-login channel — its website, Instagram or Strava. Roots stays free
+// and points at the open web that Meetup is busy walling off.
 
 export interface WayIn {
   /** Short name of the activity / habit. */
   name: string
   /** Category chip, e.g. "Run club", "Language table", "Local ritual". */
   kind: string
-  /** Cadence — the part that matters most. "Weekly", "Every 2nd Friday", "Go often". */
+  /** Cadence — the part that matters most. "Weekly", "1st & 3rd Friday", "Go often". */
   cadence: string
   /** Optional area / neighbourhood hint. */
   area?: string
   /** One line on *why it works* — concrete, from the threads. */
   why: string
-  /** Optional outbound link (search url preferred over fragile group pages). */
-  href?: string
+  /** Specific groups to actually go to — each a FREE, no-login source (own
+   *  site / Instagram / Strava). Never Meetup. */
+  links?: { label: string; href: string }[]
 }
 
 export const BRUSSELS_WAYS_IN: WayIn[] = [
   {
     name:    'Run clubs',
     kind:    'Run club',
-    cadence: 'Weekly',
-    why:     'The easiest cold-start in every thread: show up, run, drink after — no small-talk pressure. Several across the city, most are free.',
-    href:    meetupSearch('running'),
+    cadence: 'Weekly · free',
+    why:     'The easiest cold-start in every thread: turn up, run, drink after — no small-talk required. All free and volunteer-run, and they post the next run on Instagram/Strava, not behind a login.',
+    links: [
+      { label: 'BXL Run Crew',            href: 'https://www.bxlruncrew.com' },
+      { label: 'Brussels Runners',        href: 'https://www.instagram.com/brussels.runners/' },
+      { label: 'All run clubs ·CorrerJuntos', href: 'https://www.correrjuntos.com/cities/brussels' },
+    ],
   },
   {
     name:    'Language tables',
     kind:    'Language table',
     cadence: 'Weekly',
-    area:    'Libraries & cafés',
-    why:     'A "table de conversation" is a room full of strangers there to talk in a language they\'re learning — the awkward part is the whole point. Muntpunt and the local libraries run them.',
-    href:    meetupSearch('language exchange'),
+    why:     'A room of strangers there to talk in a language they\'re learning — the awkward part is the whole point. BlaBla runs a weekly Brussels night (free entry, just buy a drink); ConversationExchange matches you for free.',
+    links: [
+      { label: 'BlaBla Brussels',         href: 'https://www.blablacommunity.com/events/brussels-blabla-language-exchange-3' },
+      { label: 'ConversationExchange',    href: 'https://www.conversationexchange.com' },
+    ],
   },
   {
     name:    'Board-game nights',
     kind:    'Games',
-    cadence: 'Weekly',
-    why:     'A core group goes every time, so it feels established fast — the thread\'s own words. The game does the talking for you.',
-    href:    meetupSearch('board games'),
+    cadence: 'Several nights/week',
+    area:    'Outpost, centre',
+    why:     'A core group goes every time, so it feels established fast — the thread\'s own words. Outpost is a free-to-play board-game café; the open "join & play" nights mean you never sit alone.',
+    links: [
+      { label: 'Outpost Brussels',        href: 'https://outpostbrussels.be/en' },
+    ],
   },
   {
-    name:    'Improv & comedy jams',
-    kind:    'Class / jam',
-    cadence: 'Recurring',
-    area:    'Ixelles & centre',
-    why:     'Low-stakes, recurring, and built on showing up — the improv jam at Le Réservoir runs every second Friday. Easy to come back to.',
-    href:    meetupSearch('improv'),
+    name:    'Improv jams',
+    kind:    'Jam',
+    cadence: '1st & 3rd Friday · free',
+    area:    'Le Réservoir, Ixelles',
+    why:     'ImproBubble opens its jam to the whole city — basement of Le Réservoir, 19:00, free, all levels, zero experience needed. Show up, play, stay for a drink after.',
+    links: [
+      { label: 'ImproBubble jams',        href: 'https://www.improbubble.com/jams' },
+      { label: 'Impro Brussels (classes)', href: 'https://www.improbrussels.com' },
+    ],
   },
   {
-    name:    'Salsa & dance classes',
+    name:    'Salsa & social dance',
     kind:    'Class',
     cadence: 'Weekly',
-    why:     'Partner rotation means you meet everyone in the room, and there\'s usually a social after. Brussels has a big scene (Salsa Bruxelles, Salsa Diablo).',
-    href:    meetupSearch('salsa dancing'),
+    why:     'Partner rotation means you meet the whole room, and there\'s a social after most classes. Studio NY runs free "shines" sessions for all levels; Salsa Bruxelles and Brussels Dance Project have big beginner scenes.',
+    links: [
+      { label: 'Studio NY Salsa',         href: 'https://www.studionysalsa.be' },
+      { label: 'Salsa Bruxelles',         href: 'https://salsabruxelles.be/en/' },
+      { label: 'Brussels Dance Project',  href: 'https://www.danceproject.be' },
+    ],
   },
   {
     name:    'Find your stamcafé',
     kind:    'Local ritual',
     cadence: 'Go often',
-    why:     'The Belgian move: pick one nearby bar and go regularly. Chat the bartender, then their regulars. After a few weeks it becomes your "other place" — you\'ll always know someone there.',
+    why:     'The Belgian move, no link required: pick one nearby bar and go regularly. Chat the bartender, then their regulars. After a few weeks it becomes your "other place" — you\'ll always know someone there.',
   },
 ]
 
