@@ -12,6 +12,7 @@ import type { Post, PostCategory, Stage, PostComment, CityId } from '@/lib/types
 import type { FeedItem } from '@/app/api/feeds/route'
 import { GeometricThread } from '@/components/layout/GeometricThread'
 import { PageMasthead } from '@/components/layout/PageMasthead'
+import { WaysIn } from '@/components/connect/WaysIn'
 // WeeklyMatchup + WeeklyNote moved to the Hub (/[city]/page.tsx). They're
 // city signals — not community conversation — and the IA council was
 // unanimous that they belong next to weather/transport/events on Hub.
@@ -712,6 +713,11 @@ export default function ConnectPage({ params }: { params: Promise<{ city: string
 
       {/* ── Main layout ──────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 md:px-12 py-10 md:py-14">
+        {/* "Ways in" — pinned above the feed on every channel. The curated
+            answer to the single most-asked newcomer question ("how do I meet
+            people?"), so it never gets lost in a thread again. */}
+        <WaysIn cityId={cityId} />
+
         {/* Talk channels go full-width — the tip grid needs the room.
             Listen channels (events/news) keep the 280px sidebar. */}
         <div className={channel.cat
