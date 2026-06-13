@@ -12,7 +12,6 @@ import { EditorsPicks } from '@/components/city/EditorsPicks'
 import { currentBrusselsPick } from '@/lib/data/picks/brussels'
 import { VenueSpotlight } from '@/components/city/VenueSpotlight'
 import { SettlersStrip } from '@/components/city/SettlersStrip'
-import { LiveSettlerCount } from '@/components/city/LiveSettlerCount'
 import AuthGate from '@/components/auth/AuthGate'
 import { CityHubClient } from '@/components/city/CityHubClient'
 import { WeatherWidget } from '@/components/city/WeatherWidget'
@@ -118,25 +117,26 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
               </p>
             </div>
 
-            <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
-              <div className="flex items-center gap-1.5">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
-                    style={{ background: '#10B981' }} />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5"
-                    style={{ background: '#10B981' }} />
-                </span>
-                <span className="text-xs font-medium" style={{ color: 'rgba(10,10,10,0.45)' }}>
-                  <LiveSettlerCount cityId={cityId} fallback={city.settlerCount} />
-                </span>
-              </div>
+            <div className="hidden sm:flex flex-col items-end gap-0.5 shrink-0">
               {allEvents.length > 0 && (
-                <p className="text-[10px]" style={{ color: 'rgba(10,10,10,0.25)' }}>
-                  {allEvents.length} event{allEvents.length !== 1 ? 's' : ''} upcoming
-                </p>
+                <>
+                  <p className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(10,10,10,0.3)' }}>
+                    {allEvents.length} event{allEvents.length !== 1 ? 's' : ''} on
+                  </p>
+                  <p className="text-xs font-medium mt-0.5" style={{ color: 'rgba(10,10,10,0.2)' }}>
+                    this week in {city.name}
+                  </p>
+                </>
               )}
             </div>
           </div>
+
+          {/* ── Belonging hero line — the human layer, woven in ────────────
+              Discovery stays the headline, but the first human thing under
+              the city name is "you're not doing this alone" — real, named
+              recent arrivals + this-month count, linking to /people. A
+              confident aside, not a lonely-app banner.                    */}
+          <SettlersStrip cityId={cityId} variant="hero" cityName={city.name} />
 
           {/* ── Section nav — typographic, colored, magazine-grade ──────────
               Color lives in the typography + a 2px top rule per button.
@@ -165,32 +165,72 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
             ))}
           </nav>
 
-          <SettlersStrip cityId={cityId} />
         </div>
       </div>
 
 
+      {/* ── This week — the companion voice opens the page ─────────────────
+          WeeklyNote (founder-written "a thing to do / a thing to know")
+          leads directly under the masthead: the warm editorial register
+          that makes a newcomer feel the city is being narrated for them,
+          before any utility or supply CTA. Promoted to the lead by the
+          belonging design council (was paired mid-page with the matchup). */}
+      <div className="px-6 sm:px-10 md:px-14 pt-8 pb-2">
+        <WeeklyNote cityId={cityId} />
+      </div>
+
+
+      {/* ── What's on — the lead story ─────────────────────────────────────
+          Pulled out of the left editorial column into a full-width band so
+          events read as the hub's headline, not a buried 4th item. Sits
+          above the two-column body; the rail (SpinWheel, weather, eat, news)
+          and the settle spine (First-Week, Editor's Picks) follow below.  */}
+      {allEvents.length > 0 && (
+        <div className="px-6 sm:px-10 md:px-14 pt-8">
+          {/* Running head — colored type + colored puck + 2px colored bottom rule */}
+          <div className="flex items-baseline justify-between gap-3 mb-5 pb-2.5"
+            style={{ borderBottom: '2px solid #FF3EBA' }}>
+            <span className="flex items-center gap-2.5">
+              {/* Pink filled circle puck — section identity ornament */}
+              <span className="shrink-0 inline-block"
+                style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF3EBA' }} />
+              <span className="text-[9px] font-black tracking-[0.32em] uppercase"
+                style={{ color: '#FF3EBA' }}>
+                № 01
+              </span>
+              <span className="text-xs font-black tracking-[0.16em] uppercase"
+                style={{ color: '#FF3EBA' }}>
+                What&apos;s on in {city.name}
+              </span>
+            </span>
+            <span className="text-[10px] font-black tracking-[0.18em] uppercase"
+              style={{ color: 'rgba(10,10,10,0.4)' }}>
+              {allEvents.length} ahead
+            </span>
+          </div>
+          <EventsSection allEvents={allEvents} cityId={cityId} />
+        </div>
+      )}
+
+      {/* ── What the city's choosing this week ─────────────────────────────
+          WeeklyMatchup sits right after What's on — "what the city is
+          picking" reads as peopled discovery (live vote counts) adjacent to
+          the events lead, not a buried mid-page poll.                     */}
+      <div className="px-6 sm:px-10 md:px-14 pt-8 pb-2">
+        <WeeklyMatchup cityId={cityId} />
+      </div>
+
       {/* ── Settler-supply cards: Housing + Events ─────────────────────────
-          Sit between masthead and editorial body — the "seam" placement
-          (editorial council). On white, not in the cream masthead block,
-          so they read as deliberate handoff to user-action, not as a
-          fifth masthead element. Above-the-fold on mobile.            */}
+          People-powered supply (rooms listed by settlers, events hosted by
+          locals) — demoted below the belonging/discovery lead, but kept
+          above the two-column utility body because it's community-as-
+          contribution, not a widget.                                      */}
       <div className="px-6 sm:px-10 md:px-14 pt-6 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <HousingHubCard cityId={cityId} />
           <EventsHubCard  cityId={cityId} />
         </div>
       </div>
-
-      {/* ── City signals — moved from Connect (IA council unanimous): the
-          weekly editorial note and the Vrijdag matchup are CITY signals,
-          not community conversation. They belong on the Hub next to
-          weather / transport / events, not inside the talk page.        */}
-      <div className="px-6 sm:px-10 md:px-14 pt-8 pb-2">
-        <WeeklyNote cityId={cityId} />
-        <WeeklyMatchup cityId={cityId} />
-      </div>
-
 
       {/* ── Editorial body ───────────────────────────────────────────────── */}
       <div className="px-6 sm:px-10 md:px-14">
@@ -205,7 +245,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_400px] gap-0 pb-16">
 
-          {/* ── LEFT: Resume hero (returning users) → First-Week spine + Editor's Picks + Events ──────── */}
+          {/* ── LEFT: Resume hero (returning users) → First-Week spine + Editor's Picks ──────── */}
           <div className="lg:pr-10 pt-7">
             <ResumeStateHero cityId={cityId as CityId} cityName={city.name} />
             <FirstWeekModule cityId={cityId as CityId} />
@@ -220,31 +260,6 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
                 : null
               return <EditorsPicks pick={pick} cityId={cityId} photoRef={pickVenue?.photoRef ?? null} />
             })()}
-
-            {/* Running head — colored type + colored puck + 2px colored bottom rule */}
-            <div className="flex items-baseline justify-between gap-3 mb-5 pb-2.5"
-              style={{ borderBottom: '2px solid #FF3EBA' }}>
-              <span className="flex items-center gap-2.5">
-                {/* Pink filled circle puck — section identity ornament */}
-                <span className="shrink-0 inline-block"
-                  style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF3EBA' }} />
-                <span className="text-[9px] font-black tracking-[0.32em] uppercase"
-                  style={{ color: '#FF3EBA' }}>
-                  № 01
-                </span>
-                <span className="text-xs font-black tracking-[0.16em] uppercase"
-                  style={{ color: '#FF3EBA' }}>
-                  What&apos;s on in {city.name}
-                </span>
-              </span>
-              {allEvents.length > 0 && (
-                <span className="text-[10px] font-black tracking-[0.18em] uppercase"
-                  style={{ color: 'rgba(10,10,10,0.4)' }}>
-                  {allEvents.length} ahead
-                </span>
-              )}
-            </div>
-            <EventsSection allEvents={allEvents} cityId={cityId} />
           </div>
 
           {/* Vertical rule */}
